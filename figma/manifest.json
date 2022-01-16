@@ -1,0 +1,7 @@
+{
+  "name": "ULT · Designer",
+  "id": "821138713091291738",
+  "main": "dist/plugin.js",
+  "ui": "dist/ui.html",
+  "api": "1.0.0"
+}
