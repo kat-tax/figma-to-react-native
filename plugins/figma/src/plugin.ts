@@ -1,5 +1,5 @@
-import {getSelection} from './lib/figma';
-import {getCode} from './lib/transform';
+import {getSelection} from './lib/figma/utils';
+import {getCode} from './lib/figma/generate';
 
 let _loaded = false;
 let _content = '';

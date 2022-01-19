@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {getContent, getStyle, getName} from './transform';
-import type {TargetNode} from './figma';
+import {TargetNode} from './utils';
 
 export function getCode(component: TargetNode) {
   if (!component) return;
@@ -12,7 +12,7 @@ export function getCode(component: TargetNode) {
   const writer = new CodeBlockWriter({
     newLine: "\r\n",         // default: "\n"
     useTabs: false,          // default: false
-    useSingleQuote: false,   // default: false
+    useSingleQuote: true,    // default: false
     indentNumberOfSpaces: 2, // default: 4
   });
 
