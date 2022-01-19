@@ -1,12 +1,14 @@
-import {getSelection} from './lib/figma/utils';
-import {getCode} from './lib/figma/generate';
+import {getCode} from 'generators/figma';
+import {getSelection} from 'utils/figma';
+import {defaultCodeOptions} from 'config';
 
+let _options = defaultCodeOptions;
 let _loaded = false;
 let _content = '';
 
 function update() {
   const selection = getSelection();
-  const payload = selection && getCode(selection);
+  const payload = selection && getCode(selection, _options);
   if (_loaded && payload && payload !== _content) {
     figma.ui.postMessage({type: 'update', payload});
     _content = payload;
@@ -18,7 +20,7 @@ figma.on('currentpagechange', () => figma.closePlugin());
 figma.on('selectionchange', update);
 figma.ui.on('message', (e) => {
   switch (e.type) {
-    case 'editor-init':
+    case 'load':
       _loaded = true;
       break;
   }
