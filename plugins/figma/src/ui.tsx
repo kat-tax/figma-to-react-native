@@ -1,26 +1,28 @@
 import './ui.css';
 import React from 'react';
-import {render} from 'react-dom';
+import ReactDOM from 'react-dom';
+import {useCode} from 'hooks/useCode';
 import {useEditor} from 'hooks/useEditor';
 
 function ComponentViewer() {
-  const {isLoading, content, editor} = useEditor();
-  return <>
-    {editor}
-    {(isLoading || !content) &&
-      <div className="info">
-        {isLoading
-          ? <div className="loading"/>
-          : <div className="hint">
-              Please select a component
-            </div>
-        }
-      </div>
-    }
-  </>
+  const code = useCode();
+  const {Editor, isLoading} = useEditor();
+  return (
+    <section>
+      <Editor/>
+      {isLoading &&
+        <div className="loading"/>
+      }
+      {!code && !isLoading &&
+        <div className="hint">
+          Please select a component
+        </div>
+      }
+    </section>
+  )
 }
 
-render(
+ReactDOM.render(
   <ComponentViewer/>,
   document.getElementById('app'),
 );

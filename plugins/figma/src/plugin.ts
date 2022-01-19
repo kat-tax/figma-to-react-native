@@ -1,8 +1,8 @@
-import {getCode} from 'generators/figma';
-import {getSelection} from 'utils/figma';
-import {defaultCodeOptions} from 'config';
+import {getCode} from 'figma/generate';
+import {getSelection} from 'figma/utils';
+import {defaultOptions} from 'config';
 
-let _options = defaultCodeOptions;
+let _options = defaultOptions;
 let _loaded = false;
 let _content = '';
 
@@ -15,7 +15,7 @@ function update() {
   }
 }
 
-figma.showUI(__html__, {width: 340, height: 600});
+figma.showUI(__html__, {width: 340, height: 540});
 figma.on('currentpagechange', () => figma.closePlugin());
 figma.on('selectionchange', update);
 figma.ui.on('message', (e) => {

@@ -1,18 +1,18 @@
 html, body {
-  font-family: Inter, Roboto, sans-serif;
+  font-family: system-ui, sans-serif;
   font-size: 11px;
   margin: 0;
 }
 
 iframe {
   width: 340px;
-  height: 440px;
+  height: 100%;
   border: 0;
   opacity: 0;
   transition: opacity .2s;
 }
 
-.info {
+section {
   position: absolute;
   top: 0;
   bottom: 0;

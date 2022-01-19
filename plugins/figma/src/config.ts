@@ -1,8 +1,10 @@
-import {CodeOptions} from 'types';
+import {Options} from 'types';
 
-export const defaultCodeOptions: CodeOptions = {
-  useTabs: false,
-  newLine: '\r\n',
-  useSingleQuote: true,
-  indentNumberOfSpaces: 2,
+export const defaultOptions: Options = {
+  codeOptions: {
+    useTabs: false,
+    newLine: '\r\n',
+    useSingleQuote: true,
+    indentNumberOfSpaces: 2,
+  },
 };

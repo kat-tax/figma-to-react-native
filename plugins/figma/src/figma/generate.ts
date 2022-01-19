@@ -1,16 +1,16 @@
-import type {CodeOptions} from 'types';
-import type {TargetNode} from 'utils/figma';
 import CodeBlockWriter from 'code-block-writer';
-import {getContent, getStyle, getName} from 'converters/figma';
+import {getContent, getStyle, getName} from 'figma/convert';
+import type {TargetNode} from 'figma/utils';
+import type {Options} from 'types';
 
-export function getCode(component: TargetNode, options?: CodeOptions) {
+export function getCode(component: TargetNode, options?: Options) {
   if (!component) return;
 
   const {code, deps, styles} = getContent([...component.children]);
   const root = {tag: 'View', slug: 'root', style: getStyle(component)};
   const name = getName(component.name);
   const dependencies = ['Styles', 'View', ...deps].join(', ');
-  const writer = new CodeBlockWriter(options);
+  const writer = new CodeBlockWriter(options.codeOptions);
 
   const writeContents = (lines) => {
     lines.forEach((line) => {

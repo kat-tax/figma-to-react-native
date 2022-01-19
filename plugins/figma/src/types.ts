@@ -1,3 +1,10 @@
+export interface Options {
+  /**
+   * Generated code options
+   */
+  codeOptions: CodeOptions;
+}
+
 export interface CodeOptions {
   /**
    * Newline character.
@@ -20,3 +27,4 @@ export interface CodeOptions {
    */
   useSingleQuote: boolean;
 }
+
