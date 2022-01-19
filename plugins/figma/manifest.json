@@ -1,7 +1,8 @@
 {
-  "name": "ULT · Designer",
+  "name": "ULT · Component Viewer",
   "id": "821138713091291738",
   "main": "dist/plugin.js",
   "ui": "dist/ui.html",
-  "api": "1.0.0"
+  "api": "1.0.0",
+  "editorType": ["figma"]
 }
