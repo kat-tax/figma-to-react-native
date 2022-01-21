@@ -3,7 +3,7 @@ import {getContent, getStyle, getName} from 'features/convert/parsers';
 import type {CodeSettings} from 'types/config';
 import type {TargetNode} from 'types/figma';
 
-export function getCode(component: TargetNode, settings?: CodeSettings) {
+export function getComponentCode(component: TargetNode, settings?: CodeSettings) {
   if (!component) return;
 
   const {code, deps, styles} = getContent([...component.children]);

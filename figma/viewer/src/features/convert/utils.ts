@@ -1,4 +1,4 @@
-import {getCode} from 'features/convert/generator';
+import {getComponentCode} from 'features/convert/generators';
 import type {TargetNode} from 'types/figma';
 import * as config from 'config';
 
@@ -6,7 +6,7 @@ let _lastUpdate = '';
 
 export function sendComponentCode() {
   const component = getSelectedComponent();
-  const payload = getCode(component, config.code);
+  const payload = getComponentCode(component, config.code);
   if (payload !== _lastUpdate) {
     figma.ui.postMessage({type: 'code', payload});
     _lastUpdate = payload;
