@@ -1,16 +1,16 @@
 import CodeBlockWriter from 'code-block-writer';
 import {getContent, getStyle, getName} from 'figma/convert';
-import type {TargetNode} from 'figma/utils';
-import type {Options} from 'types';
+import type {TargetNode} from 'figma/types';
+import type {CodeSettings} from 'types';
 
-export function getCode(component: TargetNode, options?: Options) {
+export function getCode(component: TargetNode, settings?: CodeSettings) {
   if (!component) return;
 
   const {code, deps, styles} = getContent([...component.children]);
-  const root = {tag: 'View', slug: 'root', style: getStyle(component)};
+  const root = {tag: 'XStack', slug: 'root', style: getStyle(component)};
   const name = getName(component.name);
-  const dependencies = ['Styles', 'View', ...deps].join(', ');
-  const writer = new CodeBlockWriter(options.codeOptions);
+  const dependencies = ['XStack', ...deps].join(', ');
+  const writer = new CodeBlockWriter(settings.output);
 
   const writeContents = (lines) => {
     lines.forEach((line) => {
@@ -19,7 +19,7 @@ export function getCode(component: TargetNode, options?: Options) {
           writer.write('{');
           writer.quote(line.value);
           writer.write('}');
-        } else if (line.tag === 'View') {
+        } else if (line.tag === 'XStack') {
           writeContents(line.children);
         }
       });
@@ -27,10 +27,11 @@ export function getCode(component: TargetNode, options?: Options) {
     });
   };
 
-  writer.write('import React from ');
-  writer.quote('react');
-  writer.write(';');
-  writer.newLine();
+  // writer.write('import React from ');
+  // writer.quote('react');
+  // writer.write(';');
+  // writer.newLine();
+
   writer.write(`import {${dependencies}} from `);
   writer.quote('react-ult');
   writer.write(';');
@@ -38,10 +39,10 @@ export function getCode(component: TargetNode, options?: Options) {
   writer.blankLine();
   writer.write(`export function ${name}()`).block(() => {
     writer.write(`return (`).indent(() => {
-      writer.write(`<View style={styles.root}>`).indent(() => {
+      writer.write(`<XStack style={styles.root}>`).indent(() => {
         writeContents(code);
       });
-      writer.writeLine('</View>');
+      writer.writeLine('</XStack>');
     });
     writer.writeLine(');');
   });

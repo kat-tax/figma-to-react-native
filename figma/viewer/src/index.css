@@ -4,24 +4,17 @@ html, body {
   margin: 0;
 }
 
-iframe {
-  width: 340px;
+#app {
   height: 100%;
-  border: 0;
-  opacity: 0;
-  transition: opacity .2s;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  /*background-color: #1e1e1e;*/
 }
 
-section {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
+.code-editor {
+  height: 100%;
 }
 
 .loading {

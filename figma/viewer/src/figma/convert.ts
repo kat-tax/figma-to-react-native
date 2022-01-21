@@ -1,4 +1,9 @@
-export function getContent(children, depth = 0, deps = [], styles = {}) {
+export function getContent(
+  children,
+  depth = 0,
+  deps = [],
+  styles = {},
+) {
   let code = [];
 
   children.reverse().forEach(child => {
@@ -20,7 +25,7 @@ export function getContent(children, depth = 0, deps = [], styles = {}) {
     if (isGroup) {
       const content = getContent([...child.children], depth + 1, deps, styles);
       styles = {...styles, ...content.styles};
-      code.push({slug, tag: 'View', children: content.code});
+      code.push({slug, tag: 'XStack', children: content.code});
     }
   });
 
@@ -117,7 +122,7 @@ export function getTag(type: string) {
   switch (type) {
     case 'COMPONENT':
     case 'GROUP':
-      return 'View';
+      return 'XStack';
     case 'TEXT':
       return 'Text';
     case 'IMAGE':

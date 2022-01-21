@@ -2,7 +2,6 @@
   "compilerOptions": {
     "strict": false,
     "jsx": "react",
-    "outDir": "dist",
     "baseUrl": "./src",
     "target": "es2019",
     "lib": ["es2019", "dom"],

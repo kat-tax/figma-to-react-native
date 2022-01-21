@@ -5,10 +5,9 @@ const [flag] = process.argv.slice(2);
 const watch = flag === '--watch';
 
 // Backend
-
 build({
   entryPoints: ['src/plugin.ts'],
-  outfile: 'dist/plugin.js',
+  outfile: 'dist/main.js',
   platform: 'node',
   target: ['node10.4'],
   bundle: true,
@@ -16,9 +15,8 @@ build({
 }).catch(console.error);
 
 // Frontend
-
 build({
-  entryPoints: ['src/ui.tsx'],
+  entryPoints: ['src/index.tsx'],
   outfile: 'dist/ui.js',
   format: 'esm',
   write: false,
