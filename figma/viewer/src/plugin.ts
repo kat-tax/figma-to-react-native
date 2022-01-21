@@ -1,4 +1,4 @@
-import {sendComponentCode} from 'figma/utils';
+import {sendComponentCode} from 'features/convert/utils';
 import * as config from 'config';
 
 figma.ui.on('message', (e) => {

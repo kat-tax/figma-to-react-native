@@ -1,7 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getContent, getStyle, getName} from 'figma/convert';
-import type {TargetNode} from 'figma/types';
-import type {CodeSettings} from 'types';
+import {getContent, getStyle, getName} from 'features/convert/parsers';
+import type {CodeSettings} from 'types/config';
+import type {TargetNode} from 'types/figma';
 
 export function getCode(component: TargetNode, settings?: CodeSettings) {
   if (!component) return;

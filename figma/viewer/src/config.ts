@@ -1,4 +1,4 @@
-import type {PluginSettings, CodeSettings} from 'types';
+import type {PluginSettings, CodeSettings} from 'types/config';
 
 export const plugin: PluginSettings = {
   ui: {

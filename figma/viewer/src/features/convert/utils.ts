@@ -1,5 +1,5 @@
-import type {TargetNode} from 'figma/types';
-import {getCode} from 'figma/generate';
+import {getCode} from 'features/convert/generator';
+import type {TargetNode} from 'types/figma';
 import * as config from 'config';
 
 let _lastUpdate = '';
