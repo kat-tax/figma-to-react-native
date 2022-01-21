@@ -9,7 +9,7 @@ import {Loading} from 'views/Loading';
 import {Hint} from 'views/Hint';
 import * as config from 'config';
 
-function App() {
+function ComponentViewer() {
   const code = useCode();
   const editor = useMonaco();
 
@@ -28,4 +28,7 @@ function App() {
   );
 }
 
-ReactDOM.render(<App/>, document.getElementById('app'));
+ReactDOM.render(
+  <ComponentViewer/>,
+  document.getElementById('app'),
+);

@@ -9,8 +9,9 @@ build({
   entryPoints: ['src/plugin.ts'],
   outfile: 'dist/main.js',
   platform: 'node',
-  target: ['node10.4'],
+  target: ['node12'],
   bundle: true,
+  minify: true,
   watch,
 }).catch(console.error);
 
@@ -21,6 +22,7 @@ build({
   format: 'esm',
   write: false,
   bundle: true,
+  minify: true,
   watch: watch && {
     onRebuild(err, result) {
       if (err) {
