@@ -10,6 +10,7 @@ build({
   outfile: 'dist/main.js',
   platform: 'node',
   target: ['node12'],
+  incremental: watch,
   bundle: true,
   minify: true,
   watch,
@@ -20,9 +21,10 @@ build({
   entryPoints: ['src/index.tsx'],
   outfile: 'dist/ui.js',
   format: 'esm',
-  write: false,
+  incremental: watch,
   bundle: true,
   minify: true,
+  write: false,
   watch: watch && {
     onRebuild(err, result) {
       if (err) {

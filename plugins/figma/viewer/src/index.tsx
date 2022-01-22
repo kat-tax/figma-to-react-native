@@ -3,15 +3,17 @@ import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Editor, {useMonaco} from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
+import {useEditor} from 'hooks/useEditor';
 import {useCode} from 'hooks/useCode';
 import {Loading} from 'views/Loading';
 import {Hint} from 'views/Hint';
+
 import * as config from 'config';
 
 function ComponentViewer() {
+  const editor = useEditor();
   const code = useCode();
-  const editor = useMonaco();
 
   if (!editor) return <Loading/>;
   if (!code) return <Hint/>;
@@ -19,11 +21,12 @@ function ComponentViewer() {
   return (
     <Editor
       value={code}
-      options={config.code.editor}
-      theme={config.code.editor.theme}
-      defaultLanguage="typescript"
-      className="code-editor"
       height="100vh"
+      path="Test.tsx"
+      className="code-editor"
+      defaultLanguage="typescript"
+      theme={config.code.editor.theme}
+      options={config.code.editor}
     />
   );
 }
