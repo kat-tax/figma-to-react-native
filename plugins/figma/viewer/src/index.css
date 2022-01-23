@@ -12,6 +12,24 @@ html, body {
   justify-content: center;
 }
 
+.tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tab-bar {
+}
+
+.tab-label {
+
+}
+
+.tab {
+  display: flex;
+  flex: 1;
+}
+
 .code-editor {
   height: 100%;
 }

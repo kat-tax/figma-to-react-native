@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.3.1",
+    "@radix-ui/react-tabs": "^0.1.4",
     "code-block-writer": "^10.1.0",
     "esbuild-wasm": "^0.14.12",
     "figma-plugin-ds": "^1.0.1",
