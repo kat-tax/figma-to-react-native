@@ -12,17 +12,45 @@ html, body {
   justify-content: center;
 }
 
+.spacer {
+  flex: 1;
+}
+
+#copy {
+  padding-top: 3px;
+}
+
+#settings {
+  padding: 6px;
+}
+
 .tabs {
   display: flex;
   flex-direction: column;
+  margin-top: 40px;
   flex: 1;
 }
 
 .tab-bar {
+  padding-left: 6px;
+  box-shadow: 0 1px #0000001a;
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
 }
 
 .tab-label {
+  border: 0;
+  background: none;
+  font-size: 12;
+  line-height: 40;
+  padding: 0 8px;
+  height: 40;
+}
 
+.inactive {
+  font-weight: 500 !important;
+  color: #b3b3b3;
 }
 
 .tab {

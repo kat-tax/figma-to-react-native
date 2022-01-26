@@ -16,9 +16,9 @@ export function getComponentCode(component: TargetNode, settings?: CodeSettings)
     lines.forEach((line) => {
       writer.write(`<${line.tag} style={styles.${line.slug}}>`).indent(() => {
         if (line.tag === 'Text') {
-          writer.write('{');
-          writer.quote(line.value);
-          writer.write('}');
+          writer.write('{t`');
+          writer.write(line.value);
+          writer.write('`}');
         } else if (line.tag === 'XStack') {
           writeContents(line.children);
         }
@@ -27,16 +27,20 @@ export function getComponentCode(component: TargetNode, settings?: CodeSettings)
     });
   };
 
-  // writer.write('import React from ');
-  // writer.quote('react');
-  // writer.write(';');
-  // writer.newLine();
+  if (deps.includes('Text')) {
+    writer.write('import {t} from');
+    writer.quote('@lingui/macro');
+    writer.write(';');
+    writer.newLine();
+  }
 
   writer.write(`import {${dependencies}} from `);
-  writer.quote('react-ult');
+  writer.quote('tamagui');
   writer.write(';');
   writer.newLine();
+
   writer.blankLine();
+
   writer.write(`export function ${name}()`).block(() => {
     writer.write(`return (`).indent(() => {
       writer.write(`<XStack style={styles.root}>`).indent(() => {
