@@ -7,12 +7,16 @@ html, body {
 #app {
   height: 100%;
   display: flex;
+}
+
+.center {
+  display: flex;
   align-items: center;
   align-content: center;
   justify-content: center;
 }
 
-.spacer {
+.expand {
   flex: 1;
 }
 
@@ -21,13 +25,12 @@ html, body {
 }
 
 #settings {
-  padding: 6px;
+  
 }
 
 .tabs {
   display: flex;
   flex-direction: column;
-  margin-top: 40px;
   flex: 1;
 }
 
@@ -39,22 +42,25 @@ html, body {
   flex-direction: row;
 }
 
-.tab-label {
-  border: 0;
+.tab-trigger {
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--font-line-height);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+  font-weight: 500;
   background: none;
-  font-size: 12;
-  line-height: 40;
+  color: #b3b3b3;
   padding: 0 8px;
   height: 40;
+  border: 0;
 }
 
-.inactive {
-  font-weight: 500 !important;
-  color: #b3b3b3;
+.tab-trigger[data-state="active"] {
+  font-weight: 600;
+  color: rgb(0, 0, 0);
 }
 
-.tab {
-  display: flex;
+.tab-content {
   flex: 1;
 }
 

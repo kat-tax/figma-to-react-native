@@ -56,7 +56,7 @@ export function getComponentCode(component: TargetNode, settings?: CodeSettings)
       .keys(root.style)
       .filter(c => root.style[c] !== undefined);
     if (properties.length > 0) {
-      writer.write(`${root.slug}: Styles.create${root.tag}Style({`).indent(() => {
+      writer.write(`${root.slug}: {`).indent(() => {
         properties.forEach(property => {
           const value = root.style[property];
           writer.write(`${property}: `);
@@ -69,7 +69,7 @@ export function getComponentCode(component: TargetNode, settings?: CodeSettings)
           writer.newLine();
         });
       });
-      writer.writeLine('}),');
+      writer.writeLine('},');
     }
     Object.keys(styles).forEach(slug => {
       const child = styles[slug];
@@ -78,7 +78,7 @@ export function getComponentCode(component: TargetNode, settings?: CodeSettings)
           .keys(child.style)
           .filter(c => child.style[c] !== undefined);
         if (properties.length > 0) {
-          writer.write(`${slug}: Styles.create${child.tag}Style({`).indent(() => {
+          writer.write(`${slug}: {`).indent(() => {
             properties.forEach(property => {
               const value = child.style[property];
               writer.write(`${property}: `);
@@ -91,7 +91,7 @@ export function getComponentCode(component: TargetNode, settings?: CodeSettings)
               writer.newLine();
             });
           });
-          writer.writeLine('}),');
+          writer.writeLine('},');
         }
       }
     });

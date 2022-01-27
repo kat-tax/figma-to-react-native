@@ -2,6 +2,8 @@ import React from 'react';
 
 export function Loading() {
   return (
-    <div className="loading"/>
+    <div className="center expand">
+      <div className="loading"/>
+    </div>
   );
 }

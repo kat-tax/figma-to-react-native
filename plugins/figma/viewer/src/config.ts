@@ -13,6 +13,7 @@ export const code: CodeSettings = {
     lineNumbers: 'off',
     minimap: {enabled: false},
     readOnly: true,
+    padding: {top: 10},
   },
   output: {
     newLine: '\r\n',
