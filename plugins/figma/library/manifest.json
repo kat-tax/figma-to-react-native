@@ -1,0 +1,10 @@
+{
+  "name": "ULT · Component Library",
+  "id": "1066086057948947613",
+  "editorType": ["figjam", "figma"],
+  "main": "dist/main.js",
+  "ui": "index.html",
+  "api": "1.0.0",
+  "widgetApi": "1.0.0",
+  "containsWidget": true
+}
