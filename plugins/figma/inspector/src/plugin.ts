@@ -12,10 +12,9 @@ function updateConfig(value: string) {
   _config = JSON.parse(value);
   figma.clientStorage.setAsync('config', value);
   // Resize plugin
-  const {bounds} = figma.viewport;
   const {plugin} = _config.display;
-  const width = Math.floor(Math.max(300, Math.min(bounds.width, plugin.width)));
-  const height = Math.floor(Math.max(300, Math.min(bounds.height, plugin.height)));
+  const width = Math.floor(Math.max(300, plugin.width));
+  const height = Math.floor(Math.max(300, plugin.height));
   if (width !== _width || height !== _height) {
     figma.ui.resize(width, height);
     _width = width;
