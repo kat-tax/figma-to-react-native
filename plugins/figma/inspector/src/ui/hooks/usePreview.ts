@@ -12,14 +12,14 @@ export function usePreview(code: string, settings: Settings) {
 
   useEffect(() => {
     build(runtime[0] + code + runtime[1] + runtime[2], settings)
-      .then(res => setPreview(templateCode(res.code, settings)))
+      .then(res => setPreview(templateCode(res.code)))
       .catch(err => setPreview(templateError(err.toString())));
   }, [code, settings]);
 
   return preview;
 }
 
-const templateError = (code: string) => `data:text/html;base64,${btoa(`<!doctype html>
+const templateError = (code: string) => `<!doctype html>
 <html>
   <head>
     <style>
@@ -30,10 +30,9 @@ const templateError = (code: string) => `data:text/html;base64,${btoa(`<!doctype
     </style>
   </head>
   <body>${code}</body>
-</html>`)
-}`;
+</html>`;
 
-const templateCode = (code: string, settings: Settings) => `data:text/html;base64,${btoa(`<!doctype html>
+const templateCode = (code: string) => `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -91,5 +90,4 @@ const templateCode = (code: string, settings: Settings) => `data:text/html;base6
     <script async src="https://unpkg.com/es-module-shims@1.4.3/dist/es-module-shims.js"></script>
     <script type="module">${code}</script>
   </body>
-</html>`)
-}`
+</html>`;

@@ -52,7 +52,7 @@ export function Inspector() {
         />
       </Tabs.Content>
       <Tabs.Content value="preview" className="content">
-        <iframe src={preview}/>
+        <iframe srcDoc={preview}/>
       </Tabs.Content>
       <Tabs.Content value="theme" className="content">
         {config.settings.output.react.styling === 'tamagui' &&
