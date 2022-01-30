@@ -41,7 +41,7 @@ function output(result) {
   const [html, css] = result.outputFiles;
   writeFileSync('dist/ui.html', [
     `<style>${css.text}</style>`,
-    `<div id="app">`,
+    `<div id="app"></div>`,
     `<script>${html.text}</script>`,
   ].join('\n'));
 }

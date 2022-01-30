@@ -32,6 +32,7 @@ export default function(component: TargetNode, settings: Settings) {
 
   if (settings.output?.react?.addImport) {
     writer.write('import React from');
+    writer.space();
     writer.quote('react');
     writer.write(';');
     writer.newLine();
@@ -39,12 +40,14 @@ export default function(component: TargetNode, settings: Settings) {
 
   if (settings.output?.react?.addTranslate && deps.includes('Text')) {
     writer.write('import {t} from');
+    writer.space();
     writer.quote('@lingui/macro');
     writer.write(';');
     writer.newLine();
   }
 
-  writer.write(`import {${dependencies}, StyleSheet} from `);
+  writer.write(`import {${dependencies}, StyleSheet} from`);
+  writer.space();
   writer.quote('react-native');
   writer.write(';');
   writer.newLine();

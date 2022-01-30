@@ -5,16 +5,16 @@ import defaultConfig from 'config';
 const indentSpaces = defaultConfig.output?.format?.indentNumberOfSpaces || 2;
 const rawConfig = JSON.stringify(defaultConfig, undefined, indentSpaces);
 
-export function useConfig() {
-  const [settings, setSettings] = useState(defaultConfig);
+export function useSettings() {
   const [raw, setRaw] = useState(rawConfig);
+  const [config, setConfig] = useState(defaultConfig);
 
   const update = useCallback((payload: string) => {
     try {
       const decoded: Settings = JSON.parse(payload);
       if (decoded) {
         setRaw(payload);
-        setSettings(decoded);
+        setConfig(decoded);
         parent.postMessage({pluginMessage: {type: 'config', payload}}, '*');
       }
     } catch (e) {}
@@ -30,5 +30,5 @@ export function useConfig() {
     return () => removeEventListener('message', receieve);
   }, []);
 
-  return {settings, raw, update};
+  return {config, raw, update};
 }

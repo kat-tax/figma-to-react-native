@@ -1,7 +1,8 @@
 import {useState, useEffect} from 'react';
 
-export function useCode() {
+export function useComponent() {
   const [code, setCode] = useState('');
+  const [name, setName] = useState('');
 
   useEffect(() => {
     const receive = (e: MessageEvent) => {
@@ -11,7 +12,7 @@ export function useCode() {
     };
     addEventListener('message', receive);
     return () => removeEventListener('message', receive);
-  }, [code]);
+  }, []);
 
   return code;
 }
