@@ -37,7 +37,7 @@ iframe {
 }
 
 .bar {
-  padding: 6px 5px;
+  padding: 4px 5px;
   box-shadow: 0 1px #0000001a;
   z-index: 5;
   display: flex;

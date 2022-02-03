@@ -22,21 +22,8 @@ export function getLayout(node: SceneNode) {
   return 'unknown';
 }
 
-export const hasChildren = (node: unknown): node is ChildrenMixin =>
-  !!(node && (node as any).children);
-
 export const isGroupNode = (node: unknown): node is GroupNode =>
   !!(node && (node as any).type === 'GROUP');
 
-export async function traverseLayers(
-  layer: SceneNode,
-  cb: (layer: SceneNode, parent: BaseNode | null) => void,
-  parent: BaseNode | null = null
-) {
-  if (layer) cb(layer, parent);
-  if (hasChildren(layer)) {
-    for (const child of layer.children) {
-      await traverseLayers(child, cb, layer);
-    }
-  }
-}
+export const hasChildren = (node: unknown): node is ChildrenMixin =>
+  !!(node && (node as any).children);

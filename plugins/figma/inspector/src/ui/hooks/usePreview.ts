@@ -1,36 +1,24 @@
 import type {Settings} from 'lib/types/settings';
 import {useState, useEffect} from 'react';
-import {build} from 'lib/utils/build';
+import {build} from 'lib/utils/esbuild';
 
-export function usePreview(code: string, settings: Settings) {
+export function usePreview(component: {name: string, code: string}, settings: Settings) {
   const [preview, setPreview] = useState('');
-  const runtime = [
-    `import {AppRegistry} from "react-native";\n`,
-    `AppRegistry.registerComponent("App", () => EventActionTouch);\n`,
-    `AppRegistry.runApplication("App", {rootTag: document.getElementById("app")});\n`,
-  ];
-
   useEffect(() => {
-    build(runtime[0] + code + runtime[1] + runtime[2], settings)
+    build(`
+      import {AppRegistry} from "react-native";
+      ${component.code}
+      AppRegistry.registerComponent("App", () => ${component.name});
+      AppRegistry.runApplication("App", {
+        rootTag: document.getElementById("app")
+      });
+    `, settings)
       .then(res => setPreview(templateCode(res.code)))
       .catch(err => setPreview(templateError(err.toString())));
-  }, [code, settings]);
+  }, [component, settings]);
 
   return preview;
 }
-
-const templateError = (code: string) => `<!doctype html>
-<html>
-  <head>
-    <style>
-      body {
-        font-family: monospace;
-        color: red;
-      }
-    </style>
-  </head>
-  <body>${code}</body>
-</html>`;
 
 const templateCode = (code: string) => `<!doctype html>
 <html>
@@ -39,13 +27,20 @@ const templateCode = (code: string) => `<!doctype html>
     <title>Preview</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-      html, body {
+      html {
+        background: rgba(0,0,0,0.6);
+        height: 100%;
+      }
+      body {
         margin: 0;
         height: 100%;
         display: flex;
         align-items: center;
         align-content: center;
         justify-content: center;
+      }
+      #app {
+        box-shadow: 1px 1px 3px #00000060;
       }
     </style>
   </head>
@@ -90,4 +85,17 @@ const templateCode = (code: string) => `<!doctype html>
     <script async src="https://unpkg.com/es-module-shims@1.4.3/dist/es-module-shims.js"></script>
     <script type="module">${code}</script>
   </body>
+</html>`;
+
+const templateError = (code: string) => `<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: monospace;
+        color: red;
+      }
+    </style>
+  </head>
+  <body>${code}</body>
 </html>`;

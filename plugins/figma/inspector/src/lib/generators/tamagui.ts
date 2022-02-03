@@ -4,7 +4,8 @@ import CodeBlockWriter from 'code-block-writer';
 import {getContent, getStyle, getName} from 'lib/parsers/figma';
 
 export default function(component: TargetNode, settings: Settings) {
-  if (!component) return;
+  if (!component) return {name: '', code: ''};
+
   const name = getName(component.name);
   const writer = new CodeBlockWriter(settings.output?.format);
   const {code, deps, styles} = getContent([...component.children]);
@@ -63,5 +64,5 @@ export default function(component: TargetNode, settings: Settings) {
 
   writer.newLine();
 
-  return writer.toString();
+  return {name, code: writer.toString()};
 }

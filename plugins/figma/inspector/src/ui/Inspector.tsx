@@ -3,8 +3,7 @@ import 'ui/styles/global.css';
 
 import React from 'react';
 import Editor from '@monaco-editor/react';
-import * as Tabs from '@radix-ui/react-tabs';
-
+import {Root, List, Trigger, Content} from '@radix-ui/react-tabs';
 import {useComponent} from 'ui/hooks/useComponent';
 import {useSettings} from 'ui/hooks/useSettings';
 import {usePreview} from 'ui/hooks/usePreview';
@@ -23,50 +22,50 @@ export function Inspector() {
   if (!component) return <Hint/>;
 
   return (
-    <Tabs.Root defaultValue="code" className="tabs">
-      <Tabs.List aria-label="header" className="bar">
-        <Tabs.Trigger className="tab" value="code" title="View component code">
-          Component
-        </Tabs.Trigger>
-        <Tabs.Trigger className="tab" value="preview" title="Preview component">
+    <Root defaultValue="code" className="tabs">
+      <List aria-label="header" className="bar">
+        <Trigger value="code" title="View component code" className="tab">
+          Code
+        </Trigger>
+        <Trigger value="preview" title="Preview component" className="tab">
           Preview
-        </Tabs.Trigger>
+        </Trigger>
         {settings.config.output.react.styling === 'tamagui' &&
-          <Tabs.Trigger className="tab" value="theme" title="View theme file">
+          <Trigger value="theme" title="View theme file" className="tab">
             Theme
-          </Tabs.Trigger>
+          </Trigger>
         }
         <div className="expand"/>
-        <Tabs.Trigger className="tab icon" value="settings" title="Configure plugin">
+        <Trigger className="tab icon" value="settings" title="Configure plugin">
           <Settings/>
-        </Tabs.Trigger>
-      </Tabs.List>
-      <Tabs.Content value="code" className="content">
+        </Trigger>
+      </List>
+      <Content value="code" className="content">
         <Editor
-          value={component}
-          path="Component.tsx"
+          path={`${component.name}.tsx`}
+          value={component.code}
           className="code-editor"
           defaultLanguage="typescript"
           theme={settings.config.display.editor.general.theme}
           options={{...settings.config.display.editor.general, readOnly: true}}
         />
-      </Tabs.Content>
-      <Tabs.Content value="preview" className="content">
+      </Content>
+      <Content value="preview" className="content">
         <iframe srcDoc={preview}/>
-      </Tabs.Content>
-      <Tabs.Content value="theme" className="content">
+      </Content>
+      <Content value="theme" className="content">
         {settings.config.output.react.styling === 'tamagui' &&
           <Editor
-            value="Tamagui generation isn't done yet, sorry. Maybe a week or two?"
             path="Theme.ts"
+            value="Tamagui theme generation isn't done yet, sorry."
             className="code-editor"
             defaultLanguage="typescript"
             theme={settings.config.display.editor.general.theme}
             options={{...settings.config.display.editor.general, readOnly: true}}
           />
         }
-      </Tabs.Content>
-      <Tabs.Content value="settings" className="content">
+      </Content>
+      <Content value="settings" className="content">
         <Editor
           value={settings.raw}
           path="Settings.json"
@@ -76,7 +75,7 @@ export function Inspector() {
           options={{...settings.config.display.editor.general, readOnly: false}}
           onChange={settings.update}
         />
-      </Tabs.Content>
-    </Tabs.Root>
+      </Content>
+    </Root>
   );
 }
