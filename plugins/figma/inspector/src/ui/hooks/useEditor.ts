@@ -1,7 +1,7 @@
 import type {Settings} from 'lib/types/settings';
+// import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
 import {useMonaco} from '@monaco-editor/react';
 import {useEffect} from 'react';
-// import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
 
 type Library = {
   path: string,

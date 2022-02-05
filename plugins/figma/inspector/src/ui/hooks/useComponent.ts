@@ -7,9 +7,9 @@ export function useComponent() {
   useEffect(() => {
     const receive = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'code') {
-        const {name, code} = JSON.parse(e.data.pluginMessage.payload);
-        setName(name);
-        setCode(code);
+        const component = JSON.parse(e.data.pluginMessage.payload);
+        setName(component.name);
+        setCode(component.code);
       }
     };
     addEventListener('message', receive);

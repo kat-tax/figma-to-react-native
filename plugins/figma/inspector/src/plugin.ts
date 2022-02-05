@@ -7,7 +7,7 @@ let _config = defaultConfig;
 let _width = _config.display.plugin.width;
 let _height = _config.display.plugin.height;
 
-function updateComponentCode() {
+function updateInspector() {
   const selected = getSelectedComponent();
   const component = generateCode(selected, _config);
   if (component.code !== _code) {
@@ -19,7 +19,7 @@ function updateComponentCode() {
 function updateConfig(value: string, skipSave?: boolean) {
   _config = JSON.parse(value);
   if (!skipSave) figma.clientStorage.setAsync('config', value);
-  updateComponentCode();
+  updateInspector();
   const {plugin} = _config.display;
   const width = Math.floor(Math.max(300, plugin.width));
   const height = Math.floor(Math.max(300, plugin.height));
@@ -37,8 +37,8 @@ function updateConfig(value: string, skipSave?: boolean) {
     updateConfig(config, true);
   }
 
-  setInterval(updateComponentCode, 300);
-  figma.on('selectionchange', updateComponentCode);
+  setInterval(updateInspector, 300);
+  figma.on('selectionchange', updateInspector);
   figma.on('currentpagechange', figma.closePlugin);
   figma.ui.on('message', ({type, payload}) => {
     switch (type) {

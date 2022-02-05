@@ -1,5 +1,5 @@
 {
-  "name": "ULT · Component Inspector",
+  "name": "React Component Inspector",
   "id": "821138713091291738",
   "editorType": ["figma"],
   "main": "dist/plugin.js",

@@ -2,25 +2,42 @@ import type {Settings} from 'lib/types/settings';
 import {useState, useEffect} from 'react';
 import {build} from 'lib/utils/esbuild';
 
-export function usePreview(component: {name: string, code: string}, settings: Settings) {
+type Component = {name: string, code: string};
+
+export function usePreview(component: Component, settings: Settings) {
   const [preview, setPreview] = useState('');
   useEffect(() => {
-    build(`
-      import {AppRegistry} from "react-native";
-      ${component.code}
-      AppRegistry.registerComponent("App", () => ${component.name});
-      AppRegistry.runApplication("App", {
-        rootTag: document.getElementById("app")
-      });
-    `, settings)
-      .then(res => setPreview(templateCode(res.code)))
+    build(templateCode(component), settings)
+      .then(res => setPreview(templatePreview(res.code)))
       .catch(err => setPreview(templateError(err.toString())));
   }, [component, settings]);
 
   return preview;
 }
 
-const templateCode = (code: string) => `<!doctype html>
+const templateCode = (component: Component) => `
+import {AppRegistry} from "react-native";
+${component.code}
+AppRegistry.registerComponent("App", () => ${component.name});
+AppRegistry.runApplication("App", {
+  rootTag: document.getElementById("app")
+});
+`;
+
+const templateError = (code: string) => `<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: monospace;
+        color: red;
+      }
+    </style>
+  </head>
+  <body>${code}</body>
+</html>`;
+
+const templatePreview = (code: string) => `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -85,17 +102,4 @@ const templateCode = (code: string) => `<!doctype html>
     <script async src="https://unpkg.com/es-module-shims@1.4.3/dist/es-module-shims.js"></script>
     <script type="module">${code}</script>
   </body>
-</html>`;
-
-const templateError = (code: string) => `<!doctype html>
-<html>
-  <head>
-    <style>
-      body {
-        font-family: monospace;
-        color: red;
-      }
-    </style>
-  </head>
-  <body>${code}</body>
 </html>`;

@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "node build.mjs --watch",
-    "build": "node build.mjs"
+    "start": "node esbuild.mjs --watch",
+    "build": "node esbuild.mjs"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.41.1",
