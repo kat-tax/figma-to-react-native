@@ -11,3 +11,8 @@ Open the plugin and select a [Figma component](https://help.figma.com/hc/en-us/a
 The editor will display the generated React Component code in realtime.
 
 All aspects of the code generation, plugin display, editor settings, etc. can be configured in realtime.
+
+## Got Feedback?
+
+- [ΚΛΤΤΛΧ Discord Channel](https://discord.com/invite/TzhDRyj)
+- [Figma Forum Thread](https://forum.figma.com/t/react-component-generator/14236)
