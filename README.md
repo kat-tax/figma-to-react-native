@@ -1,1 +1,1 @@
-Source of plugins at: https://www.figma.com/@kattax
+Source of plugins & widgets at: https://figma.com/@kattax
