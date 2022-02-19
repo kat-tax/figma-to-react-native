@@ -2,7 +2,7 @@
 
 > Generates a React component from the selected Figma component
 
-[![Preview of plugin](./plugin-banner.png)](https://www.figma.com/community/plugin/821138713091291738/React-Component-Inspector)
+[![Preview of plugin](./banner.png)](https://www.figma.com/community/plugin/821138713091291738/React-Component-Inspector)
 
 ## How To Use This Plugin
 

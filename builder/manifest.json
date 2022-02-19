@@ -1,7 +1,7 @@
 {
-  "name": "React Component Generator",
+  "name": "React Component Builder",
   "id": "821138713091291738",
-  "editorType": ["figma"],
+  "editorType": ["figma", "figjam"],
   "main": "dist/plugin.js",
   "ui": "dist/ui.html",
   "api": "1.0.0"
