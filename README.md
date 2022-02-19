@@ -1,17 +1,20 @@
 # Figma Plugins
 
-The goal of our [Figma Plugin Collection](https://figma.com/@kattax) is to bridge Figma to React Native. One way conversion from Figma is the focus. Two way syncing will be added in the future.
-
----
+> The goal of this [Figma Plugin Collection](https://figma.com/@kattax) is to bridge Figma to React. The focus is on one way conversion to React. Two way syncing between the two will be added in the future.
 
 ## [React Component Builder](./builder)
 
-> Transforms Figma components to React components in real time. You can configure the editor, code output, and more.
+Transforms Figma components to React components in real time. You can configure the editor, code output, plugin display, and more.
 
 [![Preview of plugin](./builder/banner.png)](https://www.figma.com/community/plugin/821138713091291738/React-Component-Inspector)
-
----
 
 ## [React Component Picker](./picker)
 
 This plugin is *not available yet*. It will allow you to drop existing components into Figma so you can design new components with existing ones. Let me know if you're interested, it drives development.
+
+# Got Feedback?
+
+- [Discord Channel](https://discord.com/invite/TzhDRyj)
+- [Figma Forums](https://forum.figma.com/t/react-component-generator/14236)
+- [Discussions](https://github.com/kat-tax/figma/discussions)
+- [Issues](https://github.com/kat-tax/figma/issues)
