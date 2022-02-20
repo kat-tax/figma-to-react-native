@@ -1,6 +1,6 @@
-# [Figma Plugins](https://figma.com/@kattax)
+# Figaro
 
-The goal is to bridge Figma to React. Design components in Figma, program them in React. The focus is on one way conversion to React, two way syncing will be added in the future.
+The goal of this [Figma Plugin Collection](https://figma.com/@kattax) is to bridge Figma to React. Design components in Figma, program them in React. The focus is on one way conversion to React, two way syncing will be added in the future.
 
 ## [React Component Builder](./builder)
 
