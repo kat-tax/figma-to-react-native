@@ -2,7 +2,7 @@
 
 > The Figma React Toolchain
 
-The goal of our [Figma Plugins](https://figma.com/@kattax) is to bridge Figma to React. Design components in Figma, program them in React. The focus is on one way conversion from Figma to React. Two way syncing will be added in the future.
+The goal of our [Figma Plugins](https://figma.com/@kattax) is to bridge Figma and React. Design components in Figma, program them in React. The focus is on one way conversion from Figma to React. Two way syncing will be added in the future.
 
 ## [React Component Builder](./builder)
 
