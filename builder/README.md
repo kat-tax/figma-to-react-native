@@ -1,6 +1,6 @@
 # [React Component Builder](https://www.figma.com/community/plugin/821138713091291738)
 
-> Transforms Figma components to React components in real time. Click on a Figma component or its children and the plugin will generate React code and render the generated component in a preview. You can change the configuration of the editor, plugin, compiler, code writer, etc in realtime.
+Transforms Figma components to React components in real time. Click on a Figma component or its children and the plugin will generate React code and render the generated component in a preview. You can change the configuration of the editor, plugin, compiler, code writer, etc in realtime.
 
 [![Preview of plugin](./banner.png)](https://www.figma.com/community/plugin/821138713091291738/React-Component-Inspector)
 
