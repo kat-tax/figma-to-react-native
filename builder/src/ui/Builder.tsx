@@ -30,7 +30,7 @@ export function Builder() {
         <Trigger value="preview" title="Preview component" className="tab">
           Preview
         </Trigger>
-        {settings.config.output.react.styling === 'tamagui' &&
+        {settings.config.output.react.flavor === 'tamagui' &&
           <Trigger value="theme" title="View theme file" className="tab">
             Theme
           </Trigger>
@@ -54,7 +54,7 @@ export function Builder() {
         <iframe srcDoc={preview}/>
       </Content>
       <Content value="theme" className="content">
-        {settings.config.output.react.styling === 'tamagui' &&
+        {settings.config.output.react.flavor === 'tamagui' &&
           <Editor
             path="Theme.ts"
             value="Tamagui theme generation isn't done yet, sorry."
