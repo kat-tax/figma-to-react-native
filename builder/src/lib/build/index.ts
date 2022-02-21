@@ -1,14 +1,14 @@
 import type {Settings} from 'lib/types/settings';
 
 import tamagui from 'lib/build/tamagui';
-import stylesheet from 'lib/build/stylesheet';
+import reactNative from 'lib/build/react-native';
 
 export default function(node: SceneNode, settings: Settings) {
-  switch (settings.output?.react.styling) {
+  switch (settings.output?.react.flavor) {
     case 'tamagui':
       return tamagui(node, settings);
-    case 'stylesheet':
+    case 'react-native':
     default:
-      return stylesheet(node, settings);
+      return reactNative(node, settings);
   }
 }
