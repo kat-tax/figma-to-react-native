@@ -3,6 +3,6 @@ import 'ui/styles/global.css';
 
 import React from 'react';
 import {hydrate} from 'react-dom';
-import {Inspector} from 'ui/Inspector';
+import {Builder} from 'ui/Builder';
 
-hydrate(<Inspector/>, document.getElementById('app'));
+hydrate(<Builder/>, document.getElementById('app'));

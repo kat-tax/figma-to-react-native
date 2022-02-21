@@ -6,8 +6,8 @@ const watch = flag === '--watch';
 
 // Plugin (node backend)
 build({
-  entryPoints: ['src/plugin.ts'],
-  outfile: 'dist/plugin.js',
+  entryPoints: ['src/main.ts'],
+  outfile: 'dist/main.js',
   target: ['node12'],
   platform: 'node',
   bundle: true,
@@ -19,7 +19,7 @@ build({
 // Interface (browser frontend)
 build({
   entryPoints: ['src/index.tsx'],
-  outfile: 'dist/ui.js',
+  outfile: 'dist/index.js',
   target: ['es2019'],
   format: 'esm',
   bundle: true,
@@ -39,7 +39,7 @@ build({
 
 function output(result) {
   const [html, css] = result.outputFiles;
-  writeFileSync('dist/ui.html', [
+  writeFileSync('dist/index.html', [
     `<style>${css.text}</style>`,
     `<div id="app"></div>`,
     `<script>${html.text}</script>`,

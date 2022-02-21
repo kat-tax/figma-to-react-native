@@ -1,5 +1,5 @@
-import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import 'ui/styles/global.css';
+import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 
 import React from 'react';
 import Editor from '@monaco-editor/react';
@@ -8,18 +8,18 @@ import {useComponent} from 'ui/hooks/useComponent';
 import {useSettings} from 'ui/hooks/useSettings';
 import {usePreview} from 'ui/hooks/usePreview';
 import {useEditor} from 'ui/hooks/useEditor';
-import {Settings} from 'ui/controls/Settings';
 import {Loading} from 'ui/controls/Loading';
-import {Hint} from 'ui/controls/Hint';
+import {Intro} from 'ui/controls/Intro';
+import {Gear} from 'ui/controls/Gear';
 
-export function Inspector() {
+export function Builder() {
   const component = useComponent();
   const settings = useSettings();
   const preview = usePreview(component, settings.config);
   const editor = useEditor(settings.config);
 
   if (!editor) return <Loading/>;
-  if (!component) return <Hint/>;
+  if (!component) return <Intro/>;
 
   return (
     <Root defaultValue="code" className="tabs">
@@ -37,7 +37,7 @@ export function Inspector() {
         }
         <div className="expand"/>
         <Trigger className="tab icon" value="settings" title="Configure plugin">
-          <Settings/>
+          <Gear/>
         </Trigger>
       </List>
       <Content value="code" className="content">

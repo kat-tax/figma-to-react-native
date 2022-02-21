@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Hint() {
+export function Intro() {
   return (
     <div className="center expand">
       <div className="icon icon--component"></div>
