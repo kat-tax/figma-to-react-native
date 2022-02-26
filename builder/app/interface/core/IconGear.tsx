@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Gear() {
+export function IconGear() {
   return (
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g fill-rule="evenodd" clip-rule="evenodd" fill="black">

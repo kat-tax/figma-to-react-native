@@ -1,8 +1,4 @@
-import {
-  loadConfig,
-  updateCode,
-  updateConfig,
-} from 'lib/utils/plugin';
+import {loadConfig, updateCode, updateConfig} from 'utils/plugin';
 
 (async function main() {
   await loadConfig();

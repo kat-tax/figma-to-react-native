@@ -291,11 +291,6 @@ esbuild@^0.14.11:
     esbuild-windows-64 "0.14.11"
     esbuild-windows-arm64 "0.14.11"
 
-figma-plugin-ds@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/figma-plugin-ds/-/figma-plugin-ds-1.0.1.tgz"
-  integrity sha512-j1/mcHeYx8IRzdLbNyqo9PQXqtI3ujN/RfjuXFS7OintJojuXG2GuaL8COzqAH66ZPXx4aFHMkqRjbBaudBCpA==
-
 "js-tokens@^3.0.0 || ^4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz"

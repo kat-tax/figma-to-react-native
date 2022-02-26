@@ -2,7 +2,7 @@
   "compilerOptions": {
     "strict": false,
     "jsx": "react",
-    "baseUrl": "./src",
+    "baseUrl": "./app",
     "target": "es2019",
     "module": "es2020",
     "lib": ["es2020", "dom"],

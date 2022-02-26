@@ -1,6 +1,6 @@
-import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
-import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
 import type {TransformOptions} from 'esbuild-wasm';
+import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
+import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 
 export interface Settings {
   display: {

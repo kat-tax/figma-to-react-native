@@ -1,7 +1,6 @@
-import type {Settings} from 'lib/types/settings';
-
-import tamagui from 'lib/build/tamagui';
-import reactNative from 'lib/build/react-native';
+import tamagui from 'utils/generate/tamagui';
+import reactNative from 'utils/generate/react-native';
+import type {Settings} from 'types/settings';
 
 export default function(node: SceneNode, settings: Settings) {
   switch (settings.output?.react.flavor) {

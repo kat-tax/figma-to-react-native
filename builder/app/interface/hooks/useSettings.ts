@@ -1,21 +1,21 @@
-import type {Settings} from 'lib/types/settings';
-import {useState, useCallback, useEffect} from 'react';
 import defaultConfig from 'config';
+import {useState, useCallback, useEffect} from 'react';
+import type {Settings} from 'types/settings';
 
-const indentSpaces = defaultConfig.output?.format?.indentNumberOfSpaces || 2;
-const rawConfig = JSON.stringify(defaultConfig, undefined, indentSpaces);
+const indent = defaultConfig.output?.format?.indentNumberOfSpaces || 2;
+const configRaw = JSON.stringify(defaultConfig, undefined, indent);
 
 export function useSettings() {
-  const [raw, setRaw] = useState(rawConfig);
+  const [raw, setRaw] = useState(configRaw);
   const [config, setConfig] = useState(defaultConfig);
 
   const update = useCallback((payload: string) => {
     try {
       const decoded: Settings = JSON.parse(payload);
       if (decoded) {
-        setRaw(payload);
-        setConfig(decoded);
         parent.postMessage({pluginMessage: {type: 'config', payload}}, '*');
+        setConfig(decoded);
+        setRaw(payload);
       }
     } catch (e) {}
   }, []);

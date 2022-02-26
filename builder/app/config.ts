@@ -1,4 +1,4 @@
-import type {Settings} from 'lib/types/settings';
+import type {Settings} from 'types/settings';
 
 const config: Settings = {
   display: {

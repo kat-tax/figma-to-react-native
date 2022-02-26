@@ -1,7 +1,7 @@
-import type {Settings} from 'lib/types/settings';
-import type {TargetNode} from 'lib/types/figma';
 import CodeBlockWriter from 'code-block-writer';
-import {getContent, getStyle, getName} from 'lib/parse/figma';
+import {getContent, getStyle, getName} from 'utils/parse/figma';
+import type {Settings} from 'types/settings';
+import type {TargetNode} from 'types/figma';
 
 export default function(component: TargetNode, settings: Settings) {
   if (!component) return {name: '', code: ''};

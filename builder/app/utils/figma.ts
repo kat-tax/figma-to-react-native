@@ -1,4 +1,4 @@
-import type {TargetNode} from 'lib/types/figma';
+import type {TargetNode} from 'types/figma';
 
 export function getSelectedComponent() {
   const {selection} = figma.currentPage;

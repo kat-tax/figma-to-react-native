@@ -9,7 +9,6 @@
     "@radix-ui/react-tabs": "^0.1.4",
     "code-block-writer": "^10.1.0",
     "esbuild-wasm": "^0.14.12",
-    "figma-plugin-ds": "^1.0.1",
     "monaco-editor": "^0.31.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"

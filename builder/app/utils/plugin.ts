@@ -1,5 +1,5 @@
-import {getSelectedComponent} from 'lib/utils/figma';
-import generateCode from 'lib/build';
+import {getSelectedComponent} from 'utils/figma';
+import generateCode from 'utils/generate';
 import config from 'config';
 
 let _code = '';
