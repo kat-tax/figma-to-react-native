@@ -6,7 +6,7 @@ const watch = flag === '--watch';
 
 // Plugin (node backend)
 build({
-  entryPoints: ['app/main.ts'],
+  entryPoints: ['src/main.ts'],
   outfile: 'dist/main.js',
   target: ['node12'],
   platform: 'node',
@@ -18,7 +18,7 @@ build({
 
 // Interface (browser frontend)
 build({
-  entryPoints: ['app/index.tsx'],
+  entryPoints: ['src/index.tsx'],
   outfile: 'dist/index.js',
   target: ['es2019'],
   format: 'esm',

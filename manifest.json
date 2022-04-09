@@ -1,7 +1,7 @@
 {
-  "name": "React Component Builder",
+  "name": "Figaro",
   "id": "821138713091291738",
-  "editorType": ["figma", "figjam"],
+  "editorType": ["figma"],
   "main": "dist/main.js",
   "ui": "dist/index.html",
   "api": "1.0.0"
