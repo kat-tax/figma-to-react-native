@@ -5,12 +5,12 @@ export function useComponent() {
   const [component, setComponent] = useState<Component>(null);
 
   useEffect(() => {
-    const message = (e: MessageEvent) => {
+    const onMessage = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'code')
         setComponent(JSON.parse(e.data.pluginMessage.payload));
     };
-    addEventListener('message', message);
-    return () => removeEventListener('message', message);
+    addEventListener('message', onMessage);
+    return () => removeEventListener('message', onMessage);
   }, []);
 
   return component;

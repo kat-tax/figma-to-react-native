@@ -1,15 +1,15 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
-import {Root, List, Trigger, Content} from '@radix-ui/react-tabs';
+import * as Tabs from '@radix-ui/react-tabs';
 import {useComponent} from 'interface/hooks/useComponent';
 import {useSettings} from 'interface/hooks/useSettings';
 import {usePreview} from 'interface/hooks/usePreview';
 import {useEditor} from 'interface/hooks/useEditor';
-import {IconGear} from 'interface/core/IconGear';
-import {Loading} from 'interface/core/Loading';
-import {Intro} from 'interface/core/Intro';
+import {IconGear} from 'interface/icons/IconGear';
+import {Loading} from 'interface/base/Loading';
+import {Intro} from 'interface/base/Intro';
 
-export function Builder() {
+export function App() {
   const component = useComponent();
   const settings = useSettings();
   const preview = usePreview(component, settings.config);
@@ -21,60 +21,60 @@ export function Builder() {
   const options = settings.config.display.editor.general;
 
   return (
-    <Root className="tabs" defaultValue="code">
-      <List className="bar" aria-label="header">
-        <Trigger className="tab" title="View component code" value="code">
+    <Tabs.Root defaultValue="code" className="tabs">
+      <Tabs.List aria-label="header" className="bar">
+        <Tabs.Trigger title="View component code" value="code" className="tab">
           Code
-        </Trigger>
-        <Trigger className="tab" title="Preview component" value="preview">
+        </Tabs.Trigger>
+        <Tabs.Trigger title="Preview component" value="preview" className="tab">
           Preview
-        </Trigger>
+        </Tabs.Trigger>
         {settings.config.output.react.flavor === 'tamagui' &&
-          <Trigger className="tab" title="View theme file" value="theme">
+          <Tabs.Trigger title="View theme file" value="theme" className="tab">
             Theme
-          </Trigger>
+          </Tabs.Trigger>
         }
         <div className="expand"/>
-        <Trigger className="tab icon" title="Configure plugin" value="settings">
+        <Tabs.Trigger title="Configure plugin" value="settings" className="tab icon">
           <IconGear/>
-        </Trigger>
-      </List>
-      <Content className="expand" value="code">
+        </Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="code" className="expand">
         <Editor
-          className="editor"
           language="typescript"
+          options={{...options, readOnly: true}}
           path={`${component.name}.tsx`}
           value={component.code}
           theme={options.theme}
-          options={{...options, readOnly: true}}
+          className="editor"
         />
-      </Content>
-      <Content className="expand" value="preview">
-        <iframe srcDoc={preview}/>
-      </Content>
-      <Content className="expand" value="theme">
+      </Tabs.Content>
+      <Tabs.Content value="preview" className="expand">
+        <iframe name="preview" srcDoc={preview}/>
+      </Tabs.Content>
+      <Tabs.Content value="theme" className="expand">
         {settings.config.output.react.flavor === 'tamagui' &&
           <Editor
-            className="editor"
             language="typescript"
             path="Theme.ts"
             value="Tamagui theme generation isn't done yet, sorry."
             theme={options.theme}
             options={{...options, readOnly: true}}
+            className="editor"
           />
         }
-      </Content>
-      <Content className="expand" value="settings">
+      </Tabs.Content>
+      <Tabs.Content value="settings" className="expand">
         <Editor
-          className="editor"
           language="json"
           path="Settings.json"
           value={settings.raw}
           theme={options.theme}
           options={{...options, readOnly: false}}
           onChange={settings.update}
+          className="editor"
         />
-      </Content>
-    </Root>
+      </Tabs.Content>
+    </Tabs.Root>
   );
 }

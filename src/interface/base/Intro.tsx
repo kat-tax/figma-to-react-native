@@ -1,5 +1,5 @@
 import React from 'react';
-import {IconComponent} from 'interface/core/IconComponent';
+import {IconComponent} from 'interface/icons/IconComponent';
 
 export function Intro() {
   return (

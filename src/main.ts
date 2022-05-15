@@ -1,4 +1,7 @@
 import {loadConfig, updateCode, updateConfig} from 'utils/plugin';
+import defaultConfig from 'config';
+
+figma.showUI(__html__, defaultConfig.display.plugin);
 
 (async function main() {
   await loadConfig();

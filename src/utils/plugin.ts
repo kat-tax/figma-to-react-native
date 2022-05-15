@@ -2,23 +2,23 @@ import {getSelectedComponent} from 'utils/figma';
 import generateCode from 'utils/generate';
 import config from 'config';
 
+import type {Settings} from 'types/settings';
+
 let _code = '';
 let _config = config;
 let _width = _config.display.plugin.width;
 let _height = _config.display.plugin.height;
 
-figma.showUI(__html__, config.display.plugin);
-
 export async function loadConfig() {
-  const config = await figma.clientStorage.getAsync('config');
+  const config: Settings = await figma.clientStorage.getAsync('config');
   if (config) {
     updateConfig(config, true);
     figma.ui.postMessage({type: 'config', payload: config});
   }
 }
 
-export function updateConfig(value: string, skipSave?: boolean) {
-  _config = JSON.parse(value);
+export function updateConfig(value: Settings, skipSave?: boolean) {
+  _config = JSON.parse(value as any);
   if (!skipSave) figma.clientStorage.setAsync('config', value);
   updateDimensions();
   updateCode();

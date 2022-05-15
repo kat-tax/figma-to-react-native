@@ -1,6 +1,7 @@
 # Project
 dist/
 .ref/
+TODO.md
 
 # OSX
 .DS_Store

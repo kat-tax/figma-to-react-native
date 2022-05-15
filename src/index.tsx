@@ -1,8 +1,8 @@
 import React from 'react';
 import {hydrate} from 'react-dom';
-import {Builder} from 'interface/Builder';
+import {App} from 'interface/App';
 
 import 'interface/styles/theme.css';
 import 'interface/styles/global.css';
 
-hydrate(<Builder/>, document.getElementById('app'));
+hydrate(<App/>, document.getElementById('app'));

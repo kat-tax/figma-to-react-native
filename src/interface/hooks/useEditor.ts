@@ -16,7 +16,11 @@ export function useEditor(settings: Settings, libs?: Library[]) {
     if (libs) {
       defaults?.setExtraLibs(libs);
       libs.forEach((lib) => {
-        editor?.editor.createModel(lib.content, 'typescript', editor.Uri.parse(lib.path))
+        editor?.editor.createModel(
+          lib.content,
+          'typescript',
+          editor.Uri.parse(lib.path),
+        )
       });
     }
     // AutoTypings.create(editor, {sourceCache: new LocalStorageCache()});
