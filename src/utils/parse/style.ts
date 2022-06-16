@@ -1,37 +1,3 @@
-export function getContent(
-  children,
-  depth = 0,
-  deps = [],
-  styles = {},
-) {
-  let code = [];
-
-  children.reverse().forEach(child => {
-    const isText = child.type === 'TEXT';
-    const isGroup = child.type === 'GROUP';
-    const slug = getSlug(child.name);
-    const tag = getTag(child.type);
-
-    styles[slug] = {tag, style: getStyle(child)};
-  
-    if (isText && deps.indexOf('Text') === -1) {
-      deps.push('Text');
-    }
-
-    if (isText) {
-      code.push({slug, tag: 'Text', value: child.characters || ''});
-    }
-
-    if (isGroup) {
-      const content = getContent([...child.children], depth + 1, deps, styles);
-      styles = {...styles, ...content.styles};
-      code.push({slug, tag: 'View', children: content.code});
-    }
-  });
-
-  return {code, deps, styles};
-}
-
 export function getStyle(component: any) {
   const isText = component.type === 'TEXT';
   const isGroup = component.type === 'GROUP';
@@ -116,29 +82,4 @@ export function getStyle(component: any) {
   }
 
   return styles;
-}
-
-export function getTag(type: string) {
-  switch (type) {
-    case 'COMPONENT':
-    case 'GROUP':
-      return 'View';
-    case 'TEXT':
-      return 'Text';
-    case 'IMAGE':
-      return 'Image';
-    default:
-      return 'Unknown';
-  }
-}
-
-export function getName(value: string) {
-  return value.replace(/\s/g, '');
-}
-
-export function getSlug(value: string) {
-  return value.split(' ').map((word, index) => {
-    if (index == 0) return word.toLowerCase();
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-  }).join('');
 }

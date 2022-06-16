@@ -39,7 +39,9 @@ build({
       }
     }
   },
-}).then(output).catch(console.error);
+})
+.then(output)
+.catch(console.error);
 
 function output(result) {
   const [html, css] = result.outputFiles;

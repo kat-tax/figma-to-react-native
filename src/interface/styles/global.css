@@ -1,9 +1,11 @@
 /* General */
 
 html, body {
+  margin: 0;
+  background-color: var(--figma-color-bg);
   font-family: var(--font-stack);
   font-size: var(--font-size-xsmall);
-  margin: 0;
+  color: var(--figma-color-text);
 }
 
 iframe {
@@ -70,7 +72,7 @@ iframe {
 }
 
 .tab.icon[data-state="active"] {
-  background-color: #e5e5e5;
+  background-color: var(--figma-color-bg-pressed);
 }
 
 /* Components */

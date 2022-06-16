@@ -3,12 +3,12 @@ import type {Settings} from 'types/settings';
 const config: Settings = {
   display: {
     plugin: {
+      themeColors: true,
       height: 600,
       width: 400,
     },
     editor: {
       general: {
-        theme: 'vs',
         lineNumbers: 'off',
         minimap: {enabled: false},
         padding: {top: 10},

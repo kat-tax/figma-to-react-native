@@ -1,6 +1,7 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
 import * as Tabs from '@radix-ui/react-tabs';
+import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useComponent} from 'interface/hooks/useComponent';
 import {useSettings} from 'interface/hooks/useSettings';
 import {usePreview} from 'interface/hooks/usePreview';
@@ -10,6 +11,7 @@ import {Loading} from 'interface/base/Loading';
 import {Intro} from 'interface/base/Intro';
 
 export function App() {
+  const isDarkMode = useDarkMode();
   const component = useComponent();
   const settings = useSettings();
   const preview = usePreview(component, settings.config);
@@ -18,7 +20,8 @@ export function App() {
   if (!editor) return <Loading/>;
   if (!component?.code) return <Intro/>;
 
-  const options = settings.config.display.editor.general;
+  const editorTheme = isDarkMode ? 'vs-dark' : 'vs';
+  const editorOptions = {...settings.config.display.editor.general, theme: editorTheme};
 
   return (
     <Tabs.Root defaultValue="code" className="tabs">
@@ -41,12 +44,12 @@ export function App() {
       </Tabs.List>
       <Tabs.Content value="code" className="expand">
         <Editor
-          language="typescript"
-          options={{...options, readOnly: true}}
-          path={`${component.name}.tsx`}
-          value={component.code}
-          theme={options.theme}
           className="editor"
+          language="typescript"
+          options={{...editorOptions, readOnly: true}}
+          path={`${component.name}.tsx`}
+          theme={editorTheme}
+          value={component.code}
         />
       </Tabs.Content>
       <Tabs.Content value="preview" className="expand">
@@ -55,24 +58,24 @@ export function App() {
       <Tabs.Content value="theme" className="expand">
         {settings.config.output.react.flavor === 'tamagui' &&
           <Editor
+            className="editor"
             language="typescript"
             path="Theme.ts"
             value="Tamagui theme generation isn't done yet, sorry."
-            theme={options.theme}
-            options={{...options, readOnly: true}}
-            className="editor"
+            theme={editorTheme}
+            options={{...editorOptions, readOnly: true}}
           />
         }
       </Tabs.Content>
       <Tabs.Content value="settings" className="expand">
         <Editor
+          className="editor"
           language="json"
           path="Settings.json"
           value={settings.raw}
-          theme={options.theme}
-          options={{...options, readOnly: false}}
+          theme={editorTheme}
+          options={{...editorOptions, readOnly: false}}
           onChange={settings.update}
-          className="editor"
         />
       </Tabs.Content>
     </Tabs.Root>

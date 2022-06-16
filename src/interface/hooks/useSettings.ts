@@ -1,13 +1,14 @@
-import defaultConfig from 'config';
 import {useState, useCallback, useEffect} from 'react';
+import defaultConfig from 'config';
+
 import type {Settings} from 'types/settings';
 
 const indent = defaultConfig.output?.format?.indentNumberOfSpaces || 2;
 const configRaw = JSON.stringify(defaultConfig, undefined, indent);
 
 export function useSettings() {
-  const [raw, setRaw] = useState(configRaw);
   const [config, setConfig] = useState(defaultConfig);
+  const [raw, setRaw] = useState(configRaw);
 
   const update = useCallback((payload: string) => {
     try {
