@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": false,
+    "jsx": "react",
+    "baseUrl": "./src",
+    "target": "es2019",
+    "module": "es2020",
+    "lib": ["es2020", "dom"],
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@figma"
+    ]
+  }
+}

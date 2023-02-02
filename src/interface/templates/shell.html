@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>React Component Preview</title>
+    <style>
+      html {
+        background: rgba(0,0,0,0.6);
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+      }
+      #preview {
+        box-shadow: 1px 1px 3px #00000060;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="preview"></div>
+    <script>process = {env: {NODE_ENV: 'production'}}</script>
+    <script async src="https://unpkg.com/es-module-shims@1.4.3/dist/es-module-shims.js"></script>
+    <script type="importmap">{"imports": __IMPORTS__}</script>
+    <script>
+      window.addEventListener('message', (e) => {
+        if (e.data) {
+          const prev = document.getElementById('target');
+          const next = document.createElement('script');
+          next.id = 'target';
+          next.type = 'module';
+          next.innerHTML = e.data;
+          prev && document.body.removeChild(prev);
+          next && document.body.appendChild(next);
+        }
+      });
+    </script>
+  </body>
+</html>
