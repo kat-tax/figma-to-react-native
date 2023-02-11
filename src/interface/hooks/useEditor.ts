@@ -3,9 +3,9 @@ import {useMonaco} from '@monaco-editor/react';
 // import AutoImport, {regexTokeniser} from '@blitz/monaco-auto-import'
 // import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
 import type {Settings} from 'types/settings';
-import type {Library} from 'types/plugin';
+import type {EditorLibrary} from 'types/editor';
 
-export function useEditor(settings: Settings, libs?: Library[]) {
+export function useEditor(settings: Settings, libs?: EditorLibrary[]) {
   const editor = useMonaco();
   // Set monaco options & register lib references
   useEffect(() => {

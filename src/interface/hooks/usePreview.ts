@@ -2,10 +2,10 @@ import {useState, useEffect} from 'react';
 import {html} from 'interface/templates';
 import {build} from 'utils/esbuild';
 
-import type {Component} from 'types/plugin';
 import type {Settings} from 'types/settings';
+import type {EditorComponent} from 'types/editor';
 
-export function usePreview(component: Component, settings: Settings) {
+export function usePreview(component: EditorComponent, settings: Settings) {
   const [code, setCode] = useState('');
 
   useEffect(() => {

@@ -2,12 +2,15 @@ import type {TargetNode} from 'types/figma';
 
 export function getSelectedComponent() {
   const {selection} = figma.currentPage;
-  if (selection.length === 0) return null;
+  if (selection.length === 0)
+    return null;
   let root: TargetNode = selection[0];
-  if (root.type === 'COMPONENT') return selection[0];
+  if (root.type === 'COMPONENT')
+    return selection[0];
   while (root.parent && root.parent.type !== 'PAGE') {
     root = root.parent;
-    if (root.type === 'COMPONENT') return root;
+    if (root.type === 'COMPONENT')
+    return root;
   }
   return null;
 }

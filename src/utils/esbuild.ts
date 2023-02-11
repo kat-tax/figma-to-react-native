@@ -1,6 +1,8 @@
 import {initialize, transform} from 'esbuild-wasm';
 import type {Settings} from 'types/settings';
 
+const wasmURL = 'https://unpkg.com/esbuild-wasm@0.14.39/esbuild.wasm';
+
 let _loading = false;
 let _loaded = false;
 
@@ -12,10 +14,7 @@ export async function build(code: string, config: Settings) {
 export async function init() {
   try {
     _loading = true;
-    await initialize({
-      wasmURL: 'https://unpkg.com/esbuild-wasm@0.14.39/esbuild.wasm',
-      worker: true,
-    });
+    await initialize({wasmURL, worker: true});
     _loaded = true;
   } catch(e) {
     console.error(e);
