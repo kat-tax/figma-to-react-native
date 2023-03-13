@@ -1,10 +1,13 @@
 export function getStyle(component: any) {
+  // Component types
   const isText = component.type === 'TEXT';
   const isGroup = component.type === 'GROUP';
   const isComponent = component.type === 'COMPONENT';
 
+  // Stylesheet
   let styles = {};
 
+  // Group specific styles
   if (isComponent || isGroup) {
     let backgroundColor: string;
     if (component.backgrounds.length > 0) {
@@ -48,6 +51,7 @@ export function getStyle(component: any) {
     */
   }
 
+  // Text specific styles
   if (isText) {
     let color: string;
     if (component.fills.length > 0) {
@@ -56,9 +60,9 @@ export function getStyle(component: any) {
     }
     const fontSize = component.fontSize;
     const fontFamily = component.fontName.family;
-    const isItalic = component.fontName.style.indexOf('Italic') !== -1;
-    const isBold = component.fontName.style.indexOf('Bold') !== -1;
-    const isThin = component.fontName.style.indexOf('Thin') !== -1;
+    const isItalic = component.fontName.style.includes('Italic');
+    const isBold = component.fontName.style.includes('Bold');
+    const isThin = component.fontName.style.includes('Thin');
     const isUnderline = component.textDecoration === 'UNDERLINE';
     const isCrossed = component.textDecoration === 'STRIKETHROUGH';
     const isAlignLeft = component.textAlignHorizontal === 'LEFT';
@@ -81,5 +85,6 @@ export function getStyle(component: any) {
     };
   }
 
+  // Return stylesheet
   return styles;
 }
