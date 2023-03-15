@@ -18,7 +18,7 @@
  *   `,
  * }
  */
-interface ReactComponent {
+export interface ReactComponent {
   name: string,
   stack: ReactComponent[],
   props: Record<string, string>,

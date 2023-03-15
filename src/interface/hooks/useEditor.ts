@@ -1,25 +1,42 @@
 import {useEffect} from 'react';
 import {useMonaco} from '@monaco-editor/react';
+import settingsSchema from 'interface/templates/settings-schema.json';
+
 // import AutoImport, {regexTokeniser} from '@blitz/monaco-auto-import'
 // import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
+
 import type {Settings} from 'types/settings';
 import type {EditorLibrary} from 'types/editor';
 
 export function useEditor(settings: Settings, libs?: EditorLibrary[]) {
-  const editor = useMonaco();
-  // Set monaco options & register lib references
+  const monaco = useMonaco();
+
   useEffect(() => {
-    const defaults = editor?.languages.typescript.typescriptDefaults;
-    defaults?.setCompilerOptions(settings.display.editor.compiler);
-    defaults?.setInlayHintsOptions(settings.display.editor.inlayHints);
-    defaults?.setDiagnosticsOptions(settings.display.editor.diagnostics);
+    // Setup settings schema + validation
+    const json = monaco?.languages.json.jsonDefaults;
+    json?.setDiagnosticsOptions({
+      validate: true,
+      schemas: [
+        {
+          uri: 'http://ult.dev/figaro-settings-schema.json',
+          fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
+          schema: settingsSchema,
+        }
+      ],
+    });
+
+    // Setup typescript options and libs
+    const typescript = monaco?.languages.typescript.typescriptDefaults;
+    typescript?.setCompilerOptions(settings.display.editor.compiler);
+    typescript?.setInlayHintsOptions(settings.display.editor.inlayHints);
+    typescript?.setDiagnosticsOptions(settings.display.editor.diagnostics);
     if (libs) {
-      defaults?.setExtraLibs(libs);
+      typescript?.setExtraLibs(libs);
       libs.forEach((lib) => {
-        editor?.editor.createModel(
+        monaco?.editor.createModel(
           lib.content,
           'typescript',
-          editor.Uri.parse(lib.path),
+          monaco.Uri.parse(lib.path),
         )
       });
     }
@@ -40,7 +57,7 @@ export function useEditor(settings: Settings, libs?: EditorLibrary[]) {
     }]);
 
     */
-  }, [editor, settings, libs]);
+  }, [monaco, settings, libs]);
 
-  return editor;
+  return monaco;
 }

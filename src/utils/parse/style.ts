@@ -1,4 +1,4 @@
-export function getStyle(component: any) {
+export function parseStyles(component: any) {
   // Component types
   const isText = component.type === 'TEXT';
   const isGroup = component.type === 'GROUP';
@@ -9,15 +9,63 @@ export function getStyle(component: any) {
 
   // Group specific styles
   if (isComponent || isGroup) {
+
+    // Background color
     let backgroundColor: string;
     if (component.backgrounds.length > 0) {
       const {r, g, b} = component.backgrounds[0].color;
       backgroundColor = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
     }
+
+    // Absolute positioning
+    const {height, width} = component;
+
+    // Flexbox positioning
+    let flexbox: any = {};
+    if (component.layoutPositioning === 'AUTO') {
+      flexbox.display = 'flex';
+      flexbox.position = 'relative';
+      flexbox.flexDirection = component.layoutMode === 'VERTICAL' ? 'column' : 'row';
+      // TODO: better align
+      flexbox.alignItems = component.layoutAlign === 'CENTER' || component.layoutAlign === 'INHERIT'
+        ? 'center'
+        : 'flex-start';
+      flexbox.justifyContent = component.layoutAlign === 'INHERIT'
+        ? 'center'
+        : '';
+      if (component.itemSpacing) {
+        flexbox.gap = component.itemSpacing;
+      }
+    }
+
+    // Padding
+    let padding: any = {};
+    if (component.paddingTop !== component.paddingBottom) {
+      if (component.paddingTop !== 0)
+        padding.paddingTop = component.paddingTop;
+      if (component.paddingBottom !== 0)
+        padding.paddingBottom = component.paddingBottom;
+    } else if (component.paddingTop !== 0) {
+      padding.paddingVertical = component.paddingTop;
+    }
+    if (component.paddingLeft !== component.paddingRight) {
+      if (component.paddingLeft !== 0)
+        padding.paddingLeft = component.paddingLeft;
+      if (component.paddingRight !== 0)
+        padding.paddingRight = component.paddingRight;
+    } else if (component.paddingLeft !== 0) {
+      padding.paddingHorizontal = component.paddingLeft;
+    }
+
     styles = {
+      width,
+      height,
       ...styles,
+      ...flexbox,
+      ...padding,
       backgroundColor,
     };
+
     /*
       const flexbox = {
         backgroundColor: color = undefined; // Value is animatable
