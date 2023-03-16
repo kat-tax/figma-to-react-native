@@ -1,5 +1,4 @@
 import {useState, useEffect} from 'react';
-import {html} from 'interface/templates';
 import {build} from 'utils/esbuild';
 
 import type {Settings} from 'types/settings';
@@ -10,13 +9,29 @@ export function usePreview(component: EditorComponent, settings: Settings) {
 
   useEffect(() => {
     if (!component) return;
-    build(html.runtime
-      .replace('__NAME__', component.name)
-      .replace('__CODE__', component.code),
-      settings,
-    )
-    .then(res => setCode(res.code))
-    .catch(e => setCode(e.toString()))
+
+    // TEMP CODE USED FOR TESTING W/O BUNDLE
+    const componentCode = component.code
+      .replace(
+        /import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g,
+        `import {Fragment as $1} from "react";`,
+      );
+
+    const entryPoint = `
+      import {AppRegistry} from 'react-native';
+
+      ${componentCode}
+      
+      AppRegistry.registerComponent('preview', () => ${component.name});
+      AppRegistry.runApplication('preview', {
+        rootTag: document.getElementById('preview'),
+      });
+    `;
+
+    build(entryPoint, settings)
+      .then(res => setCode(res.code))
+      .catch(err => setCode(err.toString()));
+
   }, [component, settings]);
 
   return code;

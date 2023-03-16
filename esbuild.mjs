@@ -20,11 +20,8 @@ build({
 build({
   entryPoints: ['src/index.tsx'],
   outfile: 'dist/index.js',
-  target: ['es2019'],
-  loader: {
-    '.tpl.js': 'base64',
-    '.html': 'base64',
-  },
+  target: ['es2020'],
+  loader: {'.html': 'base64'},
   format: 'esm',
   bundle: true,
   write: false,

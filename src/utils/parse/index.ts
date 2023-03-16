@@ -11,9 +11,12 @@ export interface ParseState {
 }
 
 export interface ParseCode {
+  id: string,
   tag: string,
-  slug?: string,
+  name: string,
+  slug: string,
   props?: any,
+  styles?: Record<string, any>,
   children?: ParseCode[],
   value?: string,
   paths?: any[],
@@ -21,8 +24,10 @@ export interface ParseCode {
   box?: any,
 }
 
-export default function parse(children: any[], state?: ParseState) {
-  // Init state if missing
+type Node = SceneNode & ChildrenMixin | any;
+
+export default function parse(children: Node[], state?: ParseState) {
+  // Init state if none yet
   if (!state) {
     state = {
       components: {},
@@ -36,11 +41,15 @@ export default function parse(children: any[], state?: ParseState) {
   let code: ParseCode[] = [];
 
   // Loop through each direct child node
-  children.reverse().forEach((child: any) => {
+  // TODO: why is ".reverse()" needed sometimes?
+  children.forEach((child) => {
 
     // Create identifiers
+    const id = child.id;
     const tag = getTag(child.type);
+    const name = getName(child.name);
     const slug = getSlug(child.name);
+    const node: ParseCode = {id, tag, name, slug};
   
     // Transform styles for child
     state.stylesheet[slug] = {tag, style: parseStyles(child)};
@@ -51,7 +60,7 @@ export default function parse(children: any[], state?: ParseState) {
       // Text nodes get inserted and the primitive added
       case 'TEXT': {
         state.primitives.add('Text');
-        code.push({slug, tag: 'Text', value: child.characters || ''});
+        code.push({...node, value: child.characters || ''});
         break;
       }
   
@@ -64,16 +73,16 @@ export default function parse(children: any[], state?: ParseState) {
       // Vectors get inserted w/ paths, fills, dimensions, paths. Add RNSVG library.
       case 'VECTOR': {
         state.libraries.add('react-native-svg');
-        code.push({tag: 'Svg', paths: child.vectorPaths, fills: child.fills, box: child.absoluteBoundingBox});
+        code.push({...node, paths: child.vectorPaths, fills: child.fills, box: child.absoluteBoundingBox});
         break;
       }
 
       // Instances get inserted w/ props and master component is recorded
       case 'INSTANCE': {
         const isVariant = !!child.variantProperties;
-        const parent = isVariant ? child.masterComponent.parent : child.masterComponent;
+        const parent = isVariant ? child.masterComponent.parent : child.mainComponent;
         state.components[parent.id] = parent;
-        code.push({tag: getName(child.name), props: child.componentProperties});
+        code.push({...node, tag: getName(child.name), props: child.componentProperties});
         break;
       }
 
@@ -81,7 +90,7 @@ export default function parse(children: any[], state?: ParseState) {
       case 'GROUP':
       case 'FRAME': {
         const subnodes = parse([...child.children], state);
-        code.push({slug, tag: 'View', children: subnodes.code});
+        code.push({...node, children: subnodes.code});
         state = {
           components: {...state.components, ...subnodes.state.components},
           stylesheet: {...state.stylesheet, ...subnodes.state.stylesheet},

@@ -1,71 +1,71 @@
 import CodeBlockWriter from 'code-block-writer';
 import parseComponent from 'utils/parse';
+import {propsToString} from 'utils/generate/helpers';
 import {parseStyles} from 'utils/parse/style';
 import {getName} from 'utils/parse/helpers';
-import {propsToString} from 'utils/generate/helpers';
 
+import type {ParseState, ParseCode} from 'utils/parse';
 import type {Settings} from 'types/settings';
-import type {TargetNode} from 'types/figma';
 
-export default function(component: TargetNode, settings: Settings) {
+export default function(component: SceneNode & ChildrenMixin, settings: Settings) {
   if (!component) return {name: '', code: ''};
 
   // DEBUG
   // console.log('component', component);
 
-  const writer = new CodeBlockWriter(settings.output?.format);
-  // @ts-ignore
-  const parsed = parseComponent([...component.children]);
-  const name = getName(component.name);
-
-  const root = {tag: 'View', slug: 'root', style: parseStyles(component)};
-  const primitives = ['View', ...parsed.state.primitives].join(', ');
-  const components = Object.entries(parsed.state.components).map(([_id, value]) => {
-    const node: any = value;
-    if (!node) return false;
-    return getName(node.name);
-  }).filter(Boolean);
-
-  const writeContents = (lines) => {
-    lines.forEach((line) => {
-      const attrStyle = line.slug ? ` style={styles.${line.slug}}` : '';
-      const attrRect = line.box ? ` width="${line.box.width}" height="${line.box.height}"` : '';
-      const attrProps = propsToString(line.props);
-      const tagString = line.tag + attrStyle + attrRect + attrProps;
-
-      // No children
-      if (!line.value && !line.children && !line.paths) {
-        writer.writeLine(`<${tagString}/>`);
-        return;
-      }
-
-      // Child nodes
-      writer.write(`<${tagString}>`).indent(() => {
-        // Text child
-        if (line.tag === 'Text') {
-          if (settings.output?.react?.addTranslate) {
-            writer.write('{t`' + line.value  + '`}');
-          } else {
-            writer.write('{`' + line.value + '`}');
-          }
-        // SVG child paths
-        } else if (line.paths) {
-          line.paths.forEach((path: any, i: number) => {
-            const {r, g, b} = line.fills[i].color;
-            const fill = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
-            writer.write(`<Path d="${path.data}" fill="${fill}"/>`)
-          });
-        // View children (recurse)
-        } else if (line.tag === 'View') {
-          writeContents(line.children);
-        }
-      });
-
-      // Closing tag
-      writer.writeLine(`</${line.tag}>`);
-    });
+  const rootView: ParseCode = {
+    id: component.id,
+    tag: 'View',
+    slug: 'root',
+    name: getName(component.name),
+    styles: parseStyles(component),
   };
 
+  const code = generateCode(rootView, component.children, settings);
+  const bundle = generateBundle(rootView, component.children, settings);
+
+  return {name: rootView.name, code, bundle};
+}
+
+export function generateCode(
+  rootView: ParseCode,
+  children: readonly SceneNode[],
+  settings: Settings,
+) {
+  const parsed = parseComponent([...children]);
+  const writer = new CodeBlockWriter(settings.output?.format);
+  const {components, primitives, libraries, stylesheet} = parsed.state;
+  const imports = Object.entries(components).map((c: any) => c ? getName(c[1].name) : '').filter(Boolean);
+
+  writeImports(writer, settings, primitives, libraries, imports);
+  writer.blankLine();
+  writeFunction(writer, rootView, parsed.code, settings);
+  writer.blankLine();
+  writeStyleSheet(writer, rootView, stylesheet);
+  writer.blankLine();
+
+  return writer.toString();
+}
+
+export function generateBundle(
+  _rootView: ParseCode,
+  _children: readonly SceneNode[],
+  _settings: Settings,
+) {
+  // TODO
+  // 1. Aggregate all primitives
+  // 2. Aggregate all libraries
+  // 3. DO NOT pass component imports (they will be all in one file)
+  // 4. Generate code for root view and all component imports
+}
+
+function writeImports(
+  writer: CodeBlockWriter,
+  settings: Settings,
+  primitives: Set<string>,
+  libraries?: Set<string>,
+  components?: string[],
+) {
   // Import React explicitly if set 
   if (settings.output?.react?.addImport) {
     writer.write('import React from');
@@ -76,7 +76,7 @@ export default function(component: TargetNode, settings: Settings) {
   }
 
   // Import LinguiJS if set and Text primitive is used
-  if (settings.output?.react?.addTranslate && parsed.state.primitives.has('Text')) {
+  if (settings.output?.react?.addTranslate && primitives.has('Text')) {
     writer.write('import {t} from');
     writer.space();
     writer.quote('@lingui/macro');
@@ -85,14 +85,14 @@ export default function(component: TargetNode, settings: Settings) {
   }
 
   // Import primitives
-  writer.write(`import {StyleSheet, ${primitives}} from`);
+  writer.write(`import {StyleSheet, ${['View', ...primitives].join(', ')}} from`);
   writer.space();
   writer.quote('react-native');
   writer.write(';');
   writer.newLine();
 
   // Import libraries
-  parsed.state.libraries.forEach(library => {
+  libraries?.forEach(library => {
     writer.write(`import {Svg, Path} from`);
     writer.space();
     writer.quote(library);
@@ -101,38 +101,90 @@ export default function(component: TargetNode, settings: Settings) {
   });
 
   // Import subcomponents
-  components.forEach(component => {
+  components?.forEach(component => {
     writer.write(`import {${component}} from`);
     writer.space();
     writer.quote(`./${component}.tsx`);
     writer.write(';');
     writer.newLine();
   });
+}
 
-  writer.blankLine();
-
-  // Component function
-  writer.write(`export function ${name}()`).block(() => {
+function writeFunction(
+  writer: CodeBlockWriter,
+  rootView: ParseCode,
+  children: ParseCode[],
+  settings: Settings,
+) {
+  writer.write(`export function ${rootView.name}()`).block(() => {
     writer.write(`return (`).indent(() => {
-      writer.write(`<${root.tag} style={styles.${root.slug}}>`).indent(() => {
-        writeContents(parsed.code);
+      writer.write(`<${rootView.tag} style={styles.${rootView.slug}}>`).indent(() => {
+        writeChildren(writer, children, settings);
       });
-      writer.writeLine(`</${root.tag}>`);
+      writer.writeLine(`</${rootView.tag}>`);
     });
     writer.writeLine(');');
   });
+}
 
-  writer.blankLine();
+function writeChildren(
+  writer: CodeBlockWriter,
+  children: ParseCode[],
+  settings: Settings,
+) {
+  children.forEach((child) => {
+    const attrStyle = child.slug ? ` style={styles.${child.slug}}` : '';
+    const attrRect = child.box ? ` width="${child.box.width}" height="${child.box.height}"` : '';
+    const attrProps = propsToString(child.props);
+    const tagString = child.tag + attrStyle + attrRect + attrProps;
 
-  // Component stylesheet
-  writer.write(`const styles = StyleSheet.create(`).inlineBlock(() => {
+    // No children
+    if (!child.value && !child.children && !child.paths) {
+      writer.writeLine(`<${tagString}/>`);
+      return;
+    }
+
+    // Child nodes
+    writer.write(`<${tagString}>`).indent(() => {
+      // Text child
+      if (child.tag === 'Text') {
+        if (settings.output?.react?.addTranslate) {
+          writer.write('{t`' + child.value  + '`}');
+        } else {
+          writer.write('{`' + child.value + '`}');
+        }
+      // SVG child paths
+      } else if (child.paths) {
+        child.paths.forEach((path: any, i: number) => {
+          const {r, g, b} = child.fills[i].color;
+          const fill = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+          writer.write(`<Path d="${path.data}" fill="${fill}"/>`)
+        });
+      // View children (recurse)
+      } else if (child.tag === 'View') {
+        writeChildren(writer, child.children, settings);
+      }
+    });
+
+    // Closing tag
+    writer.writeLine(`</${child.tag}>`);
+  });
+}
+
+function writeStyleSheet(
+  writer: CodeBlockWriter,
+  rootView: ParseCode,
+  stylesheet: ParseState['stylesheet'],
+  name: string = 'styles',
+) {
+  writer.write(`const ${name} = StyleSheet.create(`).inlineBlock(() => {
     const properties = Object
-      .keys(root.style)
-      .filter(c => root.style[c] !== undefined);
+      .keys(rootView.styles)
+      .filter(c => rootView.styles[c] !== undefined);
     if (properties.length > 0) {
-      writer.write(`${root.slug}: {`).indent(() => {
+      writer.write(`${rootView.slug}: {`).indent(() => {
         properties.forEach(property => {
-          const value = root.style[property];
+          const value = rootView.styles[property];
           writer.write(`${property}: `);
           if (typeof value === 'number') {
             writer.write(value.toString());
@@ -145,8 +197,8 @@ export default function(component: TargetNode, settings: Settings) {
       });
       writer.writeLine('},');
     }
-    Object.keys(parsed.state.stylesheet).forEach(slug => {
-      const child = parsed.state.stylesheet[slug];
+    Object.keys(stylesheet).forEach(slug => {
+      const child = stylesheet[slug];
       if (child && child.tag !== 'Unknown') {
         const properties = Object
           .keys(child.style)
@@ -172,7 +224,4 @@ export default function(component: TargetNode, settings: Settings) {
   });
 
   writer.write(');');
-
-  // Return component name and code
-  return {name, code: writer.toString()};
 }

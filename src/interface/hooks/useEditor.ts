@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {useMonaco} from '@monaco-editor/react';
-import settingsSchema from 'interface/templates/settings-schema.json';
+import settingsSchema from 'interface/templates/schema.json';
 
 // import AutoImport, {regexTokeniser} from '@blitz/monaco-auto-import'
 // import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
@@ -16,13 +16,11 @@ export function useEditor(settings: Settings, libs?: EditorLibrary[]) {
     const json = monaco?.languages.json.jsonDefaults;
     json?.setDiagnosticsOptions({
       validate: true,
-      schemas: [
-        {
-          uri: 'http://ult.dev/figaro-settings-schema.json',
-          fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
-          schema: settingsSchema,
-        }
-      ],
+      schemas: [{
+        schema: settingsSchema,
+        fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
+        uri: 'http://ult.dev/figaro-settings-schema.json',
+      }],
     });
 
     // Setup typescript options and libs
@@ -33,28 +31,25 @@ export function useEditor(settings: Settings, libs?: EditorLibrary[]) {
     if (libs) {
       typescript?.setExtraLibs(libs);
       libs.forEach((lib) => {
-        monaco?.editor.createModel(
-          lib.content,
-          'typescript',
-          monaco.Uri.parse(lib.path),
-        )
+        monaco?.editor.createModel(lib.content, 'typescript', monaco.Uri.parse(lib.path))
       });
     }
 
     /*
 
-    AutoTypings.create(editor, {sourceCache: new LocalStorageCache()});
-    const completor = new AutoImport({monaco, editor})
+      // Automatic types for packages (EXPERIMENTAL)
+      AutoTypings.create(editor, {sourceCache: new LocalStorageCache()});
+      const completor = new AutoImport({monaco, editor})
 
-    completor.imports.saveFiles([{
-      path: './node_modules/left-pad/index.js',
-      aliases: ['left-pad'],
-      imports: regexTokeniser(`
-        export const PAD = ''
-        export function leftPad() {}
-        export function rightPad() {}
-      `)
-    }]);
+      completor.imports.saveFiles([{
+        path: './node_modules/left-pad/index.js',
+        aliases: ['left-pad'],
+        imports: regexTokeniser(`
+          export const PAD = ''
+          export function leftPad() {}
+          export function rightPad() {}
+        `)
+      }]);
 
     */
   }, [monaco, settings, libs]);

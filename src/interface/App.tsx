@@ -20,14 +20,12 @@ export function App() {
   const settings = useSettings();
   const preview = usePreview(component, settings.config);
   const editor = useEditor(settings.config);
-  const shell = useRef<HTMLIFrameElement>(null);
+  const iframe = useRef<HTMLIFrameElement>(null);
 
   const editorTheme = isDarkMode ? 'vs-dark' : 'vs';
   const editorOptions = {...settings.config.display.editor.general, theme: editorTheme};
 
-  const _copyCode = useCallback(() => {}, []);
-  const _exportAll = useCallback(() => {}, []);
-  const updatePreview = useCallback(() => shell.current?.contentWindow?.postMessage(preview), [preview]);
+  const updatePreview = useCallback(() => iframe.current?.contentWindow?.postMessage(preview), [preview]);
   const handleSettings = useMemo(() => debounce(settings.update, 750), [settings.update]);
 
   useEffect(updatePreview, [preview]);
@@ -67,9 +65,8 @@ export function App() {
       </Tabs.Content>
       <Tabs.Content value="preview" className="expand">
         <iframe
-          ref={shell}
-          name="shell"
-          srcDoc={html.shell}
+          ref={iframe}
+          srcDoc={html.preview}
           onLoad={updatePreview}
         />
       </Tabs.Content>
@@ -98,8 +95,7 @@ export function App() {
             if (markers.length === 0) {
               const fileUri = editor.Uri.parse('Settings.json');
               const fileModel = editor.editor.getModel(fileUri);
-              const fileContent = fileModel.getValue();
-              settings.update(fileContent, true);
+              settings.update(fileModel.getValue(), true);
               settings.locked.current = false;
             } else {
               settings.locked.current = true;
