@@ -1,7 +1,9 @@
-export type TargetNode =
-  | SceneNode
+export type TargetNode = (
+    SceneNode
   | FrameNode
   | GroupNode
   | ComponentSetNode
   | ComponentNode
-  | DocumentNode & ChildrenMixin;
+  | DocumentNode
+  | any // TODO
+) & ChildrenMixin;

@@ -1,6 +1,7 @@
-import {parseStyles} from 'utils/parse/style';
-import {getTag, getName, getSlug} from 'utils/parse/helpers';
+import {parseStyles} from 'modules/parse/style';
+import {getTag, getName, getSlug} from 'utils/figma';
 
+import type {TargetNode} from 'types/figma';
 import type {ReactComponent} from 'types/react';
 
 export interface ParseState {
@@ -10,23 +11,21 @@ export interface ParseState {
   libraries: Set<string>,
 }
 
-export interface ParseCode {
+export interface ParsedComponent {
   id: string,
   tag: string,
   name: string,
   slug: string,
   props?: any,
   styles?: Record<string, any>,
-  children?: ParseCode[],
+  children?: ParsedComponent[],
   value?: string,
   paths?: any[],
   fills?: any[],
   box?: any,
 }
 
-type Node = SceneNode & ChildrenMixin | any;
-
-export default function parse(children: Node[], state?: ParseState) {
+export function parseNodes(children: TargetNode[], state?: ParseState) {
   // Init state if none yet
   if (!state) {
     state = {
@@ -38,7 +37,7 @@ export default function parse(children: Node[], state?: ParseState) {
   }
 
   // Lines of codes will be inserted here
-  let code: ParseCode[] = [];
+  let code: ParsedComponent[] = [];
 
   // Loop through each direct child node
   // TODO: why is ".reverse()" needed sometimes?
@@ -49,7 +48,7 @@ export default function parse(children: Node[], state?: ParseState) {
     const tag = getTag(child.type);
     const name = getName(child.name);
     const slug = getSlug(child.name);
-    const node: ParseCode = {id, tag, name, slug};
+    const node: ParsedComponent = {id, tag, name, slug};
   
     // Transform styles for child
     state.stylesheet[slug] = {tag, style: parseStyles(child)};
@@ -88,8 +87,9 @@ export default function parse(children: Node[], state?: ParseState) {
 
       // Group nodes get recursed and inserted, styles and components are aggregated
       case 'GROUP':
-      case 'FRAME': {
-        const subnodes = parse([...child.children], state);
+      case 'FRAME':
+      case 'COMPONENT': {
+        const subnodes = parseNodes([...child.children], state);
         code.push({...node, children: subnodes.code});
         state = {
           components: {...state.components, ...subnodes.state.components},
@@ -101,7 +101,7 @@ export default function parse(children: Node[], state?: ParseState) {
       }
 
       default: {
-        console.warn('UNSUPPORTED NODE', child);
+        console.warn('UNSUPPORTED NODE', child.type, child);
       }
     }
   });

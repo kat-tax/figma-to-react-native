@@ -1,5 +1,5 @@
 import {getSelectedComponent} from 'utils/figma';
-import generateCode from 'utils/generate';
+import generateCode from 'modules/generate';
 import config from 'config';
 
 import type {Settings} from 'types/settings';

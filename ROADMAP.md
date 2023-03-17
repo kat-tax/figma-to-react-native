@@ -19,10 +19,11 @@
 
 - SVGs
 - Images
-- Variants
 - Properties
 - Theme values
+- Variants (conditional styling)
 - AutoLayout (including INHERIT)
+- Hidden based on props (conditional rendering)
 - Interactions (via Pressable & Link)
 - Support Tamagui (backlogged)
 - Switch to hosted UI to solve mouse issues

@@ -5,34 +5,25 @@ import type {Settings} from 'types/settings';
 import type {EditorComponent} from 'types/editor';
 
 export function usePreview(component: EditorComponent, settings: Settings) {
-  const [code, setCode] = useState('');
+  const [output, setOutput] = useState('');
 
   useEffect(() => {
     if (!component) return;
 
-    // TEMP CODE USED FOR TESTING W/O BUNDLE
-    const componentCode = component.code
-      .replace(
-        /import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g,
-        `import {Fragment as $1} from "react";`,
-      );
-
-    const entryPoint = `
+    const preview = `
       import {AppRegistry} from 'react-native';
-
-      ${componentCode}
-      
+      ${component.bundle}
       AppRegistry.registerComponent('preview', () => ${component.name});
       AppRegistry.runApplication('preview', {
         rootTag: document.getElementById('preview'),
       });
     `;
 
-    build(entryPoint, settings)
-      .then(res => setCode(res.code))
-      .catch(err => setCode(err.toString()));
+    build(preview, settings)
+      .then(res => setOutput(res.code))
+      .catch(err => setOutput(err.toString()));
 
   }, [component, settings]);
 
-  return code;
+  return output;
 }

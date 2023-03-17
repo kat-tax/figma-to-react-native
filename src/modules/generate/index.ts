@@ -1,8 +1,9 @@
+import reactNative from 'modules/generate/react-native';
 // import tamagui from 'utils/generate/tamagui';
-import reactNative from 'utils/generate/react-native';
+import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
 
-export default function(node: SceneNode & ChildrenMixin, settings: Settings) {
+export default function(node: TargetNode, settings: Settings) {
   switch (settings.output?.react.flavor) {
     // case 'tamagui':
     //   return tamagui(node, settings);
