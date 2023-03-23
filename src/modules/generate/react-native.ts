@@ -1,16 +1,17 @@
 import CodeBlockWriter from 'code-block-writer';
 import {parseNodes} from 'modules/parse/nodes';
 import {parseStyles} from 'modules/parse/style';
-import {getName, propsToString} from 'utils/figma';
+import {getName, getSlug, colorToCSS, propsToString} from 'utils/figma';
 
-import type {ParseState, ParsedComponent} from 'modules/parse/nodes';
-import type {EditorComponent} from 'types/editor';
+import type {ParseData, ParseState, ParsedComponent} from 'modules/parse/nodes';
+import type {EditorComponent, EditorLinks} from 'types/editor';
 import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
 
-export default function(component: TargetNode, settings: Settings): EditorComponent {
+
+export default function(component: TargetNode, settings: Settings, skipBundle?: boolean): EditorComponent {
   if (!component) {
-    return {name: '', code: '', bundle: ''};
+    return {name: '',  code: '', theme: '', bundle: '', links: {}};
   }
 
   const rootView: ParsedComponent = {
@@ -21,19 +22,27 @@ export default function(component: TargetNode, settings: Settings): EditorCompon
     styles: parseStyles(component),
   };
 
+  const parsed = parseNodes([...component.children]);
+
+  const links: EditorLinks = {};
+  Object.entries(parsed.state.components).forEach((c: any) => {
+    links[getName(c[1].name)] = c[0];
+  });
+
   return {
     name: rootView.name,
-    code: generateCode(rootView, component.children, settings),
-    bundle: generateBundle(rootView, component.children, settings),
+    code: generateCode(rootView, parsed, settings),
+    theme: generateTheme(settings),
+    bundle: !skipBundle ? generateBundle(rootView, component.children, settings) : '',
+    links,
   };
 }
 
 export function generateCode(
   rootView: ParsedComponent,
-  children: readonly SceneNode[],
+  parsed: ParseData,
   settings: Settings,
 ) {
-  const parsed = parseNodes([...children]);
   const writer = new CodeBlockWriter(settings.output?.format);
   const {components, stylesheet, primitives, libraries} = parsed.state;
   const imports = Object.entries(components)
@@ -50,6 +59,59 @@ export function generateCode(
   return writer.toString();
 }
 
+export function generateTheme(settings: Settings) {
+  type ThemeColors = Record<string, Record<string, ThemeColor>>;
+  type ThemeColor = {value: string, comment: string};
+
+  // Create theme writer
+  const writer = new CodeBlockWriter(settings.output?.format);
+  
+  // Write color map
+  const colors: ThemeColors = {};
+  let maxLineLength = 0;
+  figma.getLocalPaintStyles().forEach(paint => {
+    const [group, token] = paint.name.split('/');
+    const name = getSlug(token, true);
+
+    // If the group of colors doesn't exist, initialize it
+    if (!colors[group]) {
+      colors[group] = {};
+    }
+
+    // Insert this color into the color group
+    // @ts-ignore (TODO: why the fuck is typescript saying there isn't a color prop?)
+    const value = colorToCSS(paint.paints[0].color);
+    maxLineLength = Math.max(maxLineLength, name.length + value.length);
+    colors[group][name] = {value, comment: paint.description};
+
+  });
+
+  writer.write(`export const colors = `).inlineBlock(() => {
+    Object.keys(colors).forEach(group => {
+      writer.write(`${getSlug(group)}: `).inlineBlock(() => {
+        Object.keys(colors[group]).forEach(name => {
+          const color: ThemeColor = colors[group][name];
+          writer.write(`$${name}: `);
+          writer.quote(color.value);
+          writer.write(`,`);
+          if (color.comment) {
+            const padding = (' ').repeat(maxLineLength - (name.length + color.value.length));
+            writer.write(`${padding}// ${color.comment}`);
+          }
+          writer.newLine();
+        });
+        writer.newLineIfLastNot();
+      });
+      writer.write(',');
+      writer.newLine();
+    });
+  });
+  writer.write(';');
+  writer.newLine();
+
+  return writer.toString();
+}
+
 export function generateBundle(
   rootView: ParsedComponent,
   children: readonly SceneNode[],
@@ -62,6 +124,8 @@ export function generateBundle(
   const libraries = new Set(['react-native-svg']);
   
   writeImports(writer, settings, primitives, libraries);
+  writer.blankLine();
+  writer.write(generateTheme(settings));
   writer.blankLine();
   writeFunction(writer, settings, rootView, parsed.code);
   writer.blankLine();
@@ -122,6 +186,13 @@ function writeImports(
     writer.write(';');
     writer.newLine();
   });
+
+  // Import theme file
+  writer.write(`import {colors} from`);
+  writer.space();
+  writer.quote(`./theme.ts`);
+  writer.write(';');
+  writer.newLine();
 }
 
 function writeComponents(
@@ -157,6 +228,7 @@ function writeFunction(
   styleid: string = 'styles',
 ) {
   writer.write(`export function ${rootView.name}()`).block(() => {
+    // writeInteractionStyle(writer, rootView, styleid);
     writer.write(`return (`).indent(() => {
       writer.write(`<${rootView.tag} style={${styleid}.${rootView.slug}}>`).indent(() => {
         writeChildren(writer, settings, children, styleid);
@@ -197,8 +269,7 @@ function writeChildren(
       // SVG child paths
       } else if (child.paths) {
         child.paths.forEach((path: any, i: number) => {
-          const {r, g, b} = child.fills[i].color;
-          const fill = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+          const fill = colorToCSS(child.fills[i].color);
           writer.write(`<Path d="${path.data}" fill="${fill}"/>`)
         });
       // View children (recurse)
@@ -227,7 +298,7 @@ function writeStyleSheet(
         properties.forEach(property => {
           const value = rootView.styles[property];
           writer.write(`${property}: `);
-          if (typeof value === 'number') {
+          if (typeof value === 'number' || value.startsWith('colors.')) {
             writer.write(value.toString());
           } else {
             writer.quote(value);
@@ -249,7 +320,7 @@ function writeStyleSheet(
             properties.forEach(property => {
               const value = child.style[property];
               writer.write(`${property}: `);
-              if (typeof value === 'number') {
+              if (typeof value === 'number' || value.startsWith('colors.')) {
                 writer.write(value.toString());
               } else {
                 writer.quote(value);
@@ -265,4 +336,44 @@ function writeStyleSheet(
   });
 
   writer.write(');');
+}
+
+function writeInteractionStyle(
+  writer: CodeBlockWriter,
+  rootView: ParsedComponent,
+  styleid: string = 'styles',
+) {
+  /*
+    ({hovered, pressed, focused}) => [
+      styles.example,
+      hovered && styles.exampleHover,
+      pressed && styles.examplePressed,
+      focused && styles.exampleFocused,
+    ],
+  */
+  const hasHover = true;
+  const hasPressed = true;
+  const hasFocused = true;
+  const actions = [
+    hasHover && 'hovered',
+    hasPressed && 'pressed',
+    hasFocused && 'focused',
+  ].filter(Boolean).join(', ');
+
+  writer.write(`({${actions}}) = [`).inlineBlock(() => {
+    const rules = Object
+      .keys(rootView.styles)
+      .filter(c => rootView.styles[c] !== undefined);
+    if (rules.length > 0) {
+      rules.forEach(rule => {
+        writer.writeLine(`${styleid}.${rule},`);
+        hasHover && writer.write(`${styleid}.${rule}Hover,`);
+        hasPressed && writer.write(`${styleid}.${rule}Pressed,`);
+        hasFocused && writer.write(`${styleid}.${rule}Focused,`);
+      });
+    }
+  });
+
+  writer.write('],');
+  writer.newLine();
 }

@@ -6,10 +6,24 @@ import settingsSchema from 'interface/templates/schema.json';
 // import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
 
 import type {Settings} from 'types/settings';
-import type {EditorLibrary} from 'types/editor';
+import type {EditorLibrary, EditorLinks} from 'types/editor';
 
-export function useEditor(settings: Settings, libs?: EditorLibrary[]) {
+export function useEditor(settings: Settings, links?: EditorLinks, libs?: EditorLibrary[]) {
   const monaco = useMonaco();
+
+  // TODO when we do find a link, remove the "ctrl" to go to definition hotkey until a "keyup" ctrl event is fired
+  useEffect(() => {
+    return monaco?.languages.registerDefinitionProvider('typescript', {
+      provideDefinition: (model, position) => {
+        const link = links?.[model.getWordAtPosition(position).word];
+        if (link) {
+          parent.postMessage({pluginMessage: {type: 'focus', payload: link}}, '*');
+          return [];
+        }
+        return null;
+      }
+    }).dispose;
+  }, [links]);
 
   useEffect(() => {
     // Setup settings schema + validation

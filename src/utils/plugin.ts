@@ -1,4 +1,4 @@
-import {getSelectedComponent} from 'utils/figma';
+import {getSelectedComponent, getPage} from 'utils/figma';
 import generateCode from 'modules/generate';
 import config from 'config';
 
@@ -45,4 +45,40 @@ export function updateDimensions() {
     _width = width;
     _height = height;
   }
+}
+
+export function focusComponent(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page) {
+        figma.currentPage = page;
+      }
+      figma.currentPage.selection = [node as any];
+      figma.viewport.scrollAndZoomIntoView([node]);
+    }
+  } catch (e) {}
+}
+
+export function exportDocument(type: 'all' | 'page' | 'selection') {
+  switch (type) {
+    case 'all': {
+      const document = figma.currentPage.parent;
+      const projectName = document.name;
+      const components = figma.currentPage.findAllWithCriteria({types: ['COMPONENT', 'COMPONENT_SET']});
+      const files = components.map(component => {
+        try {
+          const gen = generateCode(component, _config, true);
+          return [gen.name, gen.code];
+        } catch (e) {
+          console.error('Failed to export', component, e);
+          return [];
+        }
+      }).filter(Boolean);
+      figma.ui.postMessage({type: 'compile', payload: JSON.stringify(files)});
+    }  
+  }
+  
 }

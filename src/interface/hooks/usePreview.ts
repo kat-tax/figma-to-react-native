@@ -10,9 +10,12 @@ export function usePreview(component: EditorComponent, settings: Settings) {
   useEffect(() => {
     if (!component) return;
 
+    const bundle = component.bundle
+      .replace(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g, '');
+
     const preview = `
       import {AppRegistry} from 'react-native';
-      ${component.bundle}
+      ${bundle}
       AppRegistry.registerComponent('preview', () => ${component.name});
       AppRegistry.runApplication('preview', {
         rootTag: document.getElementById('preview'),

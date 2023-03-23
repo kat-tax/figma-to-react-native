@@ -1,0 +1,71 @@
+/* Inputs */
+
+.button {
+  color: var(--figma-color-text-onbrand);
+  background-color: var(--figma-color-bg-brand);
+  display: flex;
+	align-items: center;
+	border-radius: var(--border-radius-large);
+	flex-shrink: 0;
+	font-family: var(--font-stack);
+	font-size: var(--font-size-xsmall);
+	font-weight: var(--font-weight-medium);
+	letter-spacing: var(--font-letter-spacing-neg-small);
+	line-height: var(--font-line-height);
+	height: var(--size-medium);
+	padding: 0 var(--size-xsmall) 0 var(--size-xsmall);
+	text-decoration: none;
+	outline: none;
+	border: 2px solid transparent;
+	user-select: none;
+}
+
+.button:active {
+  background-color: var(--figma-color-bg-brand-pressed);
+}
+
+/* Tabs */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.bar {
+  padding: 4px 5px;
+  box-shadow: 0 1px #0000001a;
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+}
+
+.tab {
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--font-line-height);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+  font-weight: 500;
+  background: none;
+  color: #b3b3b3;
+  padding: 0 8px;
+  height: 32;
+  border: 0;
+  border-radius: 2px;
+}
+
+.tab.icon {
+  width: 32;
+  padding: 0;
+  opacity: 0.6;
+}
+
+.tab[data-state="active"] {
+  font-weight: 600;
+  color: var(--figma-color-text);
+}
+
+.tab.icon[data-state="active"] {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}

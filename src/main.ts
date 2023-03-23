@@ -1,4 +1,4 @@
-import {loadConfig, updateCode, updateConfig} from 'utils/plugin';
+import {loadConfig, updateConfig, updateCode, focusComponent, exportDocument} from 'utils/plugin';
 import defaultConfig from 'config';
 
 figma.showUI(__html__, defaultConfig.display.plugin);
@@ -12,6 +12,10 @@ figma.showUI(__html__, defaultConfig.display.plugin);
     switch (type) {
       case 'config':
         return updateConfig(payload);
+      case 'export':
+        return exportDocument(payload);
+      case 'focus':
+        return focusComponent(payload);
       case 'error':
         return figma.notify(payload, {error: true});
     }

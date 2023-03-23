@@ -7,7 +7,11 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
+    "@radix-ui/react-checkbox": "^1.0.3",
+    "@radix-ui/react-progress": "^1.0.2",
+    "@radix-ui/react-scroll-area": "^1.0.3",
     "@radix-ui/react-tabs": "^1.0.3",
+    "client-zip": "^2.3.1",
     "code-block-writer": "^11.0.3",
     "esbuild-wasm": "^0.14.39",
     "monaco-editor": "^0.36.1",

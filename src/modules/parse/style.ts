@@ -1,8 +1,17 @@
+import {colorToCSS, getSlug} from 'utils/figma';
+
 export function parseStyles(component: any) {
   // Component types
   const isText = component.type === 'TEXT';
   const isGroup = component.type === 'GROUP';
   const isComponent = component.type === 'COMPONENT';
+
+  const fillStyle = figma.getStyleById(component.fillStyleId);
+  let fillKey: string;
+  if (fillStyle?.name) {
+    const [fillGroup, fillToken] = fillStyle.name.split('/');
+    fillKey = `colors.${getSlug(fillGroup)}.${getSlug(fillToken)}`;
+  }
 
   // Stylesheet
   let styles = {};
@@ -13,8 +22,7 @@ export function parseStyles(component: any) {
     // Background color
     let backgroundColor: string;
     if (component.backgrounds.length > 0) {
-      const {r, g, b} = component.backgrounds[0].color;
-      backgroundColor = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+      backgroundColor = fillKey ?? colorToCSS(component.backgrounds[0].color);
     }
 
     // Absolute positioning
@@ -103,36 +111,74 @@ export function parseStyles(component: any) {
   if (isText) {
     let color: string;
     if (component.fills.length > 0) {
-      const {r, g, b} = component.fills[0].color;
-      color = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+      color = fillKey ?? colorToCSS(component.fills[0].color);
     }
+
     const fontSize = component.fontSize;
-    const fontFamily = component.fontName.family;
-    const isItalic = component.fontName.style.includes('Italic');
-    const isBold = component.fontName.style.includes('Bold');
-    const isThin = component.fontName.style.includes('Thin');
+    const fontFamily = component.fontFamily;
+    const fontWeight = getStyleFontWeight(component.fontName.style);
+    const isItalic = component.fontName.style.match(/italic/i);
     const isUnderline = component.textDecoration === 'UNDERLINE';
     const isCrossed = component.textDecoration === 'STRIKETHROUGH';
     const isAlignLeft = component.textAlignHorizontal === 'LEFT';
     const isAlignRight = component.textAlignHorizontal === 'RIGHT';
-    const isAlignTop = component.textAlignVertical === 'TOP';
     const isAlignBottom = component.textAlignVertical === 'BOTTOM';
+    const isAlignTop = component.textAlignVertical === 'TOP';
   
     styles = {
       ...styles,
       color,
       fontSize,
-      // fontFamily,
+      fontWeight,
+      fontFamily,
+      fontStyle: isItalic ? 'italic' : undefined,
+      textAlign: isAlignLeft ? 'left' : isAlignRight ? 'right' : undefined,
+      textDecorationLine: isUnderline ? 'underline' : isCrossed ? 'line-through' : undefined,
+      textAlignVertical: isAlignTop ? 'top' : isAlignBottom ? 'bottom' : undefined,
       letterSpacing: undefined, // TODO
       lineHeight: undefined, // TODO
-      fontStyle: isItalic ? 'italic' : undefined,
-      fontWeight: isBold ? '700' : isThin ? '300' : undefined,
-      textAlign: isAlignLeft ? 'left' : isAlignRight ? 'right' : undefined,
-      // textAlignVertical: isAlignTop ? 'top' : isAlignBottom ? 'bottom' : undefined,
-      textDecorationLine: isUnderline ? 'underline' : isCrossed ? 'line-through' : undefined,
     };
   }
 
   // Return stylesheet
   return styles;
+}
+
+function getStyleLayout() {
+  // ...
+}
+
+function getStyleOpacity() {
+  // ...
+}
+
+function getStyleEffects() {
+  // ...
+}
+
+function getStyleFontWeight(style: string): number {
+  switch (style.replace(/\s*italic\s*/i, '')) {
+    case 'Thin':
+      return 100;
+    case 'Extra Light':
+    case 'Extra-light':
+      return 200;
+    case 'Light':
+      return 300;
+    case 'Regular':
+      return 400;
+    case 'Medium':
+      return 500;
+    case 'Semi Bold':
+    case 'Semi-bold':
+      return 600;
+    case 'Bold':
+      return 700;
+    case 'Extra Bold':
+    case 'Extra-bold':
+      return 800;
+    case 'Black':
+      return 900;
+  }
+  return 400;
 }
