@@ -15,8 +15,28 @@ export function usePreview(component: EditorComponent, settings: Settings) {
 
     const preview = `
       import {AppRegistry} from 'react-native';
+      import {useEffect, useState} from 'react';
+      import {TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
+
       ${bundle}
-      AppRegistry.registerComponent('preview', () => ${component.name});
+
+      function Preview() {
+        return (
+          <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
+            ${'<' + component.name + '/>'}
+          </TransformComponent>
+        );
+      }
+
+      function Main() {
+        return (
+          <TransformWrapper centerOnInit>
+            <Preview/>
+          </TransformWrapper>
+        );
+      }
+
+      AppRegistry.registerComponent('preview', () => Main);
       AppRegistry.runApplication('preview', {
         rootTag: document.getElementById('preview'),
       });

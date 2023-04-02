@@ -11,7 +11,7 @@ build({
   target: ['node12'],
   platform: 'node',
   bundle: true,
-  minify: !watch,
+  minify: false,
   incremental: watch,
   watch,
 }).catch(console.error);
@@ -25,7 +25,7 @@ build({
   format: 'esm',
   bundle: true,
   write: false,
-  minify: !watch,
+  minify: false,
   incremental: watch,
   watch: watch && {
     onRebuild(err, result) {

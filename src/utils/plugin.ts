@@ -62,23 +62,34 @@ export function focusComponent(id: string) {
   } catch (e) {}
 }
 
-export function exportDocument(type: 'all' | 'page' | 'selection') {
-  switch (type) {
-    case 'all': {
-      const document = figma.currentPage.parent;
-      const projectName = document.name;
-      const components = figma.currentPage.findAllWithCriteria({types: ['COMPONENT', 'COMPONENT_SET']});
-      const files = components.map(component => {
+export function exportDocument(type: 'all' | 'page' | 'selected') {
+  const document = figma.currentPage.parent;
+  // Export current page or all pages in document
+  if (type === 'all' || type === 'page') {
+    figma.notify(`Exporting ${type} components, this may take several seconds…`, {timeout: 3500});
+    setTimeout(() => {
+      const target = type === 'all' ? document : figma.currentPage;
+      const project = type === 'all' ? document.name : figma.currentPage.name;
+      const components = target.findAllWithCriteria({types: ['COMPONENT', 'COMPONENT_SET']});
+      const files = JSON.stringify(components.map(component => {
         try {
-          const gen = generateCode(component, _config, true);
-          return [gen.name, gen.code];
+          const file = generateCode(component, _config, true);
+          return [file.name, file.code];
         } catch (e) {
           console.error('Failed to export', component, e);
           return [];
         }
-      }).filter(Boolean);
-      figma.ui.postMessage({type: 'compile', payload: JSON.stringify(files)});
-    }  
+      }).filter(Boolean));
+      figma.ui.postMessage({type: 'compile', project, files});
+    }, 500);
+  // Export single (selected) component
+  } else {
+    figma.notify(`Exporting component…`, {timeout: 1500});
+    setTimeout(() => {
+      const selected = getSelectedComponent();
+      const gen = generateCode(selected, _config, true);
+      const files = JSON.stringify([[gen.name, gen.code]]);
+      figma.ui.postMessage({type: 'compile', project: gen.name, files});
+    }, 500);
   }
-  
 }

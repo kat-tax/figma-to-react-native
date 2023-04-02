@@ -1,7 +1,7 @@
 # INTERFACING
 
-- Add config comments for schema
 - Add commands (export all, export, copy current component)
+- Switch to hosted UI to solve mouse issues
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing
 
@@ -9,7 +9,6 @@
 # PREVIEWING
 
 - support LinguiJS import
-- panning and zooming (via CSS scale?)
 
 
 # GENERATING
@@ -23,7 +22,6 @@
 - Hidden based on props (conditional rendering)
 - Interactions (via Pressable & Link)
 - Support Tamagui (backlogged)
-- Switch to hosted UI to solve mouse issues
 
 
 # MAINTENANCE
@@ -32,3 +30,7 @@
 - Refactor style transforming code
 - Reorganize folder structure
 - Use `--jsx=automatic` option (https://github.com/evanw/esbuild/issues/334)
+
+
+# AFTER MVP
+- Payment system

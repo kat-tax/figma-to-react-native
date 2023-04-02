@@ -5,7 +5,8 @@ export function useExport() {
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'compile') {
-        saveFilesFallback(JSON.parse(e.data.pluginMessage.payload));
+        const {project, files} = e.data.pluginMessage;
+        saveFilesFallback(project, JSON.parse(files));
       }
     };
     addEventListener('message', onMessage);
@@ -13,15 +14,25 @@ export function useExport() {
   }, []);
 }
 
-async function saveFilesFallback(files: string[][]) {
+async function saveFilesFallback(project: string, files: string[][]) {
   const lastModified = new Date();
-  const contents = files.map(([name, code]) => ({name: `${name}.tsx`, lastModified, input: code}));
-  const blob = await downloadZip(contents).blob();
   const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'test.zip';
+  let source: string;
+  if (files.length > 1) {
+    const contents = files.map(([name, code]) => ({name: `${name}.tsx`, lastModified, input: code}));
+    const blob = await downloadZip(contents).blob();
+    source = URL.createObjectURL(blob);
+    link.href = source;
+    link.download = `${project}.zip`;
+  } else {
+    const [name, code] = files[0];
+    source = URL.createObjectURL(new Blob([code], {type: 'text/plain'}));
+    link.href = source;
+    link.download = `${name}.tsx`;
+  }
   link.click();
   link.remove();
+  setTimeout(() => URL.revokeObjectURL(source), 1000);
 }
 
 /*

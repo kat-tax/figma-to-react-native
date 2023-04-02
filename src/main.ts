@@ -7,7 +7,16 @@ figma.showUI(__html__, defaultConfig.display.plugin);
   await loadConfig();
   setInterval(updateCode, 300);
   figma.on('selectionchange', updateCode);
-  figma.on('currentpagechange', figma.closePlugin);
+  figma.on('run', ({command}: RunEvent) => {
+    switch (command) {
+      case 'export-doc':
+        return exportDocument('all');
+      case 'export-page':
+        return exportDocument('page');
+      case 'export-selected':
+        return exportDocument('selected');
+    }
+  })
   figma.ui.on('message', ({type, payload}) => {
     switch (type) {
       case 'config':

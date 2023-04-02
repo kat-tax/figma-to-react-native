@@ -34,7 +34,7 @@
 
 .bar {
   padding: 4px 5px;
-  box-shadow: 0 1px #0000001a;
+  border-bottom: 1px solid var(--figma-color-border);
   z-index: 5;
   display: flex;
   flex-direction: row;
@@ -68,4 +68,42 @@
 .tab.icon[data-state="active"] {
   background-color: var(--figma-color-bg-pressed);
   opacity: 1;
+}
+
+/* Radios */
+
+.radio-group {
+  margin-bottom: 20px;
+}
+
+.radio-group > label {
+  user-select: none;
+  display: block;
+  padding: 4px 0;
+}
+
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 2px solid #bbb;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  margin-right: 0.6em;
+  position: relative;
+  top: 0.3em;
+}
+
+input[type="radio"]:checked::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--figma-color-bg-brand);
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
 }
