@@ -13,22 +13,22 @@
 
 # GENERATING
 
-- SVGs
-- Images
-- Properties
+- Borders
+- Gradients
+- Absolute positioning
 - Theme values
+- Properties
+- Screens (navigation based on prototype settings)
 - Variants (conditional styling)
-- AutoLayout (including INHERIT)
-- Hidden based on props (conditional rendering)
 - Interactions (via Pressable & Link)
-- Support Tamagui (backlogged)
-
+- Hidden based on props (conditional rendering)
+- Images (including export & previewing)
+  - Generate Thumbhash placeholder
+  https://github.com/evanw/thumbhash
 
 # MAINTENANCE
 
 - Refactor types
-- Refactor style transforming code
-- Reorganize folder structure
 - Use `--jsx=automatic` option (https://github.com/evanw/esbuild/issues/334)
 
 

@@ -1,13 +1,12 @@
 import CodeBlockWriter from 'code-block-writer';
 import {parseNodes} from 'modules/parse/nodes';
-import {parseStyles} from 'modules/parse/style';
-import {getName, getSlug, colorToCSS, propsToString} from 'utils/figma';
+import {parseStyles} from 'modules/parse/styles';
+import {getName, getSlug, getColor, propsToString} from 'utils/figma';
 
-import type {ParseData, ParseState, ParsedComponent} from 'modules/parse/nodes';
+import type {ParseData, ParseState, ParsedComponent} from 'types/parse';
 import type {EditorComponent, EditorLinks} from 'types/editor';
 import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
-
 
 export default function(component: TargetNode, settings: Settings, skipBundle?: boolean): EditorComponent {
   if (!component) {
@@ -19,11 +18,10 @@ export default function(component: TargetNode, settings: Settings, skipBundle?: 
     tag: 'View',
     slug: 'root',
     name: getName(component.name),
-    styles: parseStyles(component),
+    styles: parseStyles(component, true),
   };
 
   const parsed = parseNodes([...component.children]);
-
   const links: EditorLinks = {};
   Object.entries(parsed.state.components).forEach((c: any) => {
     links[getName(c[1].name)] = c[0];
@@ -206,7 +204,7 @@ function writeComponents(
       tag: 'View',
       slug: 'root',
       name: getName(sub.name),
-      styles: parseStyles(sub),
+      styles: parseStyles(sub, true),
     };
 
     const styleid = '_' + sub.id.split(':').join('_');
@@ -269,7 +267,7 @@ function writeChildren(
       // SVG child paths
       } else if (child.paths) {
         child.paths.forEach((path: any, i: number) => {
-          const fill = colorToCSS(child.fills[i].color);
+          const fill = getColor(child.fills[i].color);
           writer.write(`<Path d="${path.data}" fill="${fill}"/>`)
         });
       // View children (recurse)

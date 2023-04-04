@@ -1,37 +1,11 @@
-import {parseStyles} from 'modules/parse/style';
+import {parseStyles} from 'modules/parse/styles';
 import {getTag, getName, getSlug} from 'utils/figma';
 
 import type {TargetNode} from 'types/figma';
-import type {ReactComponent} from 'types/react';
+import type {ParseData, ParseState, ParsedComponent} from 'types/parse';
 
-export interface ParseData {
-  code: ParsedComponent[];
-  state: ParseState;
-}
-
-export interface ParseState {
-  components: any,
-  stylesheet: ReactComponent['styles'],
-  primitives: Set<string>,
-  libraries: Set<string>,
-}
-
-export interface ParsedComponent {
-  id: string,
-  tag: string,
-  name: string,
-  slug: string,
-  props?: any,
-  styles?: Record<string, any>,
-  children?: ParsedComponent[],
-  value?: string,
-  paths?: any[],
-  fills?: any[],
-  box?: any,
-}
-
-export function parseNodes(nodes: TargetNode[], state?: ParseState) {
-  // Init state if none yet
+export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
+  // Init state (haven't recursed yet)
   if (!state) {
     state = {
       components: {},
@@ -45,59 +19,37 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState) {
   let code: ParsedComponent[] = [];
 
   // Loop through each direct child node
-  // TODO: why is ".reverse()" needed sometimes?
   nodes.forEach((node) => {
     // Skip invisible nodes
+    // TODO: conditionally render instead of skipping
     if ('visible' in node && !node.visible) return;
 
+    // These node types can have styles
+    const hasStyles = node.type === 'TEXT'
+      || node.type === 'GROUP'
+      || node.type === 'FRAME'
+      || node.type === 'COMPONENT';
+
     // Create component
-    const id = node.id;
-    const tag = getTag(node.type);
-    const name = getName(node.name);
-    const slug = getSlug(node.name);
-    const component: ParsedComponent = {id, tag, name, slug};
+    const component: ParsedComponent = {
+      id: node.id,
+      tag: getTag(node.type),
+      name: getName(node.name),
+      slug: hasStyles && getSlug(node.name),
+    };
   
-    // Transform styles for child
-    state.stylesheet[slug] = {tag, style: parseStyles(node)};
+    // Transform styles for child (if applicable)
+    if (component.slug) {
+      state.stylesheet[component.slug] = {
+        tag: component.tag,
+        style: parseStyles(node),
+      };
+    }
 
     // Parse Figma node depending on type
     switch (node.type) {
 
-      // Text nodes get inserted and the primitive added
-      case 'TEXT': {
-        state.primitives.add('Text');
-        code.push({...component, value: node.characters || ''});
-        break;
-      }
-  
-      // Image nodes get inserted, source saved, and the primitive added
-      case 'IMAGE': {
-        state.primitives.add('Image');
-        break;
-      }
-
-      // Vectors get inserted w/ paths, fills, dimensions, paths. Add RNSVG library.
-      case 'VECTOR':
-      case 'LINE':
-      case 'STAR':
-      case 'ELLIPSE':
-      case 'POLYGON':
-      case 'BOOLEAN_OPERATION': {
-        state.libraries.add('react-native-svg');
-        code.push({...component, paths: node.vectorPaths, fills: node.fills, box: node.absoluteBoundingBox});
-        break;
-      }
-
-      // Instances get inserted w/ props and master component is recorded
-      case 'INSTANCE': {
-        const isVariant = !!node.variantProperties;
-        const parent = isVariant ? node.masterComponent.parent : node.mainComponent;
-        state.components[parent.id] = parent;
-        code.push({...component, tag: getName(node.name), props: node.componentProperties});
-        break;
-      }
-
-      // Group nodes get recursed and inserted, styles and components are aggregated
+      // Group nodes get recursed & state is combined
       case 'GROUP':
       case 'FRAME':
       case 'COMPONENT': {
@@ -112,8 +64,46 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState) {
         break;
       }
 
+      // Instances get inserted w/ props and the master component recorded
+      case 'INSTANCE': {
+        const isVariant = !!node.variantProperties;
+        const parent = isVariant ? node.masterComponent.parent : node.mainComponent;
+        state.components[parent.id] = parent;
+        code.push({...component, tag: getName(node.name), props: node.componentProperties});
+        break;
+      }
+
+      // Text nodes get inserted and the primitive added
+      case 'TEXT': {
+        state.primitives.add('Text');
+        code.push({...component, value: node.characters || ''});
+        break;
+      }
+  
+      // Image nodes get inserted, source saved, and the primitive added
+      case 'IMAGE': {
+        state.primitives.add('Image');
+        break;
+      }
+
+      // TODO (rectangles & ellipses are just views, ellipses have 99999 border radius)
+      // case 'RECTANGLE':
+      // case 'ELLIPSE':
+
+      // Vectors get inserted w/ paths, fills, dimensions, paths. Add RNSVG library.
+      case 'VECTOR':
+      case 'LINE':
+      case 'STAR':
+      case 'ELLIPSE':
+      case 'POLYGON':
+      case 'BOOLEAN_OPERATION': {
+        state.libraries.add('react-native-svg');
+        code.push({...component, paths: node.vectorPaths, fills: node.fills, box: node.absoluteBoundingBox});
+        break;
+      }
+
       default: {
-        console.warn('UNSUPPORTED NODE', node.type, node);
+        console.warn('parseNodes: UNSUPPORTED', node.type, node);
       }
     }
   });

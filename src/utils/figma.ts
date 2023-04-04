@@ -1,4 +1,5 @@
-import type {TargetNode} from 'types/figma';
+import type {TargetNode, SizeResult} from 'types/figma';
+
 import {rgbToHex} from 'utils/common';
 
 // Return the selected component, if child look upward
@@ -69,6 +70,8 @@ export function getTag(type: string) {
 // Convert props map to a string
 export function propsToString(props: any) {
   if (!props) return '';
+  const attrs = Object.entries(props);
+  if (attrs.length === 0) return '';
   return ' ' + Object.entries(props)
     .sort(sortProps)
     .map(propsToKeyValues)
@@ -100,34 +103,9 @@ export function propsToKeyValues([key, prop]) {
   }
 }
 
-export function reactionsToProps(reactions: ReadonlyArray<Reaction>) {
-  const attributes = [];
-
-  for (let {trigger, action} of reactions) {
-    let attr: string | null = null
-    switch (trigger.type) {
-      case 'ON_CLICK':
-        attr = 'onPress';
-        break;
-      case 'MOUSE_DOWN':
-        attr = 'onPressDown';
-        break;
-      case 'ON_PRESS':
-      case 'MOUSE_UP':
-        attr = 'onpointerup';
-        break;
-      case 'ON_HOVER':
-        attr = 'onmouseover';
-        break;
-    }
-    if (attr == null) continue;
-  }
-
-  return attributes.join(" ");
-}
-
 // Map Figma color to RGB or HEX
-export function colorToCSS(color: RGB, opacity?: number, skipHex?: boolean): string {
+export function getColor(color: RGB, opacity?: number, skipHex?: boolean): string {
+  if (!color) return;
   const r = Math.round(color.r * 255);
   const g = Math.round(color.g * 255);
   const b = Math.round(color.b * 255);
@@ -139,8 +117,137 @@ export function colorToCSS(color: RGB, opacity?: number, skipHex?: boolean): str
   }
 }
 
-export function colorFromPaints(fills: ReadonlyArray<Paint>): string | null {
-  const firstColor = fills.find(f => f.type === 'SOLID' && f.visible) as SolidPaint;
-  if (firstColor == null) return null;
-  return colorToCSS(firstColor.color, firstColor.opacity || 1.0);
+export function getTopFill(fills: ReadonlyArray<Paint> | PluginAPI['mixed']): SolidPaint | undefined {
+  if (fills && fills !== figma.mixed && fills.length > 0) {
+    return [...fills].reverse().find((d) => d.type === 'SOLID' && d.visible !== false) as SolidPaint;
+  }
+}
+
+export function getFillStyle(style: BaseStyle) {
+  let fillKey: string;
+  if (style?.name) {
+    const [fillGroup, fillToken] = style.name.split('/');
+    fillKey = `colors.${getSlug(fillGroup)}.${getSlug(fillToken)}`;
+  }
+  return fillKey;
+}
+
+export function getSize(node: TargetNode, isRoot: boolean): SizeResult {
+  if (node.layoutAlign === 'STRETCH' && node.layoutGrow === 1) {
+    return {width: 'full', height: 'full'};
+  }
+
+  let propWidth: SizeResult['width'] = node.width;
+  let propHeight: SizeResult['height'] = node.height;
+
+  if (!isRoot && node.parent && 'layoutMode' in node.parent) {
+    // Stretch means the opposite direction
+    if (node.layoutAlign === 'STRETCH') {
+      switch (node.parent.layoutMode) {
+        case 'HORIZONTAL':
+          propHeight = 'full';
+          break;
+        case 'VERTICAL':
+          propWidth = 'full';
+          break;
+      }
+    }
+
+    // Grow means the same direction
+    if (node.layoutGrow === 1) {
+      if (node.parent.layoutMode === 'HORIZONTAL') {
+        propWidth = 'full';
+      } else {
+        propHeight = 'full';
+      }
+    }
+  }
+
+  if ('layoutMode' in node) {
+    if ((node.layoutMode === 'HORIZONTAL' && node.counterAxisSizingMode === 'AUTO')
+      || (node.layoutMode === 'VERTICAL' && node.primaryAxisSizingMode === 'AUTO')) {
+      propHeight = null;
+    }
+
+    if ((node.layoutMode === 'VERTICAL' && node.counterAxisSizingMode === 'AUTO')
+      || (node.layoutMode === 'HORIZONTAL' && node.primaryAxisSizingMode === 'AUTO')) {
+      propWidth = null;
+    }
+  }
+
+  if ('layoutMode' in node && node.layoutMode !== 'NONE') {
+    switch (node.layoutMode) {
+      case 'HORIZONTAL':
+        return {
+          width: node.primaryAxisSizingMode === 'FIXED' ? propWidth : null,
+          height: node.counterAxisSizingMode === 'FIXED' ? propHeight : null,
+        };
+      case 'VERTICAL':
+        return {
+          width: node.counterAxisSizingMode === 'FIXED' ? propWidth : null,
+          height: node.primaryAxisSizingMode === 'FIXED' ? propHeight : null,
+        };
+    }
+  } else {
+    return {
+      width: propWidth,
+      height: propHeight,
+    };
+  }
+}
+
+export function getLineHeight(node: TargetNode): number | undefined {
+  if (node.lineHeight !== figma.mixed
+    && node.lineHeight.unit !== 'AUTO'
+    && Math.round(node.lineHeight.value) !== 0) {
+    if (node.lineHeight.unit === 'PIXELS') {
+      return node.lineHeight.value;
+    } else {
+      if (node.fontSize !== figma.mixed) {
+        return (node.fontSize * node.lineHeight.value) / 100;
+      }
+    }
+  }
+  return undefined;
+}
+
+export function getLetterSpacing(node: TargetNode): number | undefined {
+  if (node.letterSpacing !== figma.mixed
+    && Math.round(node.letterSpacing.value) !== 0) {
+    if (node.letterSpacing.unit === 'PIXELS') {
+      return node.letterSpacing.value;
+    } else {
+      if (node.fontSize !== figma.mixed) {
+        return (node.fontSize * node.letterSpacing.value) / 100;
+      }
+    }
+  }
+  return undefined;
+}
+
+export function getFontWeight(style: string) {
+  switch (style.replace(/\s*italic\s*/i, '')) {
+    case 'Thin':
+      return 100;
+    case 'Extra Light':
+    case 'Extra-light':
+      return 200;
+    case 'Light':
+      return 300;
+    case 'Regular':
+      return 400;
+    case 'Medium':
+      return 500;
+    case 'Semi Bold':
+    case 'Semi-bold':
+      return 600;
+    case 'Bold':
+      return 700;
+    case 'Extra Bold':
+    case 'Extra-bold':
+      return 800;
+    case 'Black':
+      return 900;
+  }
+  return 400;
 }
