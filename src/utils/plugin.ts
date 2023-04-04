@@ -1,5 +1,5 @@
-import {getSelectedComponent} from 'utils/figma';
-import generateCode from 'utils/generate';
+import {getSelectedComponent, getPage} from 'utils/figma';
+import generateCode from 'modules/generate';
 import config from 'config';
 
 import type {Settings} from 'types/settings';
@@ -44,5 +44,52 @@ export function updateDimensions() {
     figma.ui.resize(width, height);
     _width = width;
     _height = height;
+  }
+}
+
+export function focusComponent(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page) {
+        figma.currentPage = page;
+      }
+      figma.currentPage.selection = [node as any];
+      figma.viewport.scrollAndZoomIntoView([node]);
+    }
+  } catch (e) {}
+}
+
+export function exportDocument(type: 'all' | 'page' | 'selected') {
+  const document = figma.currentPage.parent;
+  // Export current page or all pages in document
+  if (type === 'all' || type === 'page') {
+    figma.notify(`Exporting ${type} components, this may take several seconds…`, {timeout: 3500});
+    setTimeout(() => {
+      const target = type === 'all' ? document : figma.currentPage;
+      const project = type === 'all' ? document.name : figma.currentPage.name;
+      const components = target.findAllWithCriteria({types: ['COMPONENT', 'COMPONENT_SET']});
+      const files = JSON.stringify(components.map(component => {
+        try {
+          const file = generateCode(component, _config, true);
+          return [file.name, file.code];
+        } catch (e) {
+          console.error('Failed to export', component, e);
+          return [];
+        }
+      }).filter(Boolean));
+      figma.ui.postMessage({type: 'compile', project, files});
+    }, 500);
+  // Export single (selected) component
+  } else {
+    figma.notify(`Exporting component…`, {timeout: 1500});
+    setTimeout(() => {
+      const selected = getSelectedComponent();
+      const gen = generateCode(selected, _config, true);
+      const files = JSON.stringify([[gen.name, gen.code]]);
+      figma.ui.postMessage({type: 'compile', project: gen.name, files});
+    }, 500);
   }
 }

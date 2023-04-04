@@ -1,36 +1,61 @@
 import React from 'react';
-import {useEffect, useCallback, useRef} from 'react';
+import Editor from '@monaco-editor/react';
+import * as Tabs from '@radix-ui/react-tabs';
+import {useEffect, useState, useCallback, useMemo, useRef} from 'react';
 import {useComponent} from 'interface/hooks/useComponent';
 import {useSettings} from 'interface/hooks/useSettings';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {usePreview} from 'interface/hooks/usePreview';
 import {useEditor} from 'interface/hooks/useEditor';
+import {useExport} from 'interface/hooks/useExport';
 import {IconGear} from 'interface/icons/IconGear';
+import {StatusBar} from 'interface/base/StatusBar';
 import {Loading} from 'interface/base/Loading';
 import {Hint} from 'interface/base/Hint';
 import {html} from 'interface/templates';
-import Editor from '@monaco-editor/react';
-import * as Tabs from '@radix-ui/react-tabs';
+import {debounce} from 'utils/common';
 
-export function App() {
+export function App() {  
+  const [opacity, setOpacity] = useState(0);
   const isDarkMode = useDarkMode();
   const component = useComponent();
   const settings = useSettings();
   const preview = usePreview(component, settings.config);
-  const editor = useEditor(settings.config);
-  const shell = useRef<HTMLIFrameElement>(null);
+  const editor = useEditor(settings.config, component?.links);
+  const iframe = useRef<HTMLIFrameElement>(null);
 
   const editorTheme = isDarkMode ? 'vs-dark' : 'vs';
   const editorOptions = {...settings.config.display.editor.general, theme: editorTheme};
-  const updatePreview = useCallback(() => shell.current?.contentWindow?.postMessage(preview), [preview]);
 
+  const handleSettings = useMemo(() =>
+    debounce(settings.update, 750), [settings.update]);
+
+  const updatePreview = useCallback(() =>
+    iframe.current?.contentWindow?.postMessage(preview), [preview]);
+
+  const exportProject = useCallback((target: string) =>
+    parent.postMessage({pluginMessage: {type: 'export', payload: target}}, '*'), []);
+
+  const changeTab = useCallback((value: string) => {
+    if (value === 'preview') {
+      setTimeout(() => setOpacity(1), 300);
+    } else {
+      setOpacity(0);
+    }
+  }, []);
+
+  useExport();
   useEffect(updatePreview, [preview]);
-
-  if (!editor) return <Loading/>;
-  if (!component?.code) return <Hint/>;
+  useEffect(() => {
+    if (component?.code) {
+      setTimeout(() => setOpacity(1), 300);
+    } else {
+      setOpacity(0);
+    }
+  }, [component?.code]);
 
   return (
-    <Tabs.Root defaultValue="code" className="tabs">
+    <Tabs.Root defaultValue="code" className="tabs" onValueChange={changeTab}>
       <Tabs.List loop aria-label="header" className="bar">
         <Tabs.Trigger title="View component code" value="code" className="tab">
           Code
@@ -38,40 +63,87 @@ export function App() {
         <Tabs.Trigger title="Preview component" value="preview" className="tab">
           Preview
         </Tabs.Trigger>
-        {settings.config.output.react.flavor === 'tamagui' &&
-          <Tabs.Trigger title="View theme file" value="theme" className="tab">
-            Theme
-          </Tabs.Trigger>
-        }
+        <Tabs.Trigger title="View theme file" value="theme" className="tab">
+          Theme
+        </Tabs.Trigger>
+        <Tabs.Trigger title="Export project" value="export" className="tab">
+          Export
+        </Tabs.Trigger>
         <div className="expand"/>
         <Tabs.Trigger title="Configure plugin" value="settings" className="tab icon">
           <IconGear/>
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="code" className="expand">
-        <Editor
-          className="editor"
-          language="typescript"
-          options={{...editorOptions, readOnly: true}}
-          path={`${component.name}.tsx`}
-          theme={editorTheme}
-          value={component.code}
-        />
+        {component?.code &&
+          <Editor
+            className="editor"
+            language="typescript"
+            path={`${component.name}.tsx`}
+            value={component.code}
+            theme={editorTheme}
+            loading={<Loading/>}
+            options={{...editorOptions, readOnly: true}}
+          />
+        }
+        {!component?.code && <Hint/>}
+        <StatusBar>
+          {/* copy, export buttons */}
+        </StatusBar>
       </Tabs.Content>
       <Tabs.Content value="preview" className="expand">
-        <iframe name="shell" ref={shell} srcDoc={html.shell} onLoad={updatePreview}/>
+        {component?.code &&
+          <iframe
+            ref={iframe}
+            style={{opacity}}
+            srcDoc={html.preview}
+            onLoad={updatePreview}
+          />
+        }
+        {!component?.code && <Hint/>}
       </Tabs.Content>
       <Tabs.Content value="theme" className="expand">
-        {settings.config.output.react.flavor === 'tamagui' &&
+        {component?.code &&
           <Editor
             className="editor"
             language="typescript"
             path="Theme.ts"
-            value="Tamagui theme generation isn't done yet, sorry."
+            value={component?.theme}
             theme={editorTheme}
+            loading={<Loading/>}
             options={{...editorOptions, readOnly: true}}
           />
         }
+        {!component?.code && <Hint/>}
+      </Tabs.Content>
+      <Tabs.Content value="export" className="expand">
+        <div className="page">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const data = new FormData(e.currentTarget);
+            const type = data.get('type').toString();
+            exportProject(type);
+          }}>
+            <div className="radio-group">
+              <label>
+                <input type="radio" name="type" value="all" defaultChecked/>
+                Document
+              </label>
+              <label>
+                <input type="radio" name="type" value="page"/>
+                Current Page
+              </label>
+              <label>
+                <input type="radio" name="type" value="selected"/>
+                Selected Component
+              </label>
+            </div>
+            <input className="button" type="submit" value="Export"/>
+          </form>
+        </div>
+        <StatusBar>
+          {/* copy, export buttons */}
+        </StatusBar>
       </Tabs.Content>
       <Tabs.Content value="settings" className="expand">
         <Editor
@@ -80,9 +152,23 @@ export function App() {
           path="Settings.json"
           value={settings.raw}
           theme={editorTheme}
+          loading={<Loading/>}
           options={{...editorOptions, readOnly: false}}
-          onChange={settings.update}
+          onChange={value => handleSettings(value)}
+          onValidate={markers => {
+            if (markers.length === 0) {
+              const fileUri = editor.Uri.parse('Settings.json');
+              const fileModel = editor.editor.getModel(fileUri);
+              settings.update(fileModel.getValue(), true);
+              settings.locked.current = false;
+            } else {
+              settings.locked.current = true;
+            }
+          }}
         />
+        <StatusBar>
+          {/* copy, export buttons */}
+        </StatusBar>
       </Tabs.Content>
     </Tabs.Root>
   );

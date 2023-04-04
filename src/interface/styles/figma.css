@@ -1,0 +1,109 @@
+/* Inputs */
+
+.button {
+  color: var(--figma-color-text-onbrand);
+  background-color: var(--figma-color-bg-brand);
+  display: flex;
+	align-items: center;
+	border-radius: var(--border-radius-large);
+	flex-shrink: 0;
+	font-family: var(--font-stack);
+	font-size: var(--font-size-xsmall);
+	font-weight: var(--font-weight-medium);
+	letter-spacing: var(--font-letter-spacing-neg-small);
+	line-height: var(--font-line-height);
+	height: var(--size-medium);
+	padding: 0 var(--size-xsmall) 0 var(--size-xsmall);
+	text-decoration: none;
+	outline: none;
+	border: 2px solid transparent;
+	user-select: none;
+}
+
+.button:active {
+  background-color: var(--figma-color-bg-brand-pressed);
+}
+
+/* Tabs */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.bar {
+  padding: 4px 5px;
+  border-bottom: 1px solid var(--figma-color-border);
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+}
+
+.tab {
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--font-line-height);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+  font-weight: 500;
+  background: none;
+  color: #b3b3b3;
+  padding: 0 8px;
+  height: 32;
+  border: 0;
+  border-radius: 2px;
+}
+
+.tab.icon {
+  width: 32;
+  padding: 0;
+  opacity: 0.6;
+}
+
+.tab[data-state="active"] {
+  font-weight: 600;
+  color: var(--figma-color-text);
+}
+
+.tab.icon[data-state="active"] {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
+/* Radios */
+
+.radio-group {
+  margin-bottom: 20px;
+}
+
+.radio-group > label {
+  user-select: none;
+  display: block;
+  padding: 4px 0;
+}
+
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 2px solid #bbb;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  margin-right: 0.6em;
+  position: relative;
+  top: 0.3em;
+}
+
+input[type="radio"]:checked::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--figma-color-bg-brand);
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+}

@@ -1,8 +1,8 @@
 import {useState, useEffect} from 'react';
-import {Component} from 'types/plugin';
+import {EditorComponent} from 'types/editor';
 
 export function useComponent() {
-  const [component, setComponent] = useState<Component>(null);
+  const [component, setComponent] = useState<EditorComponent>(null);
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
