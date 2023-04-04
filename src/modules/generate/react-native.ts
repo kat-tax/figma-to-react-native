@@ -78,7 +78,7 @@ export function generateTheme(settings: Settings) {
 
     // Insert this color into the color group
     // @ts-ignore (TODO: why the fuck is typescript saying there isn't a color prop?)
-    const value = colorToCSS(paint.paints[0].color);
+    const value = getColor(paint.paints[0].color);
     maxLineLength = Math.max(maxLineLength, name.length + value.length);
     colors[group][name] = {value, comment: paint.description};
 
