@@ -8,7 +8,6 @@ import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {usePreview} from 'interface/hooks/usePreview';
 import {useEditor} from 'interface/hooks/useEditor';
 import {IconGear} from 'interface/icons/IconGear';
-import {StatusBar} from 'interface/base/StatusBar';
 import {Loading} from 'interface/base/Loading';
 import {Hint} from 'interface/base/Hint';
 import {Export} from 'interface/Export';
@@ -77,9 +76,6 @@ export function App() {
           />
         }
         {!component?.code && <Hint/>}
-        <StatusBar>
-          {/* copy, export buttons */}
-        </StatusBar>
       </Tab>
       <Tab value="preview" className="expand">
         {component?.code &&
@@ -121,18 +117,15 @@ export function App() {
           onChange={value => handleSettings(value)}
           onValidate={markers => {
             if (markers.length === 0) {
-              const fileUri = editor.Uri.parse('Settings.json');
-              const fileModel = editor.editor.getModel(fileUri);
-              settings.update(fileModel.getValue(), true);
+              const uri = editor.Uri.parse('Settings.json');
+              const model = editor.editor.getModel(uri);
+              settings.update(model.getValue(), true);
               settings.locked.current = false;
             } else {
               settings.locked.current = true;
             }
           }}
         />
-        <StatusBar>
-          {/* copy, export buttons */}
-        </StatusBar>
       </Tab>
     </Tabs>
   );
