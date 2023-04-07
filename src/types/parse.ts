@@ -15,6 +15,7 @@ export interface ParsedComponent {
   tag: string,
   name: string,
   slug: string,
+  node: any,
   props?: any,
   styles?: Record<string, any>,
   children?: ParsedComponent[],

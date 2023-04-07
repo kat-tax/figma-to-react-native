@@ -74,7 +74,7 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
       const files = JSON.stringify(components.map(component => {
         try {
           const file = generateCode(component, _config, true);
-          return [file.name, file.code];
+          return [file.name, file.code, file.story];
         } catch (e) {
           console.error('Failed to export', component, e);
           return [];
@@ -88,7 +88,7 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
     setTimeout(() => {
       const selected = getSelectedComponent();
       const gen = generateCode(selected, _config, true);
-      const files = JSON.stringify([[gen.name, gen.code]]);
+      const files = JSON.stringify([[gen.name, gen.code, gen.story]]);
       figma.ui.postMessage({type: 'compile', project: gen.name, files});
     }, 500);
   }

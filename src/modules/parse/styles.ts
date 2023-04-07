@@ -236,13 +236,13 @@ function typography(node: TargetNode): StylesTypography {
   const lineHeight = getLineHeight(node);
   const letterSpacing = getLetterSpacing(node);
   const isItalic = node.fontName.style.match(/italic/i);
-  const isUnderline = node.textDecoration === 'UNDERLINE';
   const isCrossed = node.textDecoration === 'STRIKETHROUGH';
-  const isAlignLeft = node.textAlignHorizontal === 'LEFT';
-  const isAlignRight = node.textAlignHorizontal === 'RIGHT';
-  const isAlignBottom = node.textAlignVertical === 'BOTTOM';
+  const isUnderline = node.textDecoration === 'UNDERLINE';
   const isAlignCenter = node.textAlignHorizontal === 'CENTER';
+  const isAlignRight = node.textAlignHorizontal === 'RIGHT';
+  const isAlignLeft = node.textAlignHorizontal === 'LEFT';
   const isAlignTop = node.textAlignVertical === 'TOP';
+  const isAlignBottom = node.textAlignVertical === 'BOTTOM';
 
   return {
     lineHeight,

@@ -32,6 +32,7 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
 
     // Create component
     const component: ParsedComponent = {
+      node,
       id: node.id,
       tag: getTag(node.type),
       name: getName(node.name),

@@ -16,20 +16,16 @@ export function useExport() {
 
 async function saveFilesFallback(project: string, files: string[][]) {
   const lastModified = new Date();
+  const payload: {name: string, lastModified: Date, input: string}[] = [];
+  files.forEach(([name, code, story]) => {
+    payload.push({name: `${name}.tsx`, lastModified, input: code});
+    payload.push({name: `${name}.stories.ts`, lastModified, input: story});
+  });
+  const blob = await downloadZip(payload).blob();
+  const source = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  let source: string;
-  if (files.length > 1) {
-    const contents = files.map(([name, code]) => ({name: `${name}.tsx`, lastModified, input: code}));
-    const blob = await downloadZip(contents).blob();
-    source = URL.createObjectURL(blob);
-    link.href = source;
-    link.download = `${project}.zip`;
-  } else {
-    const [name, code] = files[0];
-    source = URL.createObjectURL(new Blob([code], {type: 'text/plain'}));
-    link.href = source;
-    link.download = `${name}.tsx`;
-  }
+  link.href = source;
+  link.download = `${project}.zip`;
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(source), 1000);

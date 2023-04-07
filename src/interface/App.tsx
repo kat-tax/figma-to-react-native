@@ -1,17 +1,17 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
-import * as Tabs from '@radix-ui/react-tabs';
+import {Root as Tabs, List as Bar, Trigger as Item, Content as Tab} from '@radix-ui/react-tabs';
 import {useEffect, useState, useCallback, useMemo, useRef} from 'react';
 import {useComponent} from 'interface/hooks/useComponent';
 import {useSettings} from 'interface/hooks/useSettings';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {usePreview} from 'interface/hooks/usePreview';
 import {useEditor} from 'interface/hooks/useEditor';
-import {useExport} from 'interface/hooks/useExport';
 import {IconGear} from 'interface/icons/IconGear';
 import {StatusBar} from 'interface/base/StatusBar';
 import {Loading} from 'interface/base/Loading';
 import {Hint} from 'interface/base/Hint';
+import {Export} from 'interface/Export';
 import {html} from 'interface/templates';
 import {debounce} from 'utils/common';
 
@@ -23,28 +23,18 @@ export function App() {
   const preview = usePreview(component, settings.config);
   const editor = useEditor(settings.config, component?.links);
   const iframe = useRef<HTMLIFrameElement>(null);
-
   const editorTheme = isDarkMode ? 'vs-dark' : 'vs';
   const editorOptions = {...settings.config.display.editor.general, theme: editorTheme};
-
-  const handleSettings = useMemo(() =>
-    debounce(settings.update, 750), [settings.update]);
-
-  const updatePreview = useCallback(() =>
-    iframe.current?.contentWindow?.postMessage(preview), [preview]);
-
-  const exportProject = useCallback((target: string) =>
-    parent.postMessage({pluginMessage: {type: 'export', payload: target}}, '*'), []);
-
+  const handleSettings = useMemo(() => debounce(settings.update, 750), [settings.update]);
+  const updatePreview = useCallback(() => iframe.current?.contentWindow?.postMessage(preview), [preview]);
   const changeTab = useCallback((value: string) => {
     if (value === 'preview') {
-      setTimeout(() => setOpacity(1), 300);
+      setTimeout(() => setOpacity(1), 500);
     } else {
       setOpacity(0);
     }
   }, []);
 
-  useExport();
   useEffect(updatePreview, [preview]);
   useEffect(() => {
     if (component?.code) {
@@ -55,26 +45,26 @@ export function App() {
   }, [component?.code]);
 
   return (
-    <Tabs.Root defaultValue="code" className="tabs" onValueChange={changeTab}>
-      <Tabs.List loop aria-label="header" className="bar">
-        <Tabs.Trigger title="View component code" value="code" className="tab">
+    <Tabs defaultValue="code" className="tabs" onValueChange={changeTab}>
+      <Bar loop aria-label="header" className="bar">
+        <Item value="code" title="View component code" className="tab">
           Code
-        </Tabs.Trigger>
-        <Tabs.Trigger title="Preview component" value="preview" className="tab">
+        </Item>
+        <Item value="preview" title="Preview component" className="tab">
           Preview
-        </Tabs.Trigger>
-        <Tabs.Trigger title="View theme file" value="theme" className="tab">
+        </Item>
+        <Item value="theme" title="View theme file" className="tab">
           Theme
-        </Tabs.Trigger>
-        <Tabs.Trigger title="Export project" value="export" className="tab">
+        </Item>
+        <Item value="export" title="Export project" className="tab">
           Export
-        </Tabs.Trigger>
+        </Item>
         <div className="expand"/>
-        <Tabs.Trigger title="Configure plugin" value="settings" className="tab icon">
+        <Item title="Configure plugin" value="settings" className="tab icon">
           <IconGear/>
-        </Tabs.Trigger>
-      </Tabs.List>
-      <Tabs.Content value="code" className="expand">
+        </Item>
+      </Bar>
+      <Tab value="code" className="expand">
         {component?.code &&
           <Editor
             className="editor"
@@ -90,8 +80,8 @@ export function App() {
         <StatusBar>
           {/* copy, export buttons */}
         </StatusBar>
-      </Tabs.Content>
-      <Tabs.Content value="preview" className="expand">
+      </Tab>
+      <Tab value="preview" className="expand">
         {component?.code &&
           <iframe
             ref={iframe}
@@ -101,8 +91,8 @@ export function App() {
           />
         }
         {!component?.code && <Hint/>}
-      </Tabs.Content>
-      <Tabs.Content value="theme" className="expand">
+      </Tab>
+      <Tab value="theme" className="expand">
         {component?.code &&
           <Editor
             className="editor"
@@ -115,37 +105,11 @@ export function App() {
           />
         }
         {!component?.code && <Hint/>}
-      </Tabs.Content>
-      <Tabs.Content value="export" className="expand">
-        <div className="page">
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const data = new FormData(e.currentTarget);
-            const type = data.get('type').toString();
-            exportProject(type);
-          }}>
-            <div className="radio-group">
-              <label>
-                <input type="radio" name="type" value="all" defaultChecked/>
-                Document
-              </label>
-              <label>
-                <input type="radio" name="type" value="page"/>
-                Current Page
-              </label>
-              <label>
-                <input type="radio" name="type" value="selected"/>
-                Selected Component
-              </label>
-            </div>
-            <input className="button" type="submit" value="Export"/>
-          </form>
-        </div>
-        <StatusBar>
-          {/* copy, export buttons */}
-        </StatusBar>
-      </Tabs.Content>
-      <Tabs.Content value="settings" className="expand">
+      </Tab>
+      <Tab value="export" className="expand">
+        <Export/>
+      </Tab>
+      <Tab value="settings" className="expand">
         <Editor
           className="editor"
           language="json"
@@ -169,7 +133,7 @@ export function App() {
         <StatusBar>
           {/* copy, export buttons */}
         </StatusBar>
-      </Tabs.Content>
-    </Tabs.Root>
+      </Tab>
+    </Tabs>
   );
 }

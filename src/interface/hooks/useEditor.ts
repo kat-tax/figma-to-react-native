@@ -36,23 +36,6 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
         uri: 'http://ult.dev/figaro-settings-schema.json',
       }],
     });
-    /*
-
-      // Automatic types for packages (EXPERIMENTAL)
-      AutoTypings.create(editor, {sourceCache: new LocalStorageCache()});
-      const completor = new AutoImport({monaco, editor})
-
-      completor.imports.saveFiles([{
-        path: './node_modules/left-pad/index.js',
-        aliases: ['left-pad'],
-        imports: regexTokeniser(`
-          export const PAD = ''
-          export function leftPad() {}
-          export function rightPad() {}
-        `)
-      }]);
-
-    */
   }, [monaco]);
 
   // Setup typescript user options + libraries

@@ -10,13 +10,14 @@ import type {Settings} from 'types/settings';
 
 export default function(component: TargetNode, settings: Settings, skipBundle?: boolean): EditorComponent {
   if (!component) {
-    return {name: '',  code: '', theme: '', bundle: '', links: {}};
+    return {name: '',  code: '', story: '', theme: '', bundle: '', links: {}};
   }
 
   const rootView: ParsedComponent = {
     id: component.id,
     tag: 'View',
     slug: 'root',
+    node: component,
     name: getName(component.name),
     styles: parseStyles(component, true),
   };
@@ -30,6 +31,7 @@ export default function(component: TargetNode, settings: Settings, skipBundle?: 
   return {
     name: rootView.name,
     code: generateCode(rootView, parsed, settings),
+    story: generateStory(rootView, settings),
     theme: generateTheme(settings),
     bundle: !skipBundle ? generateBundle(rootView, component.children, settings) : '',
     links,
@@ -53,6 +55,58 @@ export function generateCode(
   writer.blankLine();
   writeStyleSheet(writer, rootView, stylesheet);
   writer.blankLine();
+
+  return writer.toString();
+}
+
+export function generateStory(
+  rootView: ParsedComponent,
+  settings: Settings,
+) {
+  const writer = new CodeBlockWriter(settings.output?.format);
+
+  // Import Component
+  writer.write(`import {${rootView.name} as Component} from`);
+  writer.space();
+  writer.quote(`./${rootView.name}`);
+  writer.write(';');
+  writer.newLine();
+
+  // Boilerplate
+  writer.write('import type {StoryObj, Meta} from');
+  writer.space();
+  writer.quote('@storybook/react');
+  writer.write(';');
+  writer.newLine();
+  writer.blankLine();
+  writer.writeLine('type Story = StoryObj<typeof Component>;');
+  writer.blankLine();
+
+  // Metadata
+  writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
+    writer.write('title:');
+    writer.space();
+    writer.quote(rootView.node.name);
+    writer.write(',');
+    writer.newLine();
+    writer.writeLine('component: Component,');
+  });
+  writer.write(';');
+  writer.blankLine();
+
+  // Story
+  writer.write(`export const ${rootView.name}: Story = `).inlineBlock(() => {
+    writer.write('args: ').inlineBlock(() => {
+      writer.writeLine(`label: 'Test',`);
+      writer.writeLine(`backgroundColor: '#ff0',`);
+    });
+    writer.write(',');
+  });
+  writer.write(';');
+  writer.blankLine();
+
+  // Default export
+  writer.writeLine('export default meta;');
 
   return writer.toString();
 }
@@ -180,7 +234,7 @@ function writeImports(
   components?.forEach(component => {
     writer.write(`import {${component}} from`);
     writer.space();
-    writer.quote(`./${component}.tsx`);
+    writer.quote(`./${component}`);
     writer.write(';');
     writer.newLine();
   });
@@ -188,7 +242,7 @@ function writeImports(
   // Import theme file
   writer.write(`import {colors} from`);
   writer.space();
-  writer.quote(`./theme.ts`);
+  writer.quote(`./theme`);
   writer.write(';');
   writer.newLine();
 }
@@ -203,6 +257,7 @@ function writeComponents(
       id: sub.id,
       tag: 'View',
       slug: 'root',
+      node: sub,
       name: getName(sub.name),
       styles: parseStyles(sub, true),
     };
