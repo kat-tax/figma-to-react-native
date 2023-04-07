@@ -3,16 +3,13 @@ import CodeBlockWriter from 'code-block-writer';
 import type {ParsedComponent} from 'types/parse';
 import type {Settings} from 'types/settings';
 
-export function generateStory(
-  rootView: ParsedComponent,
-  settings: Settings,
-) {
+export function generateStory(root: ParsedComponent, settings: Settings) {
   const writer = new CodeBlockWriter(settings.output?.format);
 
   // Import Component
-  writer.write(`import {${rootView.name} as Component} from`);
+  writer.write(`import {${root.name} as Component} from`);
   writer.space();
-  writer.quote(`./${rootView.name}`);
+  writer.quote(`./${root.name}`);
   writer.write(';');
   writer.newLine();
 
@@ -30,7 +27,7 @@ export function generateStory(
   writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
     writer.write('title:');
     writer.space();
-    writer.quote(rootView.node.name);
+    writer.quote(root.node.name);
     writer.write(',');
     writer.newLine();
     writer.writeLine('component: Component,');
@@ -40,7 +37,7 @@ export function generateStory(
 
   // Story
   // TODO: story for each variant
-  writer.write(`export const ${rootView.name}: Story = `).inlineBlock(() => {
+  writer.write(`export const ${root.name}: Story = `).inlineBlock(() => {
     writer.write('args: ').inlineBlock(() => {
       writer.writeLine(`label: 'Test',`);
       writer.writeLine(`backgroundColor: '#ff0',`);

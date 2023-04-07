@@ -5,11 +5,7 @@ import {getName} from 'utils/figma';
 import type {ParseData, ParsedComponent} from 'types/parse';
 import type {Settings} from 'types/settings';
 
-export function generateComponent(
-  rootView: ParsedComponent,
-  parsed: ParseData,
-  settings: Settings,
-) {
+export function generateComponent(root: ParsedComponent, parsed: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings.output?.format);
   const {components, stylesheet, primitives, libraries} = parsed.state;
   const imports = Object.entries(components)
@@ -18,9 +14,9 @@ export function generateComponent(
 
   writeImports(writer, settings, primitives, libraries, imports);
   writer.blankLine();
-  writeFunction(writer, settings, rootView, parsed.code);
+  writeFunction(writer, settings, root, parsed.code);
   writer.blankLine();
-  writeStyleSheet(writer, rootView, stylesheet);
+  writeStyleSheet(writer, root, stylesheet);
   writer.blankLine();
 
   return writer.toString();

@@ -16,7 +16,7 @@ export function generateBundle(component: TargetNode, settings: Settings, noPrev
     return {name: '',  code: '', story: '', theme: '', preview: '', links: {}};
   }
 
-  const rootView: ParsedComponent = {
+  const root: ParsedComponent = {
     id: component.id,
     tag: 'View',
     slug: 'root',
@@ -32,11 +32,11 @@ export function generateBundle(component: TargetNode, settings: Settings, noPrev
   });
 
   return {
-    name: rootView.name,
-    code: generateComponent(rootView, parsed, settings),
-    story: generateStory(rootView, settings),
+    name: root.name,
+    code: generateComponent(root, parsed, settings),
+    story: generateStory(root, settings),
     theme: generateTheme(settings),
-    preview: !noPreview ? generatePreview(rootView, component.children, settings) : '',
+    preview: !noPreview ? generatePreview(root, component.children, settings) : '',
     links,
   };
 }

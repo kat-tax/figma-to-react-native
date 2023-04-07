@@ -30,7 +30,7 @@ export function generateTheme(settings: Settings) {
 
   });
 
-  writer.write(`export const colors = `).inlineBlock(() => {
+  writer.write('export const colors = ').inlineBlock(() => {
     Object.keys(colors).forEach(group => {
       writer.write(`${getSlug(group)}: `).inlineBlock(() => {
         Object.keys(colors[group]).forEach(name => {

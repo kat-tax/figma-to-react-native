@@ -8,11 +8,7 @@ import {getName} from 'utils/figma';
 import type {ParsedComponent} from 'types/parse';
 import type {Settings} from 'types/settings';
 
-export function generatePreview(
-  rootView: ParsedComponent,
-  children: readonly SceneNode[],
-  settings: Settings,
-) {
+export function generatePreview(root: ParsedComponent, children: readonly SceneNode[], settings: Settings) {
   const parsed = parseNodes([...children]);
   const writer = new CodeBlockWriter(settings.output?.format);
   const {components, stylesheet} = parsed.state;
@@ -23,9 +19,9 @@ export function generatePreview(
   writer.blankLine();
   writer.write(generateTheme(settings));
   writer.blankLine();
-  writeFunction(writer, settings, rootView, parsed.code);
+  writeFunction(writer, settings, root, parsed.code);
   writer.blankLine();
-  writeStyleSheet(writer, rootView, stylesheet);
+  writeStyleSheet(writer, root, stylesheet);
   writer.blankLine();
   writeComponents(writer, settings, components);
   writer.blankLine();
@@ -33,13 +29,9 @@ export function generatePreview(
   return writer.toString();
 }
 
-function writeComponents(
-  writer: CodeBlockWriter,
-  settings: Settings,
-  components?: string[],
-) {
+function writeComponents(writer: CodeBlockWriter, settings: Settings, components?: string[]) {
   Object.values(components).forEach((sub: any) => {
-    const subRootView: ParsedComponent = {
+    const root: ParsedComponent = {
       id: sub.id,
       tag: 'View',
       slug: 'root',
@@ -51,9 +43,9 @@ function writeComponents(
     const styleid = '_' + sub.id.split(':').join('_');
     const parsed = parseNodes([...sub.children]);
 
-    writeFunction(writer, settings, subRootView, parsed.code, styleid);
+    writeFunction(writer, settings, root, parsed.code, styleid);
     writer.blankLine();
-    writeStyleSheet(writer, subRootView, parsed.state.stylesheet, styleid);
+    writeStyleSheet(writer, root, parsed.state.stylesheet, styleid);
     writer.blankLine();
     writeComponents(writer, settings, parsed.state.components);
   });
