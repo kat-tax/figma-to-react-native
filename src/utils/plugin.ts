@@ -1,5 +1,5 @@
 import {getSelectedComponent, getPage} from 'utils/figma';
-import generateCode from 'modules/generate';
+import {generateBundle} from 'modules/generate/bundle';
 import config from 'config';
 
 import type {Settings} from 'types/settings';
@@ -26,12 +26,12 @@ export function updateConfig(value: Settings, skipSave?: boolean) {
 
 export function updateCode() {
   const selected = getSelectedComponent();
-  const component = generateCode(selected, _config);
-  if (component.code !== _code) {
-    _code = component.code;
+  const bundle = generateBundle(selected, _config);
+  if (bundle.code !== _code) {
+    _code = bundle.code;
     figma.ui.postMessage({
       type: 'code',
-      payload: JSON.stringify(component),
+      payload: JSON.stringify(bundle),
     });
   }
 }
@@ -73,8 +73,8 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
       const components = target.findAllWithCriteria({types: ['COMPONENT', 'COMPONENT_SET']});
       const files = JSON.stringify(components.map(component => {
         try {
-          const file = generateCode(component, _config, true);
-          return [file.name, file.code, file.story];
+          const bundle = generateBundle(component, _config, true);
+          return [bundle.name, bundle.code, bundle.story];
         } catch (e) {
           console.error('Failed to export', component, e);
           return [];
@@ -87,9 +87,9 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
     figma.notify(`Exporting component…`, {timeout: 1500});
     setTimeout(() => {
       const selected = getSelectedComponent();
-      const gen = generateCode(selected, _config, true);
-      const files = JSON.stringify([[gen.name, gen.code, gen.story]]);
-      figma.ui.postMessage({type: 'compile', project: gen.name, files});
+      const bundle = generateBundle(selected, _config, true);
+      const files = JSON.stringify([[bundle.name, bundle.code, bundle.story]]);
+      figma.ui.postMessage({type: 'compile', project: bundle.name, files});
     }, 500);
   }
 }

@@ -3,7 +3,7 @@ export type EditorComponent = {
   code: string,
   story: string,
   theme: string,
-  bundle: string,
+  preview: string,
   links: EditorLinks,
 }
 

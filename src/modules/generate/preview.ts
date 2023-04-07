@@ -1,0 +1,60 @@
+import CodeBlockWriter from 'code-block-writer';
+import {generateTheme} from 'modules/generate/theme';
+import {writeImports, writeFunction, writeStyleSheet} from 'modules/generate/utils';
+import {parseStyles} from 'modules/parse/styles';
+import {parseNodes} from 'modules/parse/nodes';
+import {getName} from 'utils/figma';
+
+import type {ParsedComponent} from 'types/parse';
+import type {Settings} from 'types/settings';
+
+export function generatePreview(
+  rootView: ParsedComponent,
+  children: readonly SceneNode[],
+  settings: Settings,
+) {
+  const parsed = parseNodes([...children]);
+  const writer = new CodeBlockWriter(settings.output?.format);
+  const {components, stylesheet} = parsed.state;
+  const primitives = new Set(['Text', 'Image']);
+  const libraries = new Set(['react-native-svg']);
+  
+  writeImports(writer, settings, primitives, libraries);
+  writer.blankLine();
+  writer.write(generateTheme(settings));
+  writer.blankLine();
+  writeFunction(writer, settings, rootView, parsed.code);
+  writer.blankLine();
+  writeStyleSheet(writer, rootView, stylesheet);
+  writer.blankLine();
+  writeComponents(writer, settings, components);
+  writer.blankLine();
+
+  return writer.toString();
+}
+
+function writeComponents(
+  writer: CodeBlockWriter,
+  settings: Settings,
+  components?: string[],
+) {
+  Object.values(components).forEach((sub: any) => {
+    const subRootView: ParsedComponent = {
+      id: sub.id,
+      tag: 'View',
+      slug: 'root',
+      node: sub,
+      name: getName(sub.name),
+      styles: parseStyles(sub, true),
+    };
+
+    const styleid = '_' + sub.id.split(':').join('_');
+    const parsed = parseNodes([...sub.children]);
+
+    writeFunction(writer, settings, subRootView, parsed.code, styleid);
+    writer.blankLine();
+    writeStyleSheet(writer, subRootView, parsed.state.stylesheet, styleid);
+    writer.blankLine();
+    writeComponents(writer, settings, parsed.state.components);
+  });
+}

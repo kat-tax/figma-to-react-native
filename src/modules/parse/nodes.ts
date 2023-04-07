@@ -1,8 +1,8 @@
 import {parseStyles} from 'modules/parse/styles';
 import {getTag, getName, getSlug} from 'utils/figma';
 
-import type {TargetNode} from 'types/figma';
 import type {ParseData, ParseState, ParsedComponent} from 'types/parse';
+import type {TargetNode} from 'types/figma';
 
 export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
   // Init state (haven't recursed yet)

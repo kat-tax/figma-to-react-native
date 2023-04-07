@@ -1,6 +1,6 @@
-import type {TargetNode, SizeResult} from 'types/figma';
-
 import {rgbToHex} from 'utils/common';
+
+import type {TargetNode, SizeResult} from 'types/figma';
 
 // Return the selected component, if child look upward
 export function getSelectedComponent() {

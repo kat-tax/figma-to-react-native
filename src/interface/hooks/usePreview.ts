@@ -10,15 +10,15 @@ export function usePreview(component: EditorComponent, settings: Settings) {
   useEffect(() => {
     if (!component) return;
 
-    const bundle = component.bundle
+    const appCode = component.preview
       .replace(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g, '');
 
-    const preview = `
+    const entryPoint = `
       import {AppRegistry} from 'react-native';
       import {useEffect, useState} from 'react';
       import {TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 
-      ${bundle}
+      ${appCode}
 
       function Preview() {
         return (
@@ -42,7 +42,7 @@ export function usePreview(component: EditorComponent, settings: Settings) {
       });
     `;
 
-    build(preview, settings)
+    build(entryPoint, settings)
       .then(res => setOutput(res.code))
       .catch(err => setOutput(err.toString()));
 
