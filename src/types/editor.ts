@@ -2,7 +2,6 @@ export type EditorComponent = {
   name: string,
   code: string,
   story: string,
-  theme: string,
   preview: string,
   links: EditorLinks,
 }

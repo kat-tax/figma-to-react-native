@@ -39,6 +39,7 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
   // TODO: story for each variant
   writer.write(`export const ${root.name}: Story = `).inlineBlock(() => {
     writer.write('args: ').inlineBlock(() => {
+      // TODO: replace below placeholders with real props
       writer.writeLine(`label: 'Test',`);
       writer.writeLine(`backgroundColor: '#ff0',`);
     });

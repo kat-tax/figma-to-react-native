@@ -17,7 +17,6 @@ const config: Settings = {
   },
   output: {
     react: {
-      flavor: 'react-native',
       addImport: true,
       addTranslate: false,
     },

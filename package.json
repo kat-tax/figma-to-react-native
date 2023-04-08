@@ -3,7 +3,7 @@
   "scripts": {
     "start": "node esbuild.mjs --watch",
     "build": "node esbuild.mjs",
-    "gen-settings-schema": "typescript-json-schema tsconfig.json Settings --out ./src/interface/templates/settings-schema.json"
+    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/interface/templates/schema.json"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",

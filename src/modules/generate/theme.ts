@@ -10,7 +10,7 @@ export function generateTheme(settings: Settings) {
   // Create theme writer
   const writer = new CodeBlockWriter(settings.output?.format);
   
-  // Write color map
+  // Build color map
   const colors: ThemeColors = {};
   let maxLineLength = 0;
   figma.getLocalPaintStyles().forEach(paint => {
@@ -23,13 +23,14 @@ export function generateTheme(settings: Settings) {
     }
 
     // Insert this color into the color group
-    // @ts-ignore (TODO: why the fuck is typescript saying there isn't a color prop?)
+    // @ts-ignore (TODO: expect only solid paints to fix this)
     const value = getColor(paint.paints[0].color);
     maxLineLength = Math.max(maxLineLength, name.length + value.length);
     colors[group][name] = {value, comment: paint.description};
 
   });
 
+  // Write theme colors
   writer.write('export const colors = ').inlineBlock(() => {
     Object.keys(colors).forEach(group => {
       writer.write(`${getSlug(group)}: `).inlineBlock(() => {

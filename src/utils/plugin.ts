@@ -1,5 +1,6 @@
 import {getSelectedComponent, getPage} from 'utils/figma';
 import {generateBundle} from 'modules/generate/bundle';
+import {generateTheme} from 'modules/generate/theme';
 import config from 'config';
 
 import type {Settings} from 'types/settings';
@@ -34,6 +35,14 @@ export function updateCode() {
       payload: JSON.stringify(bundle),
     });
   }
+}
+
+export function updateTheme() {
+  const theme = generateTheme(_config);
+  figma.ui.postMessage({
+    type: 'theme',
+    payload: JSON.stringify(theme),
+  });
 }
 
 export function updateDimensions() {

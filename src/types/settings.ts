@@ -14,7 +14,6 @@ export interface Settings {
   },
   output: {
     react: {
-      flavor: 'react-native',
       addImport?: boolean,
       addTranslate?: boolean,
     }

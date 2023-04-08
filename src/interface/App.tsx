@@ -2,11 +2,12 @@ import React from 'react';
 import Editor from '@monaco-editor/react';
 import {Root as Tabs, List as Bar, Trigger as Item, Content as Tab} from '@radix-ui/react-tabs';
 import {useEffect, useState, useCallback, useMemo, useRef} from 'react';
-import {useComponent} from 'interface/hooks/useComponent';
-import {useSettings} from 'interface/hooks/useSettings';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
+import {useSettings} from 'interface/hooks/useSettings';
+import {useComponent} from 'interface/hooks/useComponent';
 import {usePreview} from 'interface/hooks/usePreview';
 import {useEditor} from 'interface/hooks/useEditor';
+import {useTheme} from 'interface/hooks/useTheme';
 import {IconGear} from 'interface/icons/IconGear';
 import {Loading} from 'interface/base/Loading';
 import {Hint} from 'interface/base/Hint';
@@ -15,15 +16,16 @@ import {html} from 'interface/templates';
 import {debounce} from 'utils/common';
 
 export function App() {  
-  const [opacity, setOpacity] = useState(0);
-  const isDarkMode = useDarkMode();
-  const component = useComponent();
+  const theme = useTheme();
   const settings = useSettings();
+  const component = useComponent();
+  const isDarkMode = useDarkMode();
   const preview = usePreview(component, settings.config);
   const editor = useEditor(settings.config, component?.links);
   const iframe = useRef<HTMLIFrameElement>(null);
   const editorTheme = isDarkMode ? 'vs-dark' : 'vs';
   const editorOptions = {...settings.config.display.editor.general, theme: editorTheme};
+  const [opacity, setOpacity] = useState(0);
   const handleSettings = useMemo(() => debounce(settings.update, 750), [settings.update]);
   const updatePreview = useCallback(() => iframe.current?.contentWindow?.postMessage(preview), [preview]);
   const changeTab = useCallback((value: string) => {
@@ -89,18 +91,15 @@ export function App() {
         {!component?.code && <Hint/>}
       </Tab>
       <Tab value="theme" className="expand">
-        {component?.code &&
-          <Editor
-            className="editor"
-            language="typescript"
-            path="Theme.ts"
-            value={component?.theme}
-            theme={editorTheme}
-            loading={<Loading/>}
-            options={{...editorOptions, readOnly: true}}
-          />
-        }
-        {!component?.code && <Hint/>}
+        <Editor
+          className="editor"
+          language="typescript"
+          path="Theme.ts"
+          value={theme}
+          theme={editorTheme}
+          loading={<Loading/>}
+          options={{...editorOptions, readOnly: true}}
+        />
       </Tab>
       <Tab value="export" className="expand">
         <Export/>

@@ -1,4 +1,4 @@
-import {loadConfig, updateConfig, updateCode, focusComponent, exportDocument} from 'utils/plugin';
+import {loadConfig, updateConfig, updateCode, updateTheme, focusComponent, exportDocument} from 'utils/plugin';
 import defaultConfig from 'config';
 
 figma.showUI(__html__, defaultConfig.display.plugin);
@@ -6,6 +6,7 @@ figma.showUI(__html__, defaultConfig.display.plugin);
 (async function main() {
   await loadConfig();
   setInterval(updateCode, 300);
+  setInterval(updateTheme, 1000);
   figma.on('selectionchange', updateCode);
   figma.on('run', ({command}: RunEvent) => {
     switch (command) {

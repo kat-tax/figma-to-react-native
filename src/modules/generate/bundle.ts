@@ -3,7 +3,6 @@ import {parseStyles} from 'modules/parse/styles';
 import {generateComponent} from 'modules/generate/component';
 import {generatePreview} from 'modules/generate/preview';
 import {generateStory} from 'modules/generate/story';
-import {generateTheme} from 'modules/generate/theme';
 import {getName} from 'utils/figma';
 
 import type {EditorComponent, EditorLinks} from 'types/editor';
@@ -13,7 +12,7 @@ import type {Settings} from 'types/settings';
 
 export function generateBundle(component: TargetNode, settings: Settings, noPreview?: boolean): EditorComponent {
   if (!component) {
-    return {name: '',  code: '', story: '', theme: '', preview: '', links: {}};
+    return {name: '',  code: '', story: '', preview: '', links: {}};
   }
 
   const root: ParsedComponent = {
@@ -35,7 +34,6 @@ export function generateBundle(component: TargetNode, settings: Settings, noPrev
     name: root.name,
     code: generateComponent(root, parsed, settings),
     story: generateStory(root, settings),
-    theme: generateTheme(settings),
     preview: !noPreview ? generatePreview(root, component.children, settings) : '',
     links,
   };
