@@ -19,16 +19,16 @@ export function Export() {
         <h4>Choose Components</h4>
         <div className="radio-group">
           <label>
-            <input type="radio" name="type" value="selected" defaultChecked/>
-            Selection
+            <input type="radio" name="type" value="all" defaultChecked/>
+            Entire Document
           </label>
           <label>
             <input type="radio" name="type" value="page"/>
             Current Page
           </label>
           <label>
-            <input type="radio" name="type" value="all"/>
-            Entire Document
+            <input type="radio" name="type" value="selected"/>
+            Selection
           </label>
         </div>
         <input className="button" type="submit" value="Export Components"/>

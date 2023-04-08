@@ -72,6 +72,7 @@ export function focusComponent(id: string) {
 }
 
 export function exportDocument(type: 'all' | 'page' | 'selected') {
+  const theme = generateTheme(_config);
   const document = figma.currentPage.parent;
   // Export current page or all pages in document
   if (type === 'all' || type === 'page') {
@@ -83,7 +84,7 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
       const files = JSON.stringify(components.map(component => {
         try {
           const bundle = generateBundle(component, _config, true);
-          return [bundle.name, bundle.code, bundle.story];
+          return [bundle.name, bundle.code, bundle.story, theme];
         } catch (e) {
           console.error('Failed to export', component, e);
           return [];
@@ -97,7 +98,7 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
     setTimeout(() => {
       const selected = getSelectedComponent();
       const bundle = generateBundle(selected, _config, true);
-      const files = JSON.stringify([[bundle.name, bundle.code, bundle.story]]);
+      const files = JSON.stringify([[bundle.name, bundle.code, bundle.story, theme]]);
       figma.ui.postMessage({type: 'compile', project: bundle.name, files});
     }, 500);
   }

@@ -5,8 +5,8 @@ export function useExport() {
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'compile') {
-        const {project, files} = e.data.pluginMessage;
-        saveFilesFallback(project, JSON.parse(files));
+        const {project, files, theme} = e.data.pluginMessage;
+        saveFilesFallback(project, JSON.parse(files), theme);
       }
     };
     addEventListener('message', onMessage);
@@ -14,9 +14,10 @@ export function useExport() {
   }, []);
 }
 
-async function saveFilesFallback(project: string, files: string[][]) {
+async function saveFilesFallback(project: string, files: string[][], theme: string) {
   const lastModified = new Date();
   const payload: {name: string, lastModified: Date, input: string}[] = [];
+  payload.push({name: 'theme.ts', lastModified, input: theme});
   files.forEach(([name, code, story]) => {
     payload.push({name: `${name}.tsx`, lastModified, input: code});
     payload.push({name: `${name}.stories.ts`, lastModified, input: story});
