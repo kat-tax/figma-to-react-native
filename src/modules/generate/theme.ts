@@ -9,6 +9,10 @@ export function generateTheme(settings: Settings) {
 
   // Create theme writer
   const writer = new CodeBlockWriter(settings.output?.format);
+
+  // TODO (text & effects)
+  // console.log('text', figma.getLocalTextStyles());
+  // console.log('effects', figma.getLocalEffectStyles());
   
   // Build color map
   const colors: ThemeColors = {};
@@ -27,7 +31,6 @@ export function generateTheme(settings: Settings) {
     const value = getColor(paint.paints[0].color);
     maxLineLength = Math.max(maxLineLength, name.length + value.length);
     colors[group][name] = {value, comment: paint.description};
-
   });
 
   // Write theme colors
@@ -56,3 +59,31 @@ export function generateTheme(settings: Settings) {
 
   return writer.toString();
 }
+
+
+/*
+{
+  colors: {
+    text: '#000',
+    background: '#fff',
+    primary: '#07c',
+    secondary: '#05a',
+    accent: '#609',
+    muted: '#f6f6f6',
+  },
+  fonts: {
+    body: 'system-ui, sans-serif',
+    heading: 'system-ui, sans-serif',
+    monospace: 'Menlo, monospace',
+  },
+  fontWeights: {
+    body: 400,
+    heading: 700,
+    bold: 700,
+  },
+  lineHeights: {
+    body: 1.5,
+    heading: 1.125,
+  },
+}
+*/
