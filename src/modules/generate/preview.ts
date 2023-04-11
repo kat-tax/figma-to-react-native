@@ -5,13 +5,12 @@ import {parseStyles} from 'modules/parse/styles';
 import {parseNodes} from 'modules/parse/nodes';
 import {getName} from 'utils/figma';
 
-import type {ParsedComponent} from 'types/parse';
+import type {ParsedComponent, ParseData} from 'types/parse';
 import type {Settings} from 'types/settings';
 
-export function generatePreview(root: ParsedComponent, children: readonly SceneNode[], settings: Settings) {
-  const parsed = parseNodes([...children]);
+export function generatePreview(root: ParsedComponent, children: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings.output?.format);
-  const {components, stylesheet} = parsed.state;
+  const {components, stylesheet} = children.state;
   const primitives = new Set(['Text', 'Image']);
   const libraries = new Set(['react-native-svg']);
   
@@ -19,7 +18,7 @@ export function generatePreview(root: ParsedComponent, children: readonly SceneN
   writer.blankLine();
   writer.write(generateTheme(settings));
   writer.blankLine();
-  writeFunction(writer, settings, root, parsed.code);
+  writeFunction(writer, settings, root, children.code);
   writer.blankLine();
   writeStyleSheet(writer, root, stylesheet);
   writer.blankLine();

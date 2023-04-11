@@ -8,7 +8,7 @@ const watch = flag === '--watch';
 build({
   entryPoints: ['src/main.ts'],
   outfile: 'dist/main.js',
-  target: ['node16'],
+  target: ['node12'],
   platform: 'node',
   bundle: true,
   minify: false,

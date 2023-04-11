@@ -190,7 +190,7 @@ function background(node: TargetNode): StylesBackground {
   if (node.backgrounds.length > 0) {
     const fill = getTopFill(node.backgrounds);
     const fillStyle = getFillStyle(figma.getStyleById(node.fillStyleId));
-    style.backgroundColor = fillStyle || getColor(fill?.color, fill?.opacity);
+    style.backgroundColor = fillStyle ?? getColor(fill?.color, fill?.opacity);
   }
 
   return style;
@@ -225,11 +225,10 @@ function border(node: TargetNode): StylesBorder {
 function typography(node: TargetNode): StylesTypography {
   let color: string;
   if (node.fills.length > 0) {
-    const fill = getTopFill(node.backgrounds);
+    const fill = getTopFill(node.fills);
     const fillStyle = getFillStyle(figma.getStyleById(node.fillStyleId));
-    color = fillStyle || getColor(fill?.color, fill?.opacity);
+    color = fillStyle ?? getColor(fill?.color, fill?.opacity);
   }
-
   const fontSize = node.fontSize;
   const fontFamily = node.fontFamily;
   const fontWeight = getFontWeight(node.fontName.style);

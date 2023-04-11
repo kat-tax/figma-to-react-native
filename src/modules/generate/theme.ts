@@ -33,6 +33,8 @@ export function generateTheme(settings: Settings) {
     colors[group][name] = {value, comment: paint.description};
   });
 
+  // TODO: skip theme if no values at all
+
   // Write theme colors
   writer.write('export const colors = ').inlineBlock(() => {
     Object.keys(colors).forEach(group => {

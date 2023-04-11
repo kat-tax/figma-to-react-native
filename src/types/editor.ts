@@ -1,5 +1,6 @@
 export type EditorComponent = {
   name: string,
+  props: ComponentPropertyDefinitions | null,
   code: string,
   story: string,
   preview: string,

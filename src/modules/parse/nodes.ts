@@ -20,9 +20,10 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
 
   // Loop through each direct child node
   nodes.forEach((node) => {
-    // Skip invisible nodes
-    // TODO: conditionally render instead of skipping
-    if ('visible' in node && !node.visible) return;
+    const isVariant = !!node.variantProperties;
+    const propRefs = isVariant
+      ? node.parent.componentPropertyReferences
+      : node.componentPropertyReferences;
 
     // These node types can have styles
     const hasStyles = node.type === 'TEXT'
@@ -47,9 +48,7 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
       };
     }
 
-    // Parse Figma node depending on type
     switch (node.type) {
-
       // Group nodes get recursed & state is combined
       case 'GROUP':
       case 'FRAME':
@@ -67,7 +66,6 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
 
       // Instances get inserted w/ props and the master component recorded
       case 'INSTANCE': {
-        const isVariant = !!node.variantProperties;
         const parent = isVariant ? node.masterComponent.parent : node.mainComponent;
         state.components[parent.id] = parent;
         code.push({...component, tag: getName(node.name), props: node.componentProperties});
@@ -77,7 +75,9 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
       // Text nodes get inserted and the primitive added
       case 'TEXT': {
         state.primitives.add('Text');
-        code.push({...component, value: node.characters || ''});
+        const propId = propRefs?.characters;
+        const propName = propId ? getSlug(propId.split('#').shift()) : null;
+        code.push({...component, value: propName ? `props.${propName}` : node.characters || ''});
         break;
       }
   

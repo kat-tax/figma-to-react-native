@@ -6,9 +6,9 @@
 
 # GENERATING
 
+- Properties
 - Variants (conditional styling)
 - Theme values (fonts remaining)
-- Properties
 - Hidden based on props (conditional rendering)
 - Images (including export & previewing)
   - Generate placeholder: https://github.com/evanw/thumbhash
@@ -17,6 +17,7 @@
 - Gradients
 - Interactions (via Pressable & Link)
 - Screens (navigation based on prototype settings)
+- Create git repo, display diffs between exports
 
 # MAINTENANCE
 

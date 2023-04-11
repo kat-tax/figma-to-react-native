@@ -2,29 +2,59 @@ import {rgbToHex} from 'utils/common';
 
 import type {TargetNode, SizeResult} from 'types/figma';
 
-// Return the selected component, if child look upward
-export function getSelectedComponent() {
-  const {selection} = figma.currentPage;
-  if (selection.length === 0)
-    return null;
-  let root: TargetNode = selection[0];
-  if (root.type === 'COMPONENT')
-    return selection[0];
-  while (root.parent && root.parent.type !== 'PAGE') {
-    root = root.parent;
-    if (root.type === 'COMPONENT')
-    return root;
-  }
-  return null;
-}
-
 // Get the page of a node
-export function getPage(node: BaseNode) {
+export function getPage(node: BaseNode): PageNode {
   while (node.type !== 'PAGE') {
     node = node.parent;
-    if (!node) return false;
+    if (!node) return null;
   }
   return node;
+}
+
+// Return the selected component
+export function getSelectedComponent(): ComponentNode {
+  const {selection} = figma.currentPage;
+  if (selection.length === 0) return null;
+  const components = getComponents(selection);
+  return components.length > 0 ? components[0] : null;
+}
+
+// Find components in a list of nodes
+export function getComponents(nodes: readonly SceneNode[]): ComponentNode[] {
+  const components: ComponentNode[] = [];
+  for (const node of nodes) {
+    const component = getComponent(node);
+    if (component) {
+      components.push(component);
+    }
+  }
+  return components;
+}
+
+// Find the component of a node (if exists)
+export function getComponent(node: SceneNode): ComponentNode {
+  // Find the component in the parent chain
+  let target: SceneNode = node;
+  while (target.type !== 'COMPONENT_SET'
+    && target.type !== 'COMPONENT'
+    && target.type !== 'INSTANCE'
+    && target.parent
+    && target.parent.type !== 'PAGE') {
+    target = target.parent as SceneNode;
+  }
+  // If the target is a component set, use the default variant
+  if (target.type === 'COMPONENT_SET')
+    return target.defaultVariant;
+  // If the target is an instance, use the main component
+  if (target.type === 'INSTANCE')
+    return target.mainComponent;
+  // If the target is a variant, use the default variant
+  if (target.type === 'COMPONENT')
+    return target?.parent.type === 'COMPONENT_SET'
+      ? target.parent.defaultVariant
+      : target;
+  // Return null otherwise
+  return null;
 }
 
 // Strip invalid characters for a JS identifier
@@ -92,14 +122,15 @@ export function sortProps(a: any, b: any) {
 
 // Map Figma component props to JSX key values
 export function propsToKeyValues([key, prop]) {
-  const {value, type}: any = prop;
-  const name = getSlug(key.split('#').shift());
+  const {type, value, defaultValue}: any = prop;
+  const k = getSlug(key.split('#').shift());
+  const v = value || defaultValue;
   // Boolean prop shorthand (omit if false)
   if (type === 'BOOLEAN') {
-    return value ? name : false;
+    return v ? k : false;
   // Variant and text prop are simply k="v"
   } else if (type === 'TEXT' || type === 'VARIANT') {
-    return `${name}="${value}"`;
+    return `${k}="${v}"`;
   }
 }
 
@@ -117,12 +148,6 @@ export function getColor(color: RGB, opacity?: number, skipHex?: boolean): strin
   }
 }
 
-export function getTopFill(fills: ReadonlyArray<Paint> | PluginAPI['mixed']): SolidPaint | undefined {
-  if (fills && fills !== figma.mixed && fills.length > 0) {
-    return [...fills].reverse().find((d) => d.type === 'SOLID' && d.visible !== false) as SolidPaint;
-  }
-}
-
 export function getFillStyle(style: BaseStyle) {
   let fillKey: string;
   if (style?.name) {
@@ -130,6 +155,13 @@ export function getFillStyle(style: BaseStyle) {
     fillKey = `colors.${getSlug(fillGroup)}.${getSlug(fillToken)}`;
   }
   return fillKey;
+}
+
+export function getTopFill(fills: ReadonlyArray<Paint> | PluginAPI['mixed']): SolidPaint | undefined {
+  if (fills && fills !== figma.mixed && fills.length > 0) {
+    return [...fills].reverse().find((fill) =>
+      fill.type === 'SOLID' && fill.visible !== false) as SolidPaint;
+  }
 }
 
 export function getSize(node: TargetNode, isRoot: boolean): SizeResult {
@@ -197,9 +229,7 @@ export function getSize(node: TargetNode, isRoot: boolean): SizeResult {
 }
 
 export function getLineHeight(node: TargetNode): number | undefined {
-  if (node.lineHeight !== figma.mixed
-    && node.lineHeight.unit !== 'AUTO'
-    && Math.round(node.lineHeight.value) !== 0) {
+  if (node.lineHeight !== figma.mixed && Math.round(node.lineHeight.value) !== 0 && node.lineHeight.unit !== 'AUTO') {
     if (node.lineHeight.unit === 'PIXELS') {
       return node.lineHeight.value;
     } else {
@@ -212,8 +242,7 @@ export function getLineHeight(node: TargetNode): number | undefined {
 }
 
 export function getLetterSpacing(node: TargetNode): number | undefined {
-  if (node.letterSpacing !== figma.mixed
-    && Math.round(node.letterSpacing.value) !== 0) {
+  if (node.letterSpacing !== figma.mixed && Math.round(node.letterSpacing.value) !== 0) {
     if (node.letterSpacing.unit === 'PIXELS') {
       return node.letterSpacing.value;
     } else {

@@ -23,11 +23,11 @@ async function saveFiles(project: string, files: string[][], theme: string) {
     payload.push({name: `${name}.stories.ts`, lastModified, input: story});
   });
   const blob = await downloadZip(payload).blob();
-  const source = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href = source;
+  const src = URL.createObjectURL(blob);
+  link.href = src;
   link.download = `${project}.zip`;
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(source), 1000);
+  setTimeout(() => URL.revokeObjectURL(src), 1000);
 }

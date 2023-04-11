@@ -1,6 +1,6 @@
-import {getSelectedComponent, getPage} from 'utils/figma';
-import {generateBundle} from 'modules/generate/bundle';
 import {generateTheme} from 'modules/generate/theme';
+import {generateBundle} from 'modules/generate/bundle';
+import {getSelectedComponent, getComponents, getPage} from 'utils/figma';
 import config from 'config';
 
 import type {Settings} from 'types/settings';
@@ -74,13 +74,25 @@ export function focusComponent(id: string) {
 export function exportDocument(type: 'all' | 'page' | 'selected') {
   const theme = generateTheme(_config);
   const document = figma.currentPage.parent;
-  // Export current page or all pages in document
-  if (type === 'all' || type === 'page') {
-    figma.notify(`Exporting ${type} components, this may take several seconds…`, {timeout: 3500});
-    setTimeout(() => {
+
+  let exportName: string = 'Components';
+  let components: ComponentNode[] = [];
+
+  switch (type) {
+    case 'all':
+    case 'page':
       const target = type === 'all' ? document : figma.currentPage;
-      const project = type === 'all' ? document.name : figma.currentPage.name;
-      const components = target.findAllWithCriteria({types: ['COMPONENT', 'COMPONENT_SET']});
+      exportName = type === 'all' ? document.name : figma.currentPage.name;
+      components = getComponents(target.findAllWithCriteria({types: ['COMPONENT']}));
+      break;
+    case 'selected':
+      components = getComponents(figma.currentPage.selection);
+      break;
+  }
+
+  if (components.length > 0) {
+    figma.notify(`Exporting ${components.length} component${components.length === 1 ? '' : 's'}…`, {timeout: 3500});
+    setTimeout(() => {
       const files = JSON.stringify(components.map(component => {
         try {
           const bundle = generateBundle(component, _config, true);
@@ -90,16 +102,9 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
           return [];
         }
       }).filter(Boolean));
-      figma.ui.postMessage({type: 'compile', project, files});
+      figma.ui.postMessage({type: 'compile', project: exportName, files});
     }, 500);
-  // Export single (selected) component
   } else {
-    figma.notify(`Exporting component…`, {timeout: 1500});
-    setTimeout(() => {
-      const selected = getSelectedComponent();
-      const bundle = generateBundle(selected, _config, true);
-      const files = JSON.stringify([[bundle.name, bundle.code, bundle.story, theme]]);
-      figma.ui.postMessage({type: 'compile', project: bundle.name, files});
-    }, 500);
+    figma.notify('No components found to export', {error: true});
   }
 }

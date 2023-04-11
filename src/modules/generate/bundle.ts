@@ -12,29 +12,35 @@ import type {Settings} from 'types/settings';
 
 export function generateBundle(component: TargetNode, settings: Settings, noPreview?: boolean): EditorComponent {
   if (!component) {
-    return {name: '',  code: '', story: '', preview: '', links: {}};
+    return {name: '', props: null,  code: '', story: '', preview: '', links: {}};
   }
 
+  const isVariant = !!component.variantProperties;
+  const props = isVariant
+    ? component?.parent.componentPropertyDefinitions
+    : component.componentPropertyDefinitions;
+
+  const links: EditorLinks = {};
   const root: ParsedComponent = {
     id: component.id,
     tag: 'View',
     slug: 'root',
     node: component,
-    name: getName(component.name),
+    name: getName(isVariant ? component.parent.name : component.name),
     styles: parseStyles(component, true),
   };
 
-  const parsed = parseNodes([...component.children]);
-  const links: EditorLinks = {};
-  Object.entries(parsed.state.components).forEach((c: any) => {
+  const children = parseNodes([...component.children]);
+  Object.entries(children.state.components).forEach((c: any) => {
     links[getName(c[1].name)] = c[0];
   });
 
   return {
-    name: root.name,
-    code: generateComponent(root, parsed, settings),
-    story: generateStory(root, settings),
-    preview: !noPreview ? generatePreview(root, component.children, settings) : '',
+    props,
     links,
+    name: root.name,
+    code: generateComponent(root, children, settings),
+    story: generateStory(root, settings),
+    preview: !noPreview ? generatePreview(root, children, settings) : '',
   };
 }

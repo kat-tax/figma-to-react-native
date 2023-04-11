@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getColor, propsToString} from 'utils/figma';
+import {getColor, sortProps, getSlug, propsToString} from 'utils/figma';
 
 import type {ParsedComponent, ParseState} from 'types/parse';
 import type {Settings} from 'types/settings';
@@ -69,7 +69,29 @@ export function writeFunction(
   children: ParsedComponent[],
   styleid: string = 'styles',
 ) {
-  writer.write(`export function ${rootView.name}()`).block(() => {
+  const isVariant = !!rootView.node?.variantProperties;
+  const props = Object.entries(isVariant
+    ? rootView.node?.parent?.componentPropertyDefinitions
+    : rootView.node.componentPropertyDefinitions
+  );
+
+  if (props.length > 0) {
+    writer.write(`export interface ${rootView.name}Props`).block(() => {
+      props.sort(sortProps).forEach(([key, prop]) => {
+        const {type, variantOptions}: any = prop;
+        const name = getSlug(key.split('#').shift());
+        const typing = type === 'VARIANT'
+          ? variantOptions.map((v: any) => `'${v}'`).join(' | ')
+          : type === 'TEXT'
+            ? 'string'
+            : type.toLowerCase();
+        writer.writeLine(`${name}: ${typing};`);
+      });
+    });
+    writer.blankLine();
+  }
+
+  writer.write(`export function ${rootView.name}(props: ${rootView.name}Props)`).block(() => {
     writer.write(`return (`).indent(() => {
       writer.write(`<${rootView.tag} style={${styleid}.${rootView.slug}}>`).indent(() => {
         writeChildren(writer, settings, children, styleid);
@@ -87,41 +109,65 @@ export function writeChildren(
   styleid: string = 'styles',
 ) {
   children.forEach((child) => {
-    const attrStyle = child.slug ? ` style={${styleid}.${child.slug}}` : '';
-    const attrRect = child.box ? ` width="${child.box.width}" height="${child.box.height}"` : '';
-    const attrProps = propsToString(child.props);
-    const tagString = child.tag + attrStyle + attrRect + attrProps;
-
-    // No children
-    if (!child.value && !child.children && !child.paths) {
-      writer.writeLine(`<${tagString}/>`);
-      return;
+    const isVariant = !!child.node.variantProperties;
+    const propRefs = isVariant
+      ? child.node.parent.componentPropertyReferences
+      : child.node.componentPropertyReferences;
+    if (propRefs?.visible) {
+      const name = getSlug(propRefs?.visible.split('#').shift());
+      writer.write(`{props.${name} &&`).space().indent(() => {
+        writeChild(writer, settings, child, styleid);
+      }).write('}').newLine();
+    } else {
+      writeChild(writer, settings, child, styleid);
     }
+  });
+}
 
-    // Child nodes
-    writer.write(`<${tagString}>`).indent(() => {
-      // Text child
-      if (child.tag === 'Text') {
+export function writeChild(
+  writer: CodeBlockWriter,
+  settings: Settings,
+  child: ParsedComponent,
+  styleid: string = 'styles',
+) {
+  const attrProps = propsToString(child.props);
+  const attrRect = child.box ? ` width="${child.box.width}" height="${child.box.height}"` : '';
+  const attrStyle = child.slug ? ` style={${styleid}.${child.slug}}` : '';
+  const tagString = child.tag + attrStyle + attrRect + attrProps;
+
+  // No children
+  if (!child.value && !child.children && !child.paths) {
+    writer.writeLine(`<${tagString}/>`);
+    return;
+  }
+
+  // Child nodes
+  writer.write(`<${tagString}>`).indent(() => {
+    // Text child
+    if (child.tag === 'Text') {
+      if (child.value.startsWith('props.')) {
+        writer.write(`{${child.value}}`);
+      } else {
         if (settings.output?.react?.addTranslate) {
           writer.write('{t`' + child.value  + '`}');
         } else {
           writer.write('{`' + child.value + '`}');
         }
-      // SVG child paths
-      } else if (child.paths) {
-        child.paths.forEach((path: any, i: number) => {
-          const fill = getColor(child.fills[i].color);
-          writer.write(`<Path d="${path.data}" fill="${fill}"/>`)
-        });
-      // View children (recurse)
-      } else if (child.tag === 'View') {
-        writeChildren(writer, settings, child.children);
       }
-    });
-
-    // Closing tag
-    writer.writeLine(`</${child.tag}>`);
+    // SVG child paths
+    } else if (child.paths) {
+      child.paths.forEach((path: any, i: number) => {
+        const fill = getColor(child.fills[i].color);
+        writer.write(`<Path d="${path.data}" fill="${fill}"/>`)
+      });
+    // View children (recurse)
+    } else if (child.tag === 'View') {
+      writeChildren(writer, settings, child.children);
+    }
   });
+
+  // Closing tag
+  writer.writeLine(`</${child.tag}>`);
 }
 
 export function writeStyleSheet(

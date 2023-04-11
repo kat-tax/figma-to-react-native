@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import {propsToString} from 'utils/figma';
 import {build} from 'utils/esbuild';
 
 import type {Settings} from 'types/settings';
@@ -9,6 +10,8 @@ export function usePreview(component: EditorComponent, settings: Settings) {
 
   useEffect(() => {
     if (!component) return;
+
+    const tagValue = `${component.name} ${propsToString(component.props)}`;
 
     const appCode = component.preview
       .replace(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g, '');
@@ -23,7 +26,7 @@ export function usePreview(component: EditorComponent, settings: Settings) {
       function Preview() {
         return (
           <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
-            ${'<' + component.name + '/>'}
+            ${'<' + tagValue + '/>'}
           </TransformComponent>
         );
       }
