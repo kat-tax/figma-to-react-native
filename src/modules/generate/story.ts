@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {sortProps, getSlug} from 'utils/figma';
+import {sortProps, getSlug, getName} from 'utils/figma';
 
 import type {ParsedComponent} from 'types/parse';
 import type {Settings} from 'types/settings';
@@ -7,7 +7,7 @@ import type {Settings} from 'types/settings';
 export function generateStory(root: ParsedComponent, settings: Settings) {
   const writer = new CodeBlockWriter(settings.output?.format);
   const isVariant = !!root.node?.variantProperties;
-  const nodeName = isVariant ? root.node.name : root.name;
+  const nodeName = isVariant ? root.node.parent.name : root.name;
   const nodeProps = Object.entries(isVariant
     ? root.node?.parent?.componentPropertyDefinitions
     : root.node.componentPropertyDefinitions
@@ -45,8 +45,8 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
   // Story
   if (!isVariant) {
     writer.write(`export const ${root.name}: Story = `).inlineBlock(() => {
-      writer.write('args: ').inlineBlock(() => {
-        if (nodeProps.length > 0) {
+      if (nodeProps.length > 0) {
+        writer.write('args: ').inlineBlock(() => {
           nodeProps.sort(sortProps).forEach(([key, prop]) => {
             const {type, value, defaultValue}: any = prop;
             const name = getSlug(key.split('#').shift());
@@ -60,39 +60,44 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
             writer.write(',');
             writer.newLine();
           });
-        }
-      });
+        });
+      }
       writer.write(',');
     });
     writer.write(';');
     writer.blankLine();
   } else {
-/*
-    writer.write(`export const ${variantName}: Story = `).inlineBlock(() => {
-      writer.write('args: ').inlineBlock(() => {
-        if (props.length > 0) {
-          props.sort(sortProps).forEach(([key, prop]) => {
-            const {type, variantOptions}: any = prop;
-            const name = getSlug(key.split('#').shift());
-            const typing = type === 'VARIANT'
-              ? variantOptions.map((v: any) => `'${v}'`).join(' | ')
-              : type === 'TEXT'
-                ? 'string'
-                : type.toLowerCase();
-            writer.writeLine(`${name}: ${typing};`);
+    console.log(root.node);
+    root.node.parent.children.forEach((child: any) => {
+      const name = getName(child.name.split('=').pop());
+      console.log(name, nodeProps);
+      writer.write(`export const ${name}: Story = `).inlineBlock(() => {
+        writer.write('args: ').inlineBlock(() => {
+          nodeProps.sort(sortProps).forEach(([key, prop]) => {
+            const {type, defaultValue}: any = prop;
+            const propName = getSlug(key.split('#').shift());
+            if (type === 'VARIANT') {
+              writer.write(`${propName}:`);
+              writer.space();
+              writer.quote(name);
+              writer.write(',');
+              writer.newLine();
+            } else if (type === 'NUMBER' || type === 'BOOLEAN') {
+              writer.writeLine(`${propName}: ${defaultValue || ''},`);
+            } else {
+              writer.write(`${propName}:`);
+              writer.space();
+              writer.quote(defaultValue);
+              writer.write(',');
+              writer.newLine();
+            }
           });
-        }
-
-        // TODO: replace below placeholders with real props
-        console.log('PROPS', props)
-        writer.writeLine(`label: 'Test',`);
-        writer.writeLine(`backgroundColor: '#ff0',`);
+        });
+        writer.write(',');
       });
-      writer.write(',');
+      writer.write(';');
+      writer.blankLine();
     });
-    writer.write(';');
-    writer.blankLine();
-*/
   }
 
   // Default export

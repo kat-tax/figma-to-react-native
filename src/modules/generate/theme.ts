@@ -10,7 +10,9 @@ export function generateTheme(settings: Settings) {
   // Create theme writer
   const writer = new CodeBlockWriter(settings.output?.format);
 
-  // TODO (text & effects)
+  // TODO
+  // - text & effects
+  // - skip theme if no values at all
   // console.log('text', figma.getLocalTextStyles());
   // console.log('effects', figma.getLocalEffectStyles());
   
@@ -33,10 +35,8 @@ export function generateTheme(settings: Settings) {
     colors[group][name] = {value, comment: paint.description};
   });
 
-  // TODO: skip theme if no values at all
-
   // Write theme colors
-  writer.write('export const colors = ').inlineBlock(() => {
+  writer.write('export default').space().inlineBlock(() => {
     Object.keys(colors).forEach(group => {
       writer.write(`${getSlug(group)}: `).inlineBlock(() => {
         Object.keys(colors[group]).forEach(name => {

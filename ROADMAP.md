@@ -6,18 +6,20 @@
 
 # GENERATING
 
-- Properties
-- Variants (conditional styling)
-- Theme values (fonts remaining)
-- Hidden based on props (conditional rendering)
+- Theme values (fonts & effects left)
 - Images (including export & previewing)
   - Generate placeholder: https://github.com/evanw/thumbhash
   - Lossless optimize
 - Absolute positioning
-- Gradients
+- Gradient backgrounds
+- Shadows, rotations, etc.
 - Interactions (via Pressable & Link)
 - Screens (navigation based on prototype settings)
-- Create git repo, display diffs between exports
+
+# EXPORTING
+
+- Create git repo
+- Display diff
 
 # MAINTENANCE
 

@@ -57,6 +57,9 @@ export function App() {
         <Item value="theme" title="View theme file" className="tab">
           Theme
         </Item>
+        <Item value="story" title="View story" className="tab">
+          Story
+        </Item>
         <Item value="export" title="Export project" className="tab">
           Export
         </Item>
@@ -80,7 +83,7 @@ export function App() {
         {!component?.code && <Hint/>}
       </Tab>
       <Tab value="preview" className="expand">
-        {component?.code &&
+        {component?.preview &&
           <iframe
             ref={iframe}
             style={{opacity}}
@@ -88,7 +91,21 @@ export function App() {
             onLoad={updatePreview}
           />
         }
-        {!component?.code && <Hint/>}
+        {!component?.preview && <Hint/>}
+      </Tab>
+      <Tab value="story" className="expand">
+        {component?.story &&
+          <Editor
+            className="editor"
+            language="typescript"
+            path={`${component.name}.story.ts`}
+            value={component.story}
+            theme={editorTheme}
+            loading={<Loading/>}
+            options={{...editorOptions, readOnly: true}}
+          />
+        }
+        {!component?.story && <Hint/>}
       </Tab>
       <Tab value="theme" className="expand">
         <Editor
