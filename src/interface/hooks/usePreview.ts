@@ -14,6 +14,7 @@ export function usePreview(component: EditorComponent, settings: Settings) {
     const tagValue = `${component.name} ${propsToString(component.props)}`;
 
     const appCode = component.preview
+      .replace(/import theme from ["']\.\/theme['"];/g, '')
       .replace(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g, '');
 
     const entryPoint = `
@@ -46,7 +47,9 @@ export function usePreview(component: EditorComponent, settings: Settings) {
     `;
 
     build(entryPoint, settings)
-      .then(res => setOutput(res.code))
+      .then(res => setOutput(res.code
+        .replace('stdin_default as default', '')
+        .replace('var stdin_default', 'var theme')))
       .catch(err => setOutput(err.toString()));
 
   }, [component, settings]);

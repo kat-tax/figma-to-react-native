@@ -1,6 +1,5 @@
 # INTERFACING
 
-- Switch to hosted UI to solve mouse issues
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing
 
@@ -9,7 +8,7 @@
 - Theme values (fonts & effects left)
 - Images (including export & previewing)
   - Generate placeholder: https://github.com/evanw/thumbhash
-  - Lossless optimize
+  - Optimize: https://github.com/GoogleChromeLabs/squoosh
 - Absolute positioning
 - Gradient backgrounds
 - Shadows, rotations, etc.
@@ -18,7 +17,8 @@
 
 # EXPORTING
 
-- Create git repo
+- Git repository (https://isomorphic-git.org)
+- Each document / page export is a branch
 - Display diff
 
 # MAINTENANCE

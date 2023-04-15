@@ -55,7 +55,7 @@ export function writeImports(
   });
 
   // Import theme file
-  writer.write(`import {colors} from`);
+  writer.write(`import theme from`);
   writer.space();
   writer.quote(`./theme`);
   writer.write(';');
@@ -82,9 +82,11 @@ export function writeFunction(
         const name = getSlug(key.split('#').shift());
         const typing = type === 'VARIANT'
           ? variantOptions.map((v: any) => `'${v}'`).join(' | ')
-          : type === 'TEXT'
-            ? 'string'
-            : type.toLowerCase();
+          : type === 'INSTANCE_SWAP'
+            ? `JSX.Element`
+            : type === 'TEXT'
+              ? 'string'
+              : type.toLowerCase();
         writer.writeLine(`${name}: ${typing};`);
       });
     });
@@ -130,6 +132,13 @@ export function writeChild(
   child: ParsedComponent,
   styleid: string = 'styles',
 ) {
+  // Component instance swap
+  if (child.swap) {
+    writer.writeLine(`{props.${child.swap}}`);
+    return;
+  }
+
+  // Create component tag
   const attrProps = propsToString(child.props);
   const attrRect = child.box ? ` width="${child.box.width}" height="${child.box.height}"` : '';
   const attrStyle = child.slug ? ` style={${styleid}.${child.slug}}` : '';
@@ -185,7 +194,7 @@ export function writeStyleSheet(
         properties.forEach(property => {
           const value = rootView.styles[property];
           writer.write(`${property}: `);
-          if (typeof value === 'number' || value.startsWith('colors.')) {
+          if (typeof value === 'number' || value.startsWith('theme.')) {
             writer.write(value.toString());
           } else {
             writer.quote(value);
@@ -207,7 +216,7 @@ export function writeStyleSheet(
             properties.forEach(property => {
               const value = child.style[property];
               writer.write(`${property}: `);
-              if (typeof value === 'number' || value.startsWith('colors.')) {
+              if (typeof value === 'number' || value.startsWith('theme.')) {
                 writer.write(value.toString());
               } else {
                 writer.quote(value);

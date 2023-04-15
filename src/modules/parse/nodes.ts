@@ -66,9 +66,17 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
 
       // Instances get inserted w/ props and the master component recorded
       case 'INSTANCE': {
-        const parent = isVariant ? node.masterComponent.parent : node.mainComponent;
-        state.components[parent.id] = parent;
-        code.push({...component, tag: getName(node.name), props: node.componentProperties});
+        const main = isVariant ? node.masterComponent.parent : node.mainComponent;
+        const propId = node.componentPropertyReferences?.mainComponent;
+        const propName = propId ? getSlug(propId.split('#').shift()) : null;
+        // Explicit component
+        if (!propName) {
+          state.components[main.id] = main;
+          code.push({...component, tag: getName(node.name), props: node.componentProperties});
+        // Instance swapped component
+        } else {
+          code.push({...component, swap: propName});
+        }
         break;
       }
 

@@ -17,7 +17,7 @@ export function generateComponent(root: ParsedComponent, parsed: ParseData, sett
   writeFunction(writer, settings, root, parsed.code);
   writer.blankLine();
   writeStyleSheet(writer, root, stylesheet);
-  writer.blankLine();
+  writer.newLine();
 
   return writer.toString();
 }

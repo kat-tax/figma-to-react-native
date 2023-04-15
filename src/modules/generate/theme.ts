@@ -7,54 +7,78 @@ export function generateTheme(settings: Settings) {
   type ThemeColors = Record<string, Record<string, ThemeColor>>;
   type ThemeColor = {value: string, comment: string};
 
-  // Create theme writer
   const writer = new CodeBlockWriter(settings.output?.format);
-
-  // TODO
-  // - text & effects
-  // - skip theme if no values at all
-  // console.log('text', figma.getLocalTextStyles());
-  // console.log('effects', figma.getLocalEffectStyles());
-  
-  // Build color map
-  const colors: ThemeColors = {};
-  let maxLineLength = 0;
-  figma.getLocalPaintStyles().forEach(paint => {
-    const [group, token] = paint.name.split('/');
-    const name = getSlug(token, true);
-
-    // If the group of colors doesn't exist, initialize it
-    if (!colors[group]) {
-      colors[group] = {};
-    }
-
-    // Insert this color into the color group
-    // @ts-ignore (TODO: expect only solid paints to fix this)
-    const value = getColor(paint.paints[0].color);
-    maxLineLength = Math.max(maxLineLength, name.length + value.length);
-    colors[group][name] = {value, comment: paint.description};
-  });
-
-  // Write theme colors
   writer.write('export default').space().inlineBlock(() => {
-    Object.keys(colors).forEach(group => {
-      writer.write(`${getSlug(group)}: `).inlineBlock(() => {
-        Object.keys(colors[group]).forEach(name => {
-          const color: ThemeColor = colors[group][name];
-          writer.write(`$${name}: `);
-          writer.quote(color.value);
-          writer.write(`,`);
-          if (color.comment) {
-            const padding = (' ').repeat(maxLineLength - (name.length + color.value.length));
-            writer.write(`${padding}// ${color.comment}`);
-          }
-          writer.newLine();
-        });
-        writer.newLineIfLastNot();
-      });
-      writer.write(',');
-      writer.newLine();
+    // TODO: skip theme if no values at all
+    // TODO: effects styles: console.log('effects', figma.getLocalEffectStyles());
+    
+    // Build color map
+    const colors: ThemeColors = {};
+    let maxLineLength = 0;
+    figma.getLocalPaintStyles().forEach(paint => {
+      const [group, token] = paint.name.split('/');
+      const name = getSlug(token, true);
+
+      // If the group of colors doesn't exist, initialize it
+      if (!colors[group]) {
+        colors[group] = {};
+      }
+
+      // Insert this color into the color group
+      // @ts-ignore (TODO: expect only solid paints to fix this)
+      const value = getColor(paint.paints[0].color);
+      maxLineLength = Math.max(maxLineLength, name.length + value.length);
+      colors[group][name] = {value, comment: paint.description};
     });
+
+    // Write theme colors
+    writer.write('colors:').space().inlineBlock(() => {
+      Object.keys(colors).forEach(group => {
+        writer.write(`${getSlug(group)}: `).inlineBlock(() => {
+          Object.keys(colors[group]).forEach(name => {
+            const color: ThemeColor = colors[group][name];
+            writer.write(`$${name}: `);
+            writer.quote(color.value);
+            writer.write(`,`);
+            if (color.comment) {
+              const padding = (' ').repeat(maxLineLength - (name.length + color.value.length));
+              writer.write(`${padding}// ${color.comment}`);
+            }
+            writer.newLine();
+          });
+          writer.newLineIfLastNot();
+        });
+        writer.write(',');
+        writer.newLine();
+      });
+    });
+    writer.write(',');
+    writer.newLine();
+
+    // TODO build font maps
+    // console.log('text', figma.getLocalTextStyles());
+
+    // Write font names
+    writer.write('fonts:').space().inlineBlock(() => {
+      // TODO
+    });
+    writer.write(',');
+    writer.newLine();
+
+    // Write font weights
+    writer.write('fontWeights:').space().inlineBlock(() => {
+      // TODO
+    });
+    writer.write(',');
+    writer.newLine();
+
+    // Write line heights
+    writer.write('lineHeights:').space().inlineBlock(() => {
+      // TODO
+    });
+    writer.write(',');
+    writer.newLine();
+
   });
   writer.write(';');
   writer.newLine();
