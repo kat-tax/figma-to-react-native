@@ -19,6 +19,29 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
   writer.quote(`./${root.name}`);
   writer.write(';');
   writer.newLine();
+    
+  // Look through props for needed sub-components (if applicable)
+  const components: BaseNode[] = [];
+  nodeProps?.sort(sortProps).forEach(([_key, prop]) => {
+    const {type, value, defaultValue}: any = prop;
+    if (type === 'INSTANCE_SWAP') {
+      const component = figma.getNodeById(value || defaultValue);
+      components.push(component);
+    }
+  });
+
+  // Loop through sub-components, import each one
+  // (e.g. import {LogosExternalApple} './LogosExternalApple';)
+  if (components.length > 0) {
+    components.forEach((component) => {
+      const name = getName(component.name);
+      writer.write(`import {${name}}`);
+      writer.space();
+      writer.quote(`./${name}`);
+      writer.write(';');
+      writer.newLine();
+    });
+  }
 
   // Boilerplate
   writer.write('import type {StoryObj, Meta} from');
@@ -50,15 +73,23 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
           nodeProps.sort(sortProps).forEach(([key, prop]) => {
             const {type, value, defaultValue}: any = prop;
             const name = getSlug(key.split('#').shift());
-            writer.write(`${name}:`);
-            writer.space();
+            const val = value || defaultValue;
+            // String or state
             if (type === 'TEXT' || type === 'VARIANT') {
-              writer.quote(value || defaultValue);
+              writer.write(`${name}:`);
+              writer.space();
+              writer.quote(val);
+              writer.write(',');
+              writer.newLine();
+            // Component
+            } else if (type === 'INSTANCE_SWAP') {
+              const component = figma.getNodeById(val);
+              const tagName = '<' + (getName(component.name) || 'View') + '/>';
+              writer.writeLine(`${name}: ${tagName},`);
+            // Number or boolean or ???
             } else {
-              writer.write(value || defaultValue);
+              writer.writeLine(`${name}: ${val},`);
             }
-            writer.write(',');
-            writer.newLine();
           });
         });
       }
@@ -67,29 +98,30 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
     writer.write(';');
     writer.blankLine();
   } else {
-    console.log(root.node);
     root.node.parent.children.forEach((child: any) => {
       const name = getName(child.name.split('=').pop());
-      console.log(name, nodeProps);
       writer.write(`export const ${name}: Story = `).inlineBlock(() => {
         writer.write('args: ').inlineBlock(() => {
           nodeProps.sort(sortProps).forEach(([key, prop]) => {
             const {type, defaultValue}: any = prop;
             const propName = getSlug(key.split('#').shift());
-            if (type === 'VARIANT') {
-              writer.write(`${propName}:`);
-              writer.space();
-              writer.quote(name);
-              writer.write(',');
-              writer.newLine();
-            } else if (type === 'NUMBER' || type === 'BOOLEAN') {
-              writer.writeLine(`${propName}: ${defaultValue || ''},`);
-            } else {
+            // String
+            if (type === 'TEXT') {
               writer.write(`${propName}:`);
               writer.space();
               writer.quote(defaultValue);
               writer.write(',');
               writer.newLine();
+            // State
+            } else if (type === 'VARIANT') {
+              writer.write(`${propName}:`);
+              writer.space();
+              writer.quote(name);
+              writer.write(',');
+              writer.newLine();
+            // Number or boolean or ???
+            } else {
+              writer.writeLine(`${propName}: ${defaultValue || ''},`);
             }
           });
         });

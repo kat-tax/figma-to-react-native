@@ -8,6 +8,7 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
   // Init state (haven't recursed yet)
   if (!state) {
     state = {
+      includes: {},
       components: {},
       stylesheet: {},
       primitives: new Set(),
@@ -56,6 +57,7 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
         const subnodes = parseNodes([...node.children], state);
         code.push({...component, children: subnodes.code});
         state = {
+          includes: {...state.includes, ...subnodes.state.includes},
           components: {...state.components, ...subnodes.state.components},
           stylesheet: {...state.stylesheet, ...subnodes.state.stylesheet},
           primitives: new Set([...state.primitives, ...subnodes.state.primitives]),
@@ -71,11 +73,13 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
         const propName = propId ? getSlug(propId.split('#').shift()) : null;
         // Explicit component
         if (!propName) {
-          state.components[main.id] = main;
           code.push({...component, tag: getName(node.name), props: node.componentProperties});
+          state.components[main.id] = main;
         // Instance swapped component
         } else {
           code.push({...component, swap: propName});
+          // Only include swapped components for bundles, not for code generation
+          state.includes[main.id] = main;
         }
         break;
       }

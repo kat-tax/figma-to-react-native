@@ -70,14 +70,13 @@ export function writeFunction(
   styleid: string = 'styles',
 ) {
   const isVariant = !!rootView.node?.variantProperties;
-  const props = Object.entries(isVariant
-    ? rootView.node?.parent?.componentPropertyDefinitions
-    : rootView.node.componentPropertyDefinitions
-  );
+  const masterNode = isVariant ? rootView.node?.parent : rootView.node;
 
-  if (props.length > 0) {
+  // Component props
+  const propDefs = Object.entries(masterNode?.componentPropertyDefinitions);
+  if (propDefs.length > 0) {
     writer.write(`export interface ${rootView.name}Props`).block(() => {
-      props.sort(sortProps).forEach(([key, prop]) => {
+      propDefs.sort(sortProps).forEach(([key, prop]) => {
         const {type, variantOptions}: any = prop;
         const name = getSlug(key.split('#').shift());
         const typing = type === 'VARIANT'
@@ -93,7 +92,19 @@ export function writeFunction(
     writer.blankLine();
   }
 
-  writer.write(`export function ${rootView.name}(props: ${rootView.name}Props)`).block(() => {
+  // Component documentation
+  if (masterNode.description) {
+    writer.writeLine(`/**`);
+    writer.writeLine(` * ${masterNode.description}`);
+    if (masterNode?.documentationLinks?.length > 0) {
+      writer.writeLine(` * @link ${masterNode.documentationLinks[0].uri}`);
+    }
+    writer.writeLine(` */`);
+  }
+
+  // Component function body and children
+  const attrProps = `${propDefs.length > 0 ? `props: ${rootView.name}Props` : ''}`;
+  writer.write(`export function ${rootView.name}(${attrProps})`).block(() => {
     writer.write(`return (`).indent(() => {
       writer.write(`<${rootView.tag} style={${styleid}.${rootView.slug}}>`).indent(() => {
         writeChildren(writer, settings, children, styleid);
@@ -112,14 +123,15 @@ export function writeChildren(
 ) {
   children.forEach((child) => {
     const isVariant = !!child.node.variantProperties;
-    const propRefs = isVariant
-      ? child.node.parent.componentPropertyReferences
-      : child.node.componentPropertyReferences;
+    const masterNode = isVariant ? child.node.parent : child.node;
+    const propRefs = masterNode?.componentPropertyReferences;
+    // Conditional rendering
     if (propRefs?.visible) {
       const name = getSlug(propRefs?.visible.split('#').shift());
       writer.write(`{props.${name} &&`).space().indent(() => {
         writeChild(writer, settings, child, styleid);
       }).write('}').newLine();
+    // Default rendering
     } else {
       writeChild(writer, settings, child, styleid);
     }
@@ -166,7 +178,7 @@ export function writeChild(
     // SVG child paths
     } else if (child.paths) {
       child.paths.forEach((path: any, i: number) => {
-        const fill = getColor(child.fills[i].color);
+        const fill = getColor(child.fills[i]?.color);
         writer.write(`<Path d="${path.data}" fill="${fill}"/>`)
       });
     // View children (recurse)

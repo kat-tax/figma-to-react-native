@@ -27,7 +27,8 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): Styles {
     // case 'ELLIPSE':
     case 'GROUP':
     case 'FRAME':
-    case 'COMPONENT': {
+    case 'COMPONENT':
+    case 'COMPONENT_SET': {
       return {
         ...layout(node, isRoot),
         ...position(node, isRoot),
@@ -212,7 +213,9 @@ function border(node: TargetNode): StylesBorder {
   }
 
   // Stroke
-  if (node.strokes?.length > 0 && node.strokeWeight > 0) {
+  if (node.strokes?.length > 0
+    // TODO: figure out what to do with "mixed" border strokes (ignore for now)
+    && (node.strokeWeight !== figma.mixed && node.strokeWeight > 0)) {
     const fill = getTopFill(node.strokes);
     style.borderColor = getColor(fill?.color, fill?.opacity);
     style.borderWidth = node.strokeWeight;

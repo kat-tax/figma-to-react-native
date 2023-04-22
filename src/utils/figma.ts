@@ -112,7 +112,7 @@ export function propsToString(props: any) {
 // Sort props to the proper JSX order
 export function sortProps(a: any, b: any) {
   // Booleans are always first
-  if (a[1].type === 'BOOLEAN') {
+  if (a[1].type === 'BOOLEAN' && b[1].type !== 'BOOLEAN') {
     return -1;
   // Otherwise sort alphabetically
   } else {
@@ -131,6 +131,12 @@ export function propsToKeyValues([key, prop]) {
   // Variant and text prop are simply k="v"
   } else if (type === 'TEXT' || type === 'VARIANT') {
     return `${k}="${v}"`;
+  // Instance swap
+  } else if (type === 'INSTANCE_SWAP') {
+    const node = figma.getNodeById(value || defaultValue);
+    const name = getName(node?.name);
+    const tag = name ? '<' + name + '/>' : '<View/>';
+    return `${k}={${tag}}`;
   }
 }
 

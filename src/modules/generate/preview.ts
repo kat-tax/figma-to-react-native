@@ -10,7 +10,7 @@ import type {Settings} from 'types/settings';
 
 export function generatePreview(root: ParsedComponent, children: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings.output?.format);
-  const {components, stylesheet} = children.state;
+  const {stylesheet, components, includes} = children.state;
   const primitives = new Set(['Text', 'Image']);
   const libraries = new Set(['react-native-svg']);
   
@@ -23,6 +23,8 @@ export function generatePreview(root: ParsedComponent, children: ParseData, sett
   writeStyleSheet(writer, root, stylesheet);
   writer.blankLine();
   writeComponents(writer, settings, components);
+  writer.blankLine();
+  writeComponents(writer, settings, includes);
   writer.blankLine();
 
   return writer.toString();

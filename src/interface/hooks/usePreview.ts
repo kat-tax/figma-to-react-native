@@ -1,5 +1,4 @@
 import {useState, useEffect} from 'react';
-import {propsToString} from 'utils/figma';
 import {build} from 'utils/esbuild';
 
 import type {Settings} from 'types/settings';
@@ -11,15 +10,14 @@ export function usePreview(component: EditorComponent, settings: Settings) {
   useEffect(() => {
     if (!component) return;
 
-    const tagValue = `${component.name} ${propsToString(component.props)}`;
-
     const appCode = component.preview
       .replace(/import theme from ["']\.\/theme['"];/g, '')
       .replace(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g, '');
 
     const entryPoint = `
-      import {AppRegistry} from 'react-native';
       import {useEffect, useState} from 'react';
+      import {AppRegistry} from 'react-native';
+      //import {ClickToComponent} from 'click-to-react-component';
       import {TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 
       ${appCode}
@@ -27,7 +25,7 @@ export function usePreview(component: EditorComponent, settings: Settings) {
       function Preview() {
         return (
           <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
-            ${'<' + tagValue + '/>'}
+            ${'<' + component.name + ' ' + component.props + '/>'}
           </TransformComponent>
         );
       }
@@ -36,6 +34,7 @@ export function usePreview(component: EditorComponent, settings: Settings) {
         return (
           <TransformWrapper centerOnInit>
             <Preview/>
+            {/*<ClickToComponent/>*/}
           </TransformWrapper>
         );
       }
