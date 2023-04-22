@@ -1,7 +1,7 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
 import {Root as Tabs, List as Bar, Trigger as Item, Content as Tab} from '@radix-ui/react-tabs';
-import {useEffect, useState, useCallback, useMemo, useRef} from 'react';
+import {useEffect, useCallback, useMemo, useRef} from 'react';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useSettings} from 'interface/hooks/useSettings';
 import {useComponent} from 'interface/hooks/useComponent';
@@ -25,28 +25,13 @@ export function App() {
   const iframe = useRef<HTMLIFrameElement>(null);
   const editorTheme = isDarkMode ? 'vs-dark' : 'vs';
   const editorOptions = {...settings.config.display.editor.general, theme: editorTheme};
-  const [opacity, setOpacity] = useState(0);
   const handleSettings = useMemo(() => debounce(settings.update, 750), [settings.update]);
   const updatePreview = useCallback(() => iframe.current?.contentWindow?.postMessage(preview), [preview]);
-  const changeTab = useCallback((value: string) => {
-    if (value === 'preview') {
-      setTimeout(() => setOpacity(1), 500);
-    } else {
-      setOpacity(0);
-    }
-  }, []);
 
   useEffect(updatePreview, [preview]);
-  useEffect(() => {
-    if (component?.code) {
-      setTimeout(() => setOpacity(1), 300);
-    } else {
-      setOpacity(0);
-    }
-  }, [component?.code]);
 
   return (
-    <Tabs defaultValue="code" className="tabs" onValueChange={changeTab}>
+    <Tabs defaultValue="code" className="tabs">
       <Bar loop aria-label="header" className="bar">
         <Item value="code" title="View component code" className="tab">
           Code
@@ -86,7 +71,6 @@ export function App() {
         {component?.preview &&
           <iframe
             ref={iframe}
-            style={{opacity}}
             srcDoc={html.preview}
             onLoad={updatePreview}
           />

@@ -16,7 +16,7 @@ export function useSettings() {
     let decoded: Settings;
     try { decoded = JSON.parse(payload)} catch (e) {}
     if (decoded) {
-      parent.postMessage({pluginMessage: {type: 'config', payload}, pluginId: '*'}, '*');
+      parent.postMessage({pluginMessage: {type: 'config', payload}}, '*');
       setConfig(decoded);
       setRaw(payload);
     }

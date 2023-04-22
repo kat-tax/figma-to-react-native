@@ -4,7 +4,7 @@ import {useExport} from 'interface/hooks/useExport';
 
 export function Export() {  
   const exportProject = useCallback((target: string) =>
-    parent.postMessage({pluginMessage: {type: 'export', payload: target}, pluginId: '*'}, '*'), []);
+    parent.postMessage({pluginMessage: {type: 'export', payload: target}}, '*'), []);
 
   useExport();
 

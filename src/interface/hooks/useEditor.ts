@@ -17,7 +17,7 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
       provideDefinition: (model, position) => {
         const link = links?.[model.getWordAtPosition(position).word];
         if (link) {
-          parent.postMessage({pluginMessage: {type: 'focus', payload: link}, pluginId: '*'}, '*');
+          parent.postMessage({pluginMessage: {type: 'focus', payload: link}}, '*');
           return [];
         }
         return [];
