@@ -74,6 +74,7 @@ export function writeFunction(
 
   // Component props
   const propDefs = Object.entries(masterNode?.componentPropertyDefinitions);
+  let propVariants: string[] = [];
   if (propDefs.length > 0) {
     writer.write(`export interface ${rootView.name}Props`).block(() => {
       propDefs.sort(sortProps).forEach(([key, prop]) => {
@@ -86,6 +87,8 @@ export function writeFunction(
             : type === 'TEXT'
               ? 'string'
               : type.toLowerCase();
+        if (type === 'VARIANT')
+          propVariants = variantOptions;
         writer.writeLine(`${name}: ${typing};`);
       });
     });
@@ -105,6 +108,10 @@ export function writeFunction(
   // Component function body and children
   const attrProps = `${propDefs.length > 0 ? `props: ${rootView.name}Props` : ''}`;
   writer.write(`export function ${rootView.name}(${attrProps})`).block(() => {
+    if (isVariant && propVariants.length > 0) {
+      writeClasses(writer, rootView, propVariants);
+    }
+    
     writer.write(`return (`).indent(() => {
       writer.write(`<${rootView.tag} style={${styleid}.${rootView.slug}}>`).indent(() => {
         writeChildren(writer, settings, children, styleid);
@@ -244,6 +251,29 @@ export function writeStyleSheet(
   });
 
   writer.write(');');
+}
+
+export function writeClasses(
+  writer: CodeBlockWriter,
+  rootView: ParsedComponent,
+  propVariants: string[],
+) {
+  /*
+  writer.write(`const classes = `).inlineBlock(() => {
+    const stylesWithDifferences = ['root', 'test'];
+    stylesWithDifferences.forEach(styleName => {
+      writer.write(`${styleName}: [`).indent(() => {
+        writer.writeLine(`styles.${styleName},`);
+        propVariants.forEach((variant, i) => {
+          writer.writeLine(`props.state === '${variant}' && styles.${styleName}${variant},`);
+        });
+      });
+      writer.writeLine('],');
+    });
+  });
+  writer.write(';');
+  writer.blankLine();
+  */
 }
 
 export function writeInteractionStyle(

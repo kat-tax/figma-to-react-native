@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-import {generateTheme} from 'modules/generate/theme';
-import {writeImports, writeFunction, writeStyleSheet} from 'modules/generate/utils';
+import {generateTheme} from 'modules/generate/react-native/theme';
+import {writeImports, writeFunction, writeStyleSheet} from 'modules/generate/react-native/utils';
 import {parseStyles} from 'modules/parse/styles';
 import {parseNodes} from 'modules/parse/nodes';
 import {getName} from 'utils/figma';

@@ -1,8 +1,8 @@
 import {parseNodes} from 'modules/parse/nodes';
 import {parseStyles} from 'modules/parse/styles';
-import {generateComponent} from 'modules/generate/component';
-import {generatePreview} from 'modules/generate/preview';
-import {generateStory} from 'modules/generate/story';
+import {generateComponent} from 'modules/generate/react-native/component';
+import {generatePreview} from 'modules/generate/react-native/preview';
+import {generateStory} from 'modules/generate/react-native/story';
 import {getName, propsToString} from 'utils/figma';
 
 import type {EditorComponent, EditorLinks} from 'types/editor';

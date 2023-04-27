@@ -1,5 +1,4 @@
-import {generateTheme} from 'modules/generate/theme';
-import {generateBundle} from 'modules/generate/bundle';
+import {generateBundle, generateTheme} from 'modules/generate';
 import {getSelectedComponent, getComponents, getPage} from 'utils/figma';
 import config from 'config';
 

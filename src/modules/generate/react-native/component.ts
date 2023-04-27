@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {writeImports, writeFunction, writeStyleSheet} from 'modules/generate/utils';
+import {writeImports, writeFunction, writeStyleSheet} from 'modules/generate/react-native/utils';
 import {getName} from 'utils/figma';
 
 import type {ParseData, ParsedComponent} from 'types/parse';

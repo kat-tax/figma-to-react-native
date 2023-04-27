@@ -1,3 +1,10 @@
+# VARIANTS
+
+- Finish classes generation
+- Diff styles of all variants
+- If state is "Hover" or "Focused" or "Pressed" then auto generate a <Pressable> and apply the class?
+
+
 # INTERFACING
 
 - Preview click to component (https://github.com/ericclemmons/click-to-component)
