@@ -31,7 +31,6 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
   });
 
   // Loop through sub-components, import each one
-  // (e.g. import {LogosExternalApple} './LogosExternalApple';)
   if (components.length > 0) {
     components.forEach((component) => {
       const name = getName(component.name);

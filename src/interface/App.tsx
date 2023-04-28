@@ -8,12 +8,12 @@ import {useComponent} from 'interface/hooks/useComponent';
 import {usePreview} from 'interface/hooks/usePreview';
 import {useEditor} from 'interface/hooks/useEditor';
 import {useTheme} from 'interface/hooks/useTheme';
-import {IconGear} from 'interface/icons/IconGear';
+import {IconGear} from 'interface/base/IconGear';
 import {Loading} from 'interface/base/Loading';
 import {Hint} from 'interface/base/Hint';
 import {Export} from 'interface/Export';
-import {html} from 'interface/templates';
 import {debounce} from 'utils/common';
+import {html} from 'templates';
 
 export function App() {  
   const theme = useTheme();

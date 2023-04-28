@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {useMonaco} from '@monaco-editor/react';
-import settingsSchema from 'interface/templates/schema.json';
+import schemaSettings from 'templates/schema.json';
 
 // import AutoImport, {regexTokeniser} from '@blitz/monaco-auto-import'
 // import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
@@ -31,7 +31,7 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
     json?.setDiagnosticsOptions({
       validate: true,
       schemas: [{
-        schema: settingsSchema,
+        schema: schemaSettings,
         fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
         uri: 'http://ult.dev/figaro-settings-schema.json',
       }],

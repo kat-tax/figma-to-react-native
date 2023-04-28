@@ -3,7 +3,7 @@
   "scripts": {
     "start": "node esbuild.mjs --watch",
     "build": "node esbuild.mjs",
-    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/interface/templates/schema.json"
+    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/templates/schema.json"
   },
   "dependencies": {
     "@donedeal0/superdiff": "^1.0.9",
@@ -20,7 +20,7 @@
     "@figma/plugin-typings": "^1.63.0",
     "@types/react": "^17.0.57",
     "@types/react-dom": "^17.0.19",
-    "esbuild": "^0.14.39",
+    "esbuild": "^0.14.54",
     "typescript": "^5.0.4",
     "typescript-json-schema": "^0.56.0"
   }

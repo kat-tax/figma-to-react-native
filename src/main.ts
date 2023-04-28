@@ -1,31 +1,31 @@
-import {loadConfig, updateConfig, updateCode, updateTheme, focusComponent, exportDocument} from 'utils/plugin';
+import * as plugin from 'utils/plugin';
 import defaultConfig from 'config';
 
 figma.showUI(__html__, defaultConfig.display.plugin);
 
 (async function main() {
-  await loadConfig();
-  setInterval(updateCode, 300);
-  setInterval(updateTheme, 1000);
-  figma.on('selectionchange', updateCode);
+  await plugin.loadConfig();
+  setInterval(plugin.updateCode, 300);
+  setInterval(plugin.updateTheme, 1000);
+  figma.on('selectionchange', plugin.updateCode);
   figma.on('run', ({command}: RunEvent) => {
     switch (command) {
       case 'export-doc':
-        return exportDocument('all');
+        return plugin.exportDocument('all');
       case 'export-page':
-        return exportDocument('page');
+        return plugin.exportDocument('page');
       case 'export-selected':
-        return exportDocument('selected');
+        return plugin.exportDocument('selected');
     }
   })
   figma.ui.on('message', ({type, payload}) => {
     switch (type) {
       case 'config':
-        return updateConfig(payload);
+        return plugin.updateConfig(payload);
       case 'export':
-        return exportDocument(payload);
+        return plugin.exportDocument(payload);
       case 'focus':
-        return focusComponent(payload);
+        return plugin.focusComponent(payload);
       case 'error':
         return figma.notify(payload, {error: true});
     }
