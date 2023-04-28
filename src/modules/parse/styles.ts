@@ -22,9 +22,6 @@ import type {
 
 export function parseStyles(node: TargetNode, isRoot?: boolean): Styles {
   switch (node.type) {
-    // TODO
-    // case 'RECTANGLE':
-    // case 'ELLIPSE':
     case 'GROUP':
     case 'FRAME':
     case 'COMPONENT':
@@ -41,6 +38,9 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): Styles {
         //...blends(node),
       };
     }
+    // TODO
+    // case 'RECTANGLE':
+    // case 'ELLIPSE':
     case 'TEXT': {
       return {
         ...position(node),
@@ -93,34 +93,26 @@ function position(node: TargetNode, isRoot?: boolean): StylesPosition {
 function layout(node: TargetNode, isRoot?: boolean): StylesLayout {
   const style: StylesLayout = {};
 
-  // If AutoLayout not used, return empty layout
+  // if AutoLayout not used, return empty layout
   if (node.layoutPositioning !== 'AUTO') {
     return style;
   }
 
-  // Display
-  style.display = isRoot || (node.parent
-    && 'layoutMode' in node.parent
-    && node.parent.layoutMode === node.layoutMode)
-      ? 'flex'
-      : 'inline-flex';
-
-  // Direction
+  style.display = 'flex';
   style.flexDirection = node.layoutMode === 'HORIZONTAL'
     ? 'row'
     : 'column';
 
-  // Alignment
   let primaryAlign: string;
   switch (node.primaryAxisAlignItems) {
     case 'MIN':
       primaryAlign = 'flex-start';
       break;
-    case 'CENTER':
-      primaryAlign = 'center';
-      break;
     case 'MAX':
       primaryAlign = 'flex-end';
+      break;
+    case 'CENTER':
+      primaryAlign = 'center';
       break;
     case 'SPACE_BETWEEN':
       primaryAlign = 'space-between';
@@ -136,11 +128,11 @@ function layout(node: TargetNode, isRoot?: boolean): StylesLayout {
     case 'MIN':
       counterAlign = 'flex-start';
       break;
-    case 'CENTER':
-      counterAlign = 'center';
-      break;
     case 'MAX':
       counterAlign = 'flex-end';
+      break;
+    case 'CENTER':
+      counterAlign = 'center';
       break;
   }
 
@@ -148,12 +140,10 @@ function layout(node: TargetNode, isRoot?: boolean): StylesLayout {
     style.alignItems = counterAlign;
   }
 
-  // Spacing
   if (node.itemSpacing) {
     style.gap = node.itemSpacing;
   }
 
-  // Flexbox
   return style;
 }
 

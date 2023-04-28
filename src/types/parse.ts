@@ -6,7 +6,7 @@ export interface ParseData {
 export interface ParseState {
   includes: any,
   components: any,
-  stylesheet: Record<string, Record<string, unknown>>,
+  stylesheet: any,
   primitives: Set<string>,
   libraries: Set<string>,
 }

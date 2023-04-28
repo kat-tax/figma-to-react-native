@@ -17,7 +17,6 @@ export function usePreview(component: EditorComponent, settings: Settings) {
     const entryPoint = `
       import {useEffect, useState} from 'react';
       import {AppRegistry} from 'react-native';
-      //import {ClickToComponent} from 'click-to-react-component';
       import {TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 
       ${appCode}
@@ -34,7 +33,6 @@ export function usePreview(component: EditorComponent, settings: Settings) {
         return (
           <TransformWrapper centerOnInit>
             <Preview/>
-            {/*<ClickToComponent/>*/}
           </TransformWrapper>
         );
       }

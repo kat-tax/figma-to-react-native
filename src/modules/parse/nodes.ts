@@ -44,8 +44,8 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
     // Transform styles for child (if applicable)
     if (component.slug) {
       state.stylesheet[component.slug] = {
-        tag: component.tag,
-        style: parseStyles(node),
+        component,
+        styles: parseStyles(node),
       };
     }
 

@@ -1,4 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
+import {getObjectDiff} from '@donedeal0/superdiff';
 import {getColor, sortProps, getSlug, propsToString} from 'utils/figma';
 
 import type {ParsedComponent, ParseState} from 'types/parse';
@@ -55,6 +56,7 @@ export function writeImports(
   });
 
   // Import theme file
+  // TODO: do not include if no theme properties are used
   writer.write(`import theme from`);
   writer.space();
   writer.quote(`./theme`);
@@ -205,52 +207,37 @@ export function writeStyleSheet(
   styleid: string = 'styles',
 ) {
   writer.write(`const ${styleid} = StyleSheet.create(`).inlineBlock(() => {
-    const properties = Object
-      .keys(rootView.styles)
-      .filter(c => rootView.styles[c] !== undefined);
-    if (properties.length > 0) {
-      writer.write(`${rootView.slug}: {`).indent(() => {
-        properties.forEach(property => {
-          const value = rootView.styles[property];
-          writer.write(`${property}: `);
-          if (typeof value === 'number' || value.startsWith('theme.')) {
-            writer.write(value.toString());
-          } else {
-            writer.quote(value);
-          }
-          writer.write(',');
-          writer.newLine();
-        });
-      });
-      writer.writeLine('},');
-    }
+    writeStyle(writer, rootView, rootView.styles);
     Object.keys(stylesheet).forEach(slug => {
-      const child = stylesheet[slug];
-      if (child && child.tag !== 'Unknown') {
-        const properties = Object
-          .keys(child.style)
-          .filter(c => child.style[c] !== undefined);
-        if (properties.length > 0) {
-          writer.write(`${slug}: {`).indent(() => {
-            properties.forEach(property => {
-              const value = child.style[property];
-              writer.write(`${property}: `);
-              if (typeof value === 'number' || value.startsWith('theme.')) {
-                writer.write(value.toString());
-              } else {
-                writer.quote(value);
-              }
-              writer.write(',');
-              writer.newLine();
-            });
-          });
-          writer.writeLine('},');
-        }
-      }
+      const {component, styles} = stylesheet[slug];
+      writeStyle(writer, component, styles);
     });
   });
-
   writer.write(');');
+}
+
+export function writeStyle(
+  writer: CodeBlockWriter,
+  node: ParsedComponent,
+  styles: any,
+) {
+  const props = Object.keys(styles).filter(c => styles[c] !== undefined);
+  if (props.length > 0) {
+    writer.write(`${node.slug}: {`).indent(() => {
+      props.forEach(prop => {
+        const value = styles[prop];
+        writer.write(`${prop}: `);
+        if (typeof value === 'number' || value.startsWith('theme.')) {
+          writer.write(value.toString());
+        } else {
+          writer.quote(value);
+        }
+        writer.write(',');
+        writer.newLine();
+      });
+    });
+    writer.writeLine('},');
+  }
 }
 
 export function writeClasses(
@@ -259,6 +246,7 @@ export function writeClasses(
   propVariants: string[],
 ) {
   /*
+  getObjectDiff(rootView.styles, propVariants.map(variant => rootView.styles[variant]));
   writer.write(`const classes = `).inlineBlock(() => {
     const stylesWithDifferences = ['root', 'test'];
     stylesWithDifferences.forEach(styleName => {
