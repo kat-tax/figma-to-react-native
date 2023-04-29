@@ -1,13 +1,13 @@
 {
   "api": "1.0.0",
-  "name": "Figaro",
+  "name": "Figma -> React Native",
   "editorType": ["figma"],
   "id": "821138713091291738",
   "ui": "dist/index.html",
   "main": "dist/main.js",
   "parameterOnly": false,
   "menu": [
-    {"name": "Open Inspector", "command": "show"},
+    {"name": "Component Inspector", "command": "show"},
     {
       "name": "Export Components",
       "menu": [

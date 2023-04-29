@@ -14,6 +14,10 @@ iframe {
   width: 100%;
 }
 
+h4 {
+  margin-bottom: 0.5em;
+}
+
 #app {
   height: 100%;
   display: flex;
@@ -37,7 +41,7 @@ iframe {
 }
 
 .page {
-  padding: 1.3em;
+  padding: 0.5em 1.3em;
 }
 
 /* Components */

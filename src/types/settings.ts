@@ -14,7 +14,7 @@ export interface Settings {
   },
   output: {
     react: {
-      flavor: 'react-native',
+      flavor: 'react-native' | 'tamagui',
       addImport?: boolean,
       addTranslate?: boolean,
     }

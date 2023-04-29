@@ -1,13 +1,14 @@
 import {parseStyles} from 'modules/parse/styles';
 import {getTag, getName, getSlug} from 'utils/figma';
 
-import type {TargetNode} from 'types/figma';
 import type {ParseData, ParseState, ParsedComponent} from 'types/parse';
+import type {TargetNode} from 'types/figma';
 
 export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
   // Init state (haven't recursed yet)
   if (!state) {
     state = {
+      includes: {},
       components: {},
       stylesheet: {},
       primitives: new Set(),
@@ -20,9 +21,15 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
 
   // Loop through each direct child node
   nodes.forEach((node) => {
-    // Skip invisible nodes
-    // TODO: conditionally render instead of skipping
-    if ('visible' in node && !node.visible) return;
+    const isVariant = !!node.variantProperties;
+    const propRefs = isVariant
+      ? node.parent.componentPropertyReferences
+      : node.componentPropertyReferences;
+
+    // Skip nodes that are not visible and not conditionally rendered
+    if (!node.visible && !propRefs?.visible) {
+      return;
+    }
 
     // These node types can have styles
     const hasStyles = node.type === 'TEXT'
@@ -32,6 +39,7 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
 
     // Create component
     const component: ParsedComponent = {
+      node,
       id: node.id,
       tag: getTag(node.type),
       name: getName(node.name),
@@ -41,14 +49,12 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
     // Transform styles for child (if applicable)
     if (component.slug) {
       state.stylesheet[component.slug] = {
-        tag: component.tag,
-        style: parseStyles(node),
+        component,
+        styles: parseStyles(node),
       };
     }
 
-    // Parse Figma node depending on type
     switch (node.type) {
-
       // Group nodes get recursed & state is combined
       case 'GROUP':
       case 'FRAME':
@@ -56,6 +62,7 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
         const subnodes = parseNodes([...node.children], state);
         code.push({...component, children: subnodes.code});
         state = {
+          includes: {...state.includes, ...subnodes.state.includes},
           components: {...state.components, ...subnodes.state.components},
           stylesheet: {...state.stylesheet, ...subnodes.state.stylesheet},
           primitives: new Set([...state.primitives, ...subnodes.state.primitives]),
@@ -66,17 +73,38 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
 
       // Instances get inserted w/ props and the master component recorded
       case 'INSTANCE': {
-        const isVariant = !!node.variantProperties;
-        const parent = isVariant ? node.masterComponent.parent : node.mainComponent;
-        state.components[parent.id] = parent;
-        code.push({...component, tag: getName(node.name), props: node.componentProperties});
+        const main = isVariant ? node.masterComponent.parent : node.mainComponent;
+        const props = node.componentProperties;
+        const propId = node.componentPropertyReferences?.mainComponent;
+        const propName = propId ? getSlug(propId.split('#').shift()) : null;
+        // Explicit component (does not change)
+        if (!propName) {
+          code.push({...component, props, tag: getName(node.name)});
+          // Queue this component for import
+          state.components[main.id] = main;
+          // Also queue any component used in a prop
+          Object.keys(props).forEach((key) => {
+            const {type, value} = props[key];
+            if (type === 'INSTANCE_SWAP') {
+              const swapComponent = figma.getNodeById(value);
+              state.components[swapComponent.id] = swapComponent;
+            }
+          });
+        // Instance swapped component (changes based on prop)
+        } else {
+          code.push({...component, swap: propName});
+          // Only include swapped components for bundles, not for code generation
+          state.includes[main.id] = main;
+        }
         break;
       }
 
       // Text nodes get inserted and the primitive added
       case 'TEXT': {
         state.primitives.add('Text');
-        code.push({...component, value: node.characters || ''});
+        const propId = propRefs?.characters;
+        const propName = propId ? getSlug(propId.split('#').shift()) : null;
+        code.push({...component, value: propName ? `props.${propName}` : node.characters || ''});
         break;
       }
   

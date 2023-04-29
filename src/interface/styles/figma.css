@@ -1,23 +1,23 @@
 /* Inputs */
 
 .button {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: var(--size-medium);
+  padding: 0 var(--size-xsmall) 0 var(--size-xsmall);
+  font-size: var(--font-size-xsmall);
+  font-family: var(--font-stack);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--font-letter-spacing-neg-small);
+  line-height: var(--font-line-height);
   color: var(--figma-color-text-onbrand);
   background-color: var(--figma-color-bg-brand);
-  display: flex;
-	align-items: center;
-	border-radius: var(--border-radius-large);
-	flex-shrink: 0;
-	font-family: var(--font-stack);
-	font-size: var(--font-size-xsmall);
-	font-weight: var(--font-weight-medium);
-	letter-spacing: var(--font-letter-spacing-neg-small);
-	line-height: var(--font-line-height);
-	height: var(--size-medium);
-	padding: 0 var(--size-xsmall) 0 var(--size-xsmall);
-	text-decoration: none;
-	outline: none;
-	border: 2px solid transparent;
-	user-select: none;
+  border-radius: var(--border-radius-large);
+  border: 2px solid transparent;
+  text-decoration: none;
+  user-select: none;
+  outline: none;
 }
 
 .button:active {
@@ -74,6 +74,7 @@
 
 .radio-group {
   margin-bottom: 20px;
+  margin-left: 6px;
 }
 
 .radio-group > label {

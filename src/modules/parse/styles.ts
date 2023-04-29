@@ -22,12 +22,10 @@ import type {
 
 export function parseStyles(node: TargetNode, isRoot?: boolean): Styles {
   switch (node.type) {
-    // TODO
-    // case 'RECTANGLE':
-    // case 'ELLIPSE':
     case 'GROUP':
     case 'FRAME':
-    case 'COMPONENT': {
+    case 'COMPONENT':
+    case 'COMPONENT_SET': {
       return {
         ...layout(node, isRoot),
         ...position(node, isRoot),
@@ -40,6 +38,9 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): Styles {
         //...blends(node),
       };
     }
+    // TODO
+    // case 'RECTANGLE':
+    // case 'ELLIPSE':
     case 'TEXT': {
       return {
         ...position(node),
@@ -63,7 +64,7 @@ function dimension(node: TargetNode, isRoot?: boolean): StylesDimension {
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'HORIZONTAL') {
-      style.flex = '1 1 0%';
+      style.flex = '1';
     } else {
       style.width = '100%';
     }
@@ -75,7 +76,7 @@ function dimension(node: TargetNode, isRoot?: boolean): StylesDimension {
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'VERTICAL') {
-      style.flex = '1 1 0%';
+      style.flex = '1';
     } else {
       style.height = '100%';
     }
@@ -92,34 +93,26 @@ function position(node: TargetNode, isRoot?: boolean): StylesPosition {
 function layout(node: TargetNode, isRoot?: boolean): StylesLayout {
   const style: StylesLayout = {};
 
-  // If AutoLayout not used, return empty layout
+  // if AutoLayout not used, return empty layout
   if (node.layoutPositioning !== 'AUTO') {
     return style;
   }
 
-  // Display
-  style.display = isRoot || (node.parent
-    && 'layoutMode' in node.parent
-    && node.parent.layoutMode === node.layoutMode)
-      ? 'flex'
-      : 'inline-flex';
-
-  // Direction
+  style.display = 'flex';
   style.flexDirection = node.layoutMode === 'HORIZONTAL'
     ? 'row'
     : 'column';
 
-  // Alignment
   let primaryAlign: string;
   switch (node.primaryAxisAlignItems) {
     case 'MIN':
       primaryAlign = 'flex-start';
       break;
-    case 'CENTER':
-      primaryAlign = 'center';
-      break;
     case 'MAX':
       primaryAlign = 'flex-end';
+      break;
+    case 'CENTER':
+      primaryAlign = 'center';
       break;
     case 'SPACE_BETWEEN':
       primaryAlign = 'space-between';
@@ -135,11 +128,11 @@ function layout(node: TargetNode, isRoot?: boolean): StylesLayout {
     case 'MIN':
       counterAlign = 'flex-start';
       break;
-    case 'CENTER':
-      counterAlign = 'center';
-      break;
     case 'MAX':
       counterAlign = 'flex-end';
+      break;
+    case 'CENTER':
+      counterAlign = 'center';
       break;
   }
 
@@ -147,12 +140,10 @@ function layout(node: TargetNode, isRoot?: boolean): StylesLayout {
     style.alignItems = counterAlign;
   }
 
-  // Spacing
   if (node.itemSpacing) {
     style.gap = node.itemSpacing;
   }
 
-  // Flexbox
   return style;
 }
 
@@ -212,7 +203,9 @@ function border(node: TargetNode): StylesBorder {
   }
 
   // Stroke
-  if (node.strokes?.length > 0 && node.strokeWeight > 0) {
+  if (node.strokes?.length > 0
+    // TODO: figure out what to do with "mixed" border strokes (ignore for now)
+    && (node.strokeWeight !== figma.mixed && node.strokeWeight > 0)) {
     const fill = getTopFill(node.strokes);
     style.borderColor = getColor(fill?.color, fill?.opacity);
     style.borderWidth = node.strokeWeight;
@@ -225,24 +218,23 @@ function border(node: TargetNode): StylesBorder {
 function typography(node: TargetNode): StylesTypography {
   let color: string;
   if (node.fills.length > 0) {
-    const fill = getTopFill(node.backgrounds);
+    const fill = getTopFill(node.fills);
     const fillStyle = getFillStyle(figma.getStyleById(node.fillStyleId));
     color = fillStyle ?? getColor(fill?.color, fill?.opacity);
   }
-
   const fontSize = node.fontSize;
   const fontFamily = node.fontFamily;
   const fontWeight = getFontWeight(node.fontName.style);
   const lineHeight = getLineHeight(node);
   const letterSpacing = getLetterSpacing(node);
   const isItalic = node.fontName.style.match(/italic/i);
-  const isUnderline = node.textDecoration === 'UNDERLINE';
   const isCrossed = node.textDecoration === 'STRIKETHROUGH';
-  const isAlignLeft = node.textAlignHorizontal === 'LEFT';
-  const isAlignRight = node.textAlignHorizontal === 'RIGHT';
-  const isAlignBottom = node.textAlignVertical === 'BOTTOM';
+  const isUnderline = node.textDecoration === 'UNDERLINE';
   const isAlignCenter = node.textAlignHorizontal === 'CENTER';
+  const isAlignRight = node.textAlignHorizontal === 'RIGHT';
+  const isAlignLeft = node.textAlignHorizontal === 'LEFT';
   const isAlignTop = node.textAlignVertical === 'TOP';
+  const isAlignBottom = node.textAlignVertical === 'BOTTOM';
 
   return {
     lineHeight,

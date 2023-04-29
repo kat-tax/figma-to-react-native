@@ -1,5 +1,5 @@
 import React from 'react';
-import {IconComponent} from 'interface/icons/IconComponent';
+import {IconComponent} from 'interface/base/IconComponent';
 
 export function Hint() {
   return (

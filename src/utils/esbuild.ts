@@ -1,7 +1,8 @@
 import {initialize, transform} from 'esbuild-wasm';
+
 import type {Settings} from 'types/settings';
 
-const wasmURL = 'https://unpkg.com/esbuild-wasm@0.14.39/esbuild.wasm';
+const wasmURL = 'https://unpkg.com/esbuild-wasm@0.14.54/esbuild.wasm';
 
 let _loading = false;
 let _loaded = false;

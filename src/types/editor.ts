@@ -1,8 +1,9 @@
 export type EditorComponent = {
   name: string,
+  props: string,
   code: string,
-  theme: string,
-  bundle: string,
+  story: string,
+  preview: string,
   links: EditorLinks,
 }
 

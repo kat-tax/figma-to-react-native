@@ -5,8 +5,8 @@ export function useExport() {
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'compile') {
-        const {project, files} = e.data.pluginMessage;
-        saveFilesFallback(project, JSON.parse(files));
+        const {project, files, theme} = e.data.pluginMessage;
+        saveFiles(project, JSON.parse(files), theme);
       }
     };
     addEventListener('message', onMessage);
@@ -14,56 +14,20 @@ export function useExport() {
   }, []);
 }
 
-async function saveFilesFallback(project: string, files: string[][]) {
+async function saveFiles(project: string, files: string[][], theme: string) {
   const lastModified = new Date();
+  const payload: {name: string, lastModified: Date, input: string}[] = [];
+  payload.push({name: 'theme.ts', lastModified, input: theme});
+  files.forEach(([name, code, story]) => {
+    payload.push({name: `${name}.tsx`, lastModified, input: code});
+    payload.push({name: `${name}.stories.tsx`, lastModified, input: story});
+  });
+  const blob = await downloadZip(payload).blob();
   const link = document.createElement('a');
-  let source: string;
-  if (files.length > 1) {
-    const contents = files.map(([name, code]) => ({name: `${name}.tsx`, lastModified, input: code}));
-    const blob = await downloadZip(contents).blob();
-    source = URL.createObjectURL(blob);
-    link.href = source;
-    link.download = `${project}.zip`;
-  } else {
-    const [name, code] = files[0];
-    source = URL.createObjectURL(new Blob([code], {type: 'text/plain'}));
-    link.href = source;
-    link.download = `${name}.tsx`;
-  }
+  const src = URL.createObjectURL(blob);
+  link.href = src;
+  link.download = `${project}.zip`;
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(source), 1000);
+  setTimeout(() => URL.revokeObjectURL(src), 1000);
 }
-
-/*
-  async function saveFiles(files: string[][]) {
-    if (!('showDirectoryPicker' in window)) {
-      alert('Your browser does not support the Native File System API.');
-      return;
-    }
-
-    try {
-      const folder = await (window as any).showDirectoryPicker();
-      await Promise.all(
-        files
-          .filter(file => file.length === 0)
-          .map(([name, code]) =>
-            writeFile(folder, `${name}.tsx`, code)
-          )
-      );
-
-      alert('Files saved successfully.');
-    } catch (error) {
-      console.error('Error saving files:', error);
-      alert('Error saving files. Please try again.');
-    }
-  }
-
-  async function writeFile(directoryHandle: FileSystemDirectoryHandle, fileName: string, content: string) {
-    const fileHandle = await directoryHandle.getFileHandle(fileName, {create: true});
-    // @ts-ignore
-    const writableStream = await fileHandle.createWritable();
-    await writableStream.write(content);
-    await writableStream.close();
-  }
-*/

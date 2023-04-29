@@ -1,5 +1,5 @@
-import {getSelectedComponent, getPage} from 'utils/figma';
-import generateCode from 'modules/generate';
+import {generateBundle, generateTheme} from 'modules/generate';
+import {getSelectedComponent, getComponents, getPage} from 'utils/figma';
 import config from 'config';
 
 import type {Settings} from 'types/settings';
@@ -26,14 +26,22 @@ export function updateConfig(value: Settings, skipSave?: boolean) {
 
 export function updateCode() {
   const selected = getSelectedComponent();
-  const component = generateCode(selected, _config);
-  if (component.code !== _code) {
-    _code = component.code;
+  const bundle = generateBundle(selected, _config);
+  if (bundle.code !== _code) {
+    _code = bundle.code;
     figma.ui.postMessage({
       type: 'code',
-      payload: JSON.stringify(component),
+      payload: JSON.stringify(bundle),
     });
   }
+}
+
+export function updateTheme() {
+  const theme = generateTheme(_config);
+  figma.ui.postMessage({
+    type: 'theme',
+    payload: JSON.stringify(theme),
+  });
 }
 
 export function updateDimensions() {
@@ -63,33 +71,39 @@ export function focusComponent(id: string) {
 }
 
 export function exportDocument(type: 'all' | 'page' | 'selected') {
+  const theme = generateTheme(_config);
   const document = figma.currentPage.parent;
-  // Export current page or all pages in document
-  if (type === 'all' || type === 'page') {
-    figma.notify(`Exporting ${type} components, this may take several seconds…`, {timeout: 3500});
-    setTimeout(() => {
+
+  let exportName: string = 'Components';
+  let components: ComponentNode[] = [];
+
+  switch (type) {
+    case 'all':
+    case 'page':
       const target = type === 'all' ? document : figma.currentPage;
-      const project = type === 'all' ? document.name : figma.currentPage.name;
-      const components = target.findAllWithCriteria({types: ['COMPONENT', 'COMPONENT_SET']});
+      exportName = type === 'all' ? document.name : figma.currentPage.name;
+      components = getComponents(target.findAllWithCriteria({types: ['COMPONENT']}));
+      break;
+    case 'selected':
+      components = getComponents(figma.currentPage.selection);
+      break;
+  }
+
+  if (components.length > 0) {
+    figma.notify(`Exporting ${components.length} component${components.length === 1 ? '' : 's'}…`, {timeout: 3500});
+    setTimeout(() => {
       const files = JSON.stringify(components.map(component => {
         try {
-          const file = generateCode(component, _config, true);
-          return [file.name, file.code];
+          const bundle = generateBundle(component, _config, true);
+          return [bundle.name, bundle.code, bundle.story];
         } catch (e) {
           console.error('Failed to export', component, e);
           return [];
         }
       }).filter(Boolean));
-      figma.ui.postMessage({type: 'compile', project, files});
+      figma.ui.postMessage({type: 'compile', project: exportName, files, theme});
     }, 500);
-  // Export single (selected) component
   } else {
-    figma.notify(`Exporting component…`, {timeout: 1500});
-    setTimeout(() => {
-      const selected = getSelectedComponent();
-      const gen = generateCode(selected, _config, true);
-      const files = JSON.stringify([[gen.name, gen.code]]);
-      figma.ui.postMessage({type: 'compile', project: gen.name, files});
-    }, 500);
+    figma.notify('No components found to export', {error: true});
   }
 }

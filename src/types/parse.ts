@@ -4,8 +4,9 @@ export interface ParseData {
 }
 
 export interface ParseState {
+  includes: any,
   components: any,
-  stylesheet: Record<string, Record<string, unknown>>,
+  stylesheet: any,
   primitives: Set<string>,
   libraries: Set<string>,
 }
@@ -15,6 +16,8 @@ export interface ParsedComponent {
   tag: string,
   name: string,
   slug: string,
+  node: any,
+  swap?: string,
   props?: any,
   styles?: Record<string, any>,
   children?: ParsedComponent[],

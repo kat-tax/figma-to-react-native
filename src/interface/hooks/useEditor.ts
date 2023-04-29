@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {useMonaco} from '@monaco-editor/react';
-import settingsSchema from 'interface/templates/schema.json';
+import schemaSettings from 'templates/schema.json';
 
 // import AutoImport, {regexTokeniser} from '@blitz/monaco-auto-import'
 // import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
@@ -31,28 +31,11 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
     json?.setDiagnosticsOptions({
       validate: true,
       schemas: [{
-        schema: settingsSchema,
+        schema: schemaSettings,
         fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
         uri: 'http://ult.dev/figaro-settings-schema.json',
       }],
     });
-    /*
-
-      // Automatic types for packages (EXPERIMENTAL)
-      AutoTypings.create(editor, {sourceCache: new LocalStorageCache()});
-      const completor = new AutoImport({monaco, editor})
-
-      completor.imports.saveFiles([{
-        path: './node_modules/left-pad/index.js',
-        aliases: ['left-pad'],
-        imports: regexTokeniser(`
-          export const PAD = ''
-          export function leftPad() {}
-          export function rightPad() {}
-        `)
-      }]);
-
-    */
   }, [monaco]);
 
   // Setup typescript user options + libraries
