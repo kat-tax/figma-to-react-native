@@ -26,6 +26,11 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
       ? node.parent.componentPropertyReferences
       : node.componentPropertyReferences;
 
+    // Skip nodes that are not visible and not conditionally rendered
+    if (!node.visible && !propRefs?.visible) {
+      return;
+    }
+
     // These node types can have styles
     const hasStyles = node.type === 'TEXT'
       || node.type === 'GROUP'
@@ -69,13 +74,23 @@ export function parseNodes(nodes: TargetNode[], state?: ParseState): ParseData {
       // Instances get inserted w/ props and the master component recorded
       case 'INSTANCE': {
         const main = isVariant ? node.masterComponent.parent : node.mainComponent;
+        const props = node.componentProperties;
         const propId = node.componentPropertyReferences?.mainComponent;
         const propName = propId ? getSlug(propId.split('#').shift()) : null;
-        // Explicit component
+        // Explicit component (does not change)
         if (!propName) {
-          code.push({...component, tag: getName(node.name), props: node.componentProperties});
+          code.push({...component, props, tag: getName(node.name)});
+          // Queue this component for import
           state.components[main.id] = main;
-        // Instance swapped component
+          // Also queue any component used in a prop
+          Object.keys(props).forEach((key) => {
+            const {type, value} = props[key];
+            if (type === 'INSTANCE_SWAP') {
+              const swapComponent = figma.getNodeById(value);
+              state.components[swapComponent.id] = swapComponent;
+            }
+          });
+        // Instance swapped component (changes based on prop)
         } else {
           code.push({...component, swap: propName});
           // Only include swapped components for bundles, not for code generation

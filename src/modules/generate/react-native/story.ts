@@ -7,7 +7,6 @@ import type {Settings} from 'types/settings';
 export function generateStory(root: ParsedComponent, settings: Settings) {
   const writer = new CodeBlockWriter(settings.output?.format);
   const isVariant = !!root.node?.variantProperties;
-  const nodeName = isVariant ? root.node.parent.name : root.name;
   const nodeProps = Object.entries(isVariant
     ? root.node?.parent?.componentPropertyDefinitions
     : root.node.componentPropertyDefinitions
@@ -34,7 +33,7 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
   if (components.length > 0) {
     components.forEach((component) => {
       const name = getName(component.name);
-      writer.write(`import {${name}}`);
+      writer.write(`import {${name}} from`);
       writer.space();
       writer.quote(`./${name}`);
       writer.write(';');
@@ -56,7 +55,7 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
   writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
     writer.write('title:');
     writer.space();
-    writer.quote(nodeName);
+    writer.quote(isVariant ? root.node.parent.name : root.node.name);
     writer.write(',');
     writer.newLine();
     writer.writeLine('component: Component,');
@@ -91,17 +90,21 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
             }
           });
         });
+        writer.write(',');
+      } else {
+        writer.writeLine('// ...');
       }
-      writer.write(',');
     });
     writer.write(';');
     writer.blankLine();
   } else {
+    // TODO: sort variants
     root.node.parent.children.forEach((child: any) => {
-      const name = getName(child.name.split('=').pop());
+      const name = getName(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
+      const props = nodeProps?.sort(sortProps);
       writer.write(`export const ${name}: Story = `).inlineBlock(() => {
         writer.write('args: ').inlineBlock(() => {
-          nodeProps.sort(sortProps).forEach(([key, prop]) => {
+          props.forEach(([key, prop]) => {
             const {type, defaultValue}: any = prop;
             const propName = getSlug(key.split('#').shift());
             // String
@@ -118,9 +121,14 @@ export function generateStory(root: ParsedComponent, settings: Settings) {
               writer.quote(name);
               writer.write(',');
               writer.newLine();
+            // Component
+            } else if (type === 'INSTANCE_SWAP') {
+              const component = figma.getNodeById(defaultValue);
+              const tagName = '<' + (getName(component.name) || 'View') + '/>';
+              writer.writeLine(`${propName}: ${tagName},`);
             // Number or boolean or ???
             } else {
-              writer.writeLine(`${propName}: ${defaultValue || ''},`);
+              writer.writeLine(`${propName}: ${defaultValue.toString() || ''},`);
             }
           });
         });

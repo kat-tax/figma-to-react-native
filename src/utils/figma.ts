@@ -158,7 +158,7 @@ export function getFillStyle(style: BaseStyle) {
   let fillKey: string;
   if (style?.name) {
     const [fillGroup, fillToken] = style.name.split('/');
-    fillKey = `theme.colors.${getSlug(fillGroup)}.${getSlug(fillToken)}`;
+    fillKey = `theme.colors.${getSlug(fillGroup)}.$${getSlug(fillToken, true)}`;
   }
   return fillKey;
 }

@@ -64,7 +64,7 @@ function dimension(node: TargetNode, isRoot?: boolean): StylesDimension {
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'HORIZONTAL') {
-      style.flex = '1 1 0%';
+      style.flex = '1';
     } else {
       style.width = '100%';
     }
@@ -76,7 +76,7 @@ function dimension(node: TargetNode, isRoot?: boolean): StylesDimension {
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'VERTICAL') {
-      style.flex = '1 1 0%';
+      style.flex = '1';
     } else {
       style.height = '100%';
     }

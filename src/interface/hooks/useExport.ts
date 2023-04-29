@@ -20,7 +20,7 @@ async function saveFiles(project: string, files: string[][], theme: string) {
   payload.push({name: 'theme.ts', lastModified, input: theme});
   files.forEach(([name, code, story]) => {
     payload.push({name: `${name}.tsx`, lastModified, input: code});
-    payload.push({name: `${name}.stories.ts`, lastModified, input: story});
+    payload.push({name: `${name}.stories.tsx`, lastModified, input: story});
   });
   const blob = await downloadZip(payload).blob();
   const link = document.createElement('a');

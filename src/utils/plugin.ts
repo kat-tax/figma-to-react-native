@@ -95,13 +95,13 @@ export function exportDocument(type: 'all' | 'page' | 'selected') {
       const files = JSON.stringify(components.map(component => {
         try {
           const bundle = generateBundle(component, _config, true);
-          return [bundle.name, bundle.code, bundle.story, theme];
+          return [bundle.name, bundle.code, bundle.story];
         } catch (e) {
           console.error('Failed to export', component, e);
           return [];
         }
       }).filter(Boolean));
-      figma.ui.postMessage({type: 'compile', project: exportName, files});
+      figma.ui.postMessage({type: 'compile', project: exportName, files, theme});
     }, 500);
   } else {
     figma.notify('No components found to export', {error: true});

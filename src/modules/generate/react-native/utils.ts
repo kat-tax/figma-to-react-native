@@ -1,5 +1,4 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getObjectDiff} from '@donedeal0/superdiff';
 import {getColor, sortProps, getSlug, propsToString} from 'utils/figma';
 
 import type {ParsedComponent, ParseState} from 'types/parse';
@@ -100,7 +99,9 @@ export function writeFunction(
   // Component documentation
   if (masterNode.description) {
     writer.writeLine(`/**`);
-    writer.writeLine(` * ${masterNode.description}`);
+    masterNode.description.split('\n').forEach((line: string) => {
+      writer.writeLine(` * ${line.trim()}`);
+    });
     if (masterNode?.documentationLinks?.length > 0) {
       writer.writeLine(` * @link ${masterNode.documentationLinks[0].uri}`);
     }
@@ -227,8 +228,10 @@ export function writeStyle(
       props.forEach(prop => {
         const value = styles[prop];
         writer.write(`${prop}: `);
-        if (typeof value === 'number' || value.startsWith('theme.')) {
+        if (typeof value === 'number') {
           writer.write(value.toString());
+        } else if (value.startsWith('theme.')) {
+          writer.write(value);
         } else {
           writer.quote(value);
         }

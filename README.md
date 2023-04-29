@@ -1,14 +1,29 @@
-# [Figaro](https://www.figma.com/community/plugin/821138713091291738)
+# [Figma To React Native](https://www.figma.com/community/plugin/821138713091291738)
 
-> The Figma React Toolchain
-
-Transforms Figma components to React components in real time. The goal is to bridge Figma and React. You design components in Figma, then program them in React. The focus is on one way conversion from Figma to React. Two way syncing will be focused on in the future.
+> Transforms Figma components to React Native components in real time. The goal is to reduce the handoff time between design and development. Design your UI components in Figma and export them for use in your React Native app. The focus is on one way, continuous, conversion from Figma to React.
 
 [![Preview of plugin](./art/banner.png)](https://www.figma.com/community/plugin/821138713091291738)
 
 ## Getting started
 
 [Install the plugin](https://www.figma.com/community/plugin/821138713091291738). Open it in Figma and select a [Figma component](https://help.figma.com/hc/en-us/articles/360038662654-Guide-to-Components-in-Figma). The plugin will generate React component code and render a preview. To change the settings, click the cog icon and edit the JSON. Settings will save and update in real time. You can change the configuration of the editor, plugin, compiler, code output, and more.
+
+## Features
+
+- SVGs and images
+- Nested components
+- Variants and properties
+- AutoLayout to FlexBox
+- Conditional rendering
+- Background gradients
+- Borders and rounding
+- Shadows and rotations
+- Theme generation from styles
+- Generates stories for Storybook
+- Realtime code and preview rendering
+- Flexible and realtime configuration
+- Batch exporting components
+- Figma dark mode support :)
 
 ## Community
 
