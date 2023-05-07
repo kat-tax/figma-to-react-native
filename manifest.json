@@ -1,20 +1,10 @@
 {
   "api": "1.0.0",
-  "name": "Figma -> React Native",
-  "editorType": ["figma"],
+  "editorType": [
+    "figma"
+  ],
   "id": "821138713091291738",
-  "ui": "dist/index.html",
-  "main": "dist/main.js",
-  "parameterOnly": false,
-  "menu": [
-    {"name": "Component Inspector", "command": "show"},
-    {
-      "name": "Export Components",
-      "menu": [
-        {"name": "Document", "command": "export-doc"},
-        {"name": "Current Page", "command": "export-page"},
-        {"name": "Selected Component", "command": "export-selected"}
-     ]
-    }
-  ]
+  "name": "Figma -> React Native",
+  "main": "build/main.js",
+  "ui": "build/ui.js"
 }

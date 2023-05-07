@@ -1,6 +1,6 @@
-import {useEffect} from 'react';
+import {useEffect} from 'preact/hooks';
 import {useMonaco} from '@monaco-editor/react';
-import schemaSettings from 'templates/schema.json';
+import schemaSettings from 'templates/settings/schema.json';
 
 // import AutoImport, {regexTokeniser} from '@blitz/monaco-auto-import'
 // import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
@@ -41,9 +41,9 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
   // Setup typescript user options + libraries
   useEffect(() => {
     const typescript = monaco?.languages.typescript.typescriptDefaults;
-    typescript?.setCompilerOptions(settings.display.editor.compiler);
-    typescript?.setInlayHintsOptions(settings.display.editor.inlayHints);
-    typescript?.setDiagnosticsOptions(settings.display.editor.diagnostics);
+    typescript?.setCompilerOptions(settings.monaco.compiler);
+    typescript?.setInlayHintsOptions(settings.monaco.inlayHints);
+    typescript?.setDiagnosticsOptions(settings.monaco.diagnostics);
     if (libs) {
       typescript?.setExtraLibs(libs);
       libs.forEach((lib) => {

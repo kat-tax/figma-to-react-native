@@ -1,5 +1,5 @@
 # Project
-dist/
+build/
 .ref/
 TODO.md
 

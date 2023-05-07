@@ -1,18 +1,12 @@
 {
+  "extends": "@create-figma-plugin/tsconfig",
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "compilerOptions": {
-    "strict": false,
-    "jsx": "react",
-    "baseUrl": "./src",
-    "target": "es2019",
-    "module": "es2020",
-    "lib": ["es2020", "dom"],
-    "moduleResolution": "node",
-    "skipLibCheck": true,
+    "typeRoots": ["node_modules/@figma", "node_modules/@types"],
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@figma"
-    ]
+    "skipLibCheck": true,
+    "target": "ES2020",
+    "baseUrl": "./src",
+    "strict": false,
   }
 }

@@ -1,39 +1,28 @@
 import type {Settings} from 'types/settings';
 
 const config: Settings = {
-  display: {
-    plugin: {
-      width: 400,
-      height: 600,
-      themeColors: true,
-    },
-    editor: {
-      general: {
-        lineNumbers: 'off',
-        minimap: {enabled: false},
-        padding: {top: 10},
-      }
-    },
+  react: {
+    flavor: 'react-native',
+    addImport: true,
+    addTranslate: false,
   },
-  output: {
-    react: {
-      flavor: 'react-native',
-      addImport: true,
-      addTranslate: false,
-    },
-    format: {
-      indentNumberOfSpaces: 2,
-      useSingleQuote: true,
-      useTabs: false,
-      newLine: '\n',
-    },
+  writer: {
+    indentNumberOfSpaces: 2,
+    useSingleQuote: true,
+    useTabs: false,
+    newLine: '\n',
   },
-  preview: {
-    transform: {
-      loader: 'tsx',
-      format: 'esm',
-      define: {'process.env.NODE_ENV': 'production'},
-    },
+  monaco: {
+    general: {
+      lineNumbers: 'off',
+      minimap: {enabled: false},
+      padding: {top: 10},
+    }
+  },
+  esbuild: {
+    loader: 'tsx',
+    format: 'esm',
+    define: {'process.env.NODE_ENV': 'production'},
   },
 };
 

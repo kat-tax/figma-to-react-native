@@ -1,5 +1,11 @@
 # ROADMAP
 
+### Next
+- Support rectangle
+- Support assets (png + svg)
+- Support variants
+- Fix preview of variants
+
 ### Polishing
 - Add fill prop to SVGs and provide them
 - Fix wrong variants being used (imports seem right)
@@ -7,12 +13,10 @@
 - Fix styling differences
 
 ### Interfacing
-
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing
 
 ### Generating
-
 - Variants
   - Loop through variants
   - Build and diff stylesheet from the root for each
@@ -31,21 +35,17 @@
 - Screens (navigation based on prototype settings)
 
 ### Exporting
-
 - Git repository (https://isomorphic-git.org)
 - Each document / page export is a branch
 - Display diff
 
 ### Maintaining
-
 - Refactor types
 - Use `--jsx=automatic` option (https://github.com/evanw/esbuild/issues/334)
 
 ### Servicing
-
 - Payment system
 - Storybook syncing
 
 ### Testing
-
 - Ensure https://www.untitledui.com/ translates

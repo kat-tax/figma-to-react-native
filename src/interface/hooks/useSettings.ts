@@ -1,16 +1,22 @@
-import {useRef, useState, useCallback, useEffect} from 'react';
+import {useRef, useState, useCallback, useEffect, MutableRef} from 'preact/hooks';
 import defaultConfig from 'config';
 
 import type {Settings} from 'types/settings';
 
-const indent = defaultConfig.output?.format?.indentNumberOfSpaces || 2;
+const indent = defaultConfig?.writer?.indentNumberOfSpaces || 2;
 const configRaw = JSON.stringify(defaultConfig, undefined, indent);
 
-export function useSettings() {
+export type SettingsData = {
+  config: Settings;
+  raw: string;
+  locked: MutableRef<boolean>;
+  update: (payload: string, force?: boolean) => void;
+}
+
+export function useSettings(): SettingsData {
   const locked = useRef(false);
   const [raw, setRaw] = useState(configRaw);
   const [config, setConfig] = useState(defaultConfig);
-
   const update = useCallback((payload: string, force?: boolean) => {
     if (!force && locked.current) return;
     let decoded: Settings;
