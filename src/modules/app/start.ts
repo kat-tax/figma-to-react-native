@@ -4,7 +4,7 @@ import {focusComponent} from 'modules/fig/utils';
 export async function start() {
   await utils.loadConfig();
   setInterval(utils.updateCode, 300);
-  setInterval(utils.updateTheme, 1000);
+  setInterval(utils.updateTheme, 400);
   figma.on('selectionchange', utils.updateCode);
   figma.ui.on('message', ({type, payload}) => {
     switch (type) {

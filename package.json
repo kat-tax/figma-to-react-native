@@ -19,6 +19,7 @@
     "@create-figma-plugin/utilities": "^2.4.0",
     "@donedeal0/superdiff": "^1.0.9",
     "@monaco-editor/react": "^4.5.1",
+    "@radix-ui/react-tabs": "^1.0.3",
     "@rollup/browser": "^3.21.5",
     "client-zip": "^2.3.1",
     "code-block-writer": "^12.0.0",

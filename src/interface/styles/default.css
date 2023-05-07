@@ -76,6 +76,58 @@ html, body {
   height: 100%;
 }
 
+.expand {
+  flex: 1;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.bar {
+  padding: 4px 5px;
+  border-bottom: 1px solid var(--figma-color-border);
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+}
+
+.tab {
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--font-line-height);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+  font-weight: 500;
+  background: none;
+  color: #b3b3b3;
+  padding: 0 8px;
+  height: 32;
+  border: 0;
+  border-radius: 2px;
+}
+
+.tab.icon {
+  width: 32;
+  padding: 0;
+  opacity: 0.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tab[data-state="active"] {
+  font-weight: 600;
+  color: var(--figma-color-text);
+}
+
+.tab.icon[data-state="active"] {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
 @font-face {
   font-family: "Inter";
   font-weight: 400;
