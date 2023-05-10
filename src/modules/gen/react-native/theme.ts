@@ -9,12 +9,12 @@ export function generateTheme(settings: Settings) {
 
   const writer = new CodeBlockWriter(settings?.writer);
   writer.write('export default').space().inlineBlock(() => {
+    let maxLineLength = 0;
     // TODO: skip theme if no values at all
     // TODO: effects styles: console.log('effects', figma.getLocalEffectStyles());
     
     // Build color map
     const colors: ThemeColors = {};
-    let maxLineLength = 0;
     figma.getLocalPaintStyles().forEach(paint => {
       const [group, token] = paint.name.split('/');
       const name = getSlug(token, true);
@@ -32,53 +32,60 @@ export function generateTheme(settings: Settings) {
     });
 
     // Write theme colors
-    writer.write('colors:').space().inlineBlock(() => {
-      Object.keys(colors).forEach(group => {
-        writer.write(`${getSlug(group)}: `).inlineBlock(() => {
-          Object.keys(colors[group]).forEach(name => {
-            const color: ThemeColor = colors[group][name];
-            writer.write(`$${name}: `);
-            writer.quote(color.value);
-            writer.write(`,`);
-            if (color.comment) {
-              const padding = (' ').repeat(maxLineLength - (name.length + color.value.length));
-              writer.write(`${padding}// ${color.comment}`);
-            }
-            writer.newLine();
+    if (maxLineLength > 0) {
+      writer.write('colors:').space().inlineBlock(() => {
+        Object.keys(colors).forEach(group => {
+          writer.write(`${getSlug(group)}: `).inlineBlock(() => {
+            Object.keys(colors[group]).forEach(name => {
+              const color: ThemeColor = colors[group][name];
+              writer.write(`$${name}: `);
+              writer.quote(color.value);
+              writer.write(`,`);
+              if (color.comment) {
+                const padding = (' ').repeat(maxLineLength - (name.length + color.value.length));
+                writer.write(`${padding}// ${color.comment}`);
+              }
+              writer.newLine();
+            });
+            writer.newLineIfLastNot();
           });
-          writer.newLineIfLastNot();
+          writer.write(',');
+          writer.newLine();
         });
-        writer.write(',');
-        writer.newLine();
       });
-    });
-    writer.write(',');
-    writer.newLine();
+      writer.write(',');
+      writer.newLine();
+    }
 
     // TODO build font maps
     // console.log('text', figma.getLocalTextStyles());
 
     // Write font names
-    writer.write('fonts:').space().inlineBlock(() => {
-      // TODO
-    });
-    writer.write(',');
-    writer.newLine();
+    /*
+        writer.write('fonts:').space().inlineBlock(() => {
+          // TODO
+        });
+        writer.write(',');
+        writer.newLine();
 
-    // Write font weights
-    writer.write('fontWeights:').space().inlineBlock(() => {
-      // TODO
-    });
-    writer.write(',');
-    writer.newLine();
+        // Write font weights
+        writer.write('fontWeights:').space().inlineBlock(() => {
+          // TODO
+        });
+        writer.write(',');
+        writer.newLine();
 
-    // Write line heights
-    writer.write('lineHeights:').space().inlineBlock(() => {
-      // TODO
-    });
-    writer.write(',');
-    writer.newLine();
+        // Write line heights
+        writer.write('lineHeights:').space().inlineBlock(() => {
+          // TODO
+        });
+        writer.write(',');
+        writer.newLine();
+    */
 
+    if (maxLineLength === 0) {
+      writer.write('// No figma styles found');
+    }
   });
   writer.write(';');
   writer.newLine();

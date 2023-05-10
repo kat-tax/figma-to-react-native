@@ -8,29 +8,25 @@ export function parseVariantStyles(
   baseStyleSheet: any,
 ) {
   const styles = {};
-  const isVariant = !!node.variantProperties;
-  
-  if (!isVariant) return styles;
-
+  if (!node.variantProperties) return styles;
   const componentSet = node.parent as ComponentSetNode;
   componentSet.children
     .filter((child: ComponentNode) => child !== componentSet.defaultVariant)
     .forEach((variant: ComponentNode) => {
       const name = variant.name.split('=').pop();
-      const rootModified = diff(baseStyles, parseStyles(variant, true));
-      if (Object.keys(rootModified).length > 0) {
+      const nodesData = parseNodes([...variant.children]);
+      const modRootStyles = diff(baseStyles, parseStyles(variant, true));
+      const modNodeStyles = diff(baseStyleSheet, nodesData.state.stylesheet);
+      if (Object.keys(modRootStyles).length > 0) {
         if (!styles['root']) styles['root'] = {};
-        styles['root'][name] = rootModified;
+        styles['root'][name] = modRootStyles;
       }
-      const subNodes = parseNodes([...variant.children]);
-      const subModified = diff(baseStyleSheet, subNodes.state.stylesheet);
-      Object.keys(subModified).forEach((subKey: string) => {
-        if (subModified[subKey]?.styles) {
+      Object.keys(modNodeStyles).forEach((subKey: string) => {
+        if (modNodeStyles[subKey]?.styles) {
           if (!styles[subKey]) styles[subKey] = {};
-          styles[subKey][name] = subModified[subKey].styles;
+          styles[subKey][name] = modNodeStyles[subKey].styles;
         }
       });
     });
-
   return styles;
 }
