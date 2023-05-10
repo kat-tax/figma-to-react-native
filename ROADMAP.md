@@ -3,12 +3,6 @@
 ### Next
 - Support rectangle
 - Support assets (png + svg)
-- Support variants
-- Fix preview of variants
-
-### Polishing
-- Add fill prop to SVGs and provide them
-- Fix wrong variants being used (imports seem right)
 - Fix various parse errors
 - Fix styling differences
 
@@ -17,12 +11,7 @@
   - sourcemap from node ids -> line + column numbers needed when parsing
 
 ### Generating
-- Variants
-  - Loop through variants
-  - Build and diff stylesheet from the root for each
-  - Add suffix (named from the variant) for each diff stylesheet
-  - Build the dynamic class with the props and the stylesheet classes
-  - If state is "Hover" or "Focused" or "Pressed" then auto generate a <Pressable> and apply the class?
+- Variant (child nodes)
 - Images (including export & previewing)
   - Expo Image support: https://docs.expo.dev/versions/unversioned/sdk/image/
   - Generate placeholder: https://github.com/evanw/thumbhash
@@ -33,6 +22,27 @@
 - Absolute positioning
 - Interactions (via Pressable & Link)
 - Screens (navigation based on prototype settings)
+- Use Pressable and TextInput using user mappings
+```json
+{
+  "mappings": {
+    // Hovers get a pressable generated over them
+    "PressableContainer": "/$button|^button/i",
+    // Hovers get a pressable generated over them
+    "PressableHover": "/$button|^button/i",
+    // Inputs get Text replaced with TextInput and contents are the placeholder attr
+    "TextInput": "/$input|^input/i",
+  }
+}
+```
+- Auto generate a <Pressable> and apply "Hover" or "Focused" or "Pressed" state?
+```tsx
+<Pressable onClick={console.log}>
+  {({hovered}) => (
+    <Button state={hovered ? 'Hover' : 'Default'}/>
+  )}
+</Pressable>
+```
 
 ### Exporting
 - Git repository (https://isomorphic-git.org)

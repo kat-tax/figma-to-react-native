@@ -17,8 +17,19 @@ export function generateBundle(component: TargetNode, settings: Settings, noPrev
 
   const isVariant = !!component.variantProperties;
   const masterNode = isVariant ? component?.parent : component;
+  const selectedVariant = isVariant
+    ? masterNode.children.filter((n: any) => figma.currentPage.selection.includes(n)).pop()
+    : undefined;
+
   const children = parseNodes([...component.children]);
-  const props = propsToString(masterNode?.componentPropertyDefinitions);
+  const propDefs = masterNode?.componentPropertyDefinitions;
+  if (selectedVariant) {
+    Object.entries(selectedVariant?.variantProperties).forEach((v: any) => {
+      propDefs[v[0]].defaultValue = v[1];
+    });
+  }
+
+  const props = propsToString({...propDefs});
   const links: EditorLinks = {};
   const root: ParsedComponent = {
     id: component.id,

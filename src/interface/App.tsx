@@ -32,11 +32,11 @@ export function App() {
         <Item value="preview" title="Preview component" className="tab">
           Preview
         </Item>
-        <Item value="theme" title="View theme file" className="tab">
-          Theme
-        </Item>
         <Item value="story" title="View story" className="tab">
           Story
+        </Item>
+        <Item value="theme" title="View theme file" className="tab">
+          Theme
         </Item>
         <Item value="export" title="Export project" className="tab">
           Export

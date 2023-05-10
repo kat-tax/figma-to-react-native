@@ -7,6 +7,8 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): T.Styles {
   switch (node.type) {
     case 'GROUP':
     case 'FRAME':
+    case 'ELLIPSE':
+    case 'RECTANGLE':
     case 'COMPONENT':
     case 'COMPONENT_SET': {
       return {
@@ -16,14 +18,10 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): T.Styles {
         ...padding(node),
         ...background(node),
         ...border(node),
-        // TODO
         //...shadow(node),
         //...blends(node),
       };
     }
-    // TODO
-    // case 'RECTANGLE':
-    // case 'ELLIPSE':
     case 'TEXT': {
       return {
         ...position(node),

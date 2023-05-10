@@ -68,14 +68,16 @@ export function writeFunction(
   settings: Settings,
   rootView: ParsedComponent,
   children: ParsedComponent[],
-  styleid: string = 'styles',
+  stylePrefix: string = 'styles',
+  variantStyles: any = {},
 ) {
   const isVariant = !!rootView.node?.variantProperties;
   const masterNode = isVariant ? rootView.node?.parent : rootView.node;
+  const getStylePrefix = (key: string) =>
+    Object.keys(variantStyles).includes(key) ? 'classes' : stylePrefix;
 
   // Component props
   const propDefs = Object.entries(masterNode?.componentPropertyDefinitions);
-  let propVariants: string[] = [];
   if (propDefs.length > 0) {
     writer.write(`export interface ${rootView.name}Props`).block(() => {
       propDefs.sort(sortProps).forEach(([key, prop]) => {
@@ -88,8 +90,6 @@ export function writeFunction(
             : type === 'TEXT'
               ? 'string'
               : type.toLowerCase();
-        if (type === 'VARIANT')
-          propVariants = variantOptions;
         writer.writeLine(`${name}: ${typing};`);
       });
     });
@@ -111,13 +111,11 @@ export function writeFunction(
   // Component function body and children
   const attrProps = `${propDefs.length > 0 ? `props: ${rootView.name}Props` : ''}`;
   writer.write(`export function ${rootView.name}(${attrProps})`).block(() => {
-    if (isVariant && propVariants.length > 0) {
-      writeClasses(writer, rootView, propVariants);
-    }
-    
+    if (isVariant && Object.keys(variantStyles).length > 0)
+      writeClasses(writer, variantStyles);
     writer.write(`return (`).indent(() => {
-      writer.write(`<${rootView.tag} style={${styleid}.${rootView.slug}}>`).indent(() => {
-        writeChildren(writer, settings, children, styleid);
+      writer.write(`<${rootView.tag} style={${getStylePrefix(rootView.slug)}.${rootView.slug}}>`).indent(() => {
+        writeChildren(writer, settings, children, getStylePrefix);
       });
       writer.writeLine(`</${rootView.tag}>`);
     });
@@ -129,7 +127,7 @@ export function writeChildren(
   writer: CodeBlockWriter,
   settings: Settings,
   children: ParsedComponent[],
-  styleid: string = 'styles',
+  getStylePrefix: (key: string) => string,
 ) {
   children.forEach((child) => {
     const isVariant = !!child.node.variantProperties;
@@ -139,11 +137,11 @@ export function writeChildren(
     if (propRefs?.visible) {
       const name = getSlug(propRefs?.visible.split('#').shift());
       writer.write(`{props.${name} &&`).space().indent(() => {
-        writeChild(writer, settings, child, styleid);
+        writeChild(writer, settings, child, getStylePrefix);
       }).write('}').newLine();
     // Default rendering
     } else {
-      writeChild(writer, settings, child, styleid);
+      writeChild(writer, settings, child, getStylePrefix);
     }
   });
 }
@@ -152,7 +150,7 @@ export function writeChild(
   writer: CodeBlockWriter,
   settings: Settings,
   child: ParsedComponent,
-  styleid: string = 'styles',
+  getStylePrefix: (key: string) => string,
 ) {
   // Component instance swap
   if (child.swap) {
@@ -163,7 +161,7 @@ export function writeChild(
   // Create component tag
   const attrProps = propsToString(child.props);
   const attrRect = child.box ? ` width="${child.box.width}" height="${child.box.height}"` : '';
-  const attrStyle = child.slug ? ` style={${styleid}.${child.slug}}` : '';
+  const attrStyle = child.slug ? ` style={${getStylePrefix(child.slug)}.${child.slug}}` : '';
   const tagString = child.tag + attrStyle + attrRect + attrProps;
 
   // No children
@@ -193,7 +191,7 @@ export function writeChild(
       });
     // View children (recurse)
     } else if (child.tag === 'View') {
-      writeChildren(writer, settings, child.children);
+      writeChildren(writer, settings, child.children, getStylePrefix);
     }
   });
 
@@ -205,13 +203,26 @@ export function writeStyleSheet(
   writer: CodeBlockWriter,
   rootView: ParsedComponent,
   stylesheet: ParseState['stylesheet'],
-  styleid: string = 'styles',
+  stylePrefix: string = 'styles',
+  variantStyles: any = {},
 ) {
-  writer.write(`const ${styleid} = StyleSheet.create(`).inlineBlock(() => {
-    writeStyle(writer, rootView, rootView.styles);
+  writer.write(`const ${stylePrefix} = StyleSheet.create(`).inlineBlock(() => {
+    writeStyle(writer, rootView.slug, rootView.styles);
+    if (variantStyles.root) {
+      Object.keys(variantStyles.root).forEach(key => {
+        writeStyle(writer, `root${key}`, variantStyles.root[key]);
+      });
+    }
     Object.keys(stylesheet).forEach(slug => {
       const {component, styles} = stylesheet[slug];
-      writeStyle(writer, component, styles);
+      writeStyle(writer, component.slug, styles);
+      if (variantStyles[slug]) {
+        Object.keys(variantStyles[slug]).forEach(key => {
+          if (variantStyles[slug][key]) {
+            writeStyle(writer, `${slug}${key}`, variantStyles[slug][key]);
+          }
+        });
+      }
     });
   });
   writer.write(');');
@@ -219,12 +230,12 @@ export function writeStyleSheet(
 
 export function writeStyle(
   writer: CodeBlockWriter,
-  node: ParsedComponent,
+  slug: string,
   styles: any,
 ) {
   const props = Object.keys(styles).filter(c => styles[c] !== undefined);
   if (props.length > 0) {
-    writer.write(`${node.slug}: {`).indent(() => {
+    writer.write(`${slug}: {`).indent(() => {
       props.forEach(prop => {
         const value = styles[prop];
         writer.write(`${prop}: `);
@@ -245,32 +256,30 @@ export function writeStyle(
 
 export function writeClasses(
   writer: CodeBlockWriter,
-  rootView: ParsedComponent,
-  propVariants: string[],
+  variantStyles: any,
 ) {
-  /*
-  getObjectDiff(rootView.styles, propVariants.map(variant => rootView.styles[variant]));
   writer.write(`const classes = `).inlineBlock(() => {
-    const stylesWithDifferences = ['root', 'test'];
-    stylesWithDifferences.forEach(styleName => {
-      writer.write(`${styleName}: [`).indent(() => {
-        writer.writeLine(`styles.${styleName},`);
-        propVariants.forEach((variant, i) => {
-          writer.writeLine(`props.state === '${variant}' && styles.${styleName}${variant},`);
+    Object.keys(variantStyles).forEach((k: string) => {
+      const mods = Object.keys(variantStyles[k]).filter(v => !!variantStyles[k][v]);
+      if (mods.length > 0) {
+        writer.write(`${k}: [`).indent(() => {
+          writer.writeLine(`styles.${k},`);
+          mods.forEach(v => {
+            writer.writeLine(`props.state === '${v}' && styles.${k}${v},`);
+          });
         });
-      });
-      writer.writeLine('],');
+        writer.writeLine('],');
+      }
     });
   });
   writer.write(';');
   writer.blankLine();
-  */
 }
 
 export function writeInteractionStyle(
   writer: CodeBlockWriter,
   rootView: ParsedComponent,
-  styleid: string = 'styles',
+  stylePrefix: string = 'styles',
 ) {
   /*
     ({hovered, pressed, focused}) => [
@@ -295,10 +304,10 @@ export function writeInteractionStyle(
       .filter(c => rootView.styles[c] !== undefined);
     if (rules.length > 0) {
       rules.forEach(rule => {
-        writer.writeLine(`${styleid}.${rule},`);
-        hasHover && writer.write(`${styleid}.${rule}Hover,`);
-        hasPressed && writer.write(`${styleid}.${rule}Pressed,`);
-        hasFocused && writer.write(`${styleid}.${rule}Focused,`);
+        writer.writeLine(`${stylePrefix}.${rule},`);
+        hasHover && writer.write(`${stylePrefix}.${rule}Hover,`);
+        hasPressed && writer.write(`${stylePrefix}.${rule}Pressed,`);
+        hasFocused && writer.write(`${stylePrefix}.${rule}Focused,`);
       });
     }
   });

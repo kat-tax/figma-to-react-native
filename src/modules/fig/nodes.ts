@@ -35,7 +35,9 @@ export function parseNodes(nodes: TargetNode[], state?: T.ParseState): T.ParseDa
     const hasStyles = node.type === 'TEXT'
       || node.type === 'GROUP'
       || node.type === 'FRAME'
-      || node.type === 'COMPONENT';
+      || node.type === 'COMPONENT'
+      || node.type === 'RECTANGLE'
+      || node.type === 'ELLIPSE';
 
     // Create component
     const component: T.ParsedComponent = {
@@ -99,6 +101,13 @@ export function parseNodes(nodes: TargetNode[], state?: T.ParseState): T.ParseDa
         break;
       }
 
+      // Basic shapes get inserted (styles already handled)
+      case 'RECTANGLE':
+      case 'ELLIPSE': {
+        code.push({...component});
+        break;
+      }
+
       // Text nodes get inserted and the primitive added
       case 'TEXT': {
         state.primitives.add('Text');
@@ -113,10 +122,6 @@ export function parseNodes(nodes: TargetNode[], state?: T.ParseState): T.ParseDa
         state.primitives.add('Image');
         break;
       }
-
-      // TODO (rectangles & ellipses are just views, ellipses have 99999 border radius)
-      // case 'RECTANGLE':
-      // case 'ELLIPSE':
 
       // Vectors get inserted w/ paths, fills, dimensions, paths. Add RNSVG library.
       case 'VECTOR': {

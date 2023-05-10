@@ -2,6 +2,21 @@ import {rgbToHex} from 'common/color';
 
 import type {TargetNode, SizeResult} from 'types/figma';
 
+// Go to the component's page and focus it
+export function focusComponent(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page) {
+        figma.currentPage = page;
+      }
+      figma.currentPage.selection = [node as any];
+      figma.viewport.scrollAndZoomIntoView([node]);
+    }
+  } catch (e) {}
+}
+
 // Get the page of a node
 export function getPage(node: BaseNode): PageNode {
   while (node.type !== 'PAGE') {
@@ -285,18 +300,4 @@ export function getFontWeight(style: string) {
       return 900;
   }
   return 400;
-}
-
-export function focusComponent(id: string) {
-  try {
-    const node = figma.getNodeById(id);
-    if (node) {
-      const page = getPage(node);
-      if (page && figma.currentPage !== page) {
-        figma.currentPage = page;
-      }
-      figma.currentPage.selection = [node as any];
-      figma.viewport.scrollAndZoomIntoView([node]);
-    }
-  } catch (e) {}
 }

@@ -5,6 +5,7 @@ import type {Settings} from 'types/settings';
 
 const settingsKey = `settings::v1`;
 let _config = defaultConfig;
+let _props = '';
 let _code = '';
 
 export async function loadConfig() {
@@ -26,8 +27,9 @@ export function updateConfig(value: Settings, skipSave?: boolean) {
 export function updateCode() {
   const selected = getSelectedComponent();
   const bundle = generateBundle(selected, _config);
-  if (bundle.code !== _code) {
+  if (bundle.code !== _code || bundle.props !== _props) {
     _code = bundle.code;
+    _props = bundle.props;
     figma.ui.postMessage({
       type: 'code',
       payload: JSON.stringify(bundle),

@@ -37,7 +37,7 @@ export function Preview(props: PreviewProps) {
         onLoad={update}
         style={{
           opacity: src ? 1 : 0,
-          transition: 'opacity .3s',
+          transition: 'opacity .5s',
         }}
       />
     </div>
