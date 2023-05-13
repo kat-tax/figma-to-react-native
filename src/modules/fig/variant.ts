@@ -13,18 +13,19 @@ export function parseVariantStyles(
   componentSet.children
     .filter((child: ComponentNode) => child !== componentSet.defaultVariant)
     .forEach((variant: ComponentNode) => {
+      console.log(variant.name);
       const name = variant.name.split('=').pop();
       const nodesData = parseNodes([...variant.children]);
-      const modRootStyles = diff(baseStyles, parseStyles(variant, true));
-      const modNodeStyles = diff(baseStyleSheet, nodesData.state.stylesheet);
-      if (Object.keys(modRootStyles).length > 0) {
+      const stylesRoot = diff(baseStyles, parseStyles(variant, true));
+      const stylesNodes = diff(baseStyleSheet, nodesData.state.stylesheet);
+      if (Object.keys(stylesRoot).length > 0) {
         if (!styles['root']) styles['root'] = {};
-        styles['root'][name] = modRootStyles;
+        styles['root'][name] = stylesRoot;
       }
-      Object.keys(modNodeStyles).forEach((subKey: string) => {
-        if (modNodeStyles[subKey]?.styles) {
+      Object.keys(stylesNodes).forEach((subKey: string) => {
+        if (stylesNodes[subKey]?.styles) {
           if (!styles[subKey]) styles[subKey] = {};
-          styles[subKey][name] = modNodeStyles[subKey].styles;
+          styles[subKey][name] = stylesNodes[subKey].styles;
         }
       });
     });

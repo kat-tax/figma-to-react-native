@@ -1,4 +1,4 @@
-import {h} from 'preact';
+import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {usePreview} from 'interface/hooks/usePreview';
 import {Hint} from 'interface/base/Hint';
@@ -29,7 +29,7 @@ export function Preview(props: PreviewProps) {
   useEffect(update, [preview]);
 
   return (
-    <div>
+    <Fragment>
       {!props.component?.preview && <Hint/>}
       <iframe
         ref={iframe}
@@ -40,6 +40,6 @@ export function Preview(props: PreviewProps) {
           transition: 'opacity .5s',
         }}
       />
-    </div>
+    </Fragment>
   );
 }

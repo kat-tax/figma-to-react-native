@@ -9,7 +9,7 @@ export function Bar(props: any) {
   return <List {...props} />;
 }
 
-export function Item(props: any) {
+export function Link(props: any) {
   return <Trigger {...props} />;
 }
 

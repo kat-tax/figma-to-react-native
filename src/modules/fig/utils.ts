@@ -89,7 +89,8 @@ export function getSlug(value: string, skipPrefix?: boolean) {
   return value.split(' ').map((word, index) => {
     const safe = getName(word, skipPrefix);
     if (index == 0) return safe.toLowerCase();
-    return safe.charAt(0).toUpperCase() + safe.slice(1).toLowerCase();
+    const camelCase = safe.charAt(0).toUpperCase() + safe.slice(1).toLowerCase();
+    return camelCase;
   }).join('');
 }
 
@@ -98,6 +99,8 @@ export function getTag(type: string) {
   switch (type) {
     case 'COMPONENT':
     case 'INSTANCE':
+    case 'RECTANGLE':
+    case 'ELLIPSE':
     case 'FRAME':
     case 'GROUP':
       return 'View';
@@ -108,7 +111,7 @@ export function getTag(type: string) {
     case 'VECTOR':
       return 'Svg';
     default:
-      return 'Unknown';
+      return 'View';
   }
 }
 

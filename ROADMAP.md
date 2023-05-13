@@ -1,17 +1,19 @@
 # ROADMAP
 
 ### Next
-- Support rectangle
-- Support assets (png + svg)
 - Fix various parse errors
+- Fix handling multiple variants
 - Fix styling differences
+- Fix sanitizing names with # and /
+- Support rectangles
+- Support assets (png + svg)
+- Support variant child nodes
 
 ### Interfacing
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing
 
 ### Generating
-- Variant (child nodes)
 - Images (including export & previewing)
   - Expo Image support: https://docs.expo.dev/versions/unversioned/sdk/image/
   - Generate placeholder: https://github.com/evanw/thumbhash

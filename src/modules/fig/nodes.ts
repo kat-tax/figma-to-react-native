@@ -75,7 +75,7 @@ export function parseNodes(nodes: TargetNode[], state?: T.ParseState): T.ParseDa
 
       // Instances get inserted w/ props and the master component recorded
       case 'INSTANCE': {
-        const main = isVariant ? node.masterComponent.parent : node.mainComponent;
+        const main = isVariant ? node.mainComponent.parent : node.mainComponent;
         const props = node.componentProperties;
         const propId = node.componentPropertyReferences?.mainComponent;
         const propName = propId ? utils.getSlug(propId.split('#').shift()) : null;

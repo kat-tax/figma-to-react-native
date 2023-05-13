@@ -17,26 +17,24 @@ export function Settings(props: SettingsProps) {
   const update = useMemo(() =>
     debounce(props.settings.update, 750), [props.settings.update]);
   return (
-    <div>
-      <Editor
-        language="json"
-        path="Settings.json"
-        value={props.settings.raw}
-        theme={props.options.theme}
-        options={{...props.options, readOnly: false}}
-        loading={<Loading/> as JSX.Element}
-        onChange={value => update(value)}
-        onValidate={markers => {
-          if (markers.length === 0) {
-            const uri = props.monaco.Uri.parse('Settings.json');
-            const model = props.monaco.editor.getModel(uri);
-            props.settings.update(model.getValue(), true);
-            props.settings.locked.current = false;
-          } else {
-            props.settings.locked.current = true;
-          }
-        }}
-      />
-    </div>
+    <Editor
+      language="json"
+      path="Settings.json"
+      value={props.settings.raw}
+      theme={props.options.theme}
+      options={{...props.options, readOnly: false}}
+      loading={<Loading/> as JSX.Element}
+      onChange={value => update(value)}
+      onValidate={markers => {
+        if (markers.length === 0) {
+          const uri = props.monaco.Uri.parse('Settings.json');
+          const model = props.monaco.editor.getModel(uri);
+          props.settings.update(model.getValue(), true);
+          props.settings.locked.current = false;
+        } else {
+          props.settings.locked.current = true;
+        }
+      }}
+    />
   );
 }

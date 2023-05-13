@@ -1,4 +1,4 @@
-import {h} from 'preact';
+import {h, Fragment} from 'preact';
 import Editor from '@monaco-editor/react';
 import {Hint} from 'interface/base/Hint';
 import {Loading} from 'interface/base/Loading';
@@ -9,12 +9,11 @@ import type {Settings} from 'types/settings';
 interface StoryProps {
   component: EditorComponent;
   options: Settings['monaco']['general'];
-  monaco: any;
 }
 
 export function Story(props: StoryProps) {
   return (
-    <div>
+    <Fragment>
       {!props.component?.story && <Hint/>}
       <Editor
         language="typescript"
@@ -24,6 +23,6 @@ export function Story(props: StoryProps) {
         options={{...props.options, readOnly: true}}
         loading={<Loading/> as JSX.Element}
       />
-    </div>
+    </Fragment>
   );
 }

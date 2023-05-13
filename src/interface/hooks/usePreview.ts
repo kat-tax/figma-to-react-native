@@ -34,7 +34,7 @@ export function usePreview(component: EditorComponent, settings: Settings): stri
 
     build(entryPoint, settings)
       .then(res => setOutput(res.code
-        .replace('stdin_default as default', '')
+        .replace(/stdin_default as default\,?/, '')
         .replace('var stdin_default', 'var theme')))
       .catch(err => setOutput(err.toString()));
 

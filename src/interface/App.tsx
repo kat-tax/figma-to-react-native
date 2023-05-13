@@ -9,7 +9,7 @@ import {useEditor} from 'interface/hooks/useEditor';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useSettings} from 'interface/hooks/useSettings';
 import {useComponent} from 'interface/hooks/useComponent';
-import {Tabs, Tab, Bar, Item} from 'interface/base/Tabs';
+import {Tabs, Tab, Bar, Link} from 'interface/base/Tabs';
 import {IconGear} from 'interface/base/IconGear';
 import {Loading} from 'interface/base/Loading';
 
@@ -26,25 +26,25 @@ export function App() {
     <Tabs defaultValue="code" className="tabs">
       {!monaco && <Loading/>}
       <Bar loop aria-label="header" className="bar">
-        <Item value="code" title="View component code" className="tab">
+        <Link value="code" title="View component code" className="tab">
           Code
-        </Item>
-        <Item value="preview" title="Preview component" className="tab">
+        </Link>
+        <Link value="preview" title="Preview component" className="tab">
           Preview
-        </Item>
-        <Item value="story" title="View story" className="tab">
+        </Link>
+        <Link value="story" title="View story" className="tab">
           Story
-        </Item>
-        <Item value="theme" title="View theme file" className="tab">
+        </Link>
+        <Link value="theme" title="View theme file" className="tab">
           Theme
-        </Item>
-        <Item value="export" title="Export project" className="tab">
+        </Link>
+        <Link value="export" title="Export project" className="tab">
           Export
-        </Item>
+        </Link>
         <div style={{flex: 1}}/>
-        <Item title="Configure plugin" value="settings" className="tab icon">
+        <Link title="Configure plugin" value="settings" className="tab icon">
           <IconGear/>
-        </Item>
+        </Link>
       </Bar>
       <Tab value="code" className="expand">
         <Code {...{component, options, monaco}}/>

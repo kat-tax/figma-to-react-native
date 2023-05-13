@@ -25,7 +25,7 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): T.Styles {
     case 'TEXT': {
       return {
         ...position(node),
-        ...dimension(node),
+        //...dimension(node),
         ...typography(node),
       }
     }
@@ -159,7 +159,7 @@ function padding(node: TargetNode): T.StylesPadding {
 function background(node: TargetNode): T.StylesBackground {
   const style: T.StylesBackground = {};
 
-  if (node.backgrounds.length > 0) {
+  if (node.backgrounds?.length > 0) {
     const fill = utils.getTopFill(node.backgrounds);
     const fillStyle = utils.getFillStyle(figma.getStyleById(node.fillStyleId));
     style.backgroundColor = fillStyle ?? utils.getColor(fill?.color, fill?.opacity);
@@ -216,6 +216,8 @@ function typography(node: TargetNode): T.StylesTypography {
   const isAlignLeft = node.textAlignHorizontal === 'LEFT';
   const isAlignTop = node.textAlignVertical === 'TOP';
   const isAlignBottom = node.textAlignVertical === 'BOTTOM';
+  const isUpperCase = node.textCase === 'UPPER';
+  const isLowerCase = node.textCase === 'LOWER';
 
   return {
     lineHeight,
@@ -227,6 +229,7 @@ function typography(node: TargetNode): T.StylesTypography {
     textAlign: isAlignLeft ? 'left' : isAlignRight ? 'right' : isAlignCenter ? 'center' : undefined,
     textAlignVertical: isAlignTop ? 'top' : isAlignBottom ? 'bottom' : undefined,
     textDecorationLine: isUnderline ? 'underline' : isCrossed ? 'line-through' : undefined,
+    textTransform: isUpperCase ? 'uppercase' : isLowerCase ? 'lowercase' : undefined,
     color,
   };
 }

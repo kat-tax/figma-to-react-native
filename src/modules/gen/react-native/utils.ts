@@ -258,6 +258,12 @@ export function writeClasses(
   writer: CodeBlockWriter,
   variantStyles: any,
 ) {
+  /*Object.keys(variantStyles).forEach((k: string) => {
+    const mods = Object.keys(variantStyles[k]).filter(v => !!variantStyles[k][v]);
+    if (mods.length > 0) {
+      mods.forEach(v => writer.writeLine(`const is${v} = props.state === '${v}';`));
+    }
+  });*/
   writer.write(`const classes = `).inlineBlock(() => {
     Object.keys(variantStyles).forEach((k: string) => {
       const mods = Object.keys(variantStyles[k]).filter(v => !!variantStyles[k][v]);
