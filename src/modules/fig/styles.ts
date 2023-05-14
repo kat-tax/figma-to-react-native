@@ -25,7 +25,7 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): T.Styles {
     case 'TEXT': {
       return {
         ...position(node),
-        //...dimension(node),
+        ...dimension(node, false, true),
         ...typography(node),
       }
     }
@@ -36,10 +36,10 @@ export function parseStyles(node: TargetNode, isRoot?: boolean): T.Styles {
   }
 }
 
-function dimension(node: TargetNode, isRoot?: boolean): T.StylesDimension {
+function dimension(node: TargetNode, isRoot?: boolean, isText?: boolean): T.StylesDimension {
   const style: T.StylesDimension = {};
   const size = utils.getSize(node, isRoot);
-  if (typeof size.width === 'number') {
+  if (!isText && typeof size.width === 'number') {
     style.width = size.width;
   } else if (size.width === 'full') {
     if (!isRoot
