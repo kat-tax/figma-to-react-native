@@ -1,8 +1,8 @@
-import React from 'react';
+import {h} from 'preact';
 
 export function Loading() {
   return (
-    <div className="center expand">
+    <div className="center fill">
       <div className="loading"></div>
     </div>
   );

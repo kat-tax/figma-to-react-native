@@ -1,27 +1,38 @@
 {
   "private": true,
   "scripts": {
-    "start": "node esbuild.mjs --watch",
-    "build": "node esbuild.mjs",
-    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/templates/schema.json"
+    "build": "build-figma-plugin --typecheck --minify",
+    "start": "build-figma-plugin --typecheck --watch",
+    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/templates/settings/schema.json"
+  },
+  "figma-plugin": {
+    "id": "821138713091291738",
+    "name": "Figma -> React Native",
+    "editorType": [
+      "figma"
+    ],
+    "main": "src/main.ts",
+    "ui": "src/ui.tsx"
   },
   "dependencies": {
-    "@donedeal0/superdiff": "^1.0.9",
-    "@monaco-editor/react": "^4.5.0",
+    "@create-figma-plugin/ui": "^2.4.0",
+    "@create-figma-plugin/utilities": "^2.4.0",
+    "@monaco-editor/react": "^4.5.1",
     "@radix-ui/react-tabs": "^1.0.3",
-    "client-zip": "^2.3.1",
+    "client-zip": "^2.4.2",
     "code-block-writer": "^12.0.0",
-    "esbuild-wasm": "^0.14.54",
-    "monaco-editor": "^0.37.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "deep-object-diff": "^1.1.9",
+    "esbuild-wasm": "^0.17.18",
+    "monaco-editor": "^0.38.0",
+    "preact": "^10.13.2"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "^1.63.0",
-    "@types/react": "^17.0.57",
-    "@types/react-dom": "^17.0.19",
-    "esbuild": "^0.14.54",
-    "typescript": "^5.0.4",
+    "@create-figma-plugin/build": "^2.4.0",
+    "@create-figma-plugin/tsconfig": "^2.4.0",
+    "@figma/plugin-typings": "1.64.0",
+    "@types/react": "^18.2.6",
+    "react-zoom-pan-pinch": "^3.0.7",
+    "typescript": "^4.9.5",
     "typescript-json-schema": "^0.56.0"
   }
 }

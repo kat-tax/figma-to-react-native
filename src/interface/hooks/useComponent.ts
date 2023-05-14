@@ -1,9 +1,8 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect} from 'preact/hooks';
 import {EditorComponent} from 'types/editor';
 
-export function useComponent() {
+export function useComponent(): EditorComponent {
   const [component, setComponent] = useState<EditorComponent>(null);
-
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'code')
@@ -12,6 +11,5 @@ export function useComponent() {
     addEventListener('message', onMessage);
     return () => removeEventListener('message', onMessage);
   }, []);
-
   return component;
 }

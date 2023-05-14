@@ -1,4 +1,4 @@
-import React from 'react';
+import {h} from 'preact';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 
 export function IconGear() {

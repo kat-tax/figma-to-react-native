@@ -1,7 +1,7 @@
-import {useEffect} from 'react';
+import {useEffect} from 'preact/hooks';
 import {downloadZip} from 'client-zip';
 
-export function useExport() {
+export function useExport(): void {
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'compile') {
@@ -14,7 +14,7 @@ export function useExport() {
   }, []);
 }
 
-async function saveFiles(project: string, files: string[][], theme: string) {
+async function saveFiles(project: string, files: string[][], theme: string): Promise<void> {
   const lastModified = new Date();
   const payload: {name: string, lastModified: Date, input: string}[] = [];
   payload.push({name: 'theme.ts', lastModified, input: theme});

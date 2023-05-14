@@ -1,11 +1,11 @@
-import React from 'react';
-import {IconComponent} from 'interface/base/IconComponent';
+import {h} from 'preact';
+import {Container, Muted, IconComponent32} from '@create-figma-plugin/ui';
 
 export function Hint() {
   return (
-    <div className="center expand fill">
-      <IconComponent/>
-      <p>Select a Figma component</p>
-    </div>
+    <Container space="small" className="center fill">
+      <IconComponent32 color="component"/>
+      <Muted>Select a component</Muted>
+    </Container>
   );
 }

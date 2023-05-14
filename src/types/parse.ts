@@ -26,4 +26,3 @@ export interface ParsedComponent {
   fills?: any[],
   box?: any,
 }
-

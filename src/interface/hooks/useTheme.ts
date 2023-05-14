@@ -1,8 +1,7 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect} from 'preact/hooks';
 
-export function useTheme() {
+export function useTheme(): string {
   const [theme, setTheme] = useState<string>(null);
-
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.data?.pluginMessage?.type === 'theme')
@@ -11,6 +10,5 @@ export function useTheme() {
     addEventListener('message', onMessage);
     return () => removeEventListener('message', onMessage);
   }, []);
-
   return theme;
 }

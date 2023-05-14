@@ -64,4 +64,5 @@ export interface StylesTypography {
   textAlign?: string,
   textAlignVertical?: string,
   textDecorationLine?: string,
+  textTransform?: string,
 }
