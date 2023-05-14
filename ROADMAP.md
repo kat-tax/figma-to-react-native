@@ -1,19 +1,20 @@
 # ROADMAP
 
 ### Next
-- Fix various parse errors
 - Fix handling multiple variants
+- Fix various parse errors
 - Fix styling differences
-- Fix sanitizing names with # and /
-- Support rectangles
+- Fix sanitizing names
+- Fix rectangle + ellipses
 - Support assets (png + svg)
 - Support variant child nodes
 
-### Interfacing
+### Interface
+- Diff text instead of fully replacing (highlight changes?)
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing
 
-### Generating
+### Generation
 - Images (including export & previewing)
   - Expo Image support: https://docs.expo.dev/versions/unversioned/sdk/image/
   - Generate placeholder: https://github.com/evanw/thumbhash
@@ -60,4 +61,5 @@
 - Storybook syncing
 
 ### Testing
-- Ensure https://www.untitledui.com/ translates
+- Ensure https://www.untitledui.com/ converts
+- Test other UI packs (IntelliJ, find more...)

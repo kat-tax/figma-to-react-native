@@ -1,6 +1,16 @@
-# [Figma To React Native](https://www.figma.com/community/plugin/821138713091291738)
+<p align="center">
+  <img src="./art/logo.png" width="90px"/>
+</p>
+<h1 align="center">
+  Figma → React Native
+</h1>
+<h3 align="center">
+  <a href="https://www.figma.com/community/plugin/821138713091291738">
+    View plugin on Figma Community
+  </a>
+</h3>
 
-> Transforms Figma components to React Native components in real time. The goal is to reduce the handoff time between design and development. Design your UI components in Figma and export them for use in your React Native app. The focus is on one way, continuous, conversion from Figma to React.
+This plugin transforms Figma components to React Native components in real time. The goal is to reduce the handoff time between design and development. Design your UI components in Figma and export them for use in your React Native app.
 
 [![Preview of plugin](./art/banner.png)](https://www.figma.com/community/plugin/821138713091291738)
 
