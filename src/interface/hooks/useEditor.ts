@@ -1,11 +1,10 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {useEffect} from 'preact/hooks';
 import {useMonaco} from '@monaco-editor/react';
 import schemaSettings from 'templates/settings/schema.json';
 
-// import AutoImport, {regexTokeniser} from '@blitz/monaco-auto-import'
-// import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings';
-
 import type {Settings} from 'types/settings';
+import type {FocusComponentHandler} from 'types/events';
 import type {EditorLibrary, EditorLinks} from 'types/editor';
 
 export function useEditor(settings: Settings, links?: EditorLinks, libs?: EditorLibrary[]) {
@@ -17,7 +16,7 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
       provideDefinition: (model, position) => {
         const link = links?.[model.getWordAtPosition(position).word];
         if (link) {
-          parent.postMessage({pluginMessage: {type: 'focus', payload: link}}, '*');
+          emit<FocusComponentHandler>('FOCUS_COMPONENT', link);
           return [];
         }
         return [];
@@ -51,22 +50,6 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
       });
     }
   }, [monaco, settings, libs]);
-
-  /*
-    // Automatic types for packages (EXPERIMENTAL)
-    AutoTypings.create(editor, {sourceCache: new LocalStorageCache()});
-    const completor = new AutoImport({monaco, editor})
-
-    completor.imports.saveFiles([{
-      path: './node_modules/left-pad/index.js',
-      aliases: ['left-pad'],
-      imports: regexTokeniser(`
-        export const PAD = ''
-        export function leftPad() {}
-        export function rightPad() {}
-      `)
-    }]);
-  */
 
   return monaco;
 }

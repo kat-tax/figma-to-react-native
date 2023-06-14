@@ -1,17 +1,15 @@
+import {on} from '@create-figma-plugin/utilities';
 import {useEffect} from 'preact/hooks';
 import {downloadZip} from 'client-zip';
 
-export function useExport(): void {
-  useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
-      if (e.data?.pluginMessage?.type === 'compile') {
-        const {project, files, theme} = e.data.pluginMessage;
-        saveFiles(project, JSON.parse(files), theme);
-      }
-    };
-    addEventListener('message', onMessage);
-    return () => removeEventListener('message', onMessage);
-  }, []);
+import type {StateUpdater} from 'preact/hooks';
+import type {CompileHandler} from 'types/events';
+
+export function useExport(setExporting: StateUpdater<boolean>): void {
+  useEffect(() => on<CompileHandler>('COMPILE', (project, files, theme) => {
+    saveFiles(project, JSON.parse(files), theme);
+    setExporting(false);
+  }), []);
 }
 
 async function saveFiles(project: string, files: string[][], theme: string): Promise<void> {

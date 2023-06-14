@@ -1,21 +1,41 @@
-import * as utils from 'modules/app/utils';
+import {on} from '@create-figma-plugin/utilities';
 import {focusComponent} from 'modules/fig/utils';
+import * as utils from 'modules/app/utils';
+
+import type * as Events from 'types/events';
 
 export async function start() {
   await utils.loadConfig();
-  setInterval(utils.updateCode, 300);
+
+  // Update theme periodically
   setInterval(utils.updateTheme, 400);
+
+  // Update code on selection change and periodically
+  setInterval(utils.updateCode, 300);
   figma.on('selectionchange', utils.updateCode);
-  figma.ui.on('message', ({type, payload}) => {
-    switch (type) {
-      case 'config':
-        return utils.updateConfig(payload);
-      case 'export':
-        return utils.exportDocument(payload);
-      case 'focus':
-        return focusComponent(payload);
-      case 'error':
-        return figma.notify(payload, {error: true});
-    }
+
+  // Handle config updates from interface
+  on<Events.UpdateConfigHandler>('UPDATE_CONFIG', (config) => {
+    utils.updateConfig(config);
   });
-};
+
+  // Handle user triggering zip download export
+  on<Events.ZipHandler>('ZIP', (target) => {
+    utils.exportDocument(target);
+  });
+
+  // Handle user triggering VSLite sync export
+  on<Events.VSLiteHandler>('VSLITE', (target) => {
+    utils.syncDocument(target);
+  });
+
+  // Handle user triggering navigation to a component
+  on<Events.FocusComponentHandler>('FOCUS_COMPONENT', (componentId) => {
+    focusComponent(componentId);
+  });
+
+  // Handle generic error notifications
+  on<Events.NotifyErrorHandler>('NOTIFY_ERROR', (message) => {
+    figma.notify(message, {error: true});
+  });
+}

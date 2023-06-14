@@ -1,15 +1,13 @@
+import {on} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'preact/hooks';
 import {EditorComponent} from 'types/editor';
 
+import type {UpdateCodeHandler} from 'types/events';
+
 export function useComponent(): EditorComponent {
   const [component, setComponent] = useState<EditorComponent>(null);
-  useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
-      if (e.data?.pluginMessage?.type === 'code')
-        setComponent(JSON.parse(e.data.pluginMessage.payload));
-    };
-    addEventListener('message', onMessage);
-    return () => removeEventListener('message', onMessage);
-  }, []);
+  useEffect(() => on<UpdateCodeHandler>('UPDATE_CODE', (payload) => {
+    setComponent(JSON.parse(payload));
+  }), []);
   return component;
 }

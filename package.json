@@ -1,13 +1,16 @@
 {
   "private": true,
   "scripts": {
+    "dev": "build-figma-plugin --typecheck --watch",
     "build": "build-figma-plugin --typecheck --minify",
-    "start": "build-figma-plugin --typecheck --watch",
     "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/templates/settings/schema.json"
   },
   "figma-plugin": {
     "id": "821138713091291738",
     "name": "Figma -> React Native",
+    "permissions": [
+      "currentuser"
+    ],
     "editorType": [
       "figma"
     ],
@@ -15,24 +18,33 @@
     "ui": "src/ui.tsx"
   },
   "dependencies": {
-    "@create-figma-plugin/ui": "^2.4.0",
-    "@create-figma-plugin/utilities": "^2.4.0",
+    "@create-figma-plugin/ui": "^2.5.0",
+    "@create-figma-plugin/utilities": "^2.5.0",
     "@monaco-editor/react": "^4.5.1",
-    "@radix-ui/react-tabs": "^1.0.3",
-    "client-zip": "^2.4.2",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "client-zip": "^2.4.4",
     "code-block-writer": "^12.0.0",
     "deep-object-diff": "^1.1.9",
     "esbuild-wasm": "^0.17.18",
-    "monaco-editor": "^0.38.0",
-    "preact": "^10.13.2"
+    "esm-seedrandom": "^3.0.5",
+    "monaco-editor": "^0.39.0",
+    "preact": "^10.13.2",
+    "xkcd-936": "^1.0.4",
+    "y-webrtc": "^10.2.5",
+    "y-websocket": "^1.5.0",
+    "yjs": "^13.6.2"
   },
   "devDependencies": {
-    "@create-figma-plugin/build": "^2.4.0",
-    "@create-figma-plugin/tsconfig": "^2.4.0",
-    "@figma/plugin-typings": "1.64.0",
-    "@types/react": "^18.2.6",
-    "react-zoom-pan-pinch": "^3.0.7",
+    "@create-figma-plugin/build": "^2.5.0",
+    "@create-figma-plugin/tsconfig": "^2.5.0",
+    "@figma/plugin-typings": "1.65.0",
+    "@types/react": "^18.2.12",
+    "esbuild": "^0.16.10",
+    "react-zoom-pan-pinch": "^3.0.8",
     "typescript": "^4.9.5",
-    "typescript-json-schema": "^0.56.0"
+    "typescript-json-schema": "^0.57.0"
+  },
+  "browser": {
+    "crypto": false
   }
 }
