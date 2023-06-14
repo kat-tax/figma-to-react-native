@@ -9,7 +9,7 @@ import '!./interface/styles/plugin.css';
 function Main() {
   useWindowResize(e => emit('RESIZE_WINDOW', e), {
     minWidth: 300,
-    minHeight: 100,
+    minHeight: 250,
   });
   return (
     <div style={{width: '100%'}}>

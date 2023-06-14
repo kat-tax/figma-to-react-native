@@ -1,14 +1,12 @@
+import {on} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'preact/hooks';
+
+import type {UpdateThemeHandler} from 'types/events';
 
 export function useTheme(): string {
   const [theme, setTheme] = useState<string>(null);
-  useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
-      if (e.data?.pluginMessage?.type === 'theme')
-        setTheme(JSON.parse(e.data.pluginMessage.payload));
-    };
-    addEventListener('message', onMessage);
-    return () => removeEventListener('message', onMessage);
-  }, []);
+  useEffect(() => on<UpdateThemeHandler>('UPDATE_THEME', (_theme) => {
+    setTheme(_theme);
+  }), []);
   return theme;
 }

@@ -21,14 +21,15 @@ export function Preview() {
         prev && document.body.removeChild(prev);
         next && document.body.appendChild(next);
         if (name !== e.data.name) {
+          const isInitLoad = !name;
           setName(e.data.name);
           setTimeout(() =>
             requestIdleCallback(() =>
               requestAnimationFrame(() =>
-                zoomToElement(component, 1, 0)
+                zoomToElement(component, 1, isInitLoad ? 0 : 100)
               )
             )
-          , 0);
+          , isInitLoad ? 200 : 0);
         }
       }
     };
@@ -45,7 +46,7 @@ export function Preview() {
 
 export default function Loader() {
   return (
-    <TransformWrapper centerOnInit doubleClick={{mode: 'reset'}}>
+    <TransformWrapper initialScale={0.01} doubleClick={{mode: 'reset'}}>
       <Preview/>
     </TransformWrapper>
   );

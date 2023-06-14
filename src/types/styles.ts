@@ -56,7 +56,7 @@ export interface StylesBorder {
 export interface StylesTypography {
   color?: string,
   fontSize?: number,
-  fontWeight?: number,
+  fontWeight?: string,
   fontFamily?: string,
   fontStyle?: string,
   lineHeight?: number,

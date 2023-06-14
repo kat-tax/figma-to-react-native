@@ -30,17 +30,17 @@ export function getPage(node: BaseNode): PageNode {
 export function getSelectedComponent(): ComponentNode {
   const {selection} = figma.currentPage;
   if (selection.length === 0) return null;
-  const components = getComponents(selection);
+  const components = Array.from(getComponents(selection));
   return components.length > 0 ? components[0] : null;
 }
 
 // Find components in a list of nodes
-export function getComponents(nodes: readonly SceneNode[]): ComponentNode[] {
-  const components: ComponentNode[] = [];
+export function getComponents(nodes: readonly SceneNode[]): Set<ComponentNode> {
+  const components = new Set<ComponentNode>();
   for (const node of nodes) {
     const component = getComponent(node);
     if (component) {
-      components.push(component);
+      components.add(component);
     }
   }
   return components;
@@ -281,26 +281,26 @@ export function getLetterSpacing(node: TargetNode): number | undefined {
 export function getFontWeight(style: string) {
   switch (style.replace(/\s*italic\s*/i, '')) {
     case 'Thin':
-      return 100;
+      return '100';
     case 'Extra Light':
     case 'Extra-light':
-      return 200;
+      return '200';
     case 'Light':
-      return 300;
+      return '300';
     case 'Regular':
-      return 400;
+      return '400';
     case 'Medium':
-      return 500;
+      return '500';
     case 'Semi Bold':
     case 'Semi-bold':
-      return 600;
+      return '600';
     case 'Bold':
-      return 700;
+      return '700';
     case 'Extra Bold':
     case 'Extra-bold':
-      return 800;
+      return '800';
     case 'Black':
-      return 900;
+      return '900';
   }
-  return 400;
+  return '400';
 }

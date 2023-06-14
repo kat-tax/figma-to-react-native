@@ -10,6 +10,7 @@
 - Support variant child nodes
 
 ### Interface
+- Render preview, story, and code separate based on visible tab
 - Diff text instead of fully replacing (highlight changes?)
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing
@@ -63,3 +64,4 @@
 ### Testing
 - Ensure https://www.untitledui.com/ converts
 - Test other UI packs (IntelliJ, find more...)
+- Make sure snapshots of converted projects don't change

@@ -2,6 +2,7 @@ import {diff} from 'deep-object-diff';
 import {parseNodes} from 'modules/fig/nodes';
 import {parseStyles} from 'modules/fig/styles';
 
+// TODO: handle multiple variant properties
 export function parseVariantStyles(
   node: ComponentNode,
   baseStyles: Record<string, any>,
@@ -13,7 +14,6 @@ export function parseVariantStyles(
   componentSet.children
     .filter((child: ComponentNode) => child !== componentSet.defaultVariant)
     .forEach((variant: ComponentNode) => {
-      console.log(variant.name);
       const name = variant.name.split('=').pop();
       const nodesData = parseNodes([...variant.children]);
       const stylesRoot = diff(baseStyles, parseStyles(variant, true));
