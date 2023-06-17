@@ -103,7 +103,7 @@ export function syncDocument(type: ExportTarget) {
   }
 
   if (components.size > 0) {
-    figma.notify(`Syncing ${components.size} component${components.size === 1 ? '' : 's'}…`, {timeout: 3500});
+    figma.notify(`Syncing ${components.size} component${components.size === 1 ? '' : 's'} to Storybook…`, {timeout: 3500});
     setTimeout(() => {
       const files = JSON.stringify(Array.from(components).map(component => {
         try {

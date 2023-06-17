@@ -7,8 +7,8 @@ export type Session = {
 };
 
 export function open(key: string) {
-  const url = 'https://vslite.dev';
-  window.open(`${url}/+/${key}`);
+  const url = 'http://localhost:5102';
+  window.open(`${url}/#/${key}`);
 }
 
 export function sync(key: string): Session {

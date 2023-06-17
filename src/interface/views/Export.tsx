@@ -3,10 +3,10 @@ import {useState} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
 import {useSync} from 'interface/hooks/useSync';
 import {useExport} from 'interface/hooks/useExport';
-import {useForm, Container, VerticalSpace, Button, Text, Bold, SegmentedControl} from '@create-figma-plugin/ui'
+import {useForm, Container, VerticalSpace, Button, Text, Bold, SegmentedControl} from '@create-figma-plugin/ui';
 
 import type {ExportFormState} from 'types/export';
-import type {ZipHandler, VSLiteHandler} from 'types/events';
+import type {ZipHandler, StorybookHandler} from 'types/events';
 
 export function Export() {  
   const [isExporting, setExporting] = useState(false);
@@ -18,14 +18,14 @@ export function Export() {
       switch (type) {
         case 'zip':
           return emit<ZipHandler>('ZIP', target);
-        case 'vslite':
-          return emit<VSLiteHandler>('VSLITE', target);
+        case 'storybook':
+          return emit<StorybookHandler>('STORYBOOK', target);
       }
     },
   });
 
   useExport(setExporting);
-  useSync();
+  useSync(setExporting);
   
   return (
     <Container space="medium" style={{maxWidth: 300}}>
@@ -55,7 +55,7 @@ export function Export() {
         value={form.formState.type}
         options={[
           {children: 'Download Zip', value: 'zip'},
-          {children: 'Open in VSLite', value: 'vslite', disabled: true},
+          {children: 'Sync to Storybook', value: 'storybook'},
         ]}
       />
       <VerticalSpace space="extraLarge"/>

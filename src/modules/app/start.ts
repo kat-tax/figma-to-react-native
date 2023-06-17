@@ -24,8 +24,8 @@ export async function start() {
     utils.exportDocument(target);
   });
 
-  // Handle user triggering VSLite sync export
-  on<Events.VSLiteHandler>('VSLITE', (target) => {
+  // Handle user triggering Storybook sync export
+  on<Events.StorybookHandler>('STORYBOOK', (target) => {
     utils.syncDocument(target);
   });
 

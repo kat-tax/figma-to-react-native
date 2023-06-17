@@ -42,8 +42,8 @@ export interface ZipHandler extends EventHandler {
   handler: (target: ExportTarget) => void;
 }
 
-export interface VSLiteHandler extends EventHandler {
-  name: 'VSLITE';
+export interface StorybookHandler extends EventHandler {
+  name: 'STORYBOOK';
   handler: (target: ExportTarget) => void;
 }
 
