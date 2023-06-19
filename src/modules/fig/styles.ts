@@ -45,7 +45,7 @@ function dimension(node: TargetNode, isRoot?: boolean, isText?: boolean): T.Styl
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'HORIZONTAL') {
-      style.flex = '1';
+      style.flex = 1;
     } else {
       style.width = '100%';
     }
@@ -57,7 +57,7 @@ function dimension(node: TargetNode, isRoot?: boolean, isText?: boolean): T.Styl
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'VERTICAL') {
-      style.flex = '1';
+      style.flex = 1;
     } else {
       style.height = '100%';
     }
