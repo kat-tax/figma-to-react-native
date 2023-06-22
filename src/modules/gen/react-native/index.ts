@@ -1,2 +1,2 @@
-export {generateBundle} from 'modules/gen/react-native/bundle';
-export {generateTheme} from 'modules/gen/react-native/theme';
+export {generateBundle} from './lib/bundle';
+export {generateTheme} from './lib/theme';

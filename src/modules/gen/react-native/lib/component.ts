@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {writeImports, writeFunction, writeStyleSheet} from 'modules/gen/react-native/utils';
+import {writeImports, writeFunction, writeStyleSheet} from './utils';
 import {parseVariantStyles} from 'modules/fig/variant';
 import {getName} from 'modules/fig/utils';
 

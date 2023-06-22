@@ -7,7 +7,7 @@ export type Styles =
   & StylesTypography;
 
 export interface StylesDimension {
-  flex?: string,
+  flex?: number,
   width?: number | string,
   height?: number | string,
 }

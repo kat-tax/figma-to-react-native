@@ -7,10 +7,15 @@ import type {Settings} from 'types/settings';
 export function generateStory(root: ParsedComponent, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const isVariant = !!root.node?.variantProperties;
-  const nodeProps = Object.entries(isVariant
-    ? root.node?.parent?.componentPropertyDefinitions
-    : root.node.componentPropertyDefinitions
-  );
+  
+  let nodeProps: any;
+  try {
+    nodeProps = Object.entries(isVariant
+      ? root.node?.parent?.componentPropertyDefinitions
+      : root.node.componentPropertyDefinitions)
+  } catch (e) {
+    nodeProps = [];
+  }
 
   // Import Component
   writer.write(`import {${root.name} as Component} from`);

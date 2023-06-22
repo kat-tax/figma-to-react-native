@@ -19,6 +19,9 @@ export function generateTheme(settings: Settings) {
       const [group, token] = paint.name.split('/');
       const name = getSlug(token, true);
 
+      // Name is undefined, skip
+      if (!name) return;
+
       // If the group of colors doesn't exist, initialize it
       if (!colors[group]) {
         colors[group] = {};
@@ -27,6 +30,10 @@ export function generateTheme(settings: Settings) {
       // Insert this color into the color group
       // @ts-ignore (TODO: expect only solid paints to fix this)
       const value = getColor(paint.paints[0].color);
+      
+      // Value is undefined, skip
+      if (!value) return;
+
       maxLineLength = Math.max(maxLineLength, name.length + value.length);
       colors[group][name] = {value, comment: paint.description};
     });

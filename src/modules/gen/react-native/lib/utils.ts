@@ -77,7 +77,8 @@ export function writeFunction(
     Object.keys(variantStyles).includes(key) ? 'classes' : stylePrefix;
 
   // Component props
-  const propDefs = Object.entries(masterNode?.componentPropertyDefinitions);
+  const props = masterNode?.componentPropertyDefinitions;
+  const propDefs = props ? Object.entries(props) : [];
   if (propDefs.length > 0) {
     writer.write(`export interface ${rootView.name}Props`).block(() => {
       propDefs.sort(sortProps).forEach(([key, prop]) => {

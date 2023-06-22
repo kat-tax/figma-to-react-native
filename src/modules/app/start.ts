@@ -5,14 +5,31 @@ import * as utils from 'modules/app/utils';
 import type * as Events from 'types/events';
 
 export async function start() {
-  await utils.loadConfig();
+  const isHeadless = figma.editorType === 'dev' && figma.mode === 'codegen';
+
+  // Load config from storage
+  await utils.loadConfig(isHeadless);
+
+  // Headless codegen mode
+  if (isHeadless) {
+    figma.codegen.on('generate', (e) => {
+      utils.updateConfigFromCodeGen();
+      return utils.renderCodeGen(e.node);
+    });
+    return;
+  }
 
   // Update theme periodically
-  setInterval(utils.updateTheme, 400);
+  setInterval(utils.updateTheme, 800);
 
   // Update code on selection change and periodically
-  setInterval(utils.updateCode, 300);
+  setInterval(utils.updateCode, 600);
   figma.on('selectionchange', utils.updateCode);
+
+  // Handle mode changes from interface
+  on<Events.UpdateModeHandler>('UPDATE_MODE', (mode) => {
+    utils.updateMode(mode);
+  });
 
   // Handle config updates from interface
   on<Events.UpdateConfigHandler>('UPDATE_CONFIG', (config) => {
@@ -24,8 +41,8 @@ export async function start() {
     utils.exportDocument(target);
   });
 
-  // Handle user triggering VSLite sync export
-  on<Events.VSLiteHandler>('VSLITE', (target) => {
+  // Handle user triggering Storybook sync export
+  on<Events.StorybookHandler>('STORYBOOK', (target) => {
     utils.syncDocument(target);
   });
 

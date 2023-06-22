@@ -45,7 +45,7 @@ function dimension(node: TargetNode, isRoot?: boolean, isText?: boolean): T.Styl
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'HORIZONTAL') {
-      style.flex = '1';
+      style.flex = 1;
     } else {
       style.width = '100%';
     }
@@ -57,7 +57,7 @@ function dimension(node: TargetNode, isRoot?: boolean, isText?: boolean): T.Styl
     if (!isRoot
       && 'layoutMode' in node.parent
       && node.parent.layoutMode === 'VERTICAL') {
-      style.flex = '1';
+      style.flex = 1;
     } else {
       style.height = '100%';
     }
@@ -208,7 +208,7 @@ function typography(node: TargetNode): T.StylesTypography {
   const fontWeight = utils.getFontWeight(node.fontName.style);
   const lineHeight = utils.getLineHeight(node);
   const letterSpacing = utils.getLetterSpacing(node);
-  const isItalic = node.fontName.style.match(/italic/i);
+  const isItalic = node.fontName.style?.match(/italic/i);
   const isCrossed = node.textDecoration === 'STRIKETHROUGH';
   const isUnderline = node.textDecoration === 'UNDERLINE';
   const isAlignCenter = node.textAlignHorizontal === 'CENTER';

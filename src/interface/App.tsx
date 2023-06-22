@@ -1,4 +1,5 @@
 import {h} from 'preact';
+import {emit} from '@create-figma-plugin/utilities';
 import {Code} from 'interface/views/Code';
 import {Story} from 'interface/views/Story';
 import {Theme} from 'interface/views/Theme';
@@ -13,6 +14,8 @@ import {Tabs, Tab, Bar, Link} from 'interface/base/Tabs';
 import {IconGear} from 'interface/base/IconGear';
 import {Loading} from 'interface/base/Loading';
 
+import type {UpdateModeHandler} from 'types/events';
+
 export function App() {
   const isDarkMode = useDarkMode();
   const component = useComponent();
@@ -22,8 +25,14 @@ export function App() {
     ...settings.config.monaco.general,
     theme: isDarkMode ? 'vs-dark' : 'vs',
   };
+
+  const handleTabChange = (value: string) => {
+    const mode = value === 'preview' ? 'preview' : 'code';
+    emit<UpdateModeHandler>('UPDATE_MODE', mode);
+  };
+
   return (
-    <Tabs defaultValue="code" className="tabs">
+    <Tabs defaultValue="code" className="tabs" onValueChange={handleTabChange}>
       {!monaco && <Loading/>}
       <Bar loop aria-label="header" className="bar">
         <Link value="code" title="View component code" className="tab">

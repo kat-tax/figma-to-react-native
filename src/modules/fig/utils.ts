@@ -27,7 +27,7 @@ export function getPage(node: BaseNode): PageNode {
 }
 
 // Return the selected component
-export function getSelectedComponent(): ComponentNode {
+export function getSelectedComponent(): ComponentNode | FrameNode {
   const {selection} = figma.currentPage;
   if (selection.length === 0) return null;
   const components = Array.from(getComponents(selection));
@@ -35,8 +35,8 @@ export function getSelectedComponent(): ComponentNode {
 }
 
 // Find components in a list of nodes
-export function getComponents(nodes: readonly SceneNode[]): Set<ComponentNode> {
-  const components = new Set<ComponentNode>();
+export function getComponents(nodes: readonly SceneNode[]): Set<ComponentNode | FrameNode> {
+  const components = new Set<ComponentNode | FrameNode>();
   for (const node of nodes) {
     const component = getComponent(node);
     if (component) {
@@ -47,7 +47,7 @@ export function getComponents(nodes: readonly SceneNode[]): Set<ComponentNode> {
 }
 
 // Find the component of a node (if exists)
-export function getComponent(node: SceneNode): ComponentNode {
+export function getComponent(node: SceneNode): ComponentNode | FrameNode {
   // Find the component in the parent chain
   let target: SceneNode = node;
   while (target.type !== 'COMPONENT_SET'
@@ -68,9 +68,27 @@ export function getComponent(node: SceneNode): ComponentNode {
     return target?.parent.type === 'COMPONENT_SET'
       ? target.parent.defaultVariant
       : target;
+  // return null;
+  // TODO: Fallback to frame search
+  return getFrame(target);
+}
+
+// Find the frame of a node
+export function getFrame(node: SceneNode): FrameNode {
+  // Find the component in the parent chain
+  let target: SceneNode = node;
+  while (target.type !== 'FRAME'
+    && target.parent
+    && target.parent.type !== 'PAGE') {
+    target = target.parent as SceneNode;
+  }
+  // If the target is a component set, use the default variant
+  if (target.type === 'FRAME')
+    return target;
   // Return null otherwise
   return null;
 }
+
 
 // Strip invalid characters for a JS identifier
 export function getName(value: string, skipPrefix?: boolean) {
@@ -86,12 +104,12 @@ export function getName(value: string, skipPrefix?: boolean) {
 
 // Create slug used for stylesheet properties
 export function getSlug(value: string, skipPrefix?: boolean) {
-  return value.split(' ').map((word, index) => {
+  return value ? value.split(' ').map((word, index) => {
     const safe = getName(word, skipPrefix);
     if (index == 0) return safe.toLowerCase();
     const camelCase = safe.charAt(0).toUpperCase() + safe.slice(1).toLowerCase();
     return camelCase;
-  }).join('');
+  }).join('') : '';
 }
 
 // Map Figma node types to React Native primitives
@@ -279,6 +297,7 @@ export function getLetterSpacing(node: TargetNode): number | undefined {
 }
 
 export function getFontWeight(style: string) {
+  if (!style) return '400';
   switch (style.replace(/\s*italic\s*/i, '')) {
     case 'Thin':
       return '100';
