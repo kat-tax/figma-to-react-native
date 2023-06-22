@@ -1,22 +1,22 @@
 import CodeBlockWriter from 'code-block-writer';
-import {generateTheme} from 'modules/gen/react-native/theme';
-import {writeImports, writeFunction, writeStyleSheet} from 'modules/gen/react-native/utils';
 import {parseVariantStyles} from 'modules/fig/variant';
 import {parseStyles} from 'modules/fig/styles';
 import {parseNodes} from 'modules/fig/nodes';
 import {getName} from 'modules/fig/utils';
 
+import {generateTheme} from './theme';
+import {writeImports, writeFunction, writeStyleSheet} from './utils';
+
 import type {ParsedComponent, ParseData} from 'types/parse';
 import type {Settings} from 'types/settings';
 
 export function generatePreview(root: ParsedComponent, children: ParseData, settings: Settings) {
-  const writer = new CodeBlockWriter(settings?.writer);
   const {stylesheet, components, includes} = children.state;
-  const primitives = new Set(['Text', 'Image']);
+  const writer = new CodeBlockWriter(settings?.writer);
   const libraries = new Set(['react-native-svg']);
-
-  const stylePrefix = 'styles';
+  const primitives = new Set(['Text', 'Image']);
   const variantStyles = parseVariantStyles(root.node, root.styles, stylesheet);
+  const stylePrefix = 'styles';
   
   writeImports(writer, settings, primitives, libraries);
   writer.blankLine();

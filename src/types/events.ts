@@ -1,7 +1,7 @@
 import {EventHandler} from '@create-figma-plugin/utilities';
 
 import type {Settings} from 'types/settings';
-import type {ExportTarget} from 'types/export';
+import type {ExportTarget, ExportMode} from 'types/export';
 
 // From plugin
 
@@ -35,6 +35,11 @@ export interface SyncHandler extends EventHandler {
 export interface UpdateConfigHandler extends EventHandler {
   name: 'UPDATE_CONFIG';
   handler: (config: Settings) => void;
+}
+
+export interface UpdateModeHandler extends EventHandler {
+  name: 'UPDATE_MODE';
+  handler: (mode: ExportMode) => void;
 }
 
 export interface ZipHandler extends EventHandler {

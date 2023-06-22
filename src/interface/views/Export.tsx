@@ -55,7 +55,7 @@ export function Export() {
         value={form.formState.type}
         options={[
           {children: 'Download Zip', value: 'zip'},
-          {children: 'Sync to Storybook', value: 'storybook'},
+          {children: 'Sync to Storybook', value: 'storybook', disabled: true},
         ]}
       />
       <VerticalSpace space="extraLarge"/>

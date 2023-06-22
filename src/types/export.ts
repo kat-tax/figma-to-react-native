@@ -5,3 +5,4 @@ export type ExportFormState = {
 
 export type ExportTarget = 'all' | 'page' | 'selected';
 export type ExportType = 'zip' | 'storybook';
+export type ExportMode = 'code' | 'preview';

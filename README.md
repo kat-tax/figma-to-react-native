@@ -6,15 +6,14 @@
 </h1>
 <h3 align="center">
   <a href="https://www.figma.com/community/plugin/821138713091291738">
-    View plugin on Figma Community
+    Install Plugin
   </a>
 </h3>
 
-### Introduction
-
-This plugin transforms Figma components to React Native components in real time. The goal is to reduce the handoff time between design and development. Design your UI components in Figma and export them for use in your React Native app.
+> This plugin transforms Figma components to React Native components in real time. The goal is to reduce the handoff time between design and development. Design your UI components in Figma and export them for use in your React Native app.
 
 [![Preview of plugin](./art/banner.png)](https://www.figma.com/community/plugin/821138713091291738)
+
 
 ### Getting started
 
@@ -24,23 +23,29 @@ This plugin transforms Figma components to React Native components in real time.
 4. Go to the "Export" tab and choose which components to export.
 4. To change the settings, click the cog icon and edit the JSON. Settings will save and update in real time. You can change the configuration of the editor, plugin, compiler, code output, and more.
 
-### Features
 
-- SVGs and images
-- Nested components
-- Variants and properties
-- AutoLayout to FlexBox
-- Conditional rendering
-- Background gradients
-- Borders and rounding
-- Shadows and rotations
-- Storybook generation
-- Component JSDoc generation
-- Theme generation from styles
-- Realtime code and preview rendering
-- Flexible and realtime configuration
-- Batch exporting components
-- Figma dark mode support
+### Plugin Features
+
+|   | Feature | Status  | 
+| - | --------------- | - | 
+| ✨ | Realtime code and preview rendering | ✅ |
+| 🔧 | Flexible and realtime config | ✅ |
+| 🎨 | Theme generation from styles | ✅ |
+| 📦 | Batch exporting of components and assets | ✅ |
+| 🏞 | Asset exporting of rasters and vectors | ✅ |
+| ⚛ | AutoLayout to Flexbox translation | ✅ |
+| 🎲 | Variants and properties support | ✅ |
+| 🧩 | Figma variables support | ⏱ |
+| 🧱 | Nested components support | ✅ |
+| 🎭 | Conditional rendering | ✅ |
+| 🪟 | Borders and rounding | ✅ |
+| 🔄 | Rotations and effects | ⏱ |
+| 🏔 | Background gradients | ⏱ |
+| 📚 | Storybook syncing | ⏱ |
+| 📖 | JSDoc generation | ✅ |
+| 💡 | Dark/light mode | ✅ |
+| 💎 | Tamagui output | ⏱ |
+
 
 ### Community
 
@@ -49,4 +54,4 @@ This plugin transforms Figma components to React Native components in real time.
 - [Discussions](https://github.com/kat-tax/figma/discussions)
 - [Issues](https://github.com/kat-tax/figma/issues)
 
-> _Note: This plugin does not require an account, remote service, or any other bullsh*t._
+> _Disclaimer: This plugin __does not require__ an account, remote service, or any other bullsh*t. There will be an optional paid service planned for syncing and collaboration features to support development. Donations are also welcome._
