@@ -26,14 +26,14 @@
 
 ### Plugin Features
 
-|   | Feature | Status  | 
+|   | Feature |   | 
 | - | --------------- | - | 
 | ✨ | Realtime code and preview rendering | ✅ |
 | 🔧 | Flexible and realtime config | ✅ |
 | 🎨 | Theme generation from styles | ✅ |
 | 📦 | Batch exporting of components and assets | ✅ |
 | 🏞 | Asset exporting of rasters and vectors | ✅ |
-| ⚛ | AutoLayout to Flexbox translation | ✅ |
+| ⭐️ | AutoLayout to Flexbox translation | ✅ |
 | 🎲 | Variants and properties support | ✅ |
 | 🧩 | Figma variables support | ⏱ |
 | 🧱 | Nested components support | ✅ |

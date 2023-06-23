@@ -1,5 +1,6 @@
 {
   "private": true,
+  "license": "GPL-3.0",
   "scripts": {
     "dev": "build-figma-plugin --typecheck --watch",
     "build": "build-figma-plugin --typecheck --minify",
