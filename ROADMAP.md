@@ -10,7 +10,6 @@
 - Support variant child nodes
 
 ### Interface
-- Render preview, story, and code separate based on visible tab
 - Diff text instead of fully replacing (highlight changes?)
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing

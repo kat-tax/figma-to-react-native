@@ -2,7 +2,7 @@ import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {usePreview} from 'interface/hooks/usePreview';
 import {Hint} from 'interface/base/Hint';
-import html from 'templates/previewer';
+import html from 'interface/preview';
 
 import type {EditorComponent} from 'types/editor';
 import type {Settings} from 'types/settings';

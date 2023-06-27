@@ -1,7 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useEffect} from 'preact/hooks';
 import {useMonaco} from '@monaco-editor/react';
-import schemaSettings from 'templates/settings/schema.json';
+import schemaSettings from '_schema.json';
 
 import type {Settings} from 'types/settings';
 import type {FocusComponentHandler} from 'types/events';

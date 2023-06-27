@@ -1,6 +1,8 @@
 # Project
 build/
 .ref/
+.old/
+_schema.json
 TODO.md
 
 # OSX

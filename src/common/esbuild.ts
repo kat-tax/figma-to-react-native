@@ -1,3 +1,4 @@
+
 import {initialize, transform} from 'esbuild-wasm';
 import type {Settings} from 'types/settings';
 
@@ -10,6 +11,7 @@ init();
 
 export async function build(code: string, config: Settings) {
   if (!_loaded && !_loading) await init();
+  // console.warn(code);
   return await transform(code, config?.esbuild);
 }
 

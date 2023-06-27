@@ -10,16 +10,15 @@ export function usePreview(component: EditorComponent, settings: Settings): stri
   useEffect(() => {
     if (!component) return;
 
-    const tag = '<' + component.name + ' ' + component.props + '/>';
+    const tag = '<' + component.name + component.props + '/>';
 
     const appCode = component.preview
       .replace(/import theme from ["']\.\/theme['"];/g, '')
       .replace(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"](\.\/\w+\.tsx?)['"]\s*;/g, '');
 
     const entryPoint = `
+      import React, {useEffect, useState} from 'react';
       import {AppRegistry} from 'react-native';
-      import {useEffect, useState} from 'react';
-
       ${appCode}
 
       function Main() {

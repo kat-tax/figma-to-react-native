@@ -61,12 +61,12 @@ export function Export() {
       <VerticalSpace space="extraLarge"/>
       <Button
         fullWidth
-        {...form.initialFocus}
         loading={isExporting}
         disabled={isExporting}
         onClick={form.handleSubmit}>
         Export Components
       </Button>
+      <div style={{display: 'none'}} {...form.initialFocus}/>
     </Container>
   );
 }

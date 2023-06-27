@@ -19,12 +19,16 @@ export async function start() {
     return;
   }
 
-  // Update theme periodically
-  setInterval(utils.updateTheme, 800);
+  // Update code on document change
+  figma.on('documentchange', (_event) => {
+    utils.updateCode();
+  });
 
-  // Update code on selection change and periodically
-  setInterval(utils.updateCode, 600);
+  // Update code on selection change
   figma.on('selectionchange', utils.updateCode);
+
+  // Update theme on interval
+  setInterval(utils.updateTheme, 500);
 
   // Handle mode changes from interface
   on<Events.UpdateModeHandler>('UPDATE_MODE', (mode) => {
