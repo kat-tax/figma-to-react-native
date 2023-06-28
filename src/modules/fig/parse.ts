@@ -1,5 +1,6 @@
+import {diff} from 'deep-object-diff';
 import {generateStyles} from 'modules/css';
-import {convertAssets, getInstanceInfo, isNodeVisible} from 'modules/fig/utils';
+import {convertAssets, getInstanceInfo, isNodeVisible, getSlug, getIdentifier} from 'modules/fig/utils';
 import {wait} from 'common/delay';
 
 import type {ParseData, ParseMetaData, ParseNodeTree, TargetNode, NodeStyles} from 'types/figma';
@@ -15,8 +16,9 @@ export default async function parse(node: TargetNode, settings: Settings): Promi
     parseRoot(node, settings),
     parseChildren(dict, settings),
   ]);
+  const variants = await crawlVariants(node, root, children, settings);
   const assets = await convertAssets(meta.assetNodes);
-  const data = {root, children, tree, meta, assets};
+  const data = {root, children, tree, meta, assets, variants};
   console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
   return data;
 }
@@ -107,4 +109,55 @@ function crawlNodes(
     }
   }
   return {dict, tree, meta};
+}
+
+async function crawlVariants(
+  node: TargetNode,
+  root: {node: TargetNode, styles: NodeStyles},
+  children: {node: SceneNode, styles: NodeStyles}[],
+  settings: Settings,
+) {
+  const styles: Record<string, Record<string, unknown>> = {};
+  if (!(node as ComponentNode).variantProperties) return styles;
+  const componentSet = node.parent as ComponentSetNode;
+  const componentVariants = componentSet.children
+    .filter((n: ComponentNode) => n !== componentSet.defaultVariant) as ComponentNode[];
+
+  for await (const variant of componentVariants) {
+    // Variant name
+    const name = getIdentifier(variant.name);
+    // Root style variants
+    const variantRoot = await parseRoot(variant, settings);
+    const variantRootDiff = diffStyles(root.styles, variantRoot.styles);
+    if (Object.keys(variantRootDiff).length > 0) {
+      if (!styles['root']) styles['root'] = {};
+      styles['root'][name] = variantRootDiff;
+    }
+    // Children style variants
+    const variantNodes = crawlNodes(variant.children);
+    const variantChildren = await parseChildren(variantNodes.dict, settings);
+    for (const child of variantChildren) {
+      // Skip nodes without styles
+      if (!NODES_WITH_STYLES.includes(child.node.type))
+        continue;
+      const childSlug = getSlug(child.node.name);
+      // Find sister node (same slug and same type)
+      // TODO: this is a bit hacky, but it works for now
+      const sisterNode = children.find((c) =>
+        getSlug(c.node.name) === childSlug && c.node.type === child.node.type);
+      const stylesDiff = sisterNode ? diffStyles(sisterNode.styles, child.styles) : child.styles;
+      if (Object.keys(stylesDiff).length > 0) {
+        if (!styles[childSlug]) styles[childSlug] = {};
+        styles[childSlug][name] = stylesDiff;
+      }
+    }
+  }
+
+  return styles;
+}
+
+function diffStyles(base: NodeStyles, variant: NodeStyles) {
+  const styleDiff = diff(base, variant);
+  // TODO: any transformations of diff needed? Do it here
+  return styleDiff;
 }

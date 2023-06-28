@@ -1,8 +1,10 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getName, getSlug, propsToString, sortProps, getInstanceInfo} from 'modules/fig/utils';
+import {getName, getSlug, getIdentifier, propsToString, sortProps, getInstanceInfo} from 'modules/fig/utils';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/figma';
 import type {Settings} from 'types/settings';
+
+type StylePrefixMapper = (slug: string) => string;
 
 export function writeImports(
   writer: CodeBlockWriter,
@@ -57,8 +59,7 @@ export function writeFunction(
   writer: CodeBlockWriter,
   data: ParseData,
   settings: Settings,
-  stylePrefix: string = 'styles',
-  variantStyles: any = {},
+  stylePrefix: string,
 ) {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
@@ -75,7 +76,7 @@ export function writeFunction(
         const propName = getSlug(key.split('#').shift());
         const propCond = type === 'BOOLEAN' ? '?' : '';
         const propType = type === 'VARIANT'
-          ? variantOptions.map((v: any) => `'${v}'`).join(' | ')
+          ? variantOptions.map((v: any) => `'${getIdentifier(v)}'`).join(' | ')
           : type === 'INSTANCE_SWAP'
             ? `JSX.Element`
             : type === 'TEXT'
@@ -99,15 +100,16 @@ export function writeFunction(
     writer.writeLine(` */`);
   }
 
+  // Determine if style is conditional or static
+  const getStylePrefix: StylePrefixMapper = (slug) =>
+    Object.keys(data.variants).includes(slug)
+      ? 'classes' : stylePrefix;
+
   // Component function body and children
   const attrProps = `${props.length > 0 ? `props: ${name}Props` : ''}`;
   writer.write(`export function ${name}(${attrProps})`).block(() => {
-    if (isVariant && Object.keys(variantStyles).length > 0)
-      writeClasses(writer, variantStyles);
-    const getStylePrefix = (key: string) =>
-      Object.keys({variantStyles}).includes(key)
-        ? 'classes'
-        : stylePrefix;
+    if (isVariant && Object.keys(data.variants).length > 0)
+      writeClasses(writer, data, stylePrefix);
     writer.write(`return (`).indent(() => {
       writer.write(`<View style={${getStylePrefix('root')}.root}>`).indent(() => {
         writeChildren(writer, data, settings, data.tree, getStylePrefix);
@@ -123,7 +125,7 @@ export function writeChildren(
   data: ParseData,
   settings: Settings,
   children: ParseNodeTree,
-  getStylePrefix: (key: string) => string,
+  getStylePrefix: StylePrefixMapper,
 ) {
   children.forEach((child) => {
     // Derived data
@@ -148,7 +150,8 @@ export function writeChild(
   data: ParseData,
   settings: Settings,
   child: ParseNodeTreeItem,
-  getStylePrefix: (key: string) => string, isConditional: boolean = false,
+  getStylePrefix: StylePrefixMapper,
+  isConditional: boolean = false,
 ) {
   // console.log('writeChild:', child.node.type, child.node.name, child.node.isAsset);
 
@@ -224,15 +227,15 @@ export function writeStyleSheet(
   writer: CodeBlockWriter,
   data: ParseData,
   _settings: Settings,
-  stylePrefix: string = 'styles',
-  variantStyles: any = {},
+  stylePrefix: string,
 ) {
   writer.write(`const ${stylePrefix} = StyleSheet.create(`).inlineBlock(() => {
     // Root styles
     writeStyle(writer, 'root', data.root.styles);
-    if (variantStyles.root) {
-      Object.keys(variantStyles.root).forEach(key => {
-        writeStyle(writer, `root${key}`, variantStyles.root[key]);
+    if (data.variants.root) {
+      Object.keys(data.variants.root).forEach(key => {
+        const className = ('root'+key).split(', ').join('').replace(/\=/g, '');
+        writeStyle(writer, className, data.variants.root[key]);
       });
     }
     // Children styles
@@ -240,10 +243,11 @@ export function writeStyleSheet(
       if (child.styles) {
         const slug = getSlug(child.node.name);
         writeStyle(writer, slug, child.styles);
-        if (variantStyles[slug]) {
-          Object.keys(variantStyles[slug]).forEach(key => {
-            if (variantStyles[slug][key]) {
-              writeStyle(writer, `${slug}${key}`, variantStyles[slug][key]);
+        if (data.variants[slug]) {
+          Object.keys(data.variants[slug]).forEach(key => {
+            if (data.variants[slug][key]) {
+              const className = (slug+key).split(', ').join('').replace(/\=/g, '');
+              writeStyle(writer, className, data.variants[slug][key]);
             }
           });
         }
@@ -254,13 +258,15 @@ export function writeStyleSheet(
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
-  const props = Object.keys(styles).filter(c => styles[c] !== undefined);
+  const props = Object.keys(styles)//.filter(c => styles[c] !== undefined);
   if (props.length > 0) {
     writer.write(`${slug}: {`).indent(() => {
       props.forEach(prop => {
         const value = styles[prop];
         writer.write(`${prop}: `);
-        if (typeof value === 'number') {
+        if (typeof value === 'undefined') {
+          writer.quote('unset');
+        } else if (typeof value === 'number') {
           writer.write(value.toString());
         } else if (value.startsWith('theme.')) {
           writer.write(value);
@@ -275,21 +281,25 @@ export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
   }
 }
 
-export function writeClasses(writer: CodeBlockWriter, variantStyles: any) {
-  Object.keys(variantStyles).forEach((k: string) => {
-    const mods = Object.keys(variantStyles[k]).filter(v => !!variantStyles[k][v]);
-    if (mods.length > 0) {
-      mods.forEach(v => writer.writeLine(`const is${v} = props.state === '${v}';`));
-    }
-  });
+export function writeClasses(
+  writer: CodeBlockWriter,
+  data: ParseData,
+  stylePrefix: string,
+) {
   writer.write(`const classes = `).inlineBlock(() => {
-    Object.keys(variantStyles).forEach((k: string) => {
-      const mods = Object.keys(variantStyles[k]).filter(v => !!variantStyles[k][v]);
+    Object.keys(data.variants).forEach((k: string) => {
+      const mods = Object.keys(data.variants[k]).filter(v => !!data.variants[k][v]);
       if (mods.length > 0) {
         writer.write(`${k}: [`).indent(() => {
-          writer.writeLine(`styles.${k},`);
-          mods.forEach(v => {
-            writer.writeLine(`props.state === '${v}' && styles.${k}${v},`);
+          writer.writeLine(`${stylePrefix}.${k},`);
+          mods.reverse().forEach(v => {
+            const parts = v.split(', ');
+            const cond = parts.map(part => {
+              const [state, value] = part.split('=');
+              return `props.${state.toLowerCase()} === '${value}'`
+            }).join(' && ');
+            const className = k+v.split(', ').join('').replace(/\=/g, '');
+            writer.writeLine(`${cond} && ${stylePrefix}.${className},`);
           });
         });
         writer.writeLine('],');

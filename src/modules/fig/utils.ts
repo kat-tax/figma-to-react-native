@@ -1,6 +1,7 @@
 import {getPage} from 'modules/fig/traverse';
-import {encode} from 'common/base64';
+import {pascalCase} from 'common/string';
 import {rgbToHex} from 'common/color';
+import {encode} from 'common/base64';
 
 // Strip invalid characters for a JS identifier
 export function getName(value: string, skipPrefix?: boolean) {
@@ -12,6 +13,12 @@ export function getName(value: string, skipPrefix?: boolean) {
   } else {
     return safe;
   }
+}
+
+// Get JS indentifier (titlecased)
+export function getIdentifier(value: string) {
+  // TODO: sanitize identifiers better
+  return pascalCase(value).replace(/[^a-zA-Z0-9\,\_\=\s$]+/g, '');
 }
 
 // Create slug used for stylesheet properties
@@ -86,9 +93,12 @@ export function propsToKeyValues([key, prop]) {
   // Boolean prop shorthand (omit if false)
   if (type === 'BOOLEAN') {
     return v ? k : false;
-  // Variant and text prop are simply k="v"
-  } else if (type === 'TEXT' || type === 'VARIANT') {
+  // Text props are simply k="v"
+  } else if (type === 'TEXT') {
     return `${k}="${v}"`;
+  // Variants are similar but keys are PascalCased
+  } else if (type === 'VARIANT') {
+    return `${k}="${getIdentifier(v)}"`;
   // Instance swap
   } else if (type === 'INSTANCE_SWAP') {
     const node = figma.getNodeById(value || defaultValue);

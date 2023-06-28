@@ -16,11 +16,14 @@ export interface ParseData {
   children: Array<{node: SceneNode, styles: NodeStyles}>,
   tree: ParseNodeTree,
   meta: ParseMetaData,
-  assets: Record<string, {width: number, height: number, data: string}>,
+  assets: ParseAssetData,
+  variants: ParseVariantData,
 }
 
 export type ParseNodeTree = Array<ParseNodeTreeItem>;
 export type ParseNodeTreeItem = {node: SceneNode, children?: ParseNodeTree};
+export type ParseVariantData = Record<string, Record<string, unknown>>;
+export type ParseAssetData = Record<string, {width: number, height: number, data: string}>;
 export type ParseMetaData = {
   primitives: Set<string>,
   assetNodes: Set<string>,

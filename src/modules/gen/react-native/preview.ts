@@ -1,5 +1,4 @@
 import CodeBlockWriter from 'code-block-writer';
-//import {parseVariantStyles} from 'modules/fig/variant';
 import parseFigma from 'modules/fig/parse';
 
 import {generateTheme} from './theme';
@@ -12,14 +11,13 @@ export async function generatePreview(data: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const primitives = new Set(['Text', 'Image']);
   data.meta.primitives = primitives;
-  // const variantStyles = parseVariantStyles(root.node, root.styles, stylesheet);
   writeImports(writer, data, settings);
   writer.blankLine();
   writer.write(generateTheme(settings));
   writer.blankLine();
-  writeFunction(writer, data, settings);
+  writeFunction(writer, data, settings, 'styles');
   writer.blankLine();
-  writeStyleSheet(writer, data, settings);
+  writeStyleSheet(writer, data, settings, 'styles');
   writer.blankLine();
   await writeComponents(writer, settings, {...data.meta.components, ...data.meta.includes});
   writer.blankLine();
@@ -39,7 +37,6 @@ async function writeComponents(
     if (index.has(content)) continue;
     index.add(content);
     const data = await parseFigma(content as TargetNode, settings);
-    // const variantStyles = parseVariantStyles(root.node, root.styles, parsed.state.stylesheet);
     writeFunction(writer, data, settings, stylesPrefix);
     writer.blankLine();
     writeStyleSheet(writer, data, settings, stylesPrefix);

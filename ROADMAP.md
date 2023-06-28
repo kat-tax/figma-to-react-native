@@ -1,7 +1,7 @@
 # ROADMAP
 
 ### Next
-- Fix handling multiple variants
+- Add useMemo to classes
 - Fix various parse errors
 - Fix styling differences
 - Fix sanitizing names
