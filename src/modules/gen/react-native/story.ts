@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {sortProps, getSlug, getName} from 'modules/fig/utils';
+import {sortProps, getName, getPropName} from 'modules/fig/utils';
 
 import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
@@ -68,7 +68,7 @@ export function generateStory(target: TargetNode, isVariant: boolean, props: Com
         writer.write('args: ').inlineBlock(() => {
           componentProps.sort(sortProps).forEach(([key, prop]) => {
             const {type, value, defaultValue}: any = prop;
-            const name = getSlug(key.split('#').shift());
+            const name = getPropName(key);
             const val = value || defaultValue;
             // String or state
             if (type === 'TEXT' || type === 'VARIANT') {
@@ -104,7 +104,7 @@ export function generateStory(target: TargetNode, isVariant: boolean, props: Com
         writer.write('args: ').inlineBlock(() => {
           props.forEach(([key, prop]) => {
             const {type, defaultValue}: any = prop;
-            const propName = getSlug(key.split('#').shift());
+            const propName = getPropName(key);
             // String
             if (type === 'TEXT') {
               writer.write(`${propName}:`);

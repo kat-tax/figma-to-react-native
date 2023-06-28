@@ -32,6 +32,10 @@ export function getSlug(value: string, skipPrefix?: boolean) {
   return sanitized ? sanitized : '$';
 }
 
+export function getPropName(value: string) {
+  return getSlug(value.split('#').shift());
+}
+
 // Map Figma color to RGB or HEX
 export function getColor(color: RGB, opacity?: number, skipHex?: boolean): string {
   if (!color) return;
@@ -51,7 +55,7 @@ export function getInstanceInfo(node: InstanceNode) {
   const main = isVariant ? node.mainComponent.parent : node.mainComponent;
   const props = node.componentProperties;
   const propId = node.componentPropertyReferences?.mainComponent;
-  const propName = propId ? getSlug(propId.split('#').shift()) : null;
+  const propName = propId ? getPropName(propId) : null;
   return {main, props, propName};
 }
 
@@ -88,7 +92,7 @@ export function sortProps(a: any, b: any) {
 // Map Figma component props to JSX key values
 export function propsToKeyValues([key, prop]) {
   const {type, value, defaultValue}: any = prop;
-  const k = getSlug(key.split('#').shift());
+  const k = getPropName(key);
   const v = value || defaultValue;
   // Boolean prop shorthand (omit if false)
   if (type === 'BOOLEAN') {

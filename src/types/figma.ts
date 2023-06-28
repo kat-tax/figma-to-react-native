@@ -12,8 +12,8 @@ export type NodeStyles = {
 };
 
 export interface ParseData {
-  root: {node: TargetNode, styles: NodeStyles},
-  children: Array<{node: SceneNode, styles: NodeStyles}>,
+  root: {node: TargetNode, styles: NodeStyles, slug: string},
+  children: {node: SceneNode, styles: NodeStyles, slug: string}[],
   tree: ParseNodeTree,
   meta: ParseMetaData,
   assets: ParseAssetData,

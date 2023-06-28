@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getName, getSlug, getIdentifier, propsToString, sortProps, getInstanceInfo} from 'modules/fig/utils';
+import {getName, getSlug, getPropName, getIdentifier, propsToString, sortProps, getInstanceInfo} from 'modules/fig/utils';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/figma';
 import type {Settings} from 'types/settings';
@@ -73,7 +73,7 @@ export function writeFunction(
     writer.write(`export interface ${name}Props`).block(() => {
       props.sort(sortProps).forEach(([key, prop]) => {
         const {type, variantOptions}: any = prop;
-        const propName = getSlug(key.split('#').shift());
+        const propName = getPropName(key);
         const propCond = type === 'BOOLEAN' ? '?' : '';
         const propType = type === 'VARIANT'
           ? variantOptions.map((v: any) => `'${getIdentifier(v)}'`).join(' | ')
@@ -134,7 +134,7 @@ export function writeChildren(
     const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
     // Conditional rendering
     if (propRefs?.visible) {
-      const name = getSlug(propRefs?.visible.split('#').shift());
+      const name = getPropName(propRefs?.visible);
       writer.write(`{props.${name} &&`).space().indent(() => {
         writeChild(writer, data, settings, child, getStylePrefix, true);
       }).write('}').newLine();
@@ -162,7 +162,7 @@ export function writeChild(
 
   // Component instance swap
   const swapComponent = propRefs?.mainComponent;
-  const swapComponentName = swapComponent ? getSlug(swapComponent.split('#').shift()) : null;
+  const swapComponentName = swapComponent ? getPropName(swapComponent) : null;
   if (swapComponentName) {
     const statement = `props.${swapComponentName}`;
     writer.writeLine(isConditional ? statement : `{${statement}}`);
@@ -182,10 +182,10 @@ export function writeChild(
   }
 
   // Determine JSX tag
-  const slug = getSlug(child.node.name);
+  const node = data.children.find(c => c.node === child.node);
   const instance = getInstanceInfo(child.node as InstanceNode);
   const attrProps = propsToString((child.node as any)?.componentProperties);
-  const attrStyle = slug ? ` style={${getStylePrefix(slug)}.${slug}}` : '';
+  const attrStyle = node.slug ? ` style={${getStylePrefix(node.slug)}.${node.slug}}` : '';
   const jsxTag = isInstance ? getName(instance.main.name) : getTag(child.node.type);
   const jsxTagWithProps = isInstance
     ? jsxTag + attrProps
@@ -202,7 +202,7 @@ export function writeChild(
     // Text child
     if (isText) {
       const propId = propRefs?.characters;
-      const propName = propId ? getSlug(propId.split('#').shift()) : null;
+      const propName = propId ? getPropName(propId) : null;
       const propValue = propName ? `props.${propName}` : (child.node as TextNode).characters || '';
       if (propValue.startsWith('props.')) {
         writer.write(`{${propValue}}`);
@@ -241,13 +241,12 @@ export function writeStyleSheet(
     // Children styles
     for (const child of data.children) {
       if (child.styles) {
-        const slug = getSlug(child.node.name);
-        writeStyle(writer, slug, child.styles);
-        if (data.variants[slug]) {
-          Object.keys(data.variants[slug]).forEach(key => {
-            if (data.variants[slug][key]) {
-              const className = (slug+key).split(', ').join('').replace(/\=/g, '');
-              writeStyle(writer, className, data.variants[slug][key]);
+        writeStyle(writer, child.slug, child.styles);
+        if (data.variants[child.slug]) {
+          Object.keys(data.variants[child.slug]).forEach(key => {
+            if (data.variants[child.slug][key]) {
+              const className = (child.slug+key).split(', ').join('').replace(/\=/g, '');
+              writeStyle(writer, className, data.variants[child.slug][key]);
             }
           });
         }

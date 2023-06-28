@@ -25,18 +25,22 @@ export default async function parse(node: TargetNode, settings: Settings): Promi
 
 async function parseRoot(node: TargetNode, settings: Settings) {
   const styles = await generateStyles(node as SceneNode, settings);
-  return {node, styles};
+  const slug = getSlug(node.name);
+  return {node, styles, slug};
 }
 
 async function parseChildren(nodes: Set<SceneNode>, settings: Settings) {
   // const start = Date.now();
-  const children: Array<{node: SceneNode, styles: NodeStyles}> = [];
+  const children: Array<{node: SceneNode, styles: NodeStyles, slug: string}> = [];
   for await (const node of nodes) {
     await wait(0); // note: prevents UI from freezing
     const styles = NODES_WITH_STYLES.includes(node.type)
       ? await generateStyles(node, settings)
       : null;
-    children.push({node, styles});
+    const slugBase = getSlug(node.name);
+    const slugCount = children.filter((c) => getSlug(c.node.name) === slugBase).length;
+    const slug = slugCount > 0 ? `${slugBase}${slugCount}` : slugBase;
+    children.push({node, styles, slug});
   }
   // console.log(`parseChildren: ${Date.now() - start}ms (${nodes.size} nodes)`);
   return children;
