@@ -1,7 +1,6 @@
 import {getPage} from 'modules/fig/traverse';
 import {pascalCase} from 'common/string';
 import {rgbToHex} from 'common/color';
-import {encode} from 'common/base64';
 
 // Strip invalid characters for a JS identifier
 export function getName(value: string, skipPrefix?: boolean) {
@@ -112,20 +111,26 @@ export function propsToKeyValues([key, prop]) {
   }
 }
 
-// Converts asset nodes to base64 data
+// Converts asset nodes
 export async function convertAssets(nodes: Set<string>) {
-  const assets: Record<string, {width: number, height: number, data: string}> = {};
+  const assets: Record<string, {width: number, height: number, data: string, isVector: boolean}> = {};
   try {
-    const blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+    const blankImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
     for await (const id of nodes) {
-      const node = figma.getNodeById(id) as SceneNode & ExportMixin;
+      let data: string;
+      const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin;
+      const vectorTypes: NodeType[] = ['VECTOR', 'RECTANGLE', 'LINE', 'ELLIPSE', 'POLYGON', 'STAR'];
+      const isVector = vectorTypes.includes(node.type)
+        || node.findAllWithCriteria({types: vectorTypes}).length > 0;
+      if (isVector) {
+        data = await node.exportAsync({format: 'SVG_STRING'});
+      } else {
+        let bytes: Uint8Array;
+        try {bytes = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});} catch (err) {}
+        data = bytes ? `data:image/png;base64,${figma.base64Encode(bytes)}` : blankImage;
+      }
       const {width, height} = node;
-      let bytes: Uint8Array;
-      try {
-        bytes = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});
-      } catch (err) {}
-      const data = bytes ? `data:image/png;base64,${encode(bytes)}` : blank;
-      assets[id] = {width, height, data};
+      assets[id] = {width, height, data, isVector};
     }
   } catch (err) {
     console.error('Could not convert assets', err);

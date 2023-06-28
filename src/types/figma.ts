@@ -23,7 +23,7 @@ export interface ParseData {
 export type ParseNodeTree = Array<ParseNodeTreeItem>;
 export type ParseNodeTreeItem = {node: SceneNode, children?: ParseNodeTree};
 export type ParseVariantData = Record<string, Record<string, unknown>>;
-export type ParseAssetData = Record<string, {width: number, height: number, data: string}>;
+export type ParseAssetData = Record<string, {width: number, height: number, data: string, isVector: boolean}>;
 export type ParseMetaData = {
   primitives: Set<string>,
   assetNodes: Set<string>,

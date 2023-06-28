@@ -1,13 +1,14 @@
 # ROADMAP
 
 ### Next
+- Improve assets (png + svg generation)
+- Improve perf (cache data, track revisions)
+- Improve sanitizing names
+- Improve styling differences
 - Add useMemo to classes
-- Fix various parse errors
-- Fix styling differences
-- Fix sanitizing names
-- Fix rectangle + ellipses
-- Support assets (png + svg)
-- Support variant child nodes
+- Add exporting assets
+- Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
+- Shorthand generated styles
 
 ### Interface
 - Diff text instead of fully replacing (highlight changes?)

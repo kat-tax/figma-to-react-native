@@ -173,8 +173,12 @@ export function writeChild(
   if (child.node.isAsset && child.node.type !== 'INSTANCE') {
     const asset = data.assets[child.node.id];
     if (asset) {
-      const style = `{width: ${asset.width}, height: ${asset.height}}`;
-      writer.writeLine(`<Image style={${style}} source={{uri: '${asset.data}'}}/>`);
+      if (asset.isVector) {
+        writer.writeLine(asset.data);
+      } else {
+        const style = `{width: ${asset.width}, height: ${asset.height}}`;
+        writer.writeLine(`<Image style={${style}} source={{uri: '${asset.data}'}}/>`);
+      }
     } else {
       writer.writeLine(`{/* Could not convert asset "${child.node.name}" */}`);
     }

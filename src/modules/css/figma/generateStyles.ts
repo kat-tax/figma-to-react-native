@@ -26,17 +26,29 @@ function augmentStyles(styles: NodeStyles): NodeStyles {
   // Remove display property since flex is default
   if (styles.display === 'flex')
     delete styles.display;
+  // Convert vars to theme values
+  for (const [k, v] of Object.entries(styles)) {
+    if (typeof v !== 'string') continue;
+    const token = getTokenFromVar(v);
+    if (token) {
+      styles[k] = `theme.colors.${token}`;
+    }
+  }
   // Return mutated styles
   return styles;
 }
 
 // TODO: convert var references to theme values
-function getParameters(str: string): [string, string] | null {
-  const regex = /^var\((--\w+),\s*(.+)\)$/i;
+function getTokenFromVar(str: string): string | null {
+  const regex = /^var\(\-\-([^),\s]+).*?\)/;
   const match = str.match(regex);
   if (match) {
-    const [, name, value] = match;
-    return [name, value];
+    const [, name] = match;
+    const full = name.replace('-', '.');
+    const parts = full.split('.');
+    const prefix = parts.shift();
+    const suffix = parts.pop().replace(/-/g, '_');
+    return `${prefix}.$${suffix}`;
   }
   return null;
 }

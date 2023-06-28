@@ -17,7 +17,11 @@ export function generateTheme(settings: Settings) {
     const colors: ThemeColors = {};
     figma.getLocalPaintStyles().forEach(paint => {
       const [group, token] = paint.name.split('/');
-      const name = getSlug(token, true);
+      // TODO: improve this, figure out how figma converts to var
+      const name = token
+        .toLowerCase()
+        .replace(/\s/, '_')
+        .replace(/[^a-zA-Z0-9_]+/g, '');
 
       // Name is undefined, skip
       if (!name) return;
