@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-import {sortProps, getName, getPropName} from 'modules/fig/utils';
+import {sortProps, getPropName} from 'modules/fig/utils';
+import {createIdentifierPascal} from 'common/string';
 
 import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
@@ -7,7 +8,7 @@ import type {Settings} from 'types/settings';
 export function generateStory(target: TargetNode, isVariant: boolean, props: ComponentPropertyDefinitions, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const masterNode = isVariant ? target.parent : target;
-  const componentName = getName(masterNode.name);
+  const componentName = createIdentifierPascal(masterNode.name);
   const componentProps = props ? Object.entries(props) : [];
 
   // Import Component
@@ -30,7 +31,7 @@ export function generateStory(target: TargetNode, isVariant: boolean, props: Com
   // Loop through sub-components, import each one
   if (components.length > 0) {
     components.forEach((component) => {
-      const name = getName(component.name);
+      const name = createIdentifierPascal(component.name);
       writer.write(`import {${name}} from`);
       writer.space();
       writer.quote(`./${name}`);
@@ -80,7 +81,7 @@ export function generateStory(target: TargetNode, isVariant: boolean, props: Com
             // Component
             } else if (type === 'INSTANCE_SWAP') {
               const component = figma.getNodeById(val);
-              const tagName = '<' + (getName(component.name) || 'View') + '/>';
+              const tagName = '<' + (createIdentifierPascal(component.name) || 'View') + '/>';
               writer.writeLine(`${name}: ${tagName},`);
             // Number or boolean or ???
             } else {
@@ -98,7 +99,7 @@ export function generateStory(target: TargetNode, isVariant: boolean, props: Com
   } else {
     // TODO: sort variants
     target.parent.children.forEach((child: any) => {
-      const name = getName(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
+      const name = createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
       const props = componentProps?.sort(sortProps);
       writer.write(`export const ${name}: Story = `).inlineBlock(() => {
         writer.write('args: ').inlineBlock(() => {
@@ -122,7 +123,7 @@ export function generateStory(target: TargetNode, isVariant: boolean, props: Com
             // Component
             } else if (type === 'INSTANCE_SWAP') {
               const component = figma.getNodeById(defaultValue);
-              const tagName = '<' + (getName(component.name) || 'View') + '/>';
+              const tagName = '<' + (createIdentifierPascal(component.name) || 'View') + '/>';
               writer.writeLine(`${propName}: ${tagName},`);
             // Number or boolean or ???
             } else {

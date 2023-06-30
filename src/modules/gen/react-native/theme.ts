@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getSlug, getColor} from 'modules/fig/utils';
+import {getColor} from 'modules/fig/utils';
+import {createIdentifierCamel} from 'common/string';
 
 import type {Settings} from 'types/settings';
 
@@ -17,11 +18,14 @@ export function generateTheme(settings: Settings) {
     const colors: ThemeColors = {};
     figma.getLocalPaintStyles().forEach(paint => {
       const [group, token] = paint.name.split('/');
-      // TODO: improve this, figure out how figma converts to var
+      // Reproduce Figma's var(...) sanitizer
       const name = token
-        .toLowerCase()
-        .replace(/\s/, '_')
-        .replace(/[^a-zA-Z0-9_]+/g, '');
+        // Lowercase string
+        ?.toLowerCase()
+        // Strip out all non-alphanumeric characters (excluding spaces)
+        ?.replace(/[^a-zA-Z0-9\s]+/g, '')
+        // Replace spaces with underscores
+        ?.replace(/\s/, '_')
 
       // Name is undefined, skip
       if (!name) return;
@@ -46,7 +50,7 @@ export function generateTheme(settings: Settings) {
     if (maxLineLength > 0) {
       writer.write('colors:').space().inlineBlock(() => {
         Object.keys(colors).forEach(group => {
-          writer.write(`${getSlug(group)}: `).inlineBlock(() => {
+          writer.write(`${createIdentifierCamel(group)}: `).inlineBlock(() => {
             Object.keys(colors[group]).forEach(name => {
               const color: ThemeColor = colors[group][name];
               writer.write(`$${name}: `);

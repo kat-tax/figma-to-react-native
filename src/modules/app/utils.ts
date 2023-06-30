@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getSelectedComponent, getComponents} from 'modules/fig/traverse';
-import {generateBundle, generateTheme} from 'modules/gen';
+import {generateBundle, generateIndex, generateTheme} from 'modules/gen';
 import defaultConfig from 'config';
 
 import type {ExportTarget, ExportMode} from 'types/export';
@@ -151,17 +151,25 @@ export function exportDocument(type: ExportTarget) {
 
   if (components.size > 0) {
     figma.notify(`Exporting ${components.size} component${components.size === 1 ? '' : 's'}…`, {timeout: 3500});
-    setTimeout(() => {
-      const files = JSON.stringify(Array.from(components).map(async component => {
+    setTimeout(async () => {
+      const output: string[][] = [];
+      const names = new Set<string>();
+      let assets: Array<[string, Uint8Array]> = [];
+      for await (const component of components) {
         try {
-          const bundle = await generateBundle(component, _config, true);
-          return [bundle.name, bundle.code, bundle.story];
+          const bundle = await generateBundle(component, _config);
+          if (bundle.code) {
+            output.push([bundle.name, bundle.index, bundle.code, bundle.story]);
+            assets = [...assets, ...bundle.assets];
+            names.add(bundle.name);
+          }
         } catch (e) {
           console.error('Failed to export', component, e);
-          return [];
         }
-      }).filter(Boolean));
-      emit<Events.CompileHandler>('COMPILE', exportName, files, theme);
+      }
+      const index = generateIndex(names, _config);
+      const files = JSON.stringify(output.filter(Boolean));
+      emit<Events.CompileHandler>('COMPILE', exportName, files, index, theme, assets);
     }, 500);
   } else {
     figma.notify('No components found to export', {error: true});
@@ -200,7 +208,7 @@ export function syncDocument(type: ExportTarget) {
             output.push([bundle.name, bundle.code, bundle.story]);
           }
         } catch (e) {
-          console.error('Failed to export', component, e);
+          console.error('Failed to sync', component, e);
         }
       }
       const files = JSON.stringify(output.filter(Boolean));

@@ -11,11 +11,11 @@ export async function generatePreview(data: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const primitives = new Set(['Text', 'Image']);
   data.meta.primitives = primitives;
-  writeImports(writer, data, settings);
+  writeImports(writer, data, settings, true);
   writer.blankLine();
   writer.write(generateTheme(settings));
   writer.blankLine();
-  writeFunction(writer, data, settings, 'styles');
+  writeFunction(writer, data, settings, 'styles', true);
   writer.blankLine();
   writeStyleSheet(writer, data, settings, 'styles');
   writer.blankLine();
@@ -36,7 +36,7 @@ async function writeComponents(
     const content = (node as ComponentSetNode).defaultVariant ?? node;
     if (index.has(content)) continue;
     index.add(content);
-    const data = await parseFigma(content as TargetNode, settings);
+    const data = await parseFigma(content as TargetNode, settings, true);
     writeFunction(writer, data, settings, stylesPrefix);
     writer.blankLine();
     writeStyleSheet(writer, data, settings, stylesPrefix);

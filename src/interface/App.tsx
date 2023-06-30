@@ -23,6 +23,7 @@ export function App() {
   const monaco = useEditor(settings.config, component?.links);
   const options = {
     ...settings.config.monaco.general,
+    tabSize: settings.config.writer.indentNumberOfSpaces,
     theme: isDarkMode ? 'vs-dark' : 'vs',
   };
 

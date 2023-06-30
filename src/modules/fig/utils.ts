@@ -1,38 +1,12 @@
 import {getPage} from 'modules/fig/traverse';
-import {pascalCase} from 'common/string';
 import {rgbToHex} from 'common/color';
 
-// Strip invalid characters for a JS identifier
-export function getName(value: string, skipPrefix?: boolean) {
-  // Remove all non-alphanumeric characters
-  let safe = value.replace(/[^a-zA-Z0-9$]+/g, '');
-  // Prefix with a $ if the first character is a number
-  if (!skipPrefix && !isNaN(parseInt(safe))) {
-    return '$' + safe;
-  } else {
-    return safe;
-  }
-}
+import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
 
-// Get JS indentifier (titlecased)
-export function getIdentifier(value: string) {
-  // TODO: sanitize identifiers better
-  return pascalCase(value).replace(/[^a-zA-Z0-9\,\_\=\s$]+/g, '');
-}
-
-// Create slug used for stylesheet properties
-export function getSlug(value: string, skipPrefix?: boolean) {
-  const sanitized = value ? value.split(' ').map((word, index) => {
-    const safe = getName(word, skipPrefix);
-    if (index == 0) return safe.toLowerCase();
-    const camelCase = safe.charAt(0).toUpperCase() + safe.slice(1).toLowerCase();
-    return camelCase;
-  }).join('') : '';
-  return sanitized ? sanitized : '$';
-}
+import type {ParseAssetData} from 'types/figma';
 
 export function getPropName(value: string) {
-  return getSlug(value.split('#').shift());
+  return createIdentifierCamel(value.split('#').shift());
 }
 
 // Map Figma color to RGB or HEX
@@ -101,41 +75,65 @@ export function propsToKeyValues([key, prop]) {
     return `${k}="${v}"`;
   // Variants are similar but keys are PascalCased
   } else if (type === 'VARIANT') {
-    return `${k}="${getIdentifier(v)}"`;
+    return `${k}="${createIdentifierPascal(v)}"`;
   // Instance swap
   } else if (type === 'INSTANCE_SWAP') {
     const node = figma.getNodeById(value || defaultValue);
-    const name = getName(node?.name);
+    const name = createIdentifierPascal(node?.name);
     const tag = name ? '<' + name + '/>' : '<View/>';
     return `${k}={${tag}}`;
   }
 }
 
 // Converts asset nodes
-export async function convertAssets(nodes: Set<string>) {
-  const assets: Record<string, {width: number, height: number, data: string, isVector: boolean}> = {};
+export async function convertAssets(nodes: Set<string>, isPreview: boolean): Promise<{data: ParseAssetData, hasImage: boolean}> {
+  const assets: ParseAssetData = {};
+  const vectorTypes: NodeType[] = ['VECTOR', 'LINE', 'ELLIPSE', 'POLYGON', 'STAR'];
+  const images: Record<string, number> = {};
+  const vectors: Record<string, number> = {};
+  let hasImage = false;
   try {
     const blankImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
     for await (const id of nodes) {
       let data: string;
+      let count: number;
+      let bytes: Uint8Array | null;
       const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin;
-      const vectorTypes: NodeType[] = ['VECTOR', 'RECTANGLE', 'LINE', 'ELLIPSE', 'POLYGON', 'STAR'];
-      const isVector = vectorTypes.includes(node.type)
-        || node.findAllWithCriteria({types: vectorTypes}).length > 0;
-      if (isVector) {
-        data = await node.exportAsync({format: 'SVG_STRING'});
-      } else {
-        let bytes: Uint8Array;
-        try {bytes = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});} catch (err) {}
-        data = bytes ? `data:image/png;base64,${figma.base64Encode(bytes)}` : blankImage;
-      }
       const {width, height} = node;
-      assets[id] = {width, height, data, isVector};
+      const isVector = vectorTypes.includes(node.type)
+        || (node.findAllWithCriteria && node.findAllWithCriteria({types: vectorTypes})?.length > 0);
+      if (isVector) {
+        if (isPreview) {
+          data = await node.exportAsync({format: 'SVG_STRING'});
+        } else {
+          bytes = await node.exportAsync({format: 'SVG'});
+          data = '';
+        }
+        vectors[node.name] = 1 + (vectors[node.name] || 0);
+        count = vectors[node.name];
+      } else {
+        let arr: Uint8Array;
+        try {arr = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});} catch (err) {}
+        if (isPreview) {
+          data = arr ? `data:image/png;base64,${figma.base64Encode(arr)}` : blankImage;
+        } else {
+          bytes = arr || null;
+          data = '';
+        }
+        images[node.name] = 1 + (images[node.name] || 0);
+        count = images[node.name];
+        hasImage = true;
+      }
+      const nameBase = isVector
+        ? createIdentifierPascal(node.name)
+        : createIdentifierCamel(node.name);
+      const name = count > 1 ? `${nameBase}${count}` : nameBase;
+      assets[id] = {width, height, name, data, bytes, isVector};
     }
   } catch (err) {
     console.error('Could not convert assets', err);
   }
-  return assets;
+  return {data: assets, hasImage};
 }
 
 // Go to the component's page and focus it

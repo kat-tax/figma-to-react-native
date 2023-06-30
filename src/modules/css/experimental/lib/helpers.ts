@@ -1,4 +1,4 @@
-import {getSlug} from 'modules/fig/utils';
+import {createIdentifierCamel} from 'common/string';
 import type {SizeResult} from 'types/styles';
 
 export function getSize(node: SceneNode & LayoutMixin): SizeResult {
@@ -123,7 +123,7 @@ export function getFillStyle(style: BaseStyle) {
   let fillKey: string;
   if (style?.name) {
     const [fillGroup, fillToken] = style.name.split('/');
-    fillKey = `theme.colors.${getSlug(fillGroup)}.$${getSlug(fillToken, true)}`;
+    fillKey = `theme.colors.${createIdentifierCamel(fillGroup)}.$${createIdentifierCamel(fillToken)}`;
   }
   return fillKey;
 }

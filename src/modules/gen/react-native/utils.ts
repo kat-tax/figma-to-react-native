@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getName, getSlug, getPropName, getIdentifier, propsToString, sortProps, getInstanceInfo} from 'modules/fig/utils';
+import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
+import {getPropName, propsToString, sortProps, getInstanceInfo} from 'modules/fig/utils';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/figma';
 import type {Settings} from 'types/settings';
@@ -10,6 +11,7 @@ export function writeImports(
   writer: CodeBlockWriter,
   data: ParseData,
   settings: Settings,
+  isPreview?: boolean,
 ) {
   // Import React explicitly if set 
   if (settings?.react?.addImport) {
@@ -36,23 +38,35 @@ export function writeImports(
   writer.write(';');
   writer.newLine();
 
-  // Import subcomponents
-  Object.entries(data.meta.components).forEach(([_id, node]) => {
-    const component = getName(node.name);
-    writer.write(`import {${component}} from`);
+  if (!isPreview) {
+    // Import subcomponents
+    Object.entries(data.meta.components).forEach(([_id, node]) => {
+      const component = createIdentifierPascal(node.name);
+      writer.write(`import {${component}} from`);
+      writer.space();
+      writer.quote(`../components/${component}`);
+      writer.write(';');
+      writer.newLine();
+    });
+
+    // Import assets
+    Object.entries(data.assets).forEach(([_id, asset]) => {
+      writer.write(`import ${asset.name} from`);
+      writer.space();
+      const base = `../../assets/${asset.isVector ? 'vectors' : 'images'}`;
+      const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
+      writer.quote(path);
+      writer.write(';');
+      writer.newLine();
+    });
+
+    // Import theme file (TODO: do not include if no theme properties are used)
+    writer.write(`import theme from`);
     writer.space();
-    writer.quote(`./${component}`);
+    writer.quote(`../../theme`);
     writer.write(';');
     writer.newLine();
-  });
-
-  // Import theme file
-  // TODO: do not include if no theme properties are used
-  writer.write(`import theme from`);
-  writer.space();
-  writer.quote(`./theme`);
-  writer.write(';');
-  writer.newLine();
+  }
 }
 
 export function writeFunction(
@@ -60,13 +74,14 @@ export function writeFunction(
   data: ParseData,
   settings: Settings,
   stylePrefix: string,
+  isPreview?: boolean,
 ) {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
   const masterNode = (isVariant ? data.root.node?.parent : data.root.node) as ComponentNode;
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
   const props = propDefs ? Object.entries(propDefs) : [];
-  const name = getName(masterNode.name);
+  const name = createIdentifierPascal(masterNode.name);
 
   // Component props
   if (props.length > 0) {
@@ -76,7 +91,8 @@ export function writeFunction(
         const propName = getPropName(key);
         const propCond = type === 'BOOLEAN' ? '?' : '';
         const propType = type === 'VARIANT'
-          ? variantOptions.map((v: any) => `'${getIdentifier(v)}'`).join(' | ')
+          ? variantOptions.map((v: any) =>
+            `'${createIdentifierPascal(v)}'`).join(' | ')
           : type === 'INSTANCE_SWAP'
             ? `JSX.Element`
             : type === 'TEXT'
@@ -112,7 +128,7 @@ export function writeFunction(
       writeClasses(writer, data, stylePrefix);
     writer.write(`return (`).indent(() => {
       writer.write(`<View style={${getStylePrefix('root')}.root}>`).indent(() => {
-        writeChildren(writer, data, settings, data.tree, getStylePrefix);
+        writeChildren(writer, data, settings, data.tree, getStylePrefix, isPreview);
       });
       writer.writeLine(`</View>`);
     });
@@ -126,6 +142,7 @@ export function writeChildren(
   settings: Settings,
   children: ParseNodeTree,
   getStylePrefix: StylePrefixMapper,
+  isPreview?: boolean,
 ) {
   children.forEach((child) => {
     // Derived data
@@ -136,11 +153,11 @@ export function writeChildren(
     if (propRefs?.visible) {
       const name = getPropName(propRefs?.visible);
       writer.write(`{props.${name} &&`).space().indent(() => {
-        writeChild(writer, data, settings, child, getStylePrefix, true);
+        writeChild(writer, data, settings, child, getStylePrefix, true, isPreview);
       }).write('}').newLine();
     // Default rendering
     } else {
-      writeChild(writer, data, settings, child, getStylePrefix);
+      writeChild(writer, data, settings, child, getStylePrefix, false, isPreview);
     }
   });
 }
@@ -152,6 +169,7 @@ export function writeChild(
   child: ParseNodeTreeItem,
   getStylePrefix: StylePrefixMapper,
   isConditional: boolean = false,
+  isPreview?: boolean,
 ) {
   // console.log('writeChild:', child.node.type, child.node.name, child.node.isAsset);
 
@@ -169,15 +187,25 @@ export function writeChild(
     return;
   }
 
-  // Direct asset nodes (svg or image)
+  // Asset node (svg or image)
   if (child.node.isAsset && child.node.type !== 'INSTANCE') {
     const asset = data.assets[child.node.id];
     if (asset) {
-      if (asset.isVector) {
-        writer.writeLine(asset.data);
+      const style = `{width: ${asset.width}, height: ${asset.height}}`;
+      // Embedded asset (preview mode only)
+      if (isPreview) {
+        if (asset.isVector) {
+          writer.writeLine(asset.data);
+        } else {
+          writer.writeLine(`<Image source={{uri: '${asset.data}'}} style={${style}}/>`);
+        }
+      // Imported asset (code view & export mode)
       } else {
-        const style = `{width: ${asset.width}, height: ${asset.height}}`;
-        writer.writeLine(`<Image style={${style}} source={{uri: '${asset.data}'}}/>`);
+        if (asset.isVector) {
+          writer.writeLine('<' + asset.name + '/>');
+        } else {
+          writer.writeLine(`<Image source={{uri: ${asset.name}}} style={${style}} contentFit="cover"/>`);
+        }
       }
     } else {
       writer.writeLine(`{/* Could not convert asset "${child.node.name}" */}`);
@@ -190,7 +218,7 @@ export function writeChild(
   const instance = getInstanceInfo(child.node as InstanceNode);
   const attrProps = propsToString((child.node as any)?.componentProperties);
   const attrStyle = node.slug ? ` style={${getStylePrefix(node.slug)}.${node.slug}}` : '';
-  const jsxTag = isInstance ? getName(instance.main.name) : getTag(child.node.type);
+  const jsxTag = isInstance ? createIdentifierPascal(instance.main.name) : getTag(child.node.type);
   const jsxTagWithProps = isInstance
     ? jsxTag + attrProps
     : jsxTag + attrStyle + attrProps;
@@ -219,7 +247,7 @@ export function writeChild(
       }
     // View children (recurse)
     } else if (jsxTag === 'View') {
-      writeChildren(writer, data, settings, child.children, getStylePrefix);
+      writeChildren(writer, data, settings, child.children, getStylePrefix, isPreview);
     }
   });
 
@@ -238,7 +266,7 @@ export function writeStyleSheet(
     writeStyle(writer, 'root', data.root.styles);
     if (data.variants.root) {
       Object.keys(data.variants.root).forEach(key => {
-        const className = ('root'+key).split(', ').join('').replace(/\=/g, '');
+        const className = createIdentifierCamel('root'+key.split(', ').join(''))
         writeStyle(writer, className, data.variants.root[key]);
       });
     }
@@ -249,7 +277,7 @@ export function writeStyleSheet(
         if (data.variants[child.slug]) {
           Object.keys(data.variants[child.slug]).forEach(key => {
             if (data.variants[child.slug][key]) {
-              const className = (child.slug+key).split(', ').join('').replace(/\=/g, '');
+              const className = createIdentifierCamel(child.slug+key.split(', ').join(''));
               writeStyle(writer, className, data.variants[child.slug][key]);
             }
           });
@@ -261,7 +289,7 @@ export function writeStyleSheet(
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
-  const props = Object.keys(styles)//.filter(c => styles[c] !== undefined);
+  const props = Object.keys(styles)
   if (props.length > 0) {
     writer.write(`${slug}: {`).indent(() => {
       props.forEach(prop => {
@@ -299,10 +327,10 @@ export function writeClasses(
             const parts = v.split(', ');
             const cond = parts.map(part => {
               const [state, value] = part.split('=');
-              return `props.${state.toLowerCase()} === '${value}'`
+              return `props.${getPropName(state)} === '${createIdentifierPascal(value)}'`
             }).join(' && ');
             const className = k+v.split(', ').join('').replace(/\=/g, '');
-            writer.writeLine(`${cond} && ${stylePrefix}.${className},`);
+            writer.writeLine(`${cond} && ${stylePrefix}.${createIdentifierCamel(className)},`);
           });
         });
         writer.writeLine('],');

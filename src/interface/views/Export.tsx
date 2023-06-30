@@ -54,8 +54,9 @@ export function Export() {
         onValueChange={form.setFormState}
         value={form.formState.type}
         options={[
-          {children: 'Download Zip', value: 'zip'},
-          {children: 'Sync to Storybook', value: 'storybook', disabled: true},
+          {children: 'Download', value: 'zip'},
+          {children: 'Preview', value: 'storybook', disabled: true},
+          {children: 'Publish', value: 'publish', disabled: true},
         ]}
       />
       <VerticalSpace space="extraLarge"/>

@@ -8,12 +8,12 @@ export type TargetNode =
   | SectionNode;
 
 export type NodeStyles = {
-  [key: string]: string | number
+  [key: string]: string | number,
 };
 
 export interface ParseData {
   root: {node: TargetNode, styles: NodeStyles, slug: string},
-  children: {node: SceneNode, styles: NodeStyles, slug: string}[],
+  children: Array<{node: SceneNode, styles: NodeStyles, slug: string}>,
   tree: ParseNodeTree,
   meta: ParseMetaData,
   assets: ParseAssetData,
@@ -23,7 +23,15 @@ export interface ParseData {
 export type ParseNodeTree = Array<ParseNodeTreeItem>;
 export type ParseNodeTreeItem = {node: SceneNode, children?: ParseNodeTree};
 export type ParseVariantData = Record<string, Record<string, unknown>>;
-export type ParseAssetData = Record<string, {width: number, height: number, data: string, isVector: boolean}>;
+export type ParseAssetData = Record<string, {
+  name: string,
+  data: string,
+  width: number,
+  height: number,
+  bytes: Uint8Array | null,
+  isVector?: boolean,
+}>;
+
 export type ParseMetaData = {
   primitives: Set<string>,
   assetNodes: Set<string>,

@@ -1,8 +1,8 @@
+import {createIdentifierCamel} from 'common/string';
 import devPropertiesWithoutUnitsRegExp from './lib/devPropertiesWithoutUnitsRegExp';
 import parse from './lib/parse';
 import TokenStream from './lib/TokenStream';
 import transforms from './transforms';
-import {camelCase} from 'common/string';
 
 // Note if this is wrong, you'll need to change tokenTypes.js too
 const regexNumberOrLength = /^([+-]?(?:\d*\.)?\d+(?:e[+-]?\d+)?)(?:px)?$/i;
@@ -69,5 +69,5 @@ export const getPropertyName = propName => {
   if (isCustomProp) {
     return propName
   }
-  return camelCase(propName)
+  return createIdentifierCamel(propName);
 }

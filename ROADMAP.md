@@ -1,14 +1,10 @@
 # ROADMAP
 
 ### Next
-- Improve assets (png + svg generation)
-- Improve perf (cache data, track revisions)
-- Improve sanitizing names
-- Improve styling differences
 - Add useMemo to classes
-- Add exporting assets
 - Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
-- Shorthand generated styles
+- Improve perf (cache data, track revisions)
+- Improve styling differences
 
 ### Interface
 - Diff text instead of fully replacing (highlight changes?)
@@ -16,15 +12,9 @@
   - sourcemap from node ids -> line + column numbers needed when parsing
 
 ### Generation
-- Images (including export & previewing)
-  - Expo Image support: https://docs.expo.dev/versions/unversioned/sdk/image/
-  - Generate placeholder: https://github.com/evanw/thumbhash
-  - Optimize: https://github.com/GoogleChromeLabs/squoosh
 - Theme values (fonts & effects left)
-- Shadows, rotations, etc.
-- Gradient backgrounds
-- Absolute positioning
 - Interactions (via Pressable & Link)
+- Gradient backgrounds
 - Screens (navigation based on prototype settings)
 - Use Pressable and TextInput using user mappings
 ```json
@@ -48,18 +38,18 @@
 </Pressable>
 ```
 
-### Exporting
-- Git repository (https://isomorphic-git.org)
-- Each document / page export is a branch
-- Display diff
-
-### Maintaining
-- Refactor types
-- Use `--jsx=automatic` option (https://github.com/evanw/esbuild/issues/334)
-
-### Servicing
-- Payment system
+### SaaS
+- Storybook preview
 - Storybook syncing
+- Export to GitHub PR
+- Auto translations
+- AI documentation
+- UI package generation
+- Thumbhash, RNSVG, Image & SVGO compression
+
+### Extensions
+- Port UI to VSCode
+- Same messaging to Figma & VSCode extension
 
 ### Testing
 - Ensure https://www.untitledui.com/ converts

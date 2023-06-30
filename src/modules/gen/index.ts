@@ -6,6 +6,8 @@ import {generateTheme as genTamaguiTheme} from './react-native/theme';
 import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
 
+export {generateIndex} from './common/index';
+
 export function generateBundle(node: TargetNode, settings: Settings, isPreviewMode?: boolean) {
   const instanceSettings = {...settings};
   if (isPreviewMode) {
@@ -31,3 +33,4 @@ export function generateTheme(settings: Settings) {
       return genReactNativeTheme(settings);
   }
 }
+
