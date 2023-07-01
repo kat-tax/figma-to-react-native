@@ -210,7 +210,10 @@ export function writeChild(
   }
 
   // Asset node (svg or image)
-  if (child.node.isAsset && child.node.type !== 'INSTANCE') {
+  const isAsset = child.node.isAsset && child.node.type !== 'INSTANCE'
+    || child.node.type === 'VECTOR';
+
+  if (isAsset) {
     const asset = data.assets[child.node.id];
     if (asset) {
       const style = `{width: ${asset.width}, height: ${asset.height}}`;

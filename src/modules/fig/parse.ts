@@ -59,7 +59,9 @@ function crawlNodes(
     if (!isNodeVisible(node)) continue;
 
     // Handle asset nodes differently
-    if (node.isAsset && node.type !== 'INSTANCE') {
+    const isAsset = node.isAsset && node.type !== 'INSTANCE'
+      || node.type === 'VECTOR';
+    if (isAsset) {
       meta.assetNodes.add(node.id);
       dict.add(node);
       tree.push({node});

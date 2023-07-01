@@ -37,7 +37,7 @@ async function writeComponents(
     if (index.has(content)) continue;
     index.add(content);
     const data = await parseFigma(content as TargetNode, settings, true);
-    writeFunction(writer, data, settings, stylesPrefix);
+    writeFunction(writer, data, settings, stylesPrefix, true);
     writer.blankLine();
     writeStyleSheet(writer, data, settings, stylesPrefix);
     writer.blankLine();
