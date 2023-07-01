@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "build-figma-plugin --typecheck --watch",
     "build": "build-figma-plugin --typecheck --minify",
-    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/templates/settings/schema.json"
+    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/_schema.json"
   },
   "figma-plugin": {
     "id": "821138713091291738",
@@ -27,27 +27,27 @@
   "dependencies": {
     "@create-figma-plugin/ui": "^2.5.0",
     "@create-figma-plugin/utilities": "^2.5.0",
+    "@hocuspocus/provider": "^2.1.0",
     "@monaco-editor/react": "^4.5.1",
     "@radix-ui/react-tabs": "^1.0.4",
-    "ajv": "^8.12.0",
+    "@types/lodash.camelcase": "^4.3.7",
     "client-zip": "^2.4.4",
     "code-block-writer": "^12.0.0",
     "deep-object-diff": "^1.1.9",
+    "diff": "^5.1.0",
     "esbuild-wasm": "^0.17.18",
-    "esm-seedrandom": "^3.0.5",
+    "lint": "link:@types/@codemirror/lint",
+    "lodash.camelcase": "^4.3.0",
     "monaco-editor": "^0.39.0",
     "preact": "^10.13.2",
-    "uniforms-bridge-json-schema": "4.0.0-alpha.4",
-    "uniforms-unstyled": "4.0.0-alpha.4",
-    "xkcd-936": "^1.0.4",
-    "y-webrtc": "^10.2.5",
-    "y-websocket": "^1.5.0",
+    "reserved": "^0.1.2",
     "yjs": "^13.6.2"
   },
   "devDependencies": {
     "@create-figma-plugin/build": "^2.5.0",
     "@create-figma-plugin/tsconfig": "^2.5.0",
     "@figma/plugin-typings": "1.68.0",
+    "@types/diff": "^5.0.3",
     "@types/react": "^18.2.13",
     "esbuild": "^0.16.10",
     "react-zoom-pan-pinch": "^3.0.8",

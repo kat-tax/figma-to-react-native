@@ -8,7 +8,7 @@ import '!./interface/styles/plugin.css';
 
 function Main() {
   useWindowResize(e => emit('RESIZE_WINDOW', e), {
-    minWidth: 300,
+    minWidth: 330,
     minHeight: 250,
   });
   return (

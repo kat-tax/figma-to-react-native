@@ -1,140 +1,46 @@
+import {getPage} from 'modules/fig/traverse';
 import {rgbToHex} from 'common/color';
 
-import type {TargetNode, SizeResult} from 'types/figma';
+import {createIdentifierCamel, createIdentifierPascal, createIdentifier, escapeBacktick} from 'common/string';
 
-// Go to the component's page and focus it
-export function focusComponent(id: string) {
-  try {
-    const node = figma.getNodeById(id);
-    if (node) {
-      const page = getPage(node);
-      if (page && figma.currentPage !== page) {
-        figma.currentPage = page;
-      }
-      figma.currentPage.selection = [node as any];
-      figma.viewport.scrollAndZoomIntoView([node]);
-    }
-  } catch (e) {}
+import type {ParseAssetData} from 'types/figma';
+
+export function getPropName(value: string) {
+  return createIdentifierCamel(value.split('#').shift());
 }
 
-// Get the page of a node
-export function getPage(node: BaseNode): PageNode {
-  while (node.type !== 'PAGE') {
-    node = node.parent;
-    if (!node) return null;
-  }
-  return node;
-}
-
-// Return the selected component
-export function getSelectedComponent(): ComponentNode | FrameNode {
-  const {selection} = figma.currentPage;
-  if (selection.length === 0) return null;
-  const components = Array.from(getComponents(selection));
-  return components.length > 0 ? components[0] : null;
-}
-
-// Find components in a list of nodes
-export function getComponents(nodes: readonly SceneNode[]): Set<ComponentNode | FrameNode> {
-  const components = new Set<ComponentNode | FrameNode>();
-  for (const node of nodes) {
-    const component = getComponent(node);
-    if (component) {
-      components.add(component);
-    }
-  }
-  return components;
-}
-
-// Find the component of a node (if exists)
-export function getComponent(node: SceneNode): ComponentNode | FrameNode {
-  // Find the component in the parent chain
-  let target: SceneNode = node;
-  while (target.type !== 'COMPONENT_SET'
-    && target.type !== 'COMPONENT'
-    && target.type !== 'INSTANCE'
-    && target.parent
-    && target.parent.type !== 'PAGE') {
-    target = target.parent as SceneNode;
-  }
-  // If the target is a component set, use the default variant
-  if (target.type === 'COMPONENT_SET')
-    return target.defaultVariant;
-  // If the target is an instance, use the main component
-  if (target.type === 'INSTANCE')
-    return target.mainComponent;
-  // If the target is a variant, use the default variant
-  if (target.type === 'COMPONENT')
-    return target?.parent.type === 'COMPONENT_SET'
-      ? target.parent.defaultVariant
-      : target;
-  // return null;
-  // TODO: Fallback to frame search
-  return getFrame(target);
-}
-
-// Find the frame of a node
-export function getFrame(node: SceneNode): FrameNode {
-  // Find the component in the parent chain
-  let target: SceneNode = node;
-  while (target.type !== 'FRAME'
-    && target.parent
-    && target.parent.type !== 'PAGE') {
-    target = target.parent as SceneNode;
-  }
-  // If the target is a component set, use the default variant
-  if (target.type === 'FRAME')
-    return target;
-  // Return null otherwise
-  return null;
-}
-
-
-// Strip invalid characters for a JS identifier
-export function getName(value: string, skipPrefix?: boolean) {
-  // Remove all non-alphanumeric characters
-  let safe = value.replace(/[^a-zA-Z0-9$]+/g, '');
-  // Prefix with a $ if the first character is a number
-  if (!skipPrefix && !isNaN(parseInt(safe))) {
-    return '$' + safe;
+// Map Figma color to RGB or HEX
+export function getColor(color: RGB, opacity?: number, skipHex?: boolean): string {
+  if (!color) return;
+  const r = Math.round(color.r * 255);
+  const g = Math.round(color.g * 255);
+  const b = Math.round(color.b * 255);
+  const a = opacity > 0 && opacity < 1 ? `, ${opacity}` : '';
+  if (skipHex) {
+    return `rgb${a?'a':''}(${r}, ${g}, ${b}${a})`;
   } else {
-    return safe;
+    return rgbToHex(r, g, b, opacity);
   }
 }
 
-// Create slug used for stylesheet properties
-export function getSlug(value: string, skipPrefix?: boolean) {
-  return value ? value.split(' ').map((word, index) => {
-    const safe = getName(word, skipPrefix);
-    if (index == 0) return safe.toLowerCase();
-    const camelCase = safe.charAt(0).toUpperCase() + safe.slice(1).toLowerCase();
-    return camelCase;
-  }).join('') : '';
+export function getInstanceInfo(node: InstanceNode) {
+  const isVariant = !!node.variantProperties;
+  const main = isVariant ? node.mainComponent.parent : node.mainComponent;
+  const props = node.componentProperties;
+  const propId = node.componentPropertyReferences?.mainComponent;
+  const propName = propId ? getPropName(propId) : null;
+  return {main, props, propName};
 }
 
-// Map Figma node types to React Native primitives
-export function getTag(type: string) {
-  switch (type) {
-    case 'COMPONENT':
-    case 'INSTANCE':
-    case 'RECTANGLE':
-    case 'ELLIPSE':
-    case 'FRAME':
-    case 'GROUP':
-      return 'View';
-    case 'TEXT':
-      return 'Text';
-    case 'IMAGE':
-      return 'Image';
-    case 'VECTOR':
-      return 'Svg';
-    default:
-      return 'View';
-  }
+export function isNodeVisible(node: SceneNode) {
+  const isVariant = !!(node as SceneNode & VariantMixin).variantProperties;
+  const masterNode = (isVariant ? node?.parent : node);
+  const propRefs = (masterNode as ComponentNode)?.componentPropertyReferences;
+  return node.visible || propRefs?.visible;
 }
 
 // Convert props map to a string
-export function propsToString(props: any) {
+export function propsToString(props: ComponentPropertyDefinitions) {
   if (!props) return '';
   const attrs = Object.entries(props);
   if (attrs.length === 0) return '';
@@ -159,167 +65,88 @@ export function sortProps(a: any, b: any) {
 // Map Figma component props to JSX key values
 export function propsToKeyValues([key, prop]) {
   const {type, value, defaultValue}: any = prop;
-  const k = getSlug(key.split('#').shift());
+  const k = getPropName(key);
   const v = value || defaultValue;
   // Boolean prop shorthand (omit if false)
   if (type === 'BOOLEAN') {
     return v ? k : false;
-  // Variant and text prop are simply k="v"
-  } else if (type === 'TEXT' || type === 'VARIANT') {
-    return `${k}="${v}"`;
+  // Text props k={v} and gets quotes escaped
+  } else if (type === 'TEXT') {
+    return `${k}={\`${escapeBacktick(v)}\`}`;
+  // Variants are sanitized for invalid identifier chars
+  } else if (type === 'VARIANT') {
+    return `${k}="${createIdentifier(v)}"`;
   // Instance swap
   } else if (type === 'INSTANCE_SWAP') {
     const node = figma.getNodeById(value || defaultValue);
-    const name = getName(node?.name);
+    const name = createIdentifierPascal(node?.name);
     const tag = name ? '<' + name + '/>' : '<View/>';
     return `${k}={${tag}}`;
   }
 }
 
-// Map Figma color to RGB or HEX
-export function getColor(color: RGB, opacity?: number, skipHex?: boolean): string {
-  if (!color) return;
-  const r = Math.round(color.r * 255);
-  const g = Math.round(color.g * 255);
-  const b = Math.round(color.b * 255);
-  const a = opacity > 0 && opacity < 1 ? `, ${opacity}` : '';
-  if (skipHex) {
-    return `rgb${a?'a':''}(${r}, ${g}, ${b}${a})`;
-  } else {
-    return rgbToHex(r, g, b, opacity);
-  }
-}
-
-export function getFillStyle(style: BaseStyle) {
-  let fillKey: string;
-  if (style?.name) {
-    const [fillGroup, fillToken] = style.name.split('/');
-    fillKey = `theme.colors.${getSlug(fillGroup)}.$${getSlug(fillToken, true)}`;
-  }
-  return fillKey;
-}
-
-export function getTopFill(fills: ReadonlyArray<Paint> | PluginAPI['mixed']): SolidPaint | undefined {
-  if (fills && fills !== figma.mixed && fills.length > 0) {
-    return [...fills].reverse().find((fill) =>
-      fill.type === 'SOLID' && fill.visible !== false) as SolidPaint;
-  }
-}
-
-export function getSize(node: TargetNode, isRoot: boolean): SizeResult {
-  if (node.layoutAlign === 'STRETCH' && node.layoutGrow === 1) {
-    return {width: 'full', height: 'full'};
-  }
-
-  let propWidth: SizeResult['width'] = node.width;
-  let propHeight: SizeResult['height'] = node.height;
-
-  if (!isRoot && node.parent && 'layoutMode' in node.parent) {
-    // Stretch means the opposite direction
-    if (node.layoutAlign === 'STRETCH') {
-      switch (node.parent.layoutMode) {
-        case 'HORIZONTAL':
-          propHeight = 'full';
-          break;
-        case 'VERTICAL':
-          propWidth = 'full';
-          break;
-      }
-    }
-
-    // Grow means the same direction
-    if (node.layoutGrow === 1) {
-      if (node.parent.layoutMode === 'HORIZONTAL') {
-        propWidth = 'full';
+// Converts asset nodes
+export async function convertAssets(nodes: Set<string>, isPreview: boolean): Promise<{data: ParseAssetData, hasImage: boolean}> {
+  const assets: ParseAssetData = {};
+  const vectorTypes: NodeType[] = ['VECTOR', 'LINE', 'ELLIPSE', 'POLYGON', 'STAR'];
+  const images: Record<string, number> = {};
+  const vectors: Record<string, number> = {};
+  let hasImage = false;
+  try {
+    const blankImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+    for await (const id of nodes) {
+      let data: string;
+      let count: number;
+      let bytes: Uint8Array | null;
+      const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin;
+      const {width, height} = node;
+      const isVector = vectorTypes.includes(node.type)
+        || (node.findAllWithCriteria && node.findAllWithCriteria({types: vectorTypes})?.length > 0);
+      if (isVector) {
+        if (isPreview) {
+          data = await node.exportAsync({format: 'SVG_STRING'});
+        } else {
+          bytes = await node.exportAsync({format: 'SVG'});
+          data = '';
+        }
+        vectors[node.name] = 1 + (vectors[node.name] || 0);
+        count = vectors[node.name];
       } else {
-        propHeight = 'full';
+        let arr: Uint8Array;
+        try {arr = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});} catch (err) {}
+        if (isPreview) {
+          data = arr ? `data:image/png;base64,${figma.base64Encode(arr)}` : blankImage;
+        } else {
+          bytes = arr || null;
+          data = '';
+        }
+        images[node.name] = 1 + (images[node.name] || 0);
+        count = images[node.name];
+        hasImage = true;
       }
+      const nameBase = isVector
+        ? createIdentifierPascal(node.name)
+        : createIdentifierCamel(node.name);
+      const name = count > 1 ? `${nameBase}${count}` : nameBase;
+      assets[id] = {width, height, name, data, bytes, isVector};
     }
+  } catch (err) {
+    console.error('Could not convert assets', err);
   }
-
-  if ('layoutMode' in node) {
-    if ((node.layoutMode === 'HORIZONTAL' && node.counterAxisSizingMode === 'AUTO')
-      || (node.layoutMode === 'VERTICAL' && node.primaryAxisSizingMode === 'AUTO')) {
-      propHeight = null;
-    }
-
-    if ((node.layoutMode === 'VERTICAL' && node.counterAxisSizingMode === 'AUTO')
-      || (node.layoutMode === 'HORIZONTAL' && node.primaryAxisSizingMode === 'AUTO')) {
-      propWidth = null;
-    }
-  }
-
-  if ('layoutMode' in node && node.layoutMode !== 'NONE') {
-    switch (node.layoutMode) {
-      case 'HORIZONTAL':
-        return {
-          width: node.primaryAxisSizingMode === 'FIXED' ? propWidth : null,
-          height: node.counterAxisSizingMode === 'FIXED' ? propHeight : null,
-        };
-      case 'VERTICAL':
-        return {
-          width: node.counterAxisSizingMode === 'FIXED' ? propWidth : null,
-          height: node.primaryAxisSizingMode === 'FIXED' ? propHeight : null,
-        };
-    }
-  } else {
-    return {
-      width: propWidth,
-      height: propHeight,
-    };
-  }
+  return {data: assets, hasImage};
 }
 
-export function getLineHeight(node: TargetNode): number | undefined {
-  if (node.lineHeight !== figma.mixed && Math.round(node.lineHeight.value) !== 0 && node.lineHeight.unit !== 'AUTO') {
-    if (node.lineHeight.unit === 'PIXELS') {
-      return node.lineHeight.value;
-    } else {
-      if (node.fontSize !== figma.mixed) {
-        return (node.fontSize * node.lineHeight.value) / 100;
+// Go to the component's page and focus it
+export function focusComponent(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page) {
+        figma.currentPage = page;
       }
+      figma.currentPage.selection = [node as any];
+      figma.viewport.scrollAndZoomIntoView([node]);
     }
-  }
-  return undefined;
-}
-
-export function getLetterSpacing(node: TargetNode): number | undefined {
-  if (node.letterSpacing !== figma.mixed && Math.round(node.letterSpacing.value) !== 0) {
-    if (node.letterSpacing.unit === 'PIXELS') {
-      return node.letterSpacing.value;
-    } else {
-      if (node.fontSize !== figma.mixed) {
-        return (node.fontSize * node.letterSpacing.value) / 100;
-      }
-    }
-  }
-  return undefined;
-}
-
-export function getFontWeight(style: string) {
-  if (!style) return '400';
-  switch (style.replace(/\s*italic\s*/i, '')) {
-    case 'Thin':
-      return '100';
-    case 'Extra Light':
-    case 'Extra-light':
-      return '200';
-    case 'Light':
-      return '300';
-    case 'Regular':
-      return '400';
-    case 'Medium':
-      return '500';
-    case 'Semi Bold':
-    case 'Semi-bold':
-      return '600';
-    case 'Bold':
-      return '700';
-    case 'Extra Bold':
-    case 'Extra-bold':
-      return '800';
-    case 'Black':
-      return '900';
-  }
-  return '400';
+  } catch (e) {}
 }

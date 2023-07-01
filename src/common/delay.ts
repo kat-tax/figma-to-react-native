@@ -1,3 +1,24 @@
+export function wait(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
+export function throttle(func: Function, delay: number) {
+  let timeout: number | null = null;
+  let lastArgs: any[] = [];
+
+  const execute = () => {
+    func.apply(null, lastArgs);
+    timeout = null;
+  };
+
+  return function (...args: any[]) {
+    lastArgs = args;
+    if (!timeout) {
+      timeout = setTimeout(execute, delay);
+    }
+  };
+}
+
 type Func = (...args: any[]) => void;
 
 export function debounce<F extends Func>(func: F, delay: number): (...args: Parameters<F>) => void {

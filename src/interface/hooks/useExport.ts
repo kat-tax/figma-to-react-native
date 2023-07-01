@@ -6,19 +6,30 @@ import type {StateUpdater} from 'preact/hooks';
 import type {CompileHandler} from 'types/events';
 
 export function useExport(setExporting: StateUpdater<boolean>): void {
-  useEffect(() => on<CompileHandler>('COMPILE', (project, files, theme) => {
-    saveFiles(project, JSON.parse(files), theme);
+  useEffect(() => on<CompileHandler>('COMPILE', (project, files, mainIndex, theme, assets) => {
+    saveFiles(project, JSON.parse(files), mainIndex, theme, assets);
     setExporting(false);
   }), []);
 }
 
-async function saveFiles(project: string, files: string[][], theme: string): Promise<void> {
+async function saveFiles(
+  project: string,
+  files: string[][],
+  mainIndex: string,
+  theme: string,
+  assets: Array<[string, Uint8Array]>,
+): Promise<void> {
   const lastModified = new Date();
-  const payload: {name: string, lastModified: Date, input: string}[] = [];
+  const payload: {name: string, lastModified: Date, input: string | Uint8Array}[] = [];
+  payload.push({name: 'index.ts', lastModified, input: mainIndex});
   payload.push({name: 'theme.ts', lastModified, input: theme});
-  files.forEach(([name, code, story]) => {
-    payload.push({name: `${name}.tsx`, lastModified, input: code});
-    payload.push({name: `${name}.stories.tsx`, lastModified, input: story});
+  files.forEach(([name, index, code, story]) => {
+    payload.push({name: `components/${name}/index.ts`, lastModified, input: index});
+    payload.push({name: `components/${name}/${name}.tsx`, lastModified, input: code});
+    payload.push({name: `components/${name}/${name}.stories.tsx`, lastModified, input: story});
+  });
+  assets.forEach(([name, bytes]) => {
+    payload.push({name: `assets/${name}`, lastModified, input: bytes});
   });
   const blob = await downloadZip(payload).blob();
   const link = document.createElement('a');

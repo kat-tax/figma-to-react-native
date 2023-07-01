@@ -22,7 +22,7 @@ export interface UpdateThemeHandler extends EventHandler {
 
 export interface CompileHandler extends EventHandler {
   name: 'COMPILE';
-  handler: (project: string, files: string, theme: string) => void;
+  handler: (project: string, files: string, index: string, theme: string, assets: Array<[string, Uint8Array]>) => void;
 }
 
 export interface SyncHandler extends EventHandler {

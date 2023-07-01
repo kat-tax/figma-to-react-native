@@ -3,7 +3,8 @@ import type {Settings} from 'types/settings';
 const config: Settings = {
   react: {
     flavor: 'react-native',
-    addImport: true,
+    styleGen: 'figma',
+    addImport: false,
     addTranslate: false,
   },
   writer: {

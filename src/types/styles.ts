@@ -66,3 +66,8 @@ export interface StylesTypography {
   textDecorationLine?: string,
   textTransform?: string,
 }
+
+export type SizeResult = {
+  readonly width: 'full' | number | null;
+  readonly height: 'full' | number | null;
+}

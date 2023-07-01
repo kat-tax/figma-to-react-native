@@ -17,26 +17,26 @@
 
 ### Getting started
 
-1. [Add the plugin](https://www.figma.com/community/plugin/821138713091291738) to Figma and run it.
+1. [Install the plugin](https://www.figma.com/community/plugin/821138713091291738) in Figma and run it.
 2. Select any [Figma component](https://help.figma.com/hc/en-us/articles/360038662654-Guide-to-Components-in-Figma) on the screen.
-3. In the plugin you can view the React Native code, a preview, a storybook file, and a theme file in each respective tab.
-4. Go to the "Export" tab and choose which components to export.
-4. To change the settings, click the cog icon and edit the JSON. Settings will save and update in real time. You can change the configuration of the editor, plugin, compiler, code output, and more.
-
+3. View the component code, render, storybook file, or theme file in real time.
+4. Go to the "Export" tab and choose which components to bulk export.
+5. To change the settings, click the cog icon and edit the JSON. Settings will save and update in real time.
 
 ### Plugin Features
 
 |   | Feature |   | 
-| - | --------------- | - | 
+| - | ------- | - | 
 | ✨ | Realtime code and preview rendering | ✅ |
 | 🔧 | Flexible and realtime config | ✅ |
 | 🎨 | Theme generation from styles | ✅ |
+| 🎮 | Prototype interactions to components | ⏱ |
 | 📦 | Batch exporting of components and assets | ✅ |
 | 🏞 | Asset exporting of rasters and vectors | ✅ |
 | ⭐️ | AutoLayout to Flexbox translation | ✅ |
 | 🎲 | Variants and properties support | ✅ |
-| 🧩 | Figma variables support | ⏱ |
 | 🧱 | Nested components support | ✅ |
+| 🧩 | Figma variables support | ⏱ |
 | 🎭 | Conditional rendering | ✅ |
 | 🪟 | Borders and rounding | ✅ |
 | 🔄 | Rotations and effects | ⏱ |
@@ -54,4 +54,4 @@
 - [Discussions](https://github.com/kat-tax/figma/discussions)
 - [Issues](https://github.com/kat-tax/figma/issues)
 
-> _Disclaimer: This plugin __does not require__ an account, remote service, or any other bullsh*t. There will be an optional paid service planned for syncing and collaboration features to support development. Donations are also welcome._
+> _Disclaimer: This plugin __does not require__ an account, remote service, or any other bullsh*t. There will be an optional paid service for syncing and collaboration features to support development. Donations are also welcome._

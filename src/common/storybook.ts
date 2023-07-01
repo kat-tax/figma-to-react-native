@@ -1,9 +1,9 @@
-import {WebsocketProvider} from 'y-websocket';
+import {TiptapCollabProvider} from '@hocuspocus/provider';
 import * as Y from 'yjs';
 
 export type Session = {
   document: Y.Doc,
-  provider: WebsocketProvider,
+  provider: TiptapCollabProvider,
 };
 
 export function open(key: string) {
@@ -13,6 +13,11 @@ export function open(key: string) {
 
 export function sync(key: string): Session {
   const document = new Y.Doc();
-  const provider = new WebsocketProvider('ws://localhost:1234', key, document);
+  const provider = new TiptapCollabProvider({
+    appId: '',
+    token: '',
+    name: key,
+    document,
+  });
   return {document, provider};
 }

@@ -1,13 +1,13 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getSelectedComponent, getComponents} from 'modules/fig/utils';
-import {generateBundle, generateTheme} from 'modules/gen';
+import {getSelectedComponent, getComponents} from 'modules/fig/traverse';
+import {generateBundle, generateIndex, generateTheme} from 'modules/gen';
 import defaultConfig from 'config';
 
 import type {ExportTarget, ExportMode} from 'types/export';
 import type {Settings} from 'types/settings';
 import type * as Events from 'types/events';
 
-const settingsKey = `settings::v2`;
+const settingsKey = `settings::v3`;
 let _config = defaultConfig;
 let _mode: ExportMode = 'code';
 let _props = '';
@@ -38,22 +38,15 @@ export function updateMode(value: ExportMode) {
 }
 
 export function updateCode() {
-  //const start = Date.now();
   const selected = getSelectedComponent();
-
-  // Revision check (TODO: fix lag for large components)
-  // selected.setPluginData('lastUpdated', Date.now().toString());
-
-  const bundle = generateBundle(selected, _config, _mode === 'preview');
-  if (bundle.code !== _code || bundle.preview !== _preview || bundle.props !== _props) {
-    _code = bundle.code;
-    _props = bundle.props;
-    _preview = bundle.preview;
-    emit<Events.UpdateCodeHandler>('UPDATE_CODE', JSON.stringify(bundle));
-  }
-  
-  //const end = Date.now();
-  //console.log(`updateCode took ${end - start}ms`);
+  generateBundle(selected, _config, _mode === 'preview').then((bundle) => {
+    if (bundle.code !== _code || bundle.preview !== _preview || bundle.props !== _props) {
+      _code = bundle.code;
+      _props = bundle.props;
+      _preview = bundle.preview;
+      emit<Events.UpdateCodeHandler>('UPDATE_CODE', JSON.stringify(bundle));
+    }
+  });
 }
 
 export function updateTheme() {
@@ -61,8 +54,9 @@ export function updateTheme() {
   emit<Events.UpdateThemeHandler>('UPDATE_THEME', theme);
 }
 
-export function renderCodeGen(node: SceneNode): CodegenResult[] {
-  const bundle = generateBundle(node, _config);
+export async function renderCodeGen(node: SceneNode): Promise<CodegenResult[]> {
+  if (!node || (node.type !== 'COMPONENT' && node.type !== 'COMPONENT_SET')) return [];
+  const bundle = await generateBundle(node, _config);
   const theme = generateTheme(_config);
   return bundle.code ? [
     {
@@ -157,17 +151,25 @@ export function exportDocument(type: ExportTarget) {
 
   if (components.size > 0) {
     figma.notify(`Exporting ${components.size} component${components.size === 1 ? '' : 's'}…`, {timeout: 3500});
-    setTimeout(() => {
-      const files = JSON.stringify(Array.from(components).map(component => {
+    setTimeout(async () => {
+      const output: string[][] = [];
+      const names = new Set<string>();
+      let assets: Array<[string, Uint8Array]> = [];
+      for await (const component of components) {
         try {
-          const bundle = generateBundle(component, _config, true);
-          return [bundle.name, bundle.code, bundle.story];
+          const bundle = await generateBundle(component, _config);
+          if (bundle.code) {
+            output.push([bundle.name, bundle.index, bundle.code, bundle.story]);
+            assets = [...assets, ...bundle.assets];
+            names.add(bundle.name);
+          }
         } catch (e) {
           console.error('Failed to export', component, e);
-          return [];
         }
-      }).filter(Boolean));
-      emit<Events.CompileHandler>('COMPILE', exportName, files, theme);
+      }
+      const index = generateIndex(names, _config);
+      const files = JSON.stringify(output.filter(Boolean));
+      emit<Events.CompileHandler>('COMPILE', exportName, files, index, theme, assets);
     }, 500);
   } else {
     figma.notify('No components found to export', {error: true});
@@ -197,16 +199,19 @@ export function syncDocument(type: ExportTarget) {
 
   if (components.size > 0) {
     figma.notify(`Syncing ${components.size} component${components.size === 1 ? '' : 's'} to Storybook…`, {timeout: 3500});
-    setTimeout(() => {
-      const files = JSON.stringify(Array.from(components).map(component => {
+    setTimeout(async () => {
+      const output: string[][] = [];
+      for await (const component of components) {
         try {
-          const bundle = generateBundle(component, _config);
-          return [bundle.name, bundle.code, bundle.story];
+          const bundle = await generateBundle(component, _config);
+          if (bundle.code) {
+            output.push([bundle.name, bundle.code, bundle.story]);
+          }
         } catch (e) {
-          console.error('Failed to export', component, e);
-          return [];
+          console.error('Failed to sync', component, e);
         }
-      }).filter(Boolean));
+      }
+      const files = JSON.stringify(output.filter(Boolean));
       emit<Events.SyncHandler>('SYNC', exportName, files, theme, user);
     }, 500);
   } else {

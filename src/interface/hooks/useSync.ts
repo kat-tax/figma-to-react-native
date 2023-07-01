@@ -1,7 +1,7 @@
 import {on} from '@create-figma-plugin/utilities';
 import {useRef, useEffect, useCallback} from 'preact/hooks';
 import {open, sync} from 'common/storybook';
-import {hashString} from 'common/hash';
+import {hashString} from 'vendor/asm-crypto';
 
 import type {Session} from 'common/storybook';
 import type {StateUpdater} from 'preact/hooks';
@@ -11,9 +11,9 @@ export function useSync(setExporting: StateUpdater<boolean>): void {
   const session = useRef<Session>(null);
 
   const start = useCallback((user: any, project: string) => {
-    const str = `${user.id}::${user.sessionId}::${project}::${Date.now()}}`;
+    const str = `${user.id}::${user.sessionId}::${project}`;
     const pwd = hashString(str);
-    const key = `figma/${user.name.toLowerCase()}/${pwd}`;
+    const key = `figma/${user.name.toLowerCase().replace(/\s/g, '+')}/${pwd}`;
     console.log('Starting sync session: ', pwd);
     session.current = sync(key);
     open(key);
@@ -25,7 +25,6 @@ export function useSync(setExporting: StateUpdater<boolean>): void {
     session.current.document.transact(() => {
       // Sync theme
       $files.set('theme.ts', theme);
-
       // Loop through local files, add to synced $files if not exists and changed
       files?.forEach(([name, code, story]) => {
         console.debug('Syncing', name);
@@ -33,7 +32,7 @@ export function useSync(setExporting: StateUpdater<boolean>): void {
           $files.set(`${name}.tsx`, code);
         }
         $files.set(`${name}.tsx`, code);
-        $files.set(`${name}.stories.ts`, story);
+        $files.set(`${name}.stories.tsx`, story);
       });
 
       // Loop through synced $files, delete if not in local files
@@ -44,7 +43,7 @@ export function useSync(setExporting: StateUpdater<boolean>): void {
         if (!files?.find(([n]) => name.startsWith(`${n}.`))) {
           console.debug('Deleting', name);
           $files.delete(`${name}.tsx`);
-          $files.delete(`${name}.stories.ts`);
+          $files.delete(`${name}.stories.tsx`);
         }
       }
     });
