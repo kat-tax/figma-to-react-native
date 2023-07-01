@@ -40,8 +40,11 @@ export function App() {
           Code
         </Link>
         <Link value="preview" title="Preview component" className="tab">
-          Preview
+          Design
         </Link>
+        {/*<Link value="prototype" title="View protoype code" className="tab">
+          Prototype
+        </Link>*/}
         <Link value="story" title="View story" className="tab">
           Story
         </Link>

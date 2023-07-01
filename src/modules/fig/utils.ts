@@ -1,7 +1,7 @@
 import {getPage} from 'modules/fig/traverse';
 import {rgbToHex} from 'common/color';
 
-import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
+import {createIdentifierCamel, createIdentifierPascal, createIdentifier, escapeBacktick} from 'common/string';
 
 import type {ParseAssetData} from 'types/figma';
 
@@ -70,12 +70,12 @@ export function propsToKeyValues([key, prop]) {
   // Boolean prop shorthand (omit if false)
   if (type === 'BOOLEAN') {
     return v ? k : false;
-  // Text props are simply k="v"
+  // Text props k={v} and gets quotes escaped
   } else if (type === 'TEXT') {
-    return `${k}="${v}"`;
-  // Variants are similar but keys are PascalCased
+    return `${k}={\`${escapeBacktick(v)}\`}`;
+  // Variants are sanitized for invalid identifier chars
   } else if (type === 'VARIANT') {
-    return `${k}="${createIdentifierPascal(v)}"`;
+    return `${k}="${createIdentifier(v)}"`;
   // Instance swap
   } else if (type === 'INSTANCE_SWAP') {
     const node = figma.getNodeById(value || defaultValue);

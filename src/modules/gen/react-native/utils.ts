@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
+import {createIdentifierPascal, createIdentifierCamel, createIdentifier} from 'common/string';
 import {getPropName, propsToString, sortProps, getInstanceInfo} from 'modules/fig/utils';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/figma';
@@ -83,6 +83,9 @@ export function writeFunction(
   const props = propDefs ? Object.entries(propDefs) : [];
   const name = createIdentifierPascal(masterNode.name);
 
+  // Store variants
+  const variants: Record<string, Set<string>> = {};
+
   // Component props
   if (props.length > 0) {
     writer.write(`export interface ${name}Props`).block(() => {
@@ -90,19 +93,38 @@ export function writeFunction(
         const {type, variantOptions}: any = prop;
         const propName = getPropName(key);
         const propCond = type === 'BOOLEAN' ? '?' : '';
-        const propType = type === 'VARIANT'
-          ? variantOptions.map((v: any) =>
-            `'${createIdentifierPascal(v)}'`).join(' | ')
+        const propType: string = type === 'VARIANT'
+          ? name+createIdentifierPascal(propName)
           : type === 'INSTANCE_SWAP'
             ? `JSX.Element`
             : type === 'TEXT'
               ? 'string'
               : type.toLowerCase();
+        if (type === 'VARIANT') {
+          if (!variants[propName]) variants[propName] = new Set();
+          variantOptions?.forEach((v: any) =>
+            variants[propName].add(createIdentifier(v)));
+        }
         writer.writeLine(`${propName}${propCond}: ${propType};`);
       });
     });
     writer.blankLine();
   }
+
+  // Component state enums
+  Object.entries(variants).forEach(([key, value]) => {
+    const enumId = name+createIdentifierPascal(key);
+    writer.write(`export enum ${enumId}`).block(() => {
+      value.forEach((value: string, i) => {
+        const enumEntry = createIdentifierPascal(value);
+        writer.write(`${enumEntry} = `)
+        writer.quote(value);
+        writer.write(',');
+        writer.newLine();
+      });
+    });
+    writer.blankLine();
+  });
 
   // Component documentation
   if (masterNode.description) {
@@ -125,7 +147,7 @@ export function writeFunction(
   const attrProps = `${props.length > 0 ? `props: ${name}Props` : ''}`;
   writer.write(`export function ${name}(${attrProps})`).block(() => {
     if (isVariant && Object.keys(data.variants).length > 0)
-      writeClasses(writer, data, stylePrefix);
+      writeClasses(writer, data, name, stylePrefix);
     writer.write(`return (`).indent(() => {
       writer.write(`<View style={${getStylePrefix('root')}.root}>`).indent(() => {
         writeChildren(writer, data, settings, data.tree, getStylePrefix, isPreview);
@@ -266,7 +288,7 @@ export function writeStyleSheet(
     writeStyle(writer, 'root', data.root.styles);
     if (data.variants.root) {
       Object.keys(data.variants.root).forEach(key => {
-        const className = createIdentifierCamel('root'+key.split(', ').join(''))
+        const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'))
         writeStyle(writer, className, data.variants.root[key]);
       });
     }
@@ -277,7 +299,7 @@ export function writeStyleSheet(
         if (data.variants[child.slug]) {
           Object.keys(data.variants[child.slug]).forEach(key => {
             if (data.variants[child.slug][key]) {
-              const className = createIdentifierCamel(child.slug+key.split(', ').join(''));
+              const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
               writeStyle(writer, className, data.variants[child.slug][key]);
             }
           });
@@ -315,6 +337,7 @@ export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
 export function writeClasses(
   writer: CodeBlockWriter,
   data: ParseData,
+  componentName: string,
   stylePrefix: string,
 ) {
   writer.write(`const classes = `).inlineBlock(() => {
@@ -327,9 +350,10 @@ export function writeClasses(
             const parts = v.split(', ');
             const cond = parts.map(part => {
               const [state, value] = part.split('=');
-              return `props.${getPropName(state)} === '${createIdentifierPascal(value)}'`
+              const enumId = `${componentName}${createIdentifierPascal(state)}`;
+              return `props.${getPropName(state)} === ${enumId}.${createIdentifierPascal(value)}`
             }).join(' && ');
-            const className = k+v.split(', ').join('').replace(/\=/g, '');
+            const className = `${k}_${v}`.split(', ').join('_').replace(/\=/g, '_');
             writer.writeLine(`${cond} && ${stylePrefix}.${createIdentifierCamel(className)},`);
           });
         });

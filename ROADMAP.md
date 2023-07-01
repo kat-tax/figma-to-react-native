@@ -5,6 +5,7 @@
 - Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
 - Improve perf (cache data, track revisions)
 - Improve styling differences
+- Sort props
 
 ### Interface
 - Diff text instead of fully replacing (highlight changes?)
@@ -45,6 +46,7 @@
 - Auto translations
 - AI documentation
 - UI package generation
+- Sync Redux store to Figma variable collection
 - Thumbhash, RNSVG, Image & SVGO compression
 
 ### Extensions

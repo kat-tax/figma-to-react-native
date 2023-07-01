@@ -28,10 +28,10 @@ export function Export() {
   useSync(setExporting);
   
   return (
-    <Container space="medium" style={{maxWidth: 300}}>
+    <Container space="medium" style={{maxWidth: 330}}>
       <VerticalSpace space="large"/>
       <Text>
-        <Bold>Target Components</Bold>
+        <Bold>Scope</Bold>
       </Text>
       <VerticalSpace space="medium"/>
       <SegmentedControl
@@ -39,14 +39,14 @@ export function Export() {
         onValueChange={form.setFormState}
         value={form.formState.target}
         options={[
-          {children: 'All', value: 'all'},
-          {children: 'Page', value: 'page'},
+          {children: 'Entire Project', value: 'all'},
+          {children: 'Current Page', value: 'page'},
           {children: 'Selection', value: 'selected'},
         ]}
       />
       <VerticalSpace space="extraLarge"/>
       <Text>
-        <Bold>Export Method</Bold>
+        <Bold>Method</Bold>
       </Text>
       <VerticalSpace space="medium"/>
       <SegmentedControl
@@ -54,9 +54,9 @@ export function Export() {
         onValueChange={form.setFormState}
         value={form.formState.type}
         options={[
-          {children: 'Download', value: 'zip'},
-          {children: 'Preview', value: 'storybook', disabled: true},
-          {children: 'Publish', value: 'publish', disabled: true},
+          {children: 'Download Zip', value: 'zip'},
+          {children: 'Open Storybook', value: 'storybook', disabled: true},
+          {children: 'Create Release', value: 'publish', disabled: true},
         ]}
       />
       <VerticalSpace space="extraLarge"/>

@@ -4,7 +4,7 @@ const config: Settings = {
   react: {
     flavor: 'react-native',
     styleGen: 'figma',
-    addImport: true,
+    addImport: false,
     addTranslate: false,
   },
   writer: {
