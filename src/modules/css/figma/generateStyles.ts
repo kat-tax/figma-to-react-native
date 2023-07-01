@@ -43,11 +43,13 @@ function getTokenFromVar(str: string): string | null {
   const match = str.match(regex);
   if (match) {
     const [, name] = match;
-    const full = name.replace('-', '.');
-    const parts = full.split('.');
-    const prefix = parts.shift();
-    const suffix = parts.pop().replace(/-/g, '_');
-    return `${prefix}.$${suffix}`;
+    if (name) {
+      const full = name.replace('-', '.');
+      const parts = full.split('.');
+      const prefix = parts.shift();
+      const suffix = parts.pop()?.replace(/-/g, '_');
+      return suffix ? `${prefix}.$${suffix}` : prefix;
+    }
   }
   return null;
 }
