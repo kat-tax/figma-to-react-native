@@ -222,7 +222,7 @@ export function writeChild(
         if (asset.isVector) {
           writer.writeLine(asset.data);
         } else {
-          writer.writeLine(`<Image source={{uri: '${asset.data}'}} style={${style}}/>`);
+          writer.writeLine(`<Image source={{uri: '${asset.data}'}} style={${style}} contentFit="cover"/>`);
         }
       // Imported asset (code view & export mode)
       } else {
@@ -291,7 +291,8 @@ export function writeStyleSheet(
     writeStyle(writer, 'root', data.root.styles);
     if (data.variants.root) {
       Object.keys(data.variants.root).forEach(key => {
-        const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'))
+        const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
+        //console.log('writeStyleSheet:', className, data.variants.root[key]);
         writeStyle(writer, className, data.variants.root[key]);
       });
     }
@@ -303,6 +304,7 @@ export function writeStyleSheet(
           Object.keys(data.variants[child.slug]).forEach(key => {
             if (data.variants[child.slug][key]) {
               const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+              //console.log('writeStyleSheet:', className, data.variants[child.slug][key]);
               writeStyle(writer, className, data.variants[child.slug][key]);
             }
           });

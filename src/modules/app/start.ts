@@ -20,7 +20,10 @@ export async function start() {
   }
 
   // Update code on document change
-  figma.on('documentchange', (_event) => {
+  figma.on('documentchange', (e) => {
+    // const changes = e.documentChanges.filter(c => c.type !== 'PROPERTY_CHANGE');
+    // console.log('changes', changes);
+    // if (changes.length > 0)
     utils.updateCode();
   });
 

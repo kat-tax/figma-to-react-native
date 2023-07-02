@@ -11,7 +11,7 @@ const NODES_WITH_STYLES = ['TEXT', 'GROUP', 'FRAME', 'SECTION', 'COMPONENT', 'RE
 
 export default async function parse(node: TargetNode, settings: Settings, isPreview: boolean): Promise<ParseData> {
   if (!node) return;
-  const start = Date.now();
+  //const start = Date.now();
   const {dict, tree, meta} = crawlNodes(node.children);
   const [root, children] = await Promise.all([
     parseRoot(node, settings),
@@ -21,7 +21,7 @@ export default async function parse(node: TargetNode, settings: Settings, isPrev
   const assets = await convertAssets(meta.assetNodes, isPreview);
   if (assets.hasImage) meta.primitives.add('Image');
   const data = {root, children, tree, meta, variants, assets: assets.data};
-  console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
+  //console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
   return data;
 }
 

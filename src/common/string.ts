@@ -23,7 +23,7 @@ export function createIdentifier(input: string): string {
   // Prepend $ if identifier starts with a number or is a reserved word
   if (/^[0-9]/.test(identifier) || _reserved.includes(identifier))
     identifier = '$' + identifier;
-  // If identifier is falsy, return a timestamp
+  // If identifier is falsy, return a timestamp variable
   if (!identifier) identifier = `$${Date.now()}`;
   return identifier;
 }

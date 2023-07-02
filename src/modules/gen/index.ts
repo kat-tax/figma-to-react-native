@@ -3,25 +3,29 @@ import {generateTheme as genReactNativeTheme} from './react-native/theme';
 import {generateBundle as genTamaguiBundle} from './react-native/bundle';
 import {generateTheme as genTamaguiTheme} from './react-native/theme';
 
-import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
+import type {TargetNode} from 'types/figma';
+import type {EditorComponent} from 'types/editor';
 
 export {generateIndex} from './common/index';
 
-export function generateBundle(node: TargetNode, settings: Settings, isPreviewMode?: boolean) {
+export async function generateBundle(node: TargetNode, settings: Settings, isPreviewMode?: boolean) {
   const instanceSettings = {...settings};
   if (isPreviewMode) {
     instanceSettings.react.addImport = false;
     instanceSettings.react.addTranslate = false;
   }
 
+  let bundle: EditorComponent;
   switch (settings?.react.flavor) {
     case 'tamagui':
-      return genTamaguiBundle(node, instanceSettings, isPreviewMode);
+      bundle = await genTamaguiBundle(node, instanceSettings, isPreviewMode);
     case 'react-native':
     default:
-      return genReactNativeBundle(node, instanceSettings, isPreviewMode);
+      bundle = await genReactNativeBundle(node, instanceSettings, isPreviewMode);
   }
+
+  return bundle;
 }
 
 export function generateTheme(settings: Settings) {

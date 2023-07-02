@@ -1,9 +1,11 @@
 # ROADMAP
 
 ### Next
+- Add frame selections
+- Fix storybook variants
+- Improve perf (cache data, track revisions)
 - Add useMemo to classes
 - Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
-- Improve perf (cache data, track revisions)
 - Improve styling differences
 - Sort props
 
