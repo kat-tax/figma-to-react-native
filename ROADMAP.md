@@ -2,6 +2,7 @@
 
 ### Next
 - Add frame selections
+- Fix "failed to export" error caused by hidden assets
 - Fix storybook variants
 - Improve perf (cache data, track revisions)
 - Add useMemo to classes
@@ -41,21 +42,22 @@
 </Pressable>
 ```
 
-### SaaS
-- Storybook preview
-- Storybook syncing
-- Export to GitHub PR
-- Auto translations
-- AI documentation
-- UI package generation
-- Sync Redux store to Figma variable collection
-- Thumbhash, RNSVG, Image & SVGO compression
-
 ### Extensions
-- Port UI to VSCode
-- Same messaging to Figma & VSCode extension
+- VSCode extension similar to Storybook sync to directly sync to project
 
-### Testing
-- Ensure https://www.untitledui.com/ converts
-- Test other UI packs (IntelliJ, find more...)
-- Make sure snapshots of converted projects don't change
+### The KATTAX Stack
+- EXO (figma generated UI kit)
+- ULT (cross-platform starter)
+- FOV (application services)
+  # Stage 1
+  1. Sync & share EXO + custom components in Storybook
+  2. Automated building of EXO + custom components to UI package
+  # Stage 2
+  3. Automate asset compression
+  4. Automate missing translations
+  5. Automate external documentation
+  # Stage 3
+  6. Build & deploy mobile apps to stores, web to CF
+  7. CodePush updates to mobile apps
+  8. Logging, analytics, error reporting, and Redux session replay
+  9. Rollback updates & builds

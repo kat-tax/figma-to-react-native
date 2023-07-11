@@ -1,13 +1,16 @@
 import {on} from '@create-figma-plugin/utilities';
 import {useEffect} from 'preact/hooks';
 import {downloadZip} from 'client-zip';
+import {log} from 'telemetry';
 
 import type {StateUpdater} from 'preact/hooks';
 import type {CompileHandler} from 'types/events';
 
 export function useExport(setExporting: StateUpdater<boolean>): void {
   useEffect(() => on<CompileHandler>('COMPILE', (project, files, mainIndex, theme, assets) => {
-    saveFiles(project, JSON.parse(files), mainIndex, theme, assets);
+    const $files = JSON.parse(files);
+    log('export_complete', {files: $files.length, assets: assets.length, duration: 0}); // TODO: duration
+    saveFiles(project, $files, mainIndex, theme, assets);
     setExporting(false);
   }), []);
 }

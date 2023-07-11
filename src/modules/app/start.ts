@@ -1,4 +1,4 @@
-import {on} from '@create-figma-plugin/utilities';
+import {on, emit} from '@create-figma-plugin/utilities';
 import {focusComponent} from 'modules/fig/utils';
 import * as utils from 'modules/app/utils';
 
@@ -19,6 +19,9 @@ export async function start() {
     return;
   }
 
+  // Start event
+  emit<Events.StartHandler>('START_PLUGIN', figma.currentUser);
+
   // Update code on document change
   figma.on('documentchange', (e) => {
     // const changes = e.documentChanges.filter(c => c.type !== 'PROPERTY_CHANGE');
@@ -29,6 +32,7 @@ export async function start() {
 
   // Update code on selection change
   figma.on('selectionchange', utils.updateCode);
+  utils.updateCode();
 
   // Update theme on interval
   setInterval(utils.updateTheme, 500);

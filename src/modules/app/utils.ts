@@ -1,6 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getSelectedComponent, getComponents} from 'modules/fig/traverse';
 import {generateBundle, generateIndex, generateTheme} from 'modules/gen';
+// import {notify} from 'telemetry';
 import defaultConfig from 'config';
 
 import type {ExportTarget, ExportMode} from 'types/export';
@@ -164,10 +165,10 @@ export function exportDocument(type: ExportTarget) {
             names.add(bundle.name);
           }
         } catch (e) {
-          console.error('Failed to export', component, e);
+          // notify(e, 'Failed to export', {component: component.name});
         }
       }
-      const index = generateIndex(names, _config);
+      const index = generateIndex(names, _config, true);
       const files = JSON.stringify(output.filter(Boolean));
       emit<Events.CompileHandler>('COMPILE', exportName, files, index, theme, assets);
     }, 500);

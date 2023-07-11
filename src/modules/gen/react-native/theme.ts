@@ -55,12 +55,14 @@ export function generateTheme(settings: Settings) {
     });
 
     const writeColor = (name: string, color: ThemeColor, singleDepth?: boolean) => {
-      const id = /^[0-9]/.test(name) ? `$${name}` : name;
+      const needsPrefix = /^[0-9]/.test(name);
+      const extraSpace = (needsPrefix ? 1 : 0) + (singleDepth ? 0 : 2);
+      const id = needsPrefix ? `$${name}` : name;
       writer.write(`${id}: `);
       writer.quote(color.value);
       writer.write(`,`);
       if (color.comment) {
-        const depth = singleDepth ? maxLineLength + 3 : maxLineLength;
+        const depth = maxLineLength - extraSpace;
         const padding = (' ').repeat(depth - (name.length + color.value.length));
         writer.write(`${padding}// ${color.comment}`);
       }

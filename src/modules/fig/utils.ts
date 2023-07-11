@@ -131,7 +131,7 @@ export async function convertAssets(nodes: Set<string>, isPreview: boolean): Pro
       assets[id] = {width, height, name, data, bytes, isVector};
     }
   } catch (err) {
-    console.error('Could not convert assets', err);
+    console.error('Failed to convert assets', err);
   }
   return {data: assets, hasImage};
 }

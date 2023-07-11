@@ -4,6 +4,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {useSync} from 'interface/hooks/useSync';
 import {useExport} from 'interface/hooks/useExport';
 import {useForm, Container, VerticalSpace, Button, Text, Bold, SegmentedControl} from '@create-figma-plugin/ui';
+import {log} from 'telemetry';
 
 import type {ExportFormState} from 'types/export';
 import type {ZipHandler, StorybookHandler} from 'types/events';
@@ -15,6 +16,7 @@ export function Export() {
     close: () => {},
     submit: ({type, target}) => {
       setExporting(true);
+      log('export_start', {type, target});
       switch (type) {
         case 'zip':
           return emit<ZipHandler>('ZIP', target);

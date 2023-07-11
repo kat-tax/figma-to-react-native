@@ -5,6 +5,11 @@ import type {ExportTarget, ExportMode} from 'types/export';
 
 // From plugin
 
+export interface StartHandler extends EventHandler {
+  name: 'START_PLUGIN';
+  handler: (user: User) => void;
+}
+
 export interface LoadConfigHandler extends EventHandler {
   name: 'LOAD_CONFIG';
   handler: (config: Settings) => void;

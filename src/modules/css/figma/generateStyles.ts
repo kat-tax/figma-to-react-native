@@ -48,7 +48,9 @@ function getTokenFromVar(str: string): string | null {
       const parts = full.split('.');
       const prefix = parts.shift();
       const suffix = parts.pop()?.replace(/-/g, '_');
-      return suffix ? `${prefix}.$${suffix}` : prefix;
+      const startsWithNum = /^[0-9]/.test(suffix);
+      const identifier = startsWithNum ? `$${suffix}` : suffix;
+      return suffix ? `${prefix}.${identifier}` : prefix;
     }
   }
   return null;

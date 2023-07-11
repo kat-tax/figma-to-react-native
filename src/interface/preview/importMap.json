@@ -1,6 +1,6 @@
 {
-  "react": "https://ga.jspm.io/npm:react@18.2.0/index.js",
-  "react-dom": "https://ga.jspm.io/npm:react-dom@18.2.0/index.js",
+  "react": "https://ga.jspm.io/npm:react@18.2.0/dev.index.js",
+  "react-dom": "https://ga.jspm.io/npm:react-dom@18.2.0/dev.index.js",
   "react-native": "https://ga.jspm.io/npm:react-native-web@0.19.5/dist/index.js",
   "react-native-svg": "https://ga.jspm.io/npm:react-native-svg-web@1.0.9/index.js",
   "react-zoom-pan-pinch": "https://ga.jspm.io/npm:react-zoom-pan-pinch@3.0.8/dist/index.esm.js",
@@ -32,7 +32,13 @@
   "prop-types": "https://ga.jspm.io/npm:prop-types@15.8.1/index.js",
   "react-dom/client": "https://ga.jspm.io/npm:react-dom@18.2.0/client.js",
   "react-is": "https://ga.jspm.io/npm:react-is@16.13.1/index.js",
-  "scheduler": "https://ga.jspm.io/npm:scheduler@0.23.0/index.js",
+  "scheduler": "https://ga.jspm.io/npm:scheduler@0.23.0/dev.index.js",
   "styleq": "https://ga.jspm.io/npm:styleq@0.1.3/dist/styleq.js",
-  "styleq/transform-localize-style": "https://ga.jspm.io/npm:styleq@0.1.3/transform-localize-style.js"
+  "styleq/transform-localize-style": "https://ga.jspm.io/npm:styleq@0.1.3/transform-localize-style.js",
+  "highlight.run": "https://ga.jspm.io/npm:highlight.run@7.2.0/dist/index.es.js",
+  "@logtail/browser": "https://ga.jspm.io/npm:@logtail/browser@0.4.0/dist/es6/index.js",
+  "@logtail/core": "https://ga.jspm.io/npm:@logtail/core@0.4.0/dist/es6/index.js",
+  "@logtail/tools": "https://ga.jspm.io/npm:@logtail/tools@0.4.0/dist/es6/index.js",
+  "@logtail/types": "https://ga.jspm.io/npm:@logtail/types@0.4.0/dist/es6/types.js",
+  "cross-fetch": "https://ga.jspm.io/npm:cross-fetch@3.1.8/dist/browser-ponyfill.js"
 }

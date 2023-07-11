@@ -17,7 +17,7 @@ export async function generatePreview(data: ParseData, settings: Settings) {
   writer.blankLine();
   writeFunction(writer, data, settings, 'styles', true);
   writer.blankLine();
-  writeStyleSheet(writer, data, settings, 'styles');
+  writeStyleSheet(writer, data, settings, 'styles', true);
   writer.blankLine();
   await writeComponents(writer, settings, {...data.meta.components, ...data.meta.includes});
   writer.blankLine();
@@ -39,7 +39,7 @@ async function writeComponents(
     const data = await parseFigma(content as TargetNode, settings, true);
     writeFunction(writer, data, settings, stylesPrefix, true);
     writer.blankLine();
-    writeStyleSheet(writer, data, settings, stylesPrefix);
+    writeStyleSheet(writer, data, settings, stylesPrefix, true);
     writer.blankLine();
     writeComponents(writer, settings, data.meta.components, index);
   }

@@ -50,7 +50,7 @@ export async function generateBundle(
   if (!isPreviewMode) {
     for (const [, asset] of Object.entries(data.assets)) {
       const folder = `${asset.isVector ? 'vectors' : 'images'}`;
-      const extension = `${asset.isVector ? '.svg' : '.png'}`;
+      const extension = `${asset.isVector ? 'svg' : 'png'}`;
       assets.push([`${folder}/${asset.name}.${extension}`, asset.bytes]);
     }
   }
