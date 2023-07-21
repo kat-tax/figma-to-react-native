@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "build-figma-plugin --typecheck --watch",
     "build": "build-figma-plugin --typecheck --minify",
-    "gen-schema": "typescript-json-schema tsconfig.json Settings --out ./src/_schema.json"
+    "schema": "typescript-json-schema tsconfig.json Settings --out ./src/_schema.json"
   },
   "figma-plugin": {
     "id": "821138713091291738",
@@ -25,36 +25,32 @@
     "ui": "src/ui.tsx"
   },
   "dependencies": {
-    "@create-figma-plugin/ui": "^2.5.0",
-    "@create-figma-plugin/utilities": "^2.5.0",
-    "@hocuspocus/provider": "^2.1.0",
-    "@logtail/browser": "^0.4.0",
+    "@create-figma-plugin/ui": "^2.5.1",
+    "@create-figma-plugin/utilities": "^2.5.1",
+    "@hocuspocus/provider": "^2.2.3",
+    "@logtail/browser": "^0.4.5",
     "@monaco-editor/react": "^4.5.1",
     "@radix-ui/react-tabs": "^1.0.4",
     "@types/lodash.camelcase": "^4.3.7",
     "client-zip": "^2.4.4",
     "code-block-writer": "^12.0.0",
     "deep-object-diff": "^1.1.9",
-    "diff": "^5.1.0",
-    "esbuild-wasm": "^0.17.18",
-    "highlight.run": "7.1.1",
-    "lint": "link:@types/@codemirror/lint",
+    "esbuild-wasm": "^0.17.19",
     "lodash.camelcase": "^4.3.0",
-    "monaco-editor": "^0.39.0",
-    "preact": "^10.13.2",
+    "monaco-editor": "^0.40.0",
+    "preact": "^10.16.0",
     "reserved": "^0.1.2",
-    "yjs": "^13.6.2"
+    "yjs": "^13.6.7"
   },
   "devDependencies": {
-    "@create-figma-plugin/build": "^2.5.0",
-    "@create-figma-plugin/tsconfig": "^2.5.0",
-    "@figma/plugin-typings": "1.68.0",
-    "@types/diff": "^5.0.3",
-    "@types/react": "^18.2.13",
-    "esbuild": "^0.16.10",
-    "react-zoom-pan-pinch": "^3.0.8",
+    "@create-figma-plugin/build": "^2.5.1",
+    "@create-figma-plugin/tsconfig": "^2.5.1",
+    "@figma/plugin-typings": "1.71.1",
+    "@types/react": "^18.2.15",
+    "esbuild": "^0.17.19",
+    "react-zoom-pan-pinch": "^3.1.0",
     "typescript": "^4.9.5",
-    "typescript-json-schema": "^0.57.0"
+    "typescript-json-schema": "^0.59.0"
   },
   "browser": {
     "crypto": false

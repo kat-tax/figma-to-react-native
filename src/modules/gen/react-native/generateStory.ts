@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {sortProps, getPropName} from 'modules/fig/utils';
+import {sortProps, getPropName} from 'modules/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 
 import type {TargetNode} from 'types/figma';

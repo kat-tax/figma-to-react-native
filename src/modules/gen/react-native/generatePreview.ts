@@ -1,8 +1,10 @@
 import CodeBlockWriter from 'code-block-writer';
 import parseFigma from 'modules/fig/parse';
 
-import {generateTheme} from './theme';
-import {writeImports, writeFunction, writeStyleSheet} from './utils';
+import {generateTheme} from './generateTheme';
+import {writeStyleSheet} from './lib/writeStyleSheet';
+import {writeFunction} from './lib/writeFunction';
+import {writeImports} from './lib/writeImports';
 
 import type {TargetNode, ParseData} from 'types/figma';
 import type {Settings} from 'types/settings';
@@ -19,12 +21,12 @@ export async function generatePreview(data: ParseData, settings: Settings) {
   writer.blankLine();
   writeStyleSheet(writer, data, settings, 'styles', true);
   writer.blankLine();
-  await writeComponents(writer, settings, {...data.meta.components, ...data.meta.includes});
+  await writeDependencies(writer, settings, {...data.meta.components, ...data.meta.includes});
   writer.blankLine();
   return writer.toString();
 }
 
-async function writeComponents(
+async function writeDependencies(
   writer: CodeBlockWriter,
   settings: Settings,
   nodes?: Record<string, BaseNode>, 
@@ -41,6 +43,6 @@ async function writeComponents(
     writer.blankLine();
     writeStyleSheet(writer, data, settings, stylesPrefix, true);
     writer.blankLine();
-    writeComponents(writer, settings, data.meta.components, index);
+    writeDependencies(writer, settings, data.meta.components, index);
   }
 }

@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getColor} from 'modules/fig/utils';
 import {createIdentifierCamel} from 'common/string';
+import {getColor} from 'modules/fig/lib';
 
 import type {Settings} from 'types/settings';
 

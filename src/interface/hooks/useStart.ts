@@ -3,9 +3,9 @@ import {useEffect} from 'preact/hooks';
 
 import type {StartHandler} from 'types/events';
 
-export function useStart(identify: (user: User) => void) {
+export function useStart(identify?: (user: User) => void) {
   useEffect(() => on<StartHandler>('START_PLUGIN', (user) => {
-    identify(user);
+    if (identify) identify(user);
   }), []);
   return;
 }

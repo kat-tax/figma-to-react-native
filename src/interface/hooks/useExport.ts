@@ -1,7 +1,7 @@
 import {on} from '@create-figma-plugin/utilities';
 import {useEffect} from 'preact/hooks';
 import {downloadZip} from 'client-zip';
-import {log} from 'telemetry';
+import {log} from 'utils/telemetry';
 
 import type {StateUpdater} from 'preact/hooks';
 import type {CompileHandler} from 'types/events';

@@ -4,7 +4,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {useSync} from 'interface/hooks/useSync';
 import {useExport} from 'interface/hooks/useExport';
 import {useForm, Container, VerticalSpace, Button, Text, Bold, SegmentedControl} from '@create-figma-plugin/ui';
-import {log} from 'telemetry';
+import {log} from 'utils/telemetry';
 
 import type {ExportFormState} from 'types/export';
 import type {ZipHandler, StorybookHandler} from 'types/events';

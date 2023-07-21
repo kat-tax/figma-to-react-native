@@ -1,4 +1,4 @@
-import {getColor} from 'modules/fig/utils';
+import {getColor} from 'modules/fig/lib';
 import * as helpers from './helpers';
 import type {StylesTypography} from 'types/styles';
 

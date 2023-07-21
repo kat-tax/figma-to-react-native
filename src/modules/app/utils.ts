@@ -1,7 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getSelectedComponent, getComponents} from 'modules/fig/traverse';
 import {generateBundle, generateIndex, generateTheme} from 'modules/gen';
-// import {notify} from 'telemetry';
 import defaultConfig from 'config';
 
 import type {ExportTarget, ExportMode} from 'types/export';
@@ -14,6 +13,8 @@ let _mode: ExportMode = 'code';
 let _props = '';
 let _code = '';
 let _preview = '';
+
+// Config
 
 export async function loadConfig(isHeadless: boolean) {
   const config: Settings = await figma.clientStorage.getAsync(settingsKey);
@@ -32,6 +33,8 @@ export function updateConfig(value: Settings, skipSave?: boolean, skipCodeUpdate
   if (!skipCodeUpdate)
     updateCode();
 }
+
+// Generation
 
 export function updateMode(value: ExportMode) {
   _mode = value;
@@ -54,6 +57,8 @@ export function updateTheme() {
   const theme = generateTheme(_config);
   emit<Events.UpdateThemeHandler>('UPDATE_THEME', theme);
 }
+
+// Codegen
 
 export async function renderCodeGen(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || (node.type !== 'COMPONENT' && node.type !== 'COMPONENT_SET')) return [];
@@ -131,7 +136,9 @@ export function updateConfigFromCodeGen() {
   }
 }
 
-export function exportDocument(type: ExportTarget) {
+// Actions
+
+export function runExport(type: ExportTarget) {
   const theme = generateTheme(_config);
   const document = figma.currentPage.parent;
 
@@ -177,8 +184,7 @@ export function exportDocument(type: ExportTarget) {
   }
 }
 
-
-export function syncDocument(type: ExportTarget) {
+export function runSync(type: ExportTarget) {
   const theme = generateTheme(_config);
   const document = figma.currentPage.parent;
   const user = figma.currentUser;

@@ -1,10 +1,10 @@
 
 import {initialize, transform} from 'esbuild-wasm';
-import {notify} from 'telemetry';
+import {notify} from 'utils/telemetry';
 
 import type {Settings} from 'types/settings';
 
-const wasmURL = 'https://unpkg.com/esbuild-wasm@0.17.18/esbuild.wasm';
+const wasmURL = 'https://unpkg.com/esbuild-wasm@0.17.19/esbuild.wasm';
 
 let _loading = false;
 let _loaded = false;

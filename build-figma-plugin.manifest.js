@@ -1,14 +1,13 @@
 module.exports = (manifest) => ({
   ...manifest,
   networkAccess: {
+    allowedDomains: ['*'],
+    reasoning: "Needed for Monaco Editor blob workers to load",
     /*allowedDomains: [
       'unpkg.com',
       'ga.jspm.io',
       'cdn.jsdelivr.net',
-      '*.highlight.io',
     ]*/
-    allowedDomains: ['*'],
-    reasoning: "Needed for Monaco Editor blob workers to load",
   },
   codegenLanguages: [
     {

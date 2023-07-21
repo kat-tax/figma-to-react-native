@@ -42,7 +42,7 @@ export function getComponent(node: SceneNode): ComponentNode | FrameNode {
       : target;
   return null;
   // TODO: Fallback to frame search
-  //return getFrame(target);
+  // return getFrame(target);
 }
 
 // Find the frame of a node
@@ -68,4 +68,19 @@ export function getPage(node: BaseNode): PageNode {
     if (!node) return null;
   }
   return node;
+}
+
+// Go to the component's page and focus it
+export function focusComponent(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page) {
+        figma.currentPage = page;
+      }
+      figma.currentPage.selection = [node as any];
+      figma.viewport.scrollAndZoomIntoView([node]);
+    }
+  } catch (e) {}
 }

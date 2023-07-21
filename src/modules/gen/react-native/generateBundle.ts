@@ -1,13 +1,14 @@
 import parseFigma from 'modules/fig/parse';
-import {propsToString} from 'modules/fig/utils';
+import {propsToString} from 'modules/fig/lib';
 import {createIdentifierPascal} from 'common/string';
-import {generateComponent} from './component';
-import {generatePreview} from './preview';
-import {generateStory} from './story';
-import {generateIndex} from '../common';
 
-import type {TargetNode} from 'types/figma';
+import {generateIndex} from '../common/generateIndex';
+import {generateCode} from './generateCode';
+import {generateStory} from './generateStory';
+import {generatePreview} from './generatePreview';
+
 import type {EditorComponent, EditorLinks} from 'types/editor';
+import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
 
 export async function generateBundle(
@@ -62,7 +63,7 @@ export async function generateBundle(
     assets,
     props: propsToString({...propDefs}),
     index: !isPreviewMode ? generateIndex(new Set<string>().add(name), settings) : '',
-    code: !isPreviewMode ? generateComponent(data, settings) : '',
+    code: !isPreviewMode ? generateCode(data, settings) : '',
     story: !isPreviewMode ? generateStory(target, isVariant, propDefs, settings) : '',
     preview: isPreviewMode ? await generatePreview(data, settings) : '',
   };

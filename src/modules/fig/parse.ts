@@ -1,6 +1,6 @@
 import {diff} from 'deep-object-diff';
 import {generateStyles} from 'modules/css';
-import {convertAssets, getInstanceInfo, isNodeVisible} from 'modules/fig/utils';
+import {getInstanceInfo, isNodeVisible, convertAssets} from 'modules/fig/lib';
 import {createIdentifierCamel} from 'common/string';
 import {wait} from 'common/delay';
 
@@ -11,7 +11,7 @@ const NODES_WITH_STYLES = ['TEXT', 'GROUP', 'FRAME', 'SECTION', 'COMPONENT', 'RE
 
 export default async function parse(node: TargetNode, settings: Settings, isPreview: boolean): Promise<ParseData> {
   if (!node) return;
-  //const start = Date.now();
+  // const start = Date.now();
   const {dict, tree, meta} = crawlNodes(node.children);
   const [root, children] = await Promise.all([
     parseRoot(node, settings),
@@ -21,7 +21,7 @@ export default async function parse(node: TargetNode, settings: Settings, isPrev
   const assets = await convertAssets(meta.assetNodes, isPreview);
   if (assets.hasImage) meta.primitives.add('Image');
   const data = {root, children, tree, meta, variants, assets: assets.data};
-  //console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
+  // console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
   return data;
 }
 
@@ -33,7 +33,7 @@ async function parseRoot(node: TargetNode, settings: Settings) {
 async function parseChildren(nodes: Set<SceneNode>, settings: Settings) {
   const children: Array<{node: SceneNode, styles: NodeStyles, slug: string}> = [];
   for await (const node of nodes) {
-    await wait(0); // note: prevents UI from freezing
+    await wait(0); // Prevents UI from freezing
     const styles = NODES_WITH_STYLES.includes(node.type)
       ? await generateStyles(node, settings)
       : null;

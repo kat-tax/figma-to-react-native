@@ -1,6 +1,5 @@
 import {h, Component} from 'preact';
 import {Logtail} from '@logtail/browser';
-// import {H} from 'highlight.run';
 
 const NS = '[F->RN]';
 const LT = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
@@ -33,36 +32,21 @@ export class ErrorBoundary extends Component {
 export function init() {
   console.debug(`${NS} [init]`);
   _queue.push((user: User) => LT.info('session', authMeta(user)));
-  /*H.init('ney441e4', {
-    scriptUrl: 'https://highlight-figma.pages.dev/highlight.js?1',
-    enableStrictPrivacy: true,
-    recordCrossOriginIframe: true,
-    disableNetworkRecording: true,
-    disableSessionRecording: true,
-    disableConsoleRecording: true,
-  });*/
 }
 
 export function identify(user: User) {
   console.debug(`${NS} [identify]`);
   start(user);
-  /*H.identify(user.id, {
-    avatar: user.photoUrl,
-    figmaSession: user.sessionId,
-    highlightDisplayName: user.name,
-  });*/
 }
 
 export function log(message: string, metadata?: MetaData) {
   console.debug(`${NS} [log]`, message, metadata);
   _queue.push((user: User) => LT.info(message, authMeta(user, metadata)));
-  // H.track(message, metadata);
 }
 
 export function notify(error: Error, message?: string, metadata?: MetaData) {
   console.debug(`${NS} [notify]`, message, error, metadata);
   _queue.push((user: User) => LT.error(error, authMeta(user, metadata)));
-  // H.consumeError(error, message, metadata);
 }
 
 function start(user: User) {

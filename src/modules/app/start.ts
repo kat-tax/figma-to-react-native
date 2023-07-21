@@ -1,5 +1,5 @@
 import {on, emit} from '@create-figma-plugin/utilities';
-import {focusComponent} from 'modules/fig/utils';
+import {focusComponent} from 'modules/fig/traverse';
 import * as utils from 'modules/app/utils';
 
 import type * as Events from 'types/events';
@@ -24,10 +24,14 @@ export async function start() {
 
   // Update code on document change
   figma.on('documentchange', (e) => {
-    // const changes = e.documentChanges.filter(c => c.type !== 'PROPERTY_CHANGE');
-    // console.log('changes', changes);
-    // if (changes.length > 0)
-    utils.updateCode();
+    const changes = e.documentChanges.filter(c =>
+      c.type === 'PROPERTY_CHANGE' && (
+        c.node.type === 'COMPONENT_SET'
+        || c.node.type === 'COMPONENT'
+      )
+    );
+    if (changes.length > 0)
+      utils.updateCode();
   });
 
   // Update code on selection change
@@ -49,12 +53,12 @@ export async function start() {
 
   // Handle user triggering zip download export
   on<Events.ZipHandler>('ZIP', (target) => {
-    utils.exportDocument(target);
+    utils.runExport(target);
   });
 
   // Handle user triggering Storybook sync export
   on<Events.StorybookHandler>('STORYBOOK', (target) => {
-    utils.syncDocument(target);
+    utils.runSync(target);
   });
 
   // Handle user triggering navigation to a component

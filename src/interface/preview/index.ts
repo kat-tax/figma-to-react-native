@@ -2,8 +2,8 @@
 import iframe from './iframe.tpl.html';
 import imports from './importMap.json';
 import loader from './loader.tpl';
+import {notify} from 'utils/telemetry';
 import {build} from 'common/esbuild';
-import {notify} from 'telemetry';
 
 import type {Settings} from 'types/settings';
 

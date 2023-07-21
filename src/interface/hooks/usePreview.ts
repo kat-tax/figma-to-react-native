@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'preact/hooks';
+import {notify} from 'utils/telemetry';
 import {build} from 'common/esbuild';
-import {notify} from 'telemetry';
 
 import type {Settings} from 'types/settings';
 import type {EditorComponent} from 'types/editor';
@@ -17,13 +17,8 @@ export function usePreview(component: EditorComponent, settings: Settings): stri
       import React, {useEffect, useState} from 'react';
       import {AppRegistry} from 'react-native';
       import {Logtail} from '@logtail/browser';
-      //import {H} from 'highlight.run';
 
       const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
-      /*H.init('ney441e4', {
-        recordCrossOriginIframe: true,
-        disableNetworkRecording: true,
-      });*/
 
       ${component.preview}
 
