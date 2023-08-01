@@ -16,6 +16,7 @@
   - sourcemap from node ids -> line + column numbers needed when parsing
 
 ### Generation
+- When releasing, merge previous styles with comment // @f2rn-override
 - Theme values (fonts & effects left)
 - Interactions (via Pressable & Link)
 - Gradient backgrounds
@@ -46,8 +47,9 @@
 - VSCode extension similar to Storybook sync to directly sync to project
 
 ### The KATTAX Stack
-- EXO (figma generated UI kit)
+- VIA (cross-platform router)
 - ULT (cross-platform starter)
+- EXO (cross-platform UI kit)
 - FOV (application services)
   # Stage 1
   1. Sync & share EXO + custom components in Storybook

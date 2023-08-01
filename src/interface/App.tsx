@@ -37,12 +37,12 @@ export function App() {
       {!monaco && <Loading/>}
       <Bar loop aria-label="header" className="bar">
         <Link value="code" title="View component code" className="tab">
-          Code
+          Component
         </Link>
         <Link value="preview" title="Preview component" className="tab">
-          Design
+          Preview
         </Link>
-        {/*<Link value="prototype" title="View protoype code" className="tab">
+        {/*<Link value="prototype" title="View prototype code" className="tab">
           Prototype
         </Link>*/}
         <Link value="story" title="View story" className="tab">
@@ -59,22 +59,22 @@ export function App() {
           <IconGear/>
         </Link>
       </Bar>
-      <Tab value="code" className="expand">
+      <Tab value="code" className="tab-view">
         <Code {...{component, options, monaco}}/>
       </Tab>
-      <Tab value="preview" className="expand">
+      <Tab value="preview" className="tab-view">
         <Preview {...{component, settings: settings.config}}/>
       </Tab>
-      <Tab value="story" className="expand">
+      <Tab value="story" className="tab-view">
         <Story {...{component, options, monaco}}/>
       </Tab>
-      <Tab value="theme" className="expand">
+      <Tab value="theme" className="tab-view">
         <Theme {...{options, monaco}}/>
       </Tab>
-      <Tab value="export" className="expand">
-        <Export/>
+      <Tab value="export" className="tab-view">
+        <Export {...{settings}}/>
       </Tab>
-      <Tab value="settings" className="expand">
+      <Tab value="settings" className="tab-view">
         <Settings {...{settings, options, monaco}}/>
       </Tab>
     </Tabs>

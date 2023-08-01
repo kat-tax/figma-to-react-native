@@ -41,7 +41,7 @@ export function writeImports(
       const component = createIdentifierPascal(node.name);
       writer.write(`import {${component}} from`);
       writer.space();
-      writer.quote(`../../components/${component}`);
+      writer.quote(`components/${component}`);
       writer.write(';');
       writer.newLine();
     });
@@ -50,7 +50,7 @@ export function writeImports(
     Object.entries(data.assets).forEach(([_id, asset]) => {
       writer.write(`import ${asset.name} from`);
       writer.space();
-      const base = `../../assets/${asset.isVector ? 'vectors' : 'images'}`;
+      const base = `assets/${asset.isVector ? 'vectors' : 'images'}`;
       const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
       writer.quote(path);
       writer.write(';');
@@ -60,7 +60,7 @@ export function writeImports(
     // Import theme file (TODO: do not include if no theme properties are used)
     writer.write(`import theme from`);
     writer.space();
-    writer.quote(`../../theme`);
+    writer.quote(`theme`);
     writer.write(';');
     writer.newLine();
   }

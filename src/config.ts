@@ -13,6 +13,16 @@ const config: Settings = {
     useTabs: false,
     newLine: '\n',
   },
+  export: {
+    method: 'zip',
+    scope: 'all',
+    apiKey: '',
+    package: false,
+    packageName: '',
+    includeFrame: false,
+    autoTranslate: false,
+    optimizeAssets: false,
+  },
   monaco: {
     general: {
       lineNumbers: 'off',

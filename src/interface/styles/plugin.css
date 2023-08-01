@@ -1,9 +1,3 @@
-iframe {
-  border: 0;
-  height: 100%;
-  width: 100%;
-}
-
 .center {
   display: flex;
   align-items: center;

@@ -47,7 +47,6 @@ export function usePreview(component: EditorComponent, settings: Settings): stri
       
         componentDidCatch(error, info) {
           const payload = {componentStack: info.componentStack};
-          //H.consumeError(error, 'Component caught error', payload);
           logtail.error(error, payload);
           logtail.flush();
         }

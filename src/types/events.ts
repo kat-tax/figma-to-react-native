@@ -1,7 +1,7 @@
 import {EventHandler} from '@create-figma-plugin/utilities';
 
 import type {Settings} from 'types/settings';
-import type {ExportTarget, ExportMode} from 'types/export';
+import type {ExportScope, ExportMode} from 'types/export';
 
 // From plugin
 
@@ -32,7 +32,7 @@ export interface CompileHandler extends EventHandler {
 
 export interface SyncHandler extends EventHandler {
   name: 'SYNC';
-  handler: (project: string, files: string, theme: string, user: User) => void;
+  handler: (project: string, files: string, index: string, theme: string, assets: Array<[string, Uint8Array]>, user: User) => void;
 }
 
 // From interface
@@ -49,12 +49,12 @@ export interface UpdateModeHandler extends EventHandler {
 
 export interface ZipHandler extends EventHandler {
   name: 'ZIP';
-  handler: (target: ExportTarget) => void;
+  handler: (target: ExportScope) => void;
 }
 
 export interface StorybookHandler extends EventHandler {
   name: 'STORYBOOK';
-  handler: (target: ExportTarget) => void;
+  handler: (target: ExportScope) => void;
 }
 
 export interface FocusComponentHandler extends EventHandler {

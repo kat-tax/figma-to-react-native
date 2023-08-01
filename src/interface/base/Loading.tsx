@@ -1,9 +1,10 @@
 import {h} from 'preact';
+import {LoadingIndicator} from '@create-figma-plugin/ui';
 
 export function Loading() {
   return (
     <div className="center fill">
-      <div className="loading"></div>
+      <LoadingIndicator/>
     </div>
   );
 }

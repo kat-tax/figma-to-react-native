@@ -3,11 +3,11 @@ import {getSelectedComponent, getComponents} from 'modules/fig/traverse';
 import {generateBundle, generateIndex, generateTheme} from 'modules/gen';
 import defaultConfig from 'config';
 
-import type {ExportTarget, ExportMode} from 'types/export';
+import type {ExportScope, ExportMode} from 'types/export';
 import type {Settings} from 'types/settings';
 import type * as Events from 'types/events';
 
-const settingsKey = `settings::v3`;
+const settingsKey = `settings::v4`;
 let _config = defaultConfig;
 let _mode: ExportMode = 'code';
 let _props = '';
@@ -138,7 +138,7 @@ export function updateConfigFromCodeGen() {
 
 // Actions
 
-export function runExport(type: ExportTarget) {
+export function runExport(type: ExportScope) {
   const theme = generateTheme(_config);
   const document = figma.currentPage.parent;
 
@@ -184,7 +184,7 @@ export function runExport(type: ExportTarget) {
   }
 }
 
-export function runSync(type: ExportTarget) {
+export function runSync(type: ExportScope) {
   const theme = generateTheme(_config);
   const document = figma.currentPage.parent;
   const user = figma.currentUser;
@@ -208,18 +208,23 @@ export function runSync(type: ExportTarget) {
     figma.notify(`Syncing ${components.size} component${components.size === 1 ? '' : 's'} to Storybook…`, {timeout: 3500});
     setTimeout(async () => {
       const output: string[][] = [];
+      const names = new Set<string>();
+      let assets: Array<[string, Uint8Array]> = [];
       for await (const component of components) {
         try {
           const bundle = await generateBundle(component, _config);
           if (bundle.code) {
-            output.push([bundle.name, bundle.code, bundle.story]);
+            output.push([bundle.name, bundle.index, bundle.code, bundle.story]);
+            assets = [...assets, ...bundle.assets];
+            names.add(bundle.name);
           }
         } catch (e) {
           console.error('Failed to sync', component, e);
         }
       }
+      const index = generateIndex(names, _config, true);
       const files = JSON.stringify(output.filter(Boolean));
-      emit<Events.SyncHandler>('SYNC', exportName, files, theme, user);
+      emit<Events.SyncHandler>('SYNC', exportName, files, index, theme, assets, user);
     }, 500);
   } else {
     figma.notify('No components found to export', {error: true});

@@ -1,7 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useEffect} from 'preact/hooks';
 import {useMonaco} from '@monaco-editor/react';
-import schemaSettings from '_schema.json';
+import schema from 'settings-schema.json';
 
 import type {Settings} from 'types/settings';
 import type {FocusComponentHandler} from 'types/events';
@@ -30,7 +30,7 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
     json?.setDiagnosticsOptions({
       validate: true,
       schemas: [{
-        schema: schemaSettings,
+        schema,
         fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
         uri: 'http://ult.dev/figaro-settings-schema.json',
       }],

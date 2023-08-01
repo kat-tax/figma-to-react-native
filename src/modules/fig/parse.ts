@@ -164,6 +164,7 @@ async function crawlVariants(
 
 function diffStyles(base: NodeStyles, variant: NodeStyles) {
   const styleDiff = diff(base, variant);
+  console.log(styleDiff);
   // TODO: any transformations of diff needed? Do it here
   return styleDiff;
 }
