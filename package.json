@@ -9,6 +9,10 @@
   "figma-plugin": {
     "id": "821138713091291738",
     "name": "Figma -> React Native",
+    "networkAccess": {
+      "allowedDomains": ["*"],
+      "reasoning": "Needed for Monaco Editor blob workers to load"
+    },
     "permissions": [
       "currentuser"
     ],
@@ -25,11 +29,11 @@
     "ui": "src/ui.tsx"
   },
   "dependencies": {
-    "@create-figma-plugin/ui": "^2.5.1",
-    "@create-figma-plugin/utilities": "^2.5.1",
-    "@hocuspocus/provider": "^2.2.3",
-    "@logtail/browser": "^0.4.5",
-    "@monaco-editor/react": "^4.5.1",
+    "@create-figma-plugin/ui": "^2.6.1",
+    "@create-figma-plugin/utilities": "^2.6.1",
+    "@hocuspocus/provider": "^2.5.0",
+    "@logtail/browser": "^0.4.7",
+    "@monaco-editor/react": "^4.5.2",
     "@radix-ui/react-tabs": "^1.0.4",
     "@types/lodash.camelcase": "^4.3.7",
     "client-zip": "^2.4.4",
@@ -37,20 +41,20 @@
     "deep-object-diff": "^1.1.9",
     "esbuild-wasm": "^0.17.19",
     "lodash.camelcase": "^4.3.0",
-    "monaco-editor": "^0.40.0",
-    "preact": "^10.16.0",
+    "monaco-editor": "^0.41.0",
+    "preact": "^10.17.1",
     "reserved": "^0.1.2",
     "yjs": "^13.6.7"
   },
   "devDependencies": {
-    "@create-figma-plugin/build": "^2.5.1",
-    "@create-figma-plugin/tsconfig": "^2.5.1",
-    "@figma/plugin-typings": "1.71.1",
-    "@types/react": "^18.2.15",
+    "@create-figma-plugin/build": "^2.6.1",
+    "@create-figma-plugin/tsconfig": "^2.6.1",
+    "@figma/plugin-typings": "1.76.0",
+    "@types/react": "^18.2.21",
     "esbuild": "^0.17.19",
     "react-zoom-pan-pinch": "^3.1.0",
     "typescript": "^4.9.5",
-    "typescript-json-schema": "^0.59.0"
+    "typescript-json-schema": "^0.60.0"
   },
   "browser": {
     "crypto": false

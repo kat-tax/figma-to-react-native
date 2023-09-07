@@ -1,9 +1,9 @@
 import {on} from '@create-figma-plugin/utilities';
 import {useRef, useEffect, useCallback} from 'preact/hooks';
-import {open, sync} from 'common/storybook';
+import {sync} from 'common/yjs';
 import {hashString} from 'vendor/asm-crypto';
 
-import type {Session} from 'common/storybook';
+import type {Session} from 'common/yjs';
 import type {StateUpdater} from 'preact/hooks';
 import type {SyncHandler} from 'types/events';
 import type {Settings} from 'types/settings';
@@ -14,6 +14,11 @@ export function useSync(
 ): void {
   const session = useRef<Session>(null);
 
+  const openStoryBook = useCallback((key: string) => {
+    const url = 'http://localhost:5102';
+    window.open(`${url}/#/${key}`);
+  }, []);
+
   const start = useCallback(async (user: any, project: string) => {
     // TODO: get sync key from API (https://github.com/jetpack-io/typeid)
     console.log('API KEY', settings.export.apiKey);
@@ -23,7 +28,7 @@ export function useSync(
     const key = `${user.name.toLowerCase().replace(/\s/g, '+')}/${pwd}`;
     console.log('Starting sync session: ', pwd);
     session.current = sync(key);
-    open(key);
+    openStoryBook(key);
   }, []);
   
   useEffect(() => on<SyncHandler>('SYNC', (project, _files, index, theme, assets, user) => {

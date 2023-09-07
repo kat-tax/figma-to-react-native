@@ -3,7 +3,7 @@ import {EventHandler} from '@create-figma-plugin/utilities';
 import type {Settings} from 'types/settings';
 import type {ExportScope, ExportMode} from 'types/export';
 
-// From plugin
+// Plugin -> Interface
 
 export interface StartHandler extends EventHandler {
   name: 'START_PLUGIN';
@@ -35,7 +35,7 @@ export interface SyncHandler extends EventHandler {
   handler: (project: string, files: string, index: string, theme: string, assets: Array<[string, Uint8Array]>, user: User) => void;
 }
 
-// From interface
+// Interface -> Plugin
 
 export interface UpdateConfigHandler extends EventHandler {
   name: 'UPDATE_CONFIG';

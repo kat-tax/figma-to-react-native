@@ -9,11 +9,13 @@ import type {Settings} from 'types/settings';
 
 export function generateCode(data: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
-  writeImports(writer, data, settings);
+  const metadata = {stylePrefix: 'styles'};
+  
+  writeImports(writer, data, settings, metadata);
   writer.blankLine();
-  writeFunction(writer, data, settings, 'styles');
+  writeFunction(writer, data, settings, metadata);
   writer.blankLine();
-  writeStyleSheet(writer, data, settings, 'styles');
+  writeStyleSheet(writer, data, settings, metadata);
   writer.newLine();
   return writer.toString();
 }

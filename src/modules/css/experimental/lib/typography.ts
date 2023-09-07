@@ -1,19 +1,23 @@
-import {getColor} from 'modules/fig/lib';
-import * as helpers from './helpers';
+import {getColor, getTopFill} from 'modules/fig/lib';
+import {getFillStyle} from './utils/getFillStyle';
+import {getFontWeight} from './utils/getFontWeight';
+import {getLineHeight} from './utils/getLineHeight';
+import {getLetterSpacing} from './utils/getLetterSpacing';
+
 import type {StylesTypography} from 'types/styles';
 
 export function typography(node: any): StylesTypography {
   let color: string;
   if (node.fills.length > 0) {
-    const fill = helpers.getTopFill(node.fills);
-    const fillStyle = helpers.getFillStyle(figma.getStyleById(node.fillStyleId));
+    const fill = getTopFill(node.fills);
+    const fillStyle = getFillStyle(figma.getStyleById(node.fillStyleId));
     color = fillStyle ?? getColor(fill?.color, fill?.opacity);
   }
   const fontSize = node.fontSize;
   const fontFamily = node.fontFamily;
-  const fontWeight = helpers.getFontWeight(node.fontName.style);
-  const lineHeight = helpers.getLineHeight(node);
-  const letterSpacing = helpers.getLetterSpacing(node);
+  const fontWeight = getFontWeight(node.fontName.style);
+  const lineHeight = getLineHeight(node);
+  const letterSpacing = getLetterSpacing(node);
   const isItalic = node.fontName.style?.match(/italic/i);
   const isCrossed = node.textDecoration === 'STRIKETHROUGH';
   const isUnderline = node.textDecoration === 'UNDERLINE';

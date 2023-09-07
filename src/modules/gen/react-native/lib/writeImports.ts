@@ -8,7 +8,10 @@ export function writeImports(
   writer: CodeBlockWriter,
   data: ParseData,
   settings: Settings,
-  isPreview?: boolean,
+  metadata: {
+    stylePrefix: string,
+    isPreview?: boolean, 
+  }
 ) {
   // Import React explicitly if set 
   if (settings?.react?.addImport) {
@@ -35,19 +38,25 @@ export function writeImports(
   writer.write(';');
   writer.newLine();
 
-  if (!isPreview) {
+  if (!metadata.isPreview) {
     // Import subcomponents
-    Object.entries(data.meta.components).forEach(([_id, node]) => {
-      const component = createIdentifierPascal(node.name);
-      writer.write(`import {${component}} from`);
-      writer.space();
-      writer.quote(`components/${component}`);
-      writer.write(';');
-      writer.newLine();
-    });
+    Object
+      .entries(data.meta.components)
+      .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
+      .forEach(([_id, [node, _instance]]) => {
+        const component = createIdentifierPascal(node.name);
+        writer.write(`import {${component}} from`);
+        writer.space();
+        writer.quote(`components/${component}`);
+        writer.write(';');
+        writer.newLine();
+      });
 
     // Import assets
-    Object.entries(data.assets).forEach(([_id, asset]) => {
+    Object
+      .entries(data.assets)
+      .sort((a, b) => a[1].name.localeCompare(b[1].name))
+      .forEach(([_id, asset]) => {
       writer.write(`import ${asset.name} from`);
       writer.space();
       const base = `assets/${asset.isVector ? 'vectors' : 'images'}`;

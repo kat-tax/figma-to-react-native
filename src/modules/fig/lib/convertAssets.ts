@@ -19,8 +19,10 @@ export async function convertAssets(nodes: Set<string>, isPreview: boolean): Pro
       const isVector = vectorTypes.includes(node.type)
         || (node.findAllWithCriteria && node.findAllWithCriteria({types: vectorTypes})?.length > 0);
       if (isVector) {
+        // console.log('vector', node.id, getColor(getTopFill((node as VectorNode).fills).color));
         if (isPreview) {
           data = await node.exportAsync({format: 'SVG_STRING'});
+          // console.log(data);
         } else {
           bytes = await node.exportAsync({format: 'SVG'});
           data = '';

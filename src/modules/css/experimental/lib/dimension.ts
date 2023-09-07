@@ -1,9 +1,9 @@
-import * as helpers from './helpers';
+import {getSize} from './utils/getSize';
 import type {StylesDimension} from 'types/styles';
 
 export function dimension(node: any, isText?: boolean): StylesDimension {
   const style: StylesDimension = {};
-  const size = helpers.getSize(node);
+  const size = getSize(node);
   if (!isText && typeof size.width === 'number') {
     style.width = size.width;
   } else if (size.width === 'full') {

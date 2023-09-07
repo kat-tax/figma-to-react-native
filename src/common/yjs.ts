@@ -6,15 +6,10 @@ export type Session = {
   provider: TiptapCollabProvider,
 };
 
-export function open(key: string) {
-  const url = 'http://localhost:5102';
-  window.open(`${url}/#/${key}`);
-}
-
 export function sync(key: string): Session {
   const document = new Y.Doc();
   const provider = new TiptapCollabProvider({
-    appId: '',
+    appId: 'l89jn3k7',
     token: '',
     name: key,
     document,

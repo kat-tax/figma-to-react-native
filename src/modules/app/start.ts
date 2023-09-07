@@ -34,6 +34,8 @@ export async function start() {
       utils.updateCode();
   });
 
+  // DEBUG: setInterval(utils.updateCode, 400);
+
   // Update code on selection change
   figma.on('selectionchange', utils.updateCode);
   utils.updateCode();

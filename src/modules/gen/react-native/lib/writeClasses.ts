@@ -8,14 +8,17 @@ export function writeClasses(
   writer: CodeBlockWriter,
   data: ParseData,
   componentName: string,
-  stylePrefix: string,
+  metadata: {
+    stylePrefix: string,
+    isPreview?: boolean, 
+  }
 ) {
   writer.write(`const classes = `).inlineBlock(() => {
     Object.keys(data.variants).forEach((k: string) => {
       const mods = Object.keys(data.variants[k]).filter(v => !!data.variants[k][v]);
       if (mods.length > 0) {
         writer.write(`${k}: [`).indent(() => {
-          writer.writeLine(`${stylePrefix}.${k},`);
+          writer.writeLine(`${metadata.stylePrefix}.${k},`);
           mods.reverse().forEach(v => {
             const parts = v.split(', ');
             const cond = parts.map(part => {
@@ -24,7 +27,7 @@ export function writeClasses(
               return `props.${getPropName(state)} === ${enumId}.${createIdentifierPascal(value)}`
             }).join(' && ');
             const className = `${k}_${v}`.split(', ').join('_').replace(/\=/g, '_');
-            writer.writeLine(`${cond} && ${stylePrefix}.${createIdentifierCamel(className)},`);
+            writer.writeLine(`${cond} && ${metadata.stylePrefix}.${createIdentifierCamel(className)},`);
           });
         });
         writer.writeLine('],');

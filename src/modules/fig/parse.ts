@@ -17,7 +17,7 @@ export default async function parse(node: TargetNode, settings: Settings, isPrev
     parseRoot(node, settings),
     parseChildren(dict, settings),
   ]);
-  const variants = await crawlVariants(node, root, children, settings);
+  const variants = await crawlVariants(node, root, children, tree, meta.assetNodes, settings);
   const assets = await convertAssets(meta.assetNodes, isPreview);
   if (assets.hasImage) meta.primitives.add('Image');
   const data = {root, children, tree, meta, variants, assets: assets.data};
@@ -87,15 +87,24 @@ function crawlNodes(
         // Instance swap
         const info = getInstanceInfo(node);
         if (info.propName) {
-          meta.includes[info.main.id] = info.main;
+          meta.includes[info.main.id] = [info.main, node];
         // Subcomponent (w/ components possibly in props)
         } else {
-          meta.components[info.main.id] = info.main;
+          meta.components[info.main.id] = [info.main, node];
           Object.keys(info.props).forEach((key) => {
             const {type, value} = info.props[key];
             if (type === 'INSTANCE_SWAP' && typeof value === 'string') {
               const swapComponent = figma.getNodeById(value);
-              meta.components[swapComponent.id] = swapComponent;
+              const swapPropsRef = (swapComponent as ComponentNode)?.instances?.[0]?.componentPropertyReferences;
+              let swapInvisible = false; 
+              // If a linked visible prop is false for the component swap, do not include component
+              if (typeof node.componentProperties[swapPropsRef.visible] !== 'undefined') {
+                if ((node.componentProperties[swapPropsRef.visible] as any)?.value === false)
+                  swapInvisible = true;
+              }
+              if (!swapInvisible) {
+                meta.components[swapComponent.id] = [swapComponent, node];
+              }
             }
           });
         }
@@ -119,6 +128,8 @@ async function crawlVariants(
   node: TargetNode,
   root: {node: TargetNode, styles: NodeStyles},
   children: {node: SceneNode, styles: NodeStyles}[],
+  _rootTree: ParseNodeTree,
+  _assetNodes: Set<string>,
   settings: Settings,
 ) {
   const styles: Record<string, Record<string, unknown>> = {};
@@ -130,6 +141,11 @@ async function crawlVariants(
   for await (const variant of componentVariants) {
     // Variant name
     const variantName = variant.name;
+
+    // TODO: Variant children
+    // const {tree} = crawlNodes(variant.children);
+    //const treeDiff = diff(rootTree, tree);
+  
     // Root style variants
     const variantRoot = await parseRoot(variant, settings);
     const variantRootDiff = diffStyles(root.styles, variantRoot.styles);
@@ -156,6 +172,8 @@ async function crawlVariants(
         if (!styles[childIdentifier]) styles[childIdentifier] = {};
         styles[childIdentifier][variantName] = stylesDiff;
       }
+      // TODO: diff assets (vector colors)
+      // Loop through, look for 
     }
   }
 
@@ -164,7 +182,6 @@ async function crawlVariants(
 
 function diffStyles(base: NodeStyles, variant: NodeStyles) {
   const styleDiff = diff(base, variant);
-  console.log(styleDiff);
   // TODO: any transformations of diff needed? Do it here
   return styleDiff;
 }

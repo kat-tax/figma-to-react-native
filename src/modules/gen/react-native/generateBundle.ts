@@ -41,6 +41,33 @@ export async function generateBundle(
     });
   }
 
+  // Look through instance swaps and imported needed components for preview
+  // (buttons that have icons, etc.)
+  // TODO: move this to fig/parse and support deeper instance swaps (swap of a swap of swap)
+  // OR move to preview since this shit was all just to make preview work
+  // Currently this only supports two levels of instance swaps
+  if (isPreviewMode) {
+    propDefs && Object.entries(propDefs).forEach(([k, v]: any) => {
+      if (v.type === 'INSTANCE_SWAP' && v.defaultValue) {
+        const swapNode = figma.getNodeById(v.defaultValue);
+        const isSwapVariant = !!(swapNode as SceneNode & VariantMixin).variantProperties;
+        const swapMasterNode = (isSwapVariant ? swapNode?.parent : swapNode);
+        const swapNodes = data.meta.includes[swapMasterNode.id];
+        if (swapNodes) {
+          const swapInstance = swapNodes[1] as InstanceNode;
+          if (swapInstance.componentProperties) {
+            Object.entries(swapInstance.componentProperties).forEach(([kk, vv]: any) => {
+              if (vv.type === 'INSTANCE_SWAP') {
+                const subSwapNode = figma.getNodeById(vv.value);
+                data.meta.includes[subSwapNode.id] = [subSwapNode, subSwapNode];
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+
   // Component links
   Object.entries(data.meta.components).forEach((c: any) => {
     links[createIdentifierPascal(c[1].name)] = c[0];
@@ -61,7 +88,7 @@ export async function generateBundle(
     name,
     links,
     assets,
-    props: propsToString({...propDefs}),
+    props: propsToString({...propDefs}, data.meta.includes),
     index: !isPreviewMode ? generateIndex(new Set<string>().add(name), settings) : '',
     code: !isPreviewMode ? generateCode(data, settings) : '',
     story: !isPreviewMode ? generateStory(target, isVariant, propDefs, settings) : '',

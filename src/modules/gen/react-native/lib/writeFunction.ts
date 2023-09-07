@@ -13,8 +13,10 @@ export function writeFunction(
   writer: CodeBlockWriter,
   data: ParseData,
   settings: Settings,
-  stylePrefix: string,
-  isPreview?: boolean,
+  metadata: {
+    stylePrefix: string,
+    isPreview?: boolean, 
+  }
 ) {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
@@ -32,7 +34,7 @@ export function writeFunction(
       props.sort(sortProps).forEach(([key, prop]) => {
         const {type, variantOptions}: any = prop;
         const propName = getPropName(key);
-        const propCond = type === 'BOOLEAN' ? '?' : '';
+        const propCond = type === 'BOOLEAN' || type === 'INSTANCE_SWAP' ? '?' : '';
         const propType: string = type === 'VARIANT'
           ? name+createIdentifierPascal(propName)
           : type === 'INSTANCE_SWAP'
@@ -81,16 +83,16 @@ export function writeFunction(
   // Determine if style is conditional or static
   const getStylePrefix: StylePrefixMapper = (slug) =>
     Object.keys(data.variants).includes(slug)
-      ? 'classes' : stylePrefix;
+      ? 'classes' : metadata.stylePrefix;
 
   // Component function body and children
   const attrProps = `${props.length > 0 ? `props: ${name}Props` : ''}`;
   writer.write(`export function ${name}(${attrProps})`).block(() => {
     if (isVariant && Object.keys(data.variants).length > 0)
-      writeClasses(writer, data, name, stylePrefix);
+      writeClasses(writer, data, name, metadata);
     writer.write(`return (`).indent(() => {
       writer.write(`<View style={${getStylePrefix('root')}.root}>`).indent(() => {
-        writeChildren(writer, data, settings, data.tree, getStylePrefix, isPreview);
+        writeChildren(writer, data, settings, data.tree, getStylePrefix, metadata.isPreview);
       });
       writer.writeLine(`</View>`);
     });

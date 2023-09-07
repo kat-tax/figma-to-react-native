@@ -29,7 +29,7 @@ export function Preview() {
                 zoomToElement(component, 1, isInitLoad ? 0 : 100)
               )
             )
-          , isInitLoad ? 200 : 0);
+          , isInitLoad ? 500 : 0);
         }
       }
     };

@@ -6,10 +6,11 @@ import {Theme} from 'interface/views/Theme';
 import {Export} from 'interface/views/Export';
 import {Preview} from 'interface/views/Preview';
 import {Settings} from 'interface/views/Settings';
-import {useEditor} from 'interface/hooks/useEditor';
+import {Prototype} from 'interface/views/Prototype';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
-import {useSettings} from 'interface/hooks/useSettings';
 import {useComponent} from 'interface/hooks/useComponent';
+import {useSettings} from 'interface/hooks/useSettings';
+import {useEditor} from 'interface/hooks/useEditor';
 import {Tabs, Tab, Bar, Link} from 'interface/base/Tabs';
 import {IconGear} from 'interface/base/IconGear';
 import {Loading} from 'interface/base/Loading';
@@ -64,6 +65,9 @@ export function App() {
       </Tab>
       <Tab value="preview" className="tab-view">
         <Preview {...{component, settings: settings.config}}/>
+      </Tab>
+      <Tab value="prototype" className="tab-view">
+        <Prototype/>
       </Tab>
       <Tab value="story" className="tab-view">
         <Story {...{component, options, monaco}}/>

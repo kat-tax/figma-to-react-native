@@ -1,7 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
 import {getPropName, propsToString, getInstanceInfo} from 'modules/fig/lib';
-import {getTag} from './utils';
+import {getTag} from './getTag';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/figma';
 import type {Settings} from 'types/settings';

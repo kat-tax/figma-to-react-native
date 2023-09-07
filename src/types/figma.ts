@@ -35,6 +35,6 @@ export type ParseAssetData = Record<string, {
 export type ParseMetaData = {
   primitives: Set<string>,
   assetNodes: Set<string>,
-  components: Record<string, BaseNode>,
-  includes: Record<string, BaseNode>,
+  components: Record<string, [BaseNode, BaseNode]>,
+  includes: Record<string, [BaseNode, BaseNode]>,
 };

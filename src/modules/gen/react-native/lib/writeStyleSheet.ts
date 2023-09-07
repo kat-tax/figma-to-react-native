@@ -8,12 +8,14 @@ export function writeStyleSheet(
   writer: CodeBlockWriter,
   data: ParseData,
   _settings: Settings,
-  stylePrefix: string,
-  isPreviewMode?: boolean,
+  metadata: {
+    stylePrefix: string,
+    isPreview?: boolean, 
+  }
 ) {
   const _writeStyleSheet = () => {
-    const define = isPreviewMode ? '' : 'const ';
-    writer.write(`${define}${stylePrefix} = StyleSheet.create(`).inlineBlock(() => {
+    const define = metadata.isPreview ? '' : 'const ';
+    writer.write(`${define}${metadata.stylePrefix} = StyleSheet.create(`).inlineBlock(() => {
       // Root styles
       writeStyle(writer, 'root', data.root.styles);
       if (data.variants.root) {
@@ -41,8 +43,8 @@ export function writeStyleSheet(
     });
     writer.write(');');
   };
-  if (isPreviewMode) {
-    writer.writeLine(`let ${stylePrefix} = {}`);
+  if (metadata.isPreview) {
+    writer.writeLine(`let ${metadata.stylePrefix} = {}`);
     writer.write('try ').inlineBlock(() => {
       _writeStyleSheet();
     });
