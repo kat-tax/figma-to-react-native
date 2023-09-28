@@ -1,7 +1,6 @@
 import type {TransformOptions} from 'esbuild-wasm';
 import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
 import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
-import type {ExportFormState} from 'types/export';
 
 export interface Settings {
   react: {
@@ -10,7 +9,6 @@ export interface Settings {
     addImport?: boolean,
     addTranslate?: boolean,
   }
-  export: ExportFormState,
   writer: CodeBlockWriterOptions,
   monaco: {
     general: editor.IStandaloneEditorConstructionOptions,

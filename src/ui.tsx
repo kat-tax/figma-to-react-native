@@ -1,25 +1,35 @@
+import '!./styles/default.css';
+import '!./styles/plugin.css';
+
 import {h} from 'preact';
-import {emit} from '@create-figma-plugin/utilities';
+import {on, emit} from '@create-figma-plugin/utilities';
+import {useState, useEffect} from 'preact/hooks';
 import {useWindowResize, render} from '@create-figma-plugin/ui';
-import {init, identify, ErrorBoundary} from 'utils/telemetry';
-import {useStart} from 'interface/hooks/useStart';
+import {init, identify, ErrorBoundary} from 'vendor/logtail';
 import {App} from 'interface/App';
 
-import '!./interface/styles/default.css';
-import '!./interface/styles/plugin.css';
+import type {AppPages} from 'types/app';
+import type {EventAppStart} from 'types/events';
 
 init();
 
 function Main() {
-  useStart(identify);
+  const [page, setPage] = useState<AppPages>(null);
+
+  useEffect(() => on<EventAppStart>('APP_START', (page, user) => {
+    setPage(page);
+    identify(user);
+  }), []);
+
   useWindowResize(e => emit('RESIZE_WINDOW', e), {
     minWidth: 330,
     minHeight: 250,
   });
+
   return (
     <div style={{width: '100%'}}>
       <ErrorBoundary>
-        <App/>
+        <App startPage={page}/>
       </ErrorBoundary>
     </div>
   );

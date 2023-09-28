@@ -4,10 +4,10 @@ import {useMonaco} from '@monaco-editor/react';
 import schema from 'settings-schema.json';
 
 import type {Settings} from 'types/settings';
-import type {FocusComponentHandler} from 'types/events';
-import type {EditorLibrary, EditorLinks} from 'types/editor';
+import type {EventFocus} from 'types/events';
+import type {PreviewEditorLib, PreviewEditorLinks} from 'types/preview';
 
-export function useEditor(settings: Settings, links?: EditorLinks, libs?: EditorLibrary[]) {
+export function useEditor(settings: Settings, links?: PreviewEditorLinks, libs?: PreviewEditorLib[]) {
   const monaco = useMonaco();
 
   // Setup linking to components
@@ -16,7 +16,7 @@ export function useEditor(settings: Settings, links?: EditorLinks, libs?: Editor
       provideDefinition: (model, position) => {
         const link = links?.[model.getWordAtPosition(position).word];
         if (link) {
-          emit<FocusComponentHandler>('FOCUS_COMPONENT', link);
+          emit<EventFocus>('FOCUS', link);
           return [];
         }
         return [];

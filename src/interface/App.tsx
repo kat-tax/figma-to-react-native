@@ -1,26 +1,33 @@
 import {h} from 'preact';
 import {emit} from '@create-figma-plugin/utilities';
-import {Code} from 'interface/views/Code';
-import {Story} from 'interface/views/Story';
-import {Theme} from 'interface/views/Theme';
-import {Export} from 'interface/views/Export';
-import {Preview} from 'interface/views/Preview';
-import {Settings} from 'interface/views/Settings';
-import {Prototype} from 'interface/views/Prototype';
-import {useDarkMode} from 'interface/hooks/useDarkMode';
-import {useComponent} from 'interface/hooks/useComponent';
-import {useSettings} from 'interface/hooks/useSettings';
+import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {Tabs, Tab, Bar, Link, Gear} from 'interface/base/Tabs';
+
+import {Code} from 'interface/pages/Code';
+import {Story} from 'interface/pages/Story';
+import {Theme} from 'interface/pages/Theme';
+import {Export} from 'interface/pages/Export';
+import {Preview} from 'interface/pages/Preview';
+import {Settings} from 'interface/pages/Settings';
+
+import {useConfig} from 'interface/hooks/useConfig';
 import {useEditor} from 'interface/hooks/useEditor';
-import {Tabs, Tab, Bar, Link} from 'interface/base/Tabs';
-import {IconGear} from 'interface/base/IconGear';
-import {Loading} from 'interface/base/Loading';
+import {useDarkMode} from 'interface/hooks/useDarkMode';
+import {useProjectConfig} from 'interface/hooks/useProjectConfig';
+import {usePreviewComponent} from 'interface/hooks/usePreviewComponent';
 
-import type {UpdateModeHandler} from 'types/events';
+import type {AppPages} from 'types/app';
+import type {EventAppNavigate} from 'types/events';
 
-export function App() {
+interface AppProps {
+  startPage: AppPages | null,
+}
+
+export function App(props: AppProps) {
+  const settings = useConfig();
   const isDarkMode = useDarkMode();
-  const component = useComponent();
-  const settings = useSettings();
+  const component = usePreviewComponent();
+  const project = useProjectConfig();
   const monaco = useEditor(settings.config, component?.links);
   const options = {
     ...settings.config.monaco.general,
@@ -28,24 +35,35 @@ export function App() {
     theme: isDarkMode ? 'vs-dark' : 'vs',
   };
 
-  const handleTabChange = (value: string) => {
-    const mode = value === 'preview' ? 'preview' : 'code';
-    emit<UpdateModeHandler>('UPDATE_MODE', mode);
+  const navigate = (value: AppPages) => {
+    switch (value) {
+      case 'code':
+      case 'preview':
+      case 'story':
+      case 'theme':
+      case 'export':
+        emit<EventAppNavigate>('APP_NAVIGATE', value);
+        break;
+    }
   };
 
+  if (!props.startPage || !project || !monaco) {
+    return (
+      <div className="center fill">
+        <LoadingIndicator/>
+      </div>
+    );
+  }
+
   return (
-    <Tabs defaultValue="code" className="tabs" onValueChange={handleTabChange}>
-      {!monaco && <Loading/>}
+    <Tabs defaultValue={props.startPage} onValueChange={navigate} className="tabs">
       <Bar loop aria-label="header" className="bar">
         <Link value="code" title="View component code" className="tab">
-          Component
+          Code
         </Link>
         <Link value="preview" title="Preview component" className="tab">
           Preview
         </Link>
-        {/*<Link value="prototype" title="View prototype code" className="tab">
-          Prototype
-        </Link>*/}
         <Link value="story" title="View story" className="tab">
           Story
         </Link>
@@ -57,7 +75,7 @@ export function App() {
         </Link>
         <div style={{flex: 1}}/>
         <Link title="Configure plugin" value="settings" className="tab icon">
-          <IconGear/>
+          <Gear {...{isDarkMode}}/>
         </Link>
       </Bar>
       <Tab value="code" className="tab-view">
@@ -66,9 +84,6 @@ export function App() {
       <Tab value="preview" className="tab-view">
         <Preview {...{component, settings: settings.config}}/>
       </Tab>
-      <Tab value="prototype" className="tab-view">
-        <Prototype/>
-      </Tab>
       <Tab value="story" className="tab-view">
         <Story {...{component, options, monaco}}/>
       </Tab>
@@ -76,7 +91,7 @@ export function App() {
         <Theme {...{options, monaco}}/>
       </Tab>
       <Tab value="export" className="tab-view">
-        <Export {...{settings}}/>
+        <Export config={project}/>
       </Tab>
       <Tab value="settings" className="tab-view">
         <Settings {...{settings, options, monaco}}/>

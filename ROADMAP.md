@@ -1,19 +1,20 @@
 # ROADMAP
 
-### Next
+### Todo
+- Save export settings to document instead of user config
+- Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
+- Fix preview using wrong default value for Child in Frame example (should be SUBMIT not Default)
 - Add frame selections
-- Fix "failed to export" error caused by hidden assets
 - Fix storybook variants
 - Improve perf (cache data, track revisions)
+- Make inspect components link to code and highlight
+- Fix inspect definition link to component
+- Fix "failed to export" error caused by hidden assets
 - Add useMemo to classes
-- Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
-- Improve styling differences
-- Sort props
-
-### Interface
 - Diff text instead of fully replacing (highlight changes?)
 - Highlight selected sub node within code
   - sourcemap from node ids -> line + column numbers needed when parsing
+- Support SWC as well as ESBuild (https://swc.rs/docs/usage/wasm)
 
 ### Generation
 - When releasing, merge previous styles with comment // @f2rn-override
@@ -43,14 +44,11 @@
 </Pressable>
 ```
 
-### Extensions
-- VSCode extension similar to Storybook sync to directly sync to project
-
 ### The KATTAX Stack
-- VIA (cross-platform router)
-- ULT (cross-platform starter)
-- EXO (cross-platform UI kit)
-- FOV (application services)
+- ULT (stack)
+- VIA (router)
+- EXO (ui kit)
+- FOV (app service)
   # Stage 1
   1. Sync & share EXO + custom components in Storybook
   2. Automated building of EXO + custom components to UI package
