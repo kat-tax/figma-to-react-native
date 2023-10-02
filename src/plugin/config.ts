@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {F2RN_CONFIG_NS} from 'config/env';
-import defaultConfig from 'config/settings';
+import defaultConfig from 'config/user';
 
 import type {Settings} from 'types/settings';
 import type {EventConfigLoad} from 'types/events';

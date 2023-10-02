@@ -1,6 +1,6 @@
 import type {Settings} from 'types/settings';
 
-const settings: Settings = {
+const user: Settings = {
   react: {
     flavor: 'react-native',
     styleGen: 'figma',
@@ -27,4 +27,4 @@ const settings: Settings = {
   },
 };
 
-export default settings;
+export default user;

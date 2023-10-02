@@ -17,5 +17,6 @@ export function generateCode(data: ParseData, settings: Settings) {
   writer.blankLine();
   writeStyleSheet(writer, data, settings, metadata);
   writer.newLine();
+
   return writer.toString();
 }

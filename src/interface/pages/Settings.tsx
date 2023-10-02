@@ -1,8 +1,9 @@
+import MonacoReact from '@monaco-editor/react';
+
 import {h} from 'preact';
 import {useMemo} from 'preact/hooks';
-import {debounce} from 'common/delay';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
-import MonacoReact from '@monaco-editor/react';
+import {debounce} from 'common/delay';
 
 import type {Settings} from 'types/settings';
 import type {ConfigData} from 'interface/hooks/useConfig';

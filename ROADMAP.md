@@ -1,10 +1,8 @@
 # ROADMAP
 
 ### Todo
-- Save export settings to document instead of user config
 - Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
 - Fix preview using wrong default value for Child in Frame example (should be SUBMIT not Default)
-- Add frame selections
 - Fix storybook variants
 - Improve perf (cache data, track revisions)
 - Make inspect components link to code and highlight
@@ -16,33 +14,13 @@
   - sourcemap from node ids -> line + column numbers needed when parsing
 - Support SWC as well as ESBuild (https://swc.rs/docs/usage/wasm)
 
+
 ### Generation
-- When releasing, merge previous styles with comment // @f2rn-override
-- Theme values (fonts & effects left)
 - Interactions (via Pressable & Link)
-- Gradient backgrounds
+- Theme values (fonts & effects left)
 - Screens (navigation based on prototype settings)
-- Use Pressable and TextInput using user mappings
-```json
-{
-  "mappings": {
-    // Hovers get a pressable generated over them
-    "PressableContainer": "/$button|^button/i",
-    // Hovers get a pressable generated over them
-    "PressableHover": "/$button|^button/i",
-    // Inputs get Text replaced with TextInput and contents are the placeholder attr
-    "TextInput": "/$input|^input/i",
-  }
-}
-```
-- Auto generate a <Pressable> and apply "Hover" or "Focused" or "Pressed" state?
-```tsx
-<Pressable onClick={console.log}>
-  {({hovered}) => (
-    <Button state={hovered ? 'Hover' : 'Default'}/>
-  )}
-</Pressable>
-```
+- When releasing, merge previous styles with comment // @f2rn-override
+
 
 ### The KATTAX Stack
 - ULT (stack)

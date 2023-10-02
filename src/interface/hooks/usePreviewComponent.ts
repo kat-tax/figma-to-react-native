@@ -1,7 +1,7 @@
-import {on} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'preact/hooks';
-import {PreviewComponent} from 'types/preview';
+import {on} from '@create-figma-plugin/utilities';
 
+import type {PreviewComponent} from 'types/preview';
 import type {EventPreviewComponent} from 'types/events';
 
 export function usePreviewComponent(): PreviewComponent {

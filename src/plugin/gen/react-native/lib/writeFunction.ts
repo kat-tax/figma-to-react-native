@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal, createIdentifier} from 'common/string';
+import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getPropName, sortPropsDef} from 'plugin/fig/lib';
 import {writeChildren} from './writeChildren';
 import {writeClasses} from './writeClasses';
@@ -15,8 +15,9 @@ export function writeFunction(
   settings: Settings,
   metadata: {
     stylePrefix: string,
-    isPreview?: boolean, 
-  }
+    isPreview?: boolean,
+  },
+  includeFrame?: boolean,
 ) {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
@@ -24,49 +25,74 @@ export function writeFunction(
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
   const props = propDefs ? Object.entries(propDefs) : [];
   const name = createIdentifierPascal(masterNode.name);
+  
+  // Pressable data (on click -> open link set)
+  const pressables = data.root.click?.type === 'URL'
+    ? data.root.click.url
+      ?.split(',')
+      ?.map(s => s
+        ?.trim()
+        ?.split('#')
+      ).map(([prop, label]) => {
+        const id = createIdentifierCamel(label
+          && label !== 'root'
+          && prop === 'onPress'
+            ? `${prop}_${label}`
+            : prop);
+        return [prop, label, id];
+      })
+    : null;
 
-  // Store variants
-  const variants: Record<string, Set<string>> = {};
+  // Determine if root node is wrapped in a pressable
+  const isRootPressable = pressables !== null
+    && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
 
   // Component props
   if (props.length > 0) {
     writer.write(`export interface ${name}Props`).block(() => {
+      // Figma props
+      let hasWroteDisableProp = false;
       props.sort(sortPropsDef).forEach(([key, prop]) => {
-        const {type, variantOptions}: any = prop;
         const propName = getPropName(key);
-        const propCond = type === 'BOOLEAN' || type === 'INSTANCE_SWAP' ? '?' : '';
-        const propType: string = type === 'VARIANT'
-          ? name+createIdentifierPascal(propName)
-          : type === 'INSTANCE_SWAP'
-            ? `JSX.Element`
-            : type === 'TEXT'
-              ? 'string'
-              : type.toLowerCase();
-        if (type === 'VARIANT') {
-          if (!variants[propName]) variants[propName] = new Set();
-          variantOptions?.forEach((v: any) =>
-            variants[propName].add(createIdentifier(v)));
+
+        if (propName === 'disabled') {
+          if (hasWroteDisableProp) return;
+          hasWroteDisableProp = true;
         }
-        writer.writeLine(`${propName}${propCond}: ${propType};`);
+
+        const isBoolean = prop.type === 'BOOLEAN';
+        const isVariant = prop.type === 'VARIANT';
+        const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
+        const isRootPressableState = propName === 'state' && isRootPressable && isVariant;
+        const isConditionalProp = isBoolean || isInstanceSwap || isRootPressableState;
+        
+        const propCond = isConditionalProp ? '?' : '';
+        const propType: string = isVariant
+          ? prop.variantOptions
+            .map((v) => `'${createIdentifierPascal(v)}'`)
+            .join(' | ')
+          : isInstanceSwap
+            ? `ReactElement`
+            : prop.type === 'TEXT'
+              ? 'string'
+              : prop.type.toLowerCase();
+
+        writer.writeLine(`${propName}${propCond}: ${propType},`);
+
+        // Write disabled prop if needed (special use case)
+        if (isRootPressableState && !hasWroteDisableProp) {
+          writer.writeLine(`disabled?: boolean,`);
+          hasWroteDisableProp = true;
+        }
+      });
+
+      // Custom props
+      pressables?.forEach(([,,id]) => {
+        writer.writeLine(`${id}?: (e: GestureResponderEvent) => void,`);
       });
     });
     writer.blankLine();
   }
-
-  // Component state enums
-  Object.entries(variants).forEach(([key, value]) => {
-    const enumId = name+createIdentifierPascal(key);
-    writer.write(`export enum ${enumId}`).block(() => {
-      value.forEach((value: string, i) => {
-        const enumEntry = createIdentifierPascal(value);
-        writer.write(`${enumEntry} = `)
-        writer.quote(value);
-        writer.write(',');
-        writer.newLine();
-      });
-    });
-    writer.blankLine();
-  });
 
   // Component documentation
   if (masterNode.description) {
@@ -83,18 +109,42 @@ export function writeFunction(
   // Determine if style is conditional or static
   const getStylePrefix: StylePrefixMapper = (slug) =>
     Object.keys(data.variants).includes(slug)
-      ? 'classes' : metadata.stylePrefix;
+      ? 'dynamic' : metadata.stylePrefix;
 
   // Component function body and children
   const attrProps = `${props.length > 0 ? `props: ${name}Props` : ''}`;
   writer.write(`export function ${name}(${attrProps})`).block(() => {
+    // Conditional styling
     if (isVariant && Object.keys(data.variants).length > 0)
-      writeClasses(writer, data, name, metadata);
+      writeClasses(writer, data, metadata, isRootPressable);
+
+    if (isRootPressable) {
+      writer.writeLine(`const ref = React.useRef(null);`);
+      //writer.writeLine(`const {buttonProps} = useButton(props);`);
+      //writer.writeLine(`const {hoverProps} = useHover({}, ref);`);
+      writer.writeLine(`const {focusProps} = useFocusRing();`);
+      //writer.writeLine(`const propsAria = {...buttonProps, ...hoverProps, ...focusProps};`);
+      writer.blankLine();
+    }
+
     writer.write(`return (`).indent(() => {
-      writer.write(`<View style={${getStylePrefix('root')}.root}>`).indent(() => {
-        writeChildren(writer, data, settings, data.tree, getStylePrefix, metadata.isPreview);
+      const pressId = isRootPressable && pressables?.find(e => e[1] === 'root' || !e[1])?.[2];
+      const rootTag = isRootPressable ? 'Pressable' : 'View';
+      const rootStyle = ` style={${getStylePrefix('root')}.root}`;
+      const rootProps = isRootPressable
+        ? ` ref={ref} onPress={props.${pressId}} disabled={_stateDisabled} {...focusProps}`
+        : '';
+
+      writer.conditionalWrite(includeFrame, `<View style={${getStylePrefix('frame')}.frame}>`).indent(() => {
+        const indent = includeFrame ? 0 : -1;
+        writer.withIndentationLevel(writer.getIndentationLevel() + indent, () => {
+          writer.write('<'+rootTag+rootStyle+rootProps+'>').indent(() => {
+            writeChildren(writer, data, settings, data.tree, getStylePrefix, metadata.isPreview, pressables);
+          });
+          writer.writeLine(`</${rootTag}>`);
+        });
       });
-      writer.writeLine(`</View>`);
+      writer.conditionalWriteLine(includeFrame, `</View>`);
     });
     writer.writeLine(');');
   });

@@ -1,5 +1,5 @@
 // Return the selected component
-export function getSelectedComponent(): ComponentNode | FrameNode {
+export function getSelectedComponent(): ComponentNode {
   const {selection} = figma.currentPage;
   if (selection.length === 0) return null;
   const components = Array.from(getComponentTargets(selection));
@@ -7,8 +7,8 @@ export function getSelectedComponent(): ComponentNode | FrameNode {
 }
 
 // Find components in a list of nodes
-export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentNode | FrameNode> {
-  const components = new Set<ComponentNode | FrameNode>();
+export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentNode> {
+  const components = new Set<ComponentNode>();
   for (const node of nodes) {
     const component = getComponentTarget(node);
     if (component) {
@@ -19,7 +19,7 @@ export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentN
 }
 
 // Find the component of a node (if exists)
-export function getComponentTarget(node: SceneNode): ComponentNode | FrameNode {
+export function getComponentTarget(node: SceneNode): ComponentNode {
   // Find the component in the parent chain
   let target: SceneNode = node;
 
@@ -31,6 +31,7 @@ export function getComponentTarget(node: SceneNode): ComponentNode | FrameNode {
     return target.children[0];
   }
 
+  // If not, search parent nodes for a component
   while (target.type !== 'COMPONENT_SET'
     && target.type !== 'COMPONENT'
     && target.type !== 'INSTANCE'
@@ -38,9 +39,12 @@ export function getComponentTarget(node: SceneNode): ComponentNode | FrameNode {
     && target.parent.type !== 'PAGE') {
     target = target.parent as SceneNode;
   }
+
+  // Find a top level component (if exists)
   const parentComponent = getComponentParent(node);
   if (parentComponent)
     return parentComponent;
+
   // If the target is a component set, use the default variant
   if (target.type === 'COMPONENT_SET')
     return target.defaultVariant;
@@ -56,7 +60,7 @@ export function getComponentTarget(node: SceneNode): ComponentNode | FrameNode {
 }
 
 // Find the parent component of a component instance
-export function getComponentParent(node: SceneNode): ComponentNode | FrameNode {
+export function getComponentParent(node: SceneNode): ComponentNode {
   // Find the component in the parent chain
   let target: SceneNode = node;
   while (target.type !== 'COMPONENT_SET'
@@ -94,7 +98,7 @@ export function focusComponent(id: string) {
       if (page && figma.currentPage !== page) {
         figma.currentPage = page;
       }
-      figma.currentPage.selection = [node as any];
+      figma.currentPage.selection = [node as SceneNode];
       figma.viewport.scrollAndZoomIntoView([node]);
     }
   } catch (e) {}

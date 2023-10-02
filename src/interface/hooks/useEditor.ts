@@ -1,6 +1,6 @@
-import {emit} from '@create-figma-plugin/utilities';
-import {useEffect} from 'preact/hooks';
 import {useMonaco} from '@monaco-editor/react';
+import {useEffect} from 'preact/hooks';
+import {emit} from '@create-figma-plugin/utilities';
 import schema from 'settings-schema.json';
 
 import type {Settings} from 'types/settings';

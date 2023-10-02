@@ -7,21 +7,20 @@ import {writeFunction} from './lib/writeFunction';
 import {writeImports} from './lib/writeImports';
 
 import type {ParseData} from 'types/parse';
-import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
 
 export async function generatePreview(data: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
-  const primitives = new Set(['Text', 'Image']);
+  const primitives = new Set(['View', 'Text', 'Image', 'Pressable', 'TouchableHighlight']);
   const metadata = {stylePrefix: 'styles', isPreview: true};
   data.meta.primitives = primitives;
   writeImports(writer, data, settings, metadata);
   writer.blankLine();
   writer.write(generateTheme(settings));
   writer.blankLine();
-  writeFunction(writer, data, settings, metadata);
+  writeFunction(writer, data, settings, metadata, true);
   writer.blankLine();
-  writeStyleSheet(writer, data, settings, metadata);
+  writeStyleSheet(writer, data, settings, metadata, true);
   writer.blankLine();
   await writeDependencies(writer, settings, {...data.meta.components, ...data.meta.includes});
   writer.blankLine();
@@ -41,7 +40,7 @@ async function writeDependencies(
     const content = (node as ComponentSetNode).defaultVariant ?? node;
     if (index.has(content)) continue;
     index.add(content);
-    const data = await parseFigma(content as TargetNode, settings, true);
+    const data = await parseFigma(content as ComponentNode, settings, true);
     writeFunction(writer, data, settings, metadata);
     writer.blankLine();
     writeStyleSheet(writer, data, settings, metadata);

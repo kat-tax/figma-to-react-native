@@ -1,7 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {getPropName, propsToString, getInstanceInfo} from 'plugin/fig/lib';
-import {getTag} from './getTag';
+import {getPropName, propsToString, getInstanceInfo, getCustomReaction, getPressReaction} from 'plugin/fig/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {Settings} from 'types/settings';
@@ -15,21 +14,34 @@ export function writeChildren(
   children: ParseNodeTree,
   getStylePrefix: StylePrefixMapper,
   isPreview?: boolean,
+  rootPressables?: string[][],
 ) {
   children.forEach((child) => {
     // Derived data
+    const slug = data.children?.find(c => c.node === child.node)?.slug;
+    const pressableId = rootPressables?.find(e => e?.[1] === slug)?.[2];
+    const isPressable = Boolean(pressableId);
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
     const masterNode = isVariant ? child.node.parent : child.node;
     const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
+
     // Conditional rendering
     if (propRefs?.visible) {
       const name = getPropName(propRefs?.visible);
       writer.write(`{props.${name} &&`).space().indent(() => {
-        writeChild(writer, data, settings, child, getStylePrefix, true, isPreview);
+        writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressableId}}>`);
+        writer.withIndentationLevel(writer.getIndentationLevel() + (isPressable ? 1 : 0), () => {
+          writeChild(writer, data, settings, child, slug, getStylePrefix, true, isPreview, rootPressables);
+        });
+        writer.conditionalWriteLine(isPressable, `</Pressable>`);
       }).write('}').newLine();
     // Default rendering
     } else {
-      writeChild(writer, data, settings, child, getStylePrefix, false, isPreview);
+      writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressableId}}>`);
+      writer.withIndentationLevel(writer.getIndentationLevel() + (isPressable ? 1 : 0), () => {
+        writeChild(writer, data, settings, child, slug, getStylePrefix, false, isPreview, rootPressables);
+      });
+      writer.conditionalWriteLine(isPressable, `</Pressable>`);
     }
   });
 }
@@ -39,16 +51,27 @@ export function writeChild(
   data: ParseData,
   settings: Settings,
   child: ParseNodeTreeItem,
+  slug: string,
   getStylePrefix: StylePrefixMapper,
   isConditional: boolean = false,
   isPreview?: boolean,
+  rootPressables?: string[][],
 ) {
   // console.log('writeChild:', child.node.type, child.node.name, child.node.isAsset);
 
-  // Common data
+  // Derived data
+  const props = (child.node as InstanceNode)?.componentProperties;
+  const propRefs = child.node.componentPropertyReferences;
+  const pressable = getPressReaction(child.node as InstanceNode);
+  const reaction = getCustomReaction(child.node as InstanceNode);
+  const instance = getInstanceInfo(child.node as InstanceNode);
+  const propJSX = propsToString(props);
   const isText = child.node.type === 'TEXT';
   const isInstance = child.node.type === 'INSTANCE';
-  const propRefs = child.node.componentPropertyReferences;
+  const isAsset = (child.node.isAsset && !isInstance) || child.node.type === 'VECTOR';
+  const isCustom = reaction?.type === 'URL';
+
+  console.log(reaction, pressable);
 
   // Component instance swap
   const swapComponent = propRefs?.mainComponent;
@@ -60,9 +83,6 @@ export function writeChild(
   }
 
   // Asset node (svg or image)
-  const isAsset = child.node.isAsset && child.node.type !== 'INSTANCE'
-    || child.node.type === 'VECTOR';
-
   if (isAsset) {
     const asset = data.assets[child.node.id];
     if (asset) {
@@ -88,15 +108,47 @@ export function writeChild(
     return;
   }
 
-  // Determine JSX tag
-  const node = data.children.find(c => c.node === child.node);
-  const instance = getInstanceInfo(child.node as InstanceNode);
-  const attrProps = propsToString((child.node as any)?.componentProperties);
-  const attrStyle = node.slug ? ` style={${getStylePrefix(node.slug)}.${node.slug}}` : '';
-  const jsxTag = isInstance ? createIdentifierPascal(instance.main.name) : getTag(child.node.type);
-  const jsxTagWithProps = isInstance
-    ? jsxTag + attrProps
-    : jsxTag + attrStyle + attrProps;
+  // JSX tag will change depending on node type
+  let jsxTag: string;
+  let jsxTagWithProps: string;
+  let jsxCustomProps = '';
+
+  // Custom props from the interaction to inject
+  if (isCustom) {
+    jsxCustomProps = reaction.url
+      ?.split(',')
+      ?.map(p => p.trim())
+      ?.map(p => {
+        // Prop -> root prop match alias
+        const relation = p?.split('->');
+        if (relation.length === 2) {
+          const [k, v] = relation;
+          if (k && v) {
+            return ` ${getPropName(k)}={props.${getPropName(v)}}`;
+          }
+        }
+        // Purely custom input (raw k=v)
+        const custom = p?.split('=');
+        if (custom.length === 1 && custom[0])
+          return ' ' + custom[0];
+        if (custom.length === 2 && custom[1])
+          return ' ' + custom.join('=');
+        // Invalid input
+        return '';
+      })?.join('');
+  }
+
+  // Create instance tag
+  if (isInstance) {
+    jsxTag = createIdentifierPascal(instance.main.name);
+    jsxTagWithProps = jsxTag + jsxCustomProps + propJSX;
+
+  // Create primitive tag
+  } else {
+    const styles = slug ? ` style={${getStylePrefix(slug)}.${slug}}` : '';
+    jsxTag = getTag(child.node.type);
+    jsxTagWithProps = jsxTag + jsxCustomProps + propJSX + styles;
+  }
 
   // No children, self closing tag
   if (!isText && !child.children) {
@@ -106,26 +158,55 @@ export function writeChild(
 
   // Child nodes, open tag and write children
   writer.write(`<${jsxTagWithProps}>`).indent(() => {
-    // Text child
-    if (isText) {
-      const propId = propRefs?.characters;
-      const propName = propId ? getPropName(propId) : null;
-      const propValue = propName ? `props.${propName}` : (child.node as TextNode).characters || '';
-      if (propValue.startsWith('props.')) {
-        writer.write(`{${propValue}}`);
-      } else {
-        if (settings?.react?.addTranslate) {
-          writer.write(`<Trans>${propValue}</Trans>`);
+    switch (jsxTag) {
+      case 'Text':
+        const propId = propRefs?.characters;
+        const propName = propId ? getPropName(propId) : null;
+        const propValue = propName
+          ? `props.${propName}`
+          : (child.node as TextNode).characters || '';
+        if (propValue.startsWith('props.')) {
+          writer.write(`{${propValue}}`);
         } else {
-          writer.write(propValue);
+          if (settings?.react?.addTranslate) {
+            writer.write(`<Trans>${propValue}</Trans>`);
+          } else {
+            writer.write(propValue);
+          }
         }
-      }
-    // View children (recurse)
-    } else if (jsxTag === 'View') {
-      writeChildren(writer, data, settings, child.children, getStylePrefix, isPreview);
+        break;
+      case 'View':
+        writeChildren(
+          writer,
+          data,
+          settings,
+          child.children,
+          getStylePrefix,
+          isPreview,
+          rootPressables,
+        );
+        break;
     }
   });
 
   // Closing tag
   writer.writeLine(`</${jsxTag}>`);
+}
+
+function getTag(type: string) {
+  switch (type) {
+    case 'TEXT':
+      return 'Text';
+    case 'IMAGE':
+      return 'Image';
+    case 'VECTOR':
+      return 'Svg';
+    case 'COMPONENT':
+    case 'INSTANCE':
+    case 'RECTANGLE':
+    case 'ELLIPSE':
+    case 'FRAME':
+    default:
+      return 'View';
+  }
 }

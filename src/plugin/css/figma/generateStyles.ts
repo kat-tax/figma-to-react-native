@@ -1,14 +1,14 @@
 import {getPropertyName, getStylesForProperty} from 'vendor/css-to-rn';
-import type {NodeStyles} from 'types/figma';
+import type {ParseStyles} from 'types/parse';
 
-export async function generateStyles(node: SceneNode): Promise<NodeStyles> {
+export async function generateStyles(node: SceneNode): Promise<ParseStyles> {
   const css = await node.getCSSAsync();
   const styles = convertCSS(css);
   return styles;
 }
 
-function convertCSS(css: {[key: string]: string}): NodeStyles {
-  let styles: NodeStyles = {};
+function convertCSS(css: {[key: string]: string}): ParseStyles {
+  let styles: ParseStyles = {};
   for (const [k, v] of Object.entries(css)) {
     const prop = getPropertyName(k);
     const value = v.trim();
@@ -19,7 +19,7 @@ function convertCSS(css: {[key: string]: string}): NodeStyles {
   return shortHandStyles(augmentStyles(styles));
 }
 
-function augmentStyles(styles: NodeStyles): NodeStyles {
+function augmentStyles(styles: ParseStyles): ParseStyles {
   // Set default flex direction explicitly for flex containers
   if (styles.display && !styles.flexDirection)
     styles.flexDirection = 'row';
@@ -56,7 +56,7 @@ function getTokenFromVar(str: string): string | null {
   return null;
 }
 
-function shortHandStyles(styles: NodeStyles): NodeStyles {
+function shortHandStyles(styles: ParseStyles): ParseStyles {
   // Padding
   if (styles.paddingLeft !== undefined
     && styles.paddingLeft === styles.paddingTop

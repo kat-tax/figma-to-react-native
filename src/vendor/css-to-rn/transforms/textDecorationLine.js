@@ -1,18 +1,20 @@
-import { SPACE, LINE } from '../lib/tokenTypes'
+import {SPACE, LINE} from '../lib/tokenTypes';
 
 export default tokenStream => {
-  const lines = []
+  const lines = [];
 
-  let didParseFirst = false
+  let didParseFirst = false;
   while (tokenStream.hasTokens()) {
-    if (didParseFirst) tokenStream.expect(SPACE)
+    if (didParseFirst)
+      tokenStream.expect(SPACE);
 
-    lines.push(tokenStream.expect(LINE).toLowerCase())
-
-    didParseFirst = true
+    lines.push(tokenStream.expect(LINE).toLowerCase());
+    didParseFirst = true;
   }
 
-  lines.sort().reverse()
+  lines.sort().reverse();
 
-  return { textDecorationLine: lines.join(' ') }
+  return {
+    textDecorationLine: lines.join(' '),
+  };
 }

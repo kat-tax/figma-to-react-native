@@ -1,15 +1,16 @@
-import {h, Fragment} from 'preact';
-import {useRef, useEffect, useMemo} from 'preact/hooks';
-import {memo} from 'preact/compat';
-import {init} from 'vendor/monaco';
-import {throttle} from 'common/delay';
-import {Watermark} from 'interface/base/Watermark';
-import {LoadingIndicator} from '@create-figma-plugin/ui';
 import MonacoReact from '@monaco-editor/react';
 
+import {h, Fragment} from 'preact';
+import {memo} from 'preact/compat';
+import {useRef, useEffect, useMemo} from 'preact/hooks';
+import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {Watermark} from 'interface/base/Watermark';
+import {throttle} from 'common/delay';
+import {init} from 'vendor/monaco';
+
+import type {Monaco, Editor} from 'vendor/monaco';
 import type {PreviewComponent} from 'types/preview';
 import type {Settings} from 'types/settings';
-import type {Monaco, Editor} from 'vendor/monaco';
 
 interface CodeProps {
   component: PreviewComponent;

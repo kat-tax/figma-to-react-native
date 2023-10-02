@@ -11,11 +11,15 @@ export function writeStyleSheet(
   metadata: {
     stylePrefix: string,
     isPreview?: boolean, 
-  }
+  },
+  includeFrame?: boolean,
 ) {
   const _writeStyleSheet = () => {
     const define = metadata.isPreview ? '' : 'const ';
     writer.write(`${define}${metadata.stylePrefix} = StyleSheet.create(`).inlineBlock(() => {
+      // Frame styles
+      if (includeFrame && data.frame)
+        writeStyle(writer, 'frame', data.frame.styles);
       // Root styles
       writeStyle(writer, 'root', data.root.styles);
       if (data.variants.root) {

@@ -16,19 +16,24 @@ import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {usePreviewComponent} from 'interface/hooks/usePreviewComponent';
 
+import {titleCase} from 'common/string';
+
 import type {AppPages} from 'types/app';
 import type {EventAppNavigate} from 'types/events';
+
+const PAGES: AppPages[] = ['code', 'preview', 'story', 'theme', 'export', 'settings'];
 
 interface AppProps {
   startPage: AppPages | null,
 }
 
 export function App(props: AppProps) {
-  const settings = useConfig();
-  const isDarkMode = useDarkMode();
-  const component = usePreviewComponent();
   const project = useProjectConfig();
+  const component = usePreviewComponent();
+  const isDarkMode = useDarkMode();
+  const settings = useConfig();
   const monaco = useEditor(settings.config, component?.links);
+  const isReady = Boolean(props.startPage && project && monaco);
   const options = {
     ...settings.config.monaco.general,
     tabSize: settings.config.writer.indentNumberOfSpaces,
@@ -36,66 +41,46 @@ export function App(props: AppProps) {
   };
 
   const navigate = (value: AppPages) => {
-    switch (value) {
-      case 'code':
-      case 'preview':
-      case 'story':
-      case 'theme':
-      case 'export':
-        emit<EventAppNavigate>('APP_NAVIGATE', value);
-        break;
+    if (PAGES.includes(value)) {
+      emit<EventAppNavigate>('APP_NAVIGATE', value);
     }
   };
 
-  if (!props.startPage || !project || !monaco) {
-    return (
-      <div className="center fill">
-        <LoadingIndicator/>
-      </div>
-    );
-  }
-
-  return (
-    <Tabs defaultValue={props.startPage} onValueChange={navigate} className="tabs">
-      <Bar loop aria-label="header" className="bar">
-        <Link value="code" title="View component code" className="tab">
-          Code
-        </Link>
-        <Link value="preview" title="Preview component" className="tab">
-          Preview
-        </Link>
-        <Link value="story" title="View story" className="tab">
-          Story
-        </Link>
-        <Link value="theme" title="View theme file" className="tab">
-          Theme
-        </Link>
-        <Link value="export" title="Export project" className="tab">
-          Export
-        </Link>
+  return isReady ? (
+    <Tabs defaultValue={props.startPage} onValueChange={navigate}>
+      <Bar loop aria-label="header">
+        {PAGES.filter(e => !e.includes('settings')).map(page => (
+          <Link key={page} value={page} title={`View ${page}`}>
+            {titleCase(page)}
+          </Link>
+        ))}
         <div style={{flex: 1}}/>
-        <Link title="Configure plugin" value="settings" className="tab icon">
+        <Link value="settings" title="Configure plugin" hasIcon>
           <Gear {...{isDarkMode}}/>
         </Link>
       </Bar>
-      <Tab value="code" className="tab-view">
+      <Tab value="code">
         <Code {...{component, options, monaco}}/>
       </Tab>
-      <Tab value="preview" className="tab-view">
+      <Tab value="preview">
         <Preview {...{component, settings: settings.config}}/>
       </Tab>
-      <Tab value="story" className="tab-view">
+      <Tab value="story">
         <Story {...{component, options, monaco}}/>
       </Tab>
-      <Tab value="theme" className="tab-view">
+      <Tab value="theme">
         <Theme {...{options, monaco}}/>
       </Tab>
-      <Tab value="export" className="tab-view">
+      <Tab value="export">
         <Export config={project}/>
       </Tab>
-      <Tab value="settings" className="tab-view">
+      <Tab value="settings">
         <Settings {...{settings, options, monaco}}/>
       </Tab>
     </Tabs>
+  ) : (
+    <div className="center fill">
+      <LoadingIndicator/>
+    </div>
   );
 }

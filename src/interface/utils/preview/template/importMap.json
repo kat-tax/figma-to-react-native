@@ -1,4 +1,6 @@
 {
+  "@react-native-aria/focus": "https://ga.jspm.io/npm:@react-native-aria/focus@0.2.8/lib/module/index.js",
+
   "react": "https://ga.jspm.io/npm:react@18.2.0/dev.index.js",
   "react-dom": "https://ga.jspm.io/npm:react-dom@18.2.0/dev.index.js",
   "react-native": "https://ga.jspm.io/npm:react-native-web@0.19.5/dist/index.js",

@@ -1,9 +1,10 @@
-import {on} from '@create-figma-plugin/utilities';
 import {useRef, useEffect, useCallback} from 'preact/hooks';
-import {sync, init} from 'interface/utils/sync';
-import {download} from 'interface/utils/download';
-import {upload} from 'interface/utils/upload';
+import {on} from '@create-figma-plugin/utilities';
 import {log} from 'vendor/logtail';
+
+import {upload} from 'interface/utils/upload';
+import {download} from 'interface/utils/download';
+import {sync, init} from 'interface/utils/sync';
 
 import type {StateUpdater} from 'preact/hooks';
 import type {EventProjectBuild} from 'types/events';

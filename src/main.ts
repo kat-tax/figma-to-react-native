@@ -1,4 +1,4 @@
-import {on, emit, showUI} from '@create-figma-plugin/utilities';
+import {showUI, emit, on} from '@create-figma-plugin/utilities';
 import {focusComponent} from 'plugin/fig/traverse';
 
 import * as app from 'plugin/app';
@@ -9,18 +9,24 @@ import * as codegen from 'plugin/codegen';
 
 import type * as T from 'types/events';
 
-const isHeadless = figma.editorType === 'dev' && figma.mode === 'codegen';
+const HEADLESS = figma.editorType === 'dev' && figma.mode === 'codegen';
 
-if (!isHeadless) {
-  showUI({width: 400, height: 600});
+// Show interface if not in headless mode
+// Note: must be called immediately, not in an async function
+if (!HEADLESS) {
+  showUI({
+    width: Math.max(330, Math.min(600, Math.round(figma.viewport.bounds.width / 2))),
+    height: Math.round(figma.viewport.bounds.height - 20),
+    position: {x: 0, y: Math.round(figma.viewport.bounds.y)},
+  });
 }
 
 export default async function() {
   // Load config from storage
-  await config.load(isHeadless);
+  await config.load(HEADLESS);
 
   // Headless codegen mode
-  if (isHeadless) {
+  if (HEADLESS) {
     figma.codegen.on('generate', (e) => {
       codegen.handleConfigChange();
       return codegen.render(e.node);

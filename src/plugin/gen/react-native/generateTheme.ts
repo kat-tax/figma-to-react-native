@@ -4,11 +4,11 @@ import {getColor} from 'plugin/fig/lib';
 
 import type {Settings} from 'types/settings';
 
-export function generateTheme(settings: Settings) {
-  type ThemeColors = Record<string, ThemeGroup>;
-  type ThemeGroup = Record<string, ThemeColor> | ThemeColor;
-  type ThemeColor = {value: string, comment: string};
+type ThemeColors = Record<string, ThemeGroup>;
+type ThemeGroup = Record<string, ThemeColor> | ThemeColor;
+type ThemeColor = {value: string, comment: string};
 
+export function generateTheme(settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   writer.write('export default').space().inlineBlock(() => {
     let maxLineLength = 0;

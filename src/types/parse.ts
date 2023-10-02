@@ -1,8 +1,7 @@
-import {TargetNode, NodeStyles} from 'types/figma';
-
 export interface ParseData {
-  root: {node: TargetNode, styles: NodeStyles, slug: string},
-  children: Array<{node: SceneNode, styles: NodeStyles, slug: string}>,
+  root: {node: ComponentNode, slug: string, styles: ParseStyles, click: Action},
+  frame: {node: FrameNode, slug: string, styles: ParseStyles},
+  children: Array<{node: SceneNode, slug: string, styles: ParseStyles}>,
   tree: ParseNodeTree,
   meta: ParseMetaData,
   assets: ParseAssetData,
@@ -26,4 +25,8 @@ export type ParseMetaData = {
   assetNodes: Set<string>,
   components: Record<string, [BaseNode, BaseNode]>,
   includes: Record<string, [BaseNode, BaseNode]>,
+};
+
+export type ParseStyles = {
+  [key: string]: string | number,
 };

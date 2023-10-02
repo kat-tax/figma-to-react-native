@@ -1,53 +1,52 @@
-import { regExpToken, SPACE, LINE, COLOR } from '../lib/tokenTypes'
+import {regexToken, SPACE, LINE, COLOR} from '../lib/tokenTypes';
 
-const STYLE = regExpToken(/^(solid|double|dotted|dashed)$/)
+const STYLE = regexToken(/^(solid|double|dotted|dashed)$/);
 
-const defaultTextDecorationLine = 'none'
-const defaultTextDecorationStyle = 'solid'
-const defaultTextDecorationColor = 'black'
+const defaultTextDecorationLine = 'none';
+const defaultTextDecorationStyle = 'solid';
+const defaultTextDecorationColor = 'black';
 
 export default tokenStream => {
-  let line
-  let style
-  let color
+  let line;
+  let style;
+  let color;
+  let didParseFirst = false;
 
-  let didParseFirst = false
   while (tokenStream.hasTokens()) {
-    if (didParseFirst) tokenStream.expect(SPACE)
+    if (didParseFirst)
+      tokenStream.expect(SPACE);
 
     if (line === undefined && tokenStream.matches(LINE)) {
-      const lines = [tokenStream.lastValue.toLowerCase()]
+      const lines = [tokenStream.lastValue.toLowerCase()];
 
-      tokenStream.saveRewindPoint()
+      tokenStream.saveRewindPoint();
       if (
         lines[0] !== 'none' &&
         tokenStream.matches(SPACE) &&
         tokenStream.matches(LINE)
       ) {
-        lines.push(tokenStream.lastValue.toLowerCase())
+        lines.push(tokenStream.lastValue.toLowerCase());
         // Underline comes before line-through
-        lines.sort().reverse()
+        lines.sort().reverse();
       } else {
-        tokenStream.rewind()
+        tokenStream.rewind();
       }
 
-      line = lines.join(' ')
+      line = lines.join(' ');
     } else if (style === undefined && tokenStream.matches(STYLE)) {
-      style = tokenStream.lastValue
+      style = tokenStream.lastValue;
     } else if (color === undefined && tokenStream.matches(COLOR)) {
-      color = tokenStream.lastValue
+      color = tokenStream.lastValue;
     } else {
-      tokenStream.throw()
+      tokenStream.throw();
     }
 
-    didParseFirst = true
+    didParseFirst = true;
   }
 
   return {
     textDecorationLine: line !== undefined ? line : defaultTextDecorationLine,
-    textDecorationColor:
-      color !== undefined ? color : defaultTextDecorationColor,
-    textDecorationStyle:
-      style !== undefined ? style : defaultTextDecorationStyle,
-  }
+    textDecorationColor: color !== undefined ? color : defaultTextDecorationColor,
+    textDecorationStyle: style !== undefined ? style : defaultTextDecorationStyle,
+  };
 }

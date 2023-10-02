@@ -2,12 +2,11 @@ import * as tamagui from './react-native';
 import * as reactNative from './react-native';
 
 import type {Settings} from 'types/settings';
-import type {TargetNode} from 'types/figma';
 import type {PreviewComponent} from 'types/preview';
 
 export {generateIndex} from './common';
 
-export async function generateBundle(node: TargetNode, settings: Settings, isPreviewMode?: boolean) {
+export async function generateBundle(node: ComponentNode, settings: Settings, isPreviewMode?: boolean) {
   const instanceSettings = {...settings};
   if (isPreviewMode) {
     instanceSettings.react.addImport = false;

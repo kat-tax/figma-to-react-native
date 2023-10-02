@@ -2,9 +2,9 @@ import {h, Fragment} from 'preact';
 import {useState} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
 import {titleCase} from 'common/string';
-import * as F from '@create-figma-plugin/ui';
-
 import {useProjectBuild} from 'interface/hooks/useProjectBuild';
+
+import * as F from '@create-figma-plugin/ui';
 
 import type {ProjectConfig} from 'types/project';
 import type {EventProjectExport} from 'types/events';

@@ -2,7 +2,7 @@ import {generateBundle, generateTheme} from 'plugin/gen';
 import * as config from 'plugin/config';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
-  if (!node || (node.type !== 'COMPONENT' && node.type !== 'COMPONENT_SET')) return [];
+  if (!node || node.type !== 'COMPONENT') return [];
   const bundle = await generateBundle(node, config.state);
   const theme = generateTheme(config.state);
   return bundle.code ? [

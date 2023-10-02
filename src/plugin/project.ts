@@ -25,7 +25,7 @@ export function build(projectConfig: ProjectConfig) {
 
   // Determine which components to export
   let projectName: string = 'Components';
-  let exportNodes: Set<ComponentNode | FrameNode> = new Set();
+  let exportNodes: Set<ComponentNode> = new Set();
   switch (projectConfig.scope) {
     case 'document':
     case 'page':

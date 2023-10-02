@@ -8,23 +8,24 @@ interface TabsProps extends TabsBaseProps {
 }
 
 export function Tabs(props: TabsProps) {
-  return <Root {...props}/>;
+  return <Root {...props} className="tabs"/>;
 }
 
 interface BarProps extends TabsListProps {
-  children: JSX.Element[],
+  children: any,
 }
 
 export function Bar(props: BarProps) {
-  return <List {...props}/>;
+  return <List {...props} className="tab-bar"/>;
 }
 
 interface LinkProps extends TabsTriggerProps {
   children: JSX.Element | string;
+  hasIcon?: boolean;
 }
 
 export function Link(props: LinkProps) {
-  return <Trigger {...props}/>;
+  return <Trigger {...props} className={props.hasIcon ? 'tab icon' : 'tab'}/>;
 }
 
 interface TabProps extends TabsContentProps {
@@ -32,7 +33,7 @@ interface TabProps extends TabsContentProps {
 }
 
 export function Tab(props: TabProps) {
-  return <Content {...props}/>;
+  return <Content {...props} className="tab-view"/>;
 }
 
 interface GearProps {

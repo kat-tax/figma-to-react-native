@@ -1,6 +1,5 @@
-
-import {zip} from './zip';
 import {supabase} from 'vendor/supabase';
+import {zip} from './zip';
 
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 

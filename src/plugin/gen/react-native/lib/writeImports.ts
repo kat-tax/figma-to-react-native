@@ -14,13 +14,13 @@ export function writeImports(
   }
 ) {
   // Import React explicitly if set 
-  if (settings?.react?.addImport) {
+  //if (settings?.react?.addImport) {
     writer.write('import React from');
     writer.space();
     writer.quote('react');
     writer.write(';');
     writer.newLine();
-  }
+  //}
 
   // Import LinguiJS if set and Text primitive is used
   if (settings?.react?.addTranslate && data.meta.primitives.has('Text')) {
@@ -32,10 +32,19 @@ export function writeImports(
   }
 
   // Import primitives
-  writer.write(`import {StyleSheet, ${['View', ...data.meta.primitives].join(', ')}} from`);
+  writer.write(`import {StyleSheet, ${[
+    ...data.meta.primitives,
+    data.root.click?.type === 'URL' && 'Pressable',
+  ].filter(Boolean).join(', ')}} from`);
   writer.space();
   writer.quote('react-native');
   writer.write(';');
+  writer.newLine();
+
+  // TEMP: button aria hooks
+  //writer.writeLine(`import {useButton} from '@react-native-aria/button';`);
+  //writer.writeLine(`import {useHover} from '@react-native-aria/interactions';`);
+  writer.writeLine(`import {useFocusRing} from '@react-native-aria/focus';`);
   writer.newLine();
 
   if (!metadata.isPreview) {

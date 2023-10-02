@@ -1,9 +1,8 @@
 import * as gen from './lib';
-import type {NodeStyles} from 'types/figma';
+import type {ParseStyles} from 'types/parse';
 
-export async function generateStyles(node: SceneNode): Promise<NodeStyles> {
+export async function generateStyles(node: SceneNode): Promise<ParseStyles> {
   switch (node.type) {
-    case 'GROUP':
     case 'FRAME':
     case 'ELLIPSE':
     case 'RECTANGLE':

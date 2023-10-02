@@ -1,77 +1,84 @@
-import {
-  AUTO,
-  COLOR,
-  LENGTH,
-  PERCENT,
-  UNSUPPORTED_LENGTH_UNIT,
-  WORD,
-} from '../lib/tokenTypes'
-import aspectRatio from './aspectRatio'
-import border from './border'
-// import boxShadow from './boxShadow'
-import flex from './flex'
-import flexFlow from './flexFlow'
-import font from './font'
-import fontFamily from './fontFamily'
-import fontVariant from './fontVariant'
-import placeContent from './placeContent'
-import textDecoration from './textDecoration'
-import textDecorationLine from './textDecorationLine'
-import textShadow from './textShadow'
-import transform from './transform'
-import { directionFactory, parseShadowOffset } from './util'
+import {AUTO, COLOR, LENGTH, PERCENT, UNSUPPORTED_LENGTH_UNIT, WORD} from '../lib/tokenTypes';
 
-const background = tokenStream => ({
-  backgroundColor: tokenStream.expect(COLOR),
-})
-const borderColor = directionFactory({
-  types: [COLOR],
+import flex from './flex';
+import flexFlow from './flexFlow';
+import transform from './transform';
+import placeContent from './placeContent';
+import aspectRatio from './aspectRatio';
+import boxShadow from './boxShadow';
+import border from './border';
+import font from './font';
+import fontFamily from './fontFamily';
+import fontVariant from './fontVariant';
+import textShadow from './textShadow';
+import textDecoration from './textDecoration';
+import textDecorationLine from './textDecorationLine';
+import {directionFactory, parseShadowOffset} from './util';
+
+const margin = directionFactory({
+  types: [LENGTH, UNSUPPORTED_LENGTH_UNIT, PERCENT, AUTO],
+  prefix: 'margin',
+});
+
+const padding = directionFactory({
+  prefix: 'padding',
+});
+
+const borderWidth = directionFactory({
   prefix: 'border',
-  suffix: 'Color',
-})
+  suffix: 'Width',
+});
+
 const borderRadius = directionFactory({
   directions: ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'],
   prefix: 'border',
   suffix: 'Radius',
-})
-const borderWidth = directionFactory({ prefix: 'border', suffix: 'Width' })
-const margin = directionFactory({
-  types: [LENGTH, UNSUPPORTED_LENGTH_UNIT, PERCENT, AUTO],
-  prefix: 'margin',
-})
-const padding = directionFactory({ prefix: 'padding' })
+});
+
+const borderColor = directionFactory({
+  types: [COLOR],
+  prefix: 'border',
+  suffix: 'Color',
+});
+
+const background = tokenStream => ({
+  backgroundColor: tokenStream.expect(COLOR),
+});
 
 const fontWeight = tokenStream => ({
-  fontWeight: tokenStream.expect(WORD), // Also match numbers as strings
-})
+  fontWeight: tokenStream.expect(WORD),
+});
+
 const shadowOffset = tokenStream => ({
   shadowOffset: parseShadowOffset(tokenStream),
-})
+});
+
 const textShadowOffset = tokenStream => ({
   textShadowOffset: parseShadowOffset(tokenStream),
-})
+});
 
 export default {
+  flex,
+  flexFlow,
+  margin,
+  padding,
+  transform,
   aspectRatio,
+  placeContent,
   background,
+  boxShadow,
   border,
   borderColor,
   borderRadius,
   borderWidth,
-  //boxShadow,
-  flex,
-  flexFlow,
   font,
   fontFamily,
   fontVariant,
   fontWeight,
-  margin,
-  padding,
-  placeContent,
   shadowOffset,
   textShadow,
   textShadowOffset,
   textDecoration,
   textDecorationLine,
-  transform,
-}
+};
+

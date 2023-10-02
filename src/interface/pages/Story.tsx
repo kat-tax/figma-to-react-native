@@ -1,7 +1,8 @@
+import MonacoReact from '@monaco-editor/react';
+
 import {h, Fragment} from 'preact';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {Watermark} from 'interface/base/Watermark';
-import MonacoReact from '@monaco-editor/react';
 
 import type {PreviewComponent} from 'types/preview';
 import type {Settings} from 'types/settings';

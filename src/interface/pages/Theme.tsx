@@ -1,7 +1,8 @@
-import {h} from 'preact';
-import {usePreviewTheme} from 'interface/hooks/usePreviewTheme';
-import {LoadingIndicator} from '@create-figma-plugin/ui';
 import MonacoReact from '@monaco-editor/react';
+
+import {h} from 'preact';
+import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {usePreviewTheme} from 'interface/hooks/usePreviewTheme';
 
 import type {Settings} from 'types/settings';
 

@@ -2,10 +2,14 @@ import CodeBlockWriter from 'code-block-writer';
 import {sortProps, getPropName} from 'plugin/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 
-import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
 
-export function generateStory(target: TargetNode, isVariant: boolean, props: ComponentPropertyDefinitions, settings: Settings) {
+export function generateStory(
+  target: ComponentNode,
+  isVariant: boolean,
+  props: ComponentPropertyDefinitions,
+  settings: Settings,
+) {
   const writer = new CodeBlockWriter(settings?.writer);
   const masterNode = isVariant ? target.parent : target;
   const componentName = createIdentifierPascal(masterNode.name);
@@ -19,11 +23,11 @@ export function generateStory(target: TargetNode, isVariant: boolean, props: Com
   writer.newLine();
     
   // Look through props for needed sub-components (if applicable)
-  const components: BaseNode[] = [];
+  const components: ComponentNode[] = [];
   componentProps?.sort(sortProps).forEach(([_key, prop]) => {
     const {type, value, defaultValue}: any = prop;
     if (type === 'INSTANCE_SWAP') {
-      const component = figma.getNodeById(value || defaultValue);
+      const component = figma.getNodeById(value || defaultValue) as ComponentNode;
       components.push(component);
     }
   });

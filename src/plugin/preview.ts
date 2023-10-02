@@ -18,14 +18,15 @@ export function updateMode(value: AppPages) {
 
 export function updateCode() {
   const selected = getSelectedComponent();
-  generateBundle(selected, config.state, _currentPage === 'preview').then((bundle) => {
-    if (bundle.code !== _code || bundle.preview !== _preview || bundle.props !== _props) {
-      _code = bundle.code;
-      _props = bundle.props;
-      _preview = bundle.preview;
-      emit<EventPreviewComponent>('PREVIEW_COMPONENT', JSON.stringify(bundle));
-    }
-  });
+  generateBundle(selected, config.state, _currentPage === 'preview')
+    .then((bundle) => {
+      if (bundle.code !== _code || bundle.preview !== _preview || bundle.props !== _props) {
+        _code = bundle.code;
+        _props = bundle.props;
+        _preview = bundle.preview;
+        emit<EventPreviewComponent>('PREVIEW_COMPONENT', JSON.stringify(bundle));
+      }
+    });
 }
 
 export function updateTheme() {

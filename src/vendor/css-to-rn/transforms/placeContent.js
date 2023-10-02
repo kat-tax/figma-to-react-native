@@ -1,24 +1,25 @@
-import { regExpToken, SPACE } from '../lib/tokenTypes'
+import {regexToken, SPACE} from '../lib/tokenTypes';
 
-const ALIGN_CONTENT = regExpToken(
+const ALIGN_CONTENT = regexToken(
   /(flex-(?:start|end)|center|stretch|space-(?:between|around))/
-)
-const JUSTIFY_CONTENT = regExpToken(
+);
+
+const JUSTIFY_CONTENT = regexToken(
   /(flex-(?:start|end)|center|space-(?:between|around|evenly))/
-)
+);
 
 export default tokenStream => {
-  const alignContent = tokenStream.expect(ALIGN_CONTENT)
+  const alignContent = tokenStream.expect(ALIGN_CONTENT);
+  let justifyContent;
 
-  let justifyContent
   if (tokenStream.hasTokens()) {
-    tokenStream.expect(SPACE)
-    justifyContent = tokenStream.expect(JUSTIFY_CONTENT)
+    tokenStream.expect(SPACE);
+    justifyContent = tokenStream.expect(JUSTIFY_CONTENT);
   } else {
-    justifyContent = 'stretch'
+    justifyContent = 'stretch';
   }
 
-  tokenStream.expectEmpty()
+  tokenStream.expectEmpty();
 
-  return { alignContent, justifyContent }
+  return {alignContent, justifyContent};
 }

@@ -8,17 +8,25 @@ import {generateStory} from './generateStory';
 import {generatePreview} from './generatePreview';
 
 import type {PreviewComponent, PreviewEditorLinks} from 'types/preview';
-import type {TargetNode} from 'types/figma';
 import type {Settings} from 'types/settings';
 
 export async function generateBundle(
-  target: TargetNode,
+  target: ComponentNode,
   settings: Settings,
   isPreviewMode?: boolean,
 ): Promise<PreviewComponent> {
   // No target node, return empty bundle
   if (!target) {
-    return {name: '', props: '', index: '', code: '', story: '', preview: '', links: {}, assets: null};
+    return {
+      name: '',
+      props: '',
+      index: '',
+      code: '',
+      story: '',
+      preview: '',
+      links: {},
+      assets: null,
+    };
   }
 
   // Parse nodes
@@ -43,8 +51,8 @@ export async function generateBundle(
 
   // Look through instance swaps and imported needed components for preview
   // (buttons that have icons, etc.)
-  // TODO: move this to fig/parse and support deeper instance swaps (swap of a swap of swap)
-  // OR move to preview since this shit was all just to make preview work
+  // TODO: move some of this to fig/parse and support deeper instance swaps (swap of a swap of swap)
+  // OR move all of it to preview since this shit was all just to make preview work
   // Currently this only supports two levels of instance swaps
   if (isPreviewMode) {
     propDefs && Object.entries(propDefs).forEach(([k, v]: any) => {

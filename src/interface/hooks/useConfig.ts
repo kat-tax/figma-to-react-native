@@ -1,6 +1,6 @@
-import {on, emit} from '@create-figma-plugin/utilities';
 import {useRef, useState, useCallback, useEffect, MutableRef} from 'preact/hooks';
-import defaultConfig from 'config/settings';
+import {on, emit} from '@create-figma-plugin/utilities';
+import defaultConfig from 'config/user';
 
 import type {Settings} from 'types/settings';
 import type {EventConfigLoad, EventConfigUpdate} from 'types/events';

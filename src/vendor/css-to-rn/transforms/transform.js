@@ -1,39 +1,40 @@
-import { SPACE, COMMA, LENGTH, NUMBER, ANGLE } from '../lib/tokenTypes'
+import {SPACE, COMMA, LENGTH, NUMBER, ANGLE} from '../lib/tokenTypes'
 
 const oneOfType = tokenType => functionStream => {
-  const value = functionStream.expect(tokenType)
-  functionStream.expectEmpty()
-  return value
+  const value = functionStream.expect(tokenType);
+  functionStream.expectEmpty();
+  return value;
 }
 
-const singleNumber = oneOfType(NUMBER)
-const singleLength = oneOfType(LENGTH)
-const singleAngle = oneOfType(ANGLE)
+const singleNumber = oneOfType(NUMBER);
+const singleLength = oneOfType(LENGTH);
+const singleAngle = oneOfType(ANGLE);
+
 const xyTransformFactory = tokenType => (
   key,
   valueIfOmitted
 ) => functionStream => {
-  const x = functionStream.expect(tokenType)
-
-  let y
+  const x = functionStream.expect(tokenType);
+  let y;
   if (functionStream.hasTokens()) {
     functionStream.expect(COMMA)
     y = functionStream.expect(tokenType)
   } else if (valueIfOmitted !== undefined) {
-    y = valueIfOmitted
+    y = valueIfOmitted;
   } else {
-    // Assumption, if x === y, then we can omit XY
-    // I.e. scale(5) => [{ scale: 5 }] rather than [{ scaleX: 5 }, { scaleY: 5 }]
-    return x
+    return x;
   }
 
-  functionStream.expectEmpty()
+  functionStream.expectEmpty();
 
-  return [{ [`${key}Y`]: y }, { [`${key}X`]: x }]
+  return [
+    {[`${key}Y`]: y},
+    {[`${key}X`]: x},
+  ];
 }
-const xyNumber = xyTransformFactory(NUMBER)
-const xyLength = xyTransformFactory(LENGTH)
-const xyAngle = xyTransformFactory(ANGLE)
+const xyNumber = xyTransformFactory(NUMBER);
+const xyLength = xyTransformFactory(LENGTH);
+const xyAngle = xyTransformFactory(ANGLE);
 
 const partTransforms = {
   perspective: singleNumber,
@@ -53,22 +54,26 @@ const partTransforms = {
 }
 
 export default tokenStream => {
-  let transforms = []
+  let transforms = [];
+  let didParseFirst = false;
 
-  let didParseFirst = false
   while (tokenStream.hasTokens()) {
-    if (didParseFirst) tokenStream.expect(SPACE)
+    if (didParseFirst)
+      tokenStream.expect(SPACE);
 
-    const functionStream = tokenStream.expectFunction()
-    const { functionName } = functionStream
-    let transformedValues = partTransforms[functionName](functionStream)
+    const functionStream = tokenStream.expectFunction();
+    const {functionName} = functionStream;
+    
+    let transformedValues = partTransforms[functionName](functionStream);
     if (!Array.isArray(transformedValues)) {
-      transformedValues = [{ [functionName]: transformedValues }]
+      transformedValues = [{
+        [functionName]: transformedValues,
+      }];
     }
-    transforms = transformedValues.concat(transforms)
-
-    didParseFirst = true
+  
+    transforms = transformedValues.concat(transforms);
+    didParseFirst = true;
   }
 
-  return { transform: transforms }
+  return {transform: transforms};
 }

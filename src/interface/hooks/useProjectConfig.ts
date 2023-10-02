@@ -1,5 +1,5 @@
-import {on} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'preact/hooks';
+import {on} from '@create-figma-plugin/utilities';
 
 import type {ProjectConfig} from 'types/project';
 import type {EventProjectConfigLoad} from 'types/events';
