@@ -9,7 +9,7 @@ import type {Settings} from 'types/settings';
 
 export function generateCode(data: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
-  const metadata = {stylePrefix: 'styles'};
+  const metadata = {stylePrefix: 'stylesheet'};
   
   writeImports(writer, data, settings, metadata);
   writer.blankLine();

@@ -12,11 +12,11 @@ import type {Settings} from 'types/settings';
 export async function generatePreview(data: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const primitives = new Set(['View', 'Text', 'Image', 'Pressable', 'TouchableHighlight']);
-  const metadata = {stylePrefix: 'styles', isPreview: true};
+  const metadata = {stylePrefix: 'stylesheet', isPreview: true};
   data.meta.primitives = primitives;
   writeImports(writer, data, settings, metadata);
   writer.blankLine();
-  writer.write(generateTheme(settings));
+  writer.write(generateTheme(settings, true));
   writer.blankLine();
   writeFunction(writer, data, settings, metadata, true);
   writer.blankLine();

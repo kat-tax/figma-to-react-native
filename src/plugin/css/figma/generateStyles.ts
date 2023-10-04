@@ -1,8 +1,31 @@
 import {getPropertyName, getStylesForProperty} from 'vendor/css-to-rn';
+import {createIdentifierCamel} from 'common/string';
+
 import type {ParseStyles} from 'types/parse';
 
 export async function generateStyles(node: SceneNode): Promise<ParseStyles> {
   const css = await node.getCSSAsync();
+
+  /*let body = '.root { ';
+  for (const [k, v] of Object.entries(css)) {
+    body += `${k}: ${v}; `;
+  }
+  body += ' }';
+  console.log(body);
+  
+  const output = await fetch('http://localhost:8000', {
+    body,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/css',
+    }
+  });
+
+  const data = await output.json();
+
+  return data.declarations.root.style;
+  */
+
   const styles = convertCSS(css);
   return styles;
 }
@@ -44,13 +67,15 @@ function getTokenFromVar(str: string): string | null {
   if (match) {
     const [, name] = match;
     if (name) {
-      const full = name.replace('-', '.');
+      const sanitized = name?.replace(/[^a-zA-Z0-9-\s]+/g, '');
+      return createIdentifierCamel(sanitized);
+      /*const full = name.replace('-', '.');
       const parts = full.split('.');
       const prefix = parts.shift();
       const suffix = parts.pop()?.replace(/-/g, '_');
       const startsWithNum = /^[0-9]/.test(suffix);
       const identifier = startsWithNum ? `$${suffix}` : suffix;
-      return suffix ? `${prefix}.${identifier}` : prefix;
+      return suffix ? `${prefix}.${identifier}` : prefix;*/
     }
   }
   return null;

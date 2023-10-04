@@ -14,6 +14,7 @@ export function sync(session: SyncSession, project: ProjectBuild) {
     const $index = session.document.getText('index');
     const $files = session.document.getMap<string>('files');
     const $assets = session.document.getMap<Uint8Array>('assets');
+
     session.document.transact(() => {
       // Sync theme and index
       $theme.delete(0, $theme.length);
@@ -49,7 +50,7 @@ export function init(name: string, token: string): SyncSession {
   const document = new Y.Doc();
   const provider = new TiptapCollabProvider({
     appId: TIPTAP_APP_ID,
-    token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2OTU4NTQ3NjUsIm5iZiI6MTY5NTg1NDc2NSwiZXhwIjoxNjk1OTQxMTY1LCJpc3MiOiJodHRwczovL2NvbGxhYi50aXB0YXAuZGV2IiwiYXVkIjoiY2F2aXR0QGthdC50YXgifQ.puyrqW_4bgt4_CmZejjW91r-tu198Ew0pk9tR-zEPmI',
+    token: '',
     name,
     document,
   });

@@ -16,33 +16,34 @@ export function writeChildren(
   isPreview?: boolean,
   rootPressables?: string[][],
 ) {
-  children.forEach((child) => {
-    // Derived data
+  children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
-    const pressableId = rootPressables?.find(e => e?.[1] === slug)?.[2];
-    const isPressable = Boolean(pressableId);
+    const pressId = rootPressables?.find(e => e?.[1] === slug)?.[2];
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
     const masterNode = isVariant ? child.node.parent : child.node;
     const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
+    const isDynamic = Boolean(propRefs?.visible);
+    const isPressable = Boolean(pressId);
 
-    // Conditional rendering
-    if (propRefs?.visible) {
-      const name = getPropName(propRefs?.visible);
-      writer.write(`{props.${name} &&`).space().indent(() => {
-        writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressableId}}>`);
-        writer.withIndentationLevel(writer.getIndentationLevel() + (isPressable ? 1 : 0), () => {
-          writeChild(writer, data, settings, child, slug, getStylePrefix, true, isPreview, rootPressables);
-        });
-        writer.conditionalWriteLine(isPressable, `</Pressable>`);
-      }).write('}').newLine();
-    // Default rendering
-    } else {
-      writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressableId}}>`);
-      writer.withIndentationLevel(writer.getIndentationLevel() + (isPressable ? 1 : 0), () => {
-        writeChild(writer, data, settings, child, slug, getStylePrefix, false, isPreview, rootPressables);
+    writer.conditionalWriteLine(isDynamic, `{props.${getPropName(propRefs?.visible)} && `);
+    writer.withIndentationLevel((isDynamic ? 1 : 0) + writer.getIndentationLevel(), () => {
+      writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressId}}>`);
+      writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
+        writeChild(
+          writer,
+          data,
+          settings,
+          child,
+          slug,
+          getStylePrefix,
+          isDynamic,
+          isPreview,
+          rootPressables,
+        );
       });
       writer.conditionalWriteLine(isPressable, `</Pressable>`);
-    }
+    });
+    writer.conditionalWriteLine(isDynamic, `}`);
   });
 }
 
@@ -59,7 +60,6 @@ export function writeChild(
 ) {
   // console.log('writeChild:', child.node.type, child.node.name, child.node.isAsset);
 
-  // Derived data
   const props = (child.node as InstanceNode)?.componentProperties;
   const propRefs = child.node.componentPropertyReferences;
   const pressable = getPressReaction(child.node as InstanceNode);
@@ -71,7 +71,7 @@ export function writeChild(
   const isAsset = (child.node.isAsset && !isInstance) || child.node.type === 'VECTOR';
   const isCustom = reaction?.type === 'URL';
 
-  console.log(reaction, pressable);
+  // console.log(child.node.name, reaction, pressable, rootPressables);
 
   // Component instance swap
   const swapComponent = propRefs?.mainComponent;

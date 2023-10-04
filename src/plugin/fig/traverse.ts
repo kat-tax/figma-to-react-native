@@ -80,6 +80,26 @@ export function getComponentParent(node: SceneNode): ComponentNode {
   return null;
 }
 
+export function getCollectionModes(collectionName: string) {
+  // Find a component (preferably the selected one)
+  const selection = getSelectedComponent();
+  const components = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']});
+  const component = selection ?? components[0];
+  if (!component) return null;
+  // Find the "Theme" variable collection
+  const collections = figma.variables.getLocalVariableCollections();
+  const collection = collections?.find(c => c.name === collectionName);
+  if (!collection) return null;
+  // Find the current and default mode
+  const current = component.resolvedVariableModes[collection.id];
+  const theme = figma.variables.getVariableCollectionById(collection.id);
+  return {
+    current: theme.modes.find(m => m.modeId === current),
+    default: theme.modes.find(m => m.modeId === theme.defaultModeId),
+    modes: theme.modes,
+  };
+}
+
 // Get the page of a node
 export function getPage(node: BaseNode): PageNode {
   while (node.type !== 'PAGE') {

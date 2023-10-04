@@ -200,7 +200,7 @@ export function Export(props: ExportProps) {
           <div title={tips.apiKey}>
             <F.Inline style={{display: 'flex', alignItems: 'center'}}>
               <F.Bold>Project Key</F.Bold>
-              <a href="http://localhost:3000/register" target="_blank" style={{marginLeft: '4px'}}>
+              <a href="http://figma-to-react-native.com/dashboard" target="_blank" style={{marginLeft: '4px'}}>
                 <F.IconCircleHelp16 color="brand"/>
               </a>
             </F.Inline>

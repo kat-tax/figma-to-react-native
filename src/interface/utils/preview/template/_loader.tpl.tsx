@@ -1,10 +1,10 @@
 // @ts-nocheck
 
 import React from 'react';
-import {Inspector} from 'react-dev-inspector';
 import {createRoot} from 'react-dom/client';
 import {useEffect, useState} from 'react';
 import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
+import {Inspector} from 'react-dev-inspector';
 
 export function Preview() {
   const [name, setName] = useState();
@@ -20,8 +20,8 @@ export function Preview() {
         const component = document.getElementById('component');
         const prev = document.getElementById('target');
         const next = document.createElement('script');
-        next.id = 'target';
         next.type = 'module';
+        next.id = 'target';
         next.innerHTML = e.data.preview;
         prev && document.body.removeChild(prev);
         next && document.body.appendChild(next);

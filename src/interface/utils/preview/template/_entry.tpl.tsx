@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import React from 'react';
+import * as Styles from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
 import {Logtail} from '@logtail/browser';
 
@@ -10,8 +11,14 @@ __COMPONENT_DEF__
 
 export function Main() {
   return (
-    <ErrorBoundary fallback={<pre style={{color: 'red'}}>Component error. Check console.</pre>}>
-      __COMPONENT_REF__
+    <ErrorBoundary fallback={
+      <pre style={{color: 'red'}}>
+        Component error. Check devtools console.
+      </pre>
+    }>
+      <Styles.UnistylesTheme theme={theme}>
+        __COMPONENT_REF__
+      </Styles.UnistylesTheme>
     </ErrorBoundary>
   )
 }

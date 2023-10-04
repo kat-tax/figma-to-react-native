@@ -2,6 +2,7 @@ import {h} from 'preact';
 import {emit} from '@create-figma-plugin/utilities';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {Tabs, Tab, Bar, Link, Gear} from 'interface/base/Tabs';
+import {titleCase} from 'common/string';
 
 import {Code} from 'interface/pages/Code';
 import {Story} from 'interface/pages/Story';
@@ -16,22 +17,27 @@ import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {usePreviewComponent} from 'interface/hooks/usePreviewComponent';
 
-import {titleCase} from 'common/string';
-
 import type {AppPages} from 'types/app';
 import type {EventAppNavigate} from 'types/events';
 
-const PAGES: AppPages[] = ['code', 'preview', 'story', 'theme', 'export', 'settings'];
+const PAGES: AppPages[] = [
+  'code',
+  'preview',
+  'story',
+  'theme',
+  'export',
+  'settings',
+];
 
 interface AppProps {
   startPage: AppPages | null,
 }
 
 export function App(props: AppProps) {
-  const project = useProjectConfig();
-  const component = usePreviewComponent();
   const isDarkMode = useDarkMode();
+  const component = usePreviewComponent();
   const settings = useConfig();
+  const project = useProjectConfig();
   const monaco = useEditor(settings.config, component?.links);
   const isReady = Boolean(props.startPage && project && monaco);
   const options = {

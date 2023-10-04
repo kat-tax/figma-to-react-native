@@ -15,7 +15,10 @@ export default async function parse(
   isPreview: boolean,
 ): Promise<ParseData> {
   if (!node) return;
-  // const start = Date.now();
+
+  // DEBUG
+  const start = Date.now();
+
   const {dict, tree, meta} = crawlNodes(node.children);
   const [root, frame, children] = await Promise.all([
     parseRoot(node, settings),
@@ -39,7 +42,9 @@ export default async function parse(
     assets: assets.data,
   };
 
-  // console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
+  // DEBUG
+  console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
+
   return data;
 }
 
@@ -69,17 +74,13 @@ async function parseChildren(nodes: Set<SceneNode>, settings: Settings) {
     const slugBase = createIdentifierCamel(node.name);
     const slugCount = children.filter((c) => createIdentifierCamel(c.node.name) === slugBase).length;
     const slug = slugCount > 0 ? `${slugBase}${slugCount+1}` : slugBase;
-    children.push({
-      node,
-      slug,
-      styles: NODES_WITH_STYLES.includes(node.type)
-        ? await generateStyles(node, settings)
-        : null,
-    });
+    const styles = NODES_WITH_STYLES.includes(node.type)
+      ? await generateStyles(node, settings)
+      : null
+    children.push({node, slug, styles});
   }
   return children;
 }
-
 
 function crawlNodes(
   nodes: readonly SceneNode[],
@@ -96,7 +97,7 @@ function crawlNodes(
     includes: {},
   };
   
-for (const node of nodes) {
+  for (const node of nodes) {
     // Skip nodes that are not visible and not conditionally rendered
     if (!isNodeVisible(node)) continue;
 

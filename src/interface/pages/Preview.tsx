@@ -19,11 +19,11 @@ export function Preview(props: PreviewProps) {
 
   const update = useCallback((preview: string) => {
     iframe.current?.contentWindow?.postMessage({type: 'preview', preview, name: component?.name});
-  }, [component]);
+  }, [iframe, component]);
 
   const inspect = useCallback((enabled: boolean) => {
     iframe.current?.contentWindow?.postMessage({type: 'inspect', enabled});
-  }, []);
+  }, [iframe]);
 
   const load = useCallback(() => {
     getLoader(settings).then(setSrc);

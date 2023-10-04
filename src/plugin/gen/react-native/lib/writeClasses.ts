@@ -7,10 +7,6 @@ import type {ParseData} from 'types/parse';
 export function writeClasses(
   writer: CodeBlockWriter,
   data: ParseData,
-  metadata: {
-    stylePrefix: string,
-    isPreview?: boolean, 
-  },
   isRootPressable?: boolean,
 ) {
   const conditions = new Set<Record<string, string>>();
@@ -45,38 +41,43 @@ export function writeClasses(
     '_stateHovered': 'e.hovered',
     '_statePressed': 'e.pressed',
   };
+
   const pressableSpecialStates = {
-    '_stateDefault': '!props.state || ',
-    '_stateDisabled': 'props.disabled || ',
+    '_stateDisabled': ' || props.disabled',
   };
 
   // Write conditions to variables
   Object.keys(conditions)
     .sort((a, b) => a.localeCompare(b))
     .forEach(cond => {
+      // Skip default state
+      if (cond === '_stateDefault') return;
       const specialState = pressableSpecialStates[cond] || '';
       const expression = conditions[cond];
-      writer.write(`const ${cond} = ${specialState}${expression};`).newLine();
+      writer.write(`const ${cond} = ${expression}${specialState};`).newLine();
     });
   writer.blankLine();
   
   // Classes object
-  writer.write(`const dynamic = React.useMemo(() => (`).inlineBlock(() => {
+  writer.write(`const $styles = React.useMemo(() => (`).inlineBlock(() => {
     Object.keys(classes).forEach(slug => {
       const dynamic = slug === 'root' && isRootPressable ? pressableFunc : '';
       writer.write(`${slug}: ${dynamic}[`).indent(() => {
-        writer.writeLine(`${metadata.stylePrefix}.${slug},`);
+        writer.writeLine(`styles.${slug},`);
         Array.from(classes[slug])
           .forEach((data: string[][]) => {
             const [rules, raw] = data;
             const condition = rules.map(ruleName => {
               const pressableState = dynamic && pressableStates[ruleName] as string;
+              // Skip default state
+              if (ruleName === '_stateDefault')
+                return false;
               return pressableState
                 ? `(${ruleName} || ${pressableState})`
                 : ruleName;
-              }).join(' && ');
+              }).filter(Boolean).join(' && ');
             const className = `${slug}_${raw}`.split(', ').join('_').replace(/\=/g, '_');
-            writer.writeLine(`${condition} && ${metadata.stylePrefix}.${createIdentifierCamel(className)},`);
+            writer.writeLine(`${condition} && styles.${createIdentifierCamel(className)},`);
           });
       });
       writer.writeLine('],');
@@ -85,6 +86,6 @@ export function writeClasses(
 
   // Cache props array
   const cacheProps = Array.from(props).map(p => `props.${p}`);
-  writer.write(`), [${cacheProps.join(', ')}]);`);
+  writer.write(`), [styles, ${cacheProps.join(', ')}]);`);
   writer.blankLine();
 }

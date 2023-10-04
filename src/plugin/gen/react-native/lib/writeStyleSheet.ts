@@ -16,7 +16,7 @@ export function writeStyleSheet(
 ) {
   const _writeStyleSheet = () => {
     const define = metadata.isPreview ? '' : 'const ';
-    writer.write(`${define}${metadata.stylePrefix} = StyleSheet.create(`).inlineBlock(() => {
+    writer.write(`${define}${metadata.stylePrefix} = createStyles(theme => (`).inlineBlock(() => {
       // Frame styles
       if (includeFrame && data.frame)
         writeStyle(writer, 'frame', data.frame.styles);
@@ -46,7 +46,7 @@ export function writeStyleSheet(
         }
       }
     });
-    writer.write(');');
+    writer.write('));');
   };
   if (metadata.isPreview) {
     writer.writeLine(`let ${metadata.stylePrefix} = {}`);
@@ -68,7 +68,7 @@ export function writeStyleSheet(
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
-  const props = Object.keys(styles)
+  const props = Object.keys(styles);
   if (props.length > 0) {
     writer.write(`${slug}: {`).indent(() => {
       props.forEach(prop => {
@@ -78,7 +78,7 @@ export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
           writer.quote('unset');
         } else if (typeof value === 'number') {
           writer.write(value.toString());
-        } else if (value.startsWith('theme.')) {
+        } else if (typeof value === 'string' && value.startsWith('theme.')) {
           writer.write(value);
         } else {
           writer.quote(value);

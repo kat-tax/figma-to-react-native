@@ -14,13 +14,22 @@ export function writeImports(
   }
 ) {
   // Import React explicitly if set 
-  //if (settings?.react?.addImport) {
+  if (settings?.react?.addImport) {
     writer.write('import React from');
     writer.space();
     writer.quote('react');
     writer.write(';');
     writer.newLine();
-  //}
+  }
+
+  // Import UniStyles helpers (if not preview mode)
+  if (!metadata.isPreview) {
+    writer.write(`import {useStyles, createStyles} from`);
+    writer.space();
+    writer.quote(`styles`);
+    writer.write(';');
+    writer.newLine();
+  }
 
   // Import LinguiJS if set and Text primitive is used
   if (settings?.react?.addTranslate && data.meta.primitives.has('Text')) {
@@ -32,7 +41,7 @@ export function writeImports(
   }
 
   // Import primitives
-  writer.write(`import {StyleSheet, ${[
+  writer.write(`import {${[
     ...data.meta.primitives,
     data.root.click?.type === 'URL' && 'Pressable',
   ].filter(Boolean).join(', ')}} from`);
@@ -41,11 +50,11 @@ export function writeImports(
   writer.write(';');
   writer.newLine();
 
-  // TEMP: button aria hooks
-  //writer.writeLine(`import {useButton} from '@react-native-aria/button';`);
-  //writer.writeLine(`import {useHover} from '@react-native-aria/interactions';`);
-  writer.writeLine(`import {useFocusRing} from '@react-native-aria/focus';`);
-  writer.newLine();
+  // TODO: aria hooks for each primitive
+  // writer.writeLine(`import {useButton} from '@react-native-aria/button';`);
+  // writer.writeLine(`import {useHover} from '@react-native-aria/interactions';`);
+  // writer.writeLine(`import {useFocusRing} from '@react-native-aria/focus';`);
+  // writer.newLine();
 
   if (!metadata.isPreview) {
     // Import subcomponents
@@ -74,12 +83,5 @@ export function writeImports(
       writer.write(';');
       writer.newLine();
     });
-
-    // Import theme file (TODO: do not include if no theme properties are used)
-    writer.write(`import theme from`);
-    writer.space();
-    writer.quote(`theme`);
-    writer.write(';');
-    writer.newLine();
   }
 }

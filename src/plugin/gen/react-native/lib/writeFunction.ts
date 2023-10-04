@@ -109,30 +109,36 @@ export function writeFunction(
   // Determine if style is conditional or static
   const getStylePrefix: StylePrefixMapper = (slug) =>
     Object.keys(data.variants).includes(slug)
-      ? 'dynamic' : metadata.stylePrefix;
+      ? '$styles' : 'styles';
 
   // Component function body and children
   const attrProps = `${props.length > 0 ? `props: ${name}Props` : ''}`;
   writer.write(`export function ${name}(${attrProps})`).block(() => {
+    writer.writeLine(`const {styles} = useStyles(${metadata.stylePrefix});`);
+    writer.blankLine();
+
     // Conditional styling
     if (isVariant && Object.keys(data.variants).length > 0)
-      writeClasses(writer, data, metadata, isRootPressable);
+      writeClasses(writer, data, isRootPressable);
 
+    // TODO: accessibility
+    /*
     if (isRootPressable) {
       writer.writeLine(`const ref = React.useRef(null);`);
-      //writer.writeLine(`const {buttonProps} = useButton(props);`);
-      //writer.writeLine(`const {hoverProps} = useHover({}, ref);`);
+      writer.writeLine(`const {buttonProps} = useButton(props);`);
+      writer.writeLine(`const {hoverProps} = useHover({}, ref);`);
       writer.writeLine(`const {focusProps} = useFocusRing();`);
-      //writer.writeLine(`const propsAria = {...buttonProps, ...hoverProps, ...focusProps};`);
+      writer.writeLine(`const ariaProps = {...buttonProps, ...hoverProps, ...focusProps};`);
       writer.blankLine();
     }
+    */
 
     writer.write(`return (`).indent(() => {
       const pressId = isRootPressable && pressables?.find(e => e[1] === 'root' || !e[1])?.[2];
       const rootTag = isRootPressable ? 'Pressable' : 'View';
       const rootStyle = ` style={${getStylePrefix('root')}.root}`;
       const rootProps = isRootPressable
-        ? ` ref={ref} onPress={props.${pressId}} disabled={_stateDisabled} {...focusProps}`
+        ? ` onPress={props.${pressId}} disabled={_stateDisabled}` // TODO: ref={ref} {...ariaProps}
         : '';
 
       writer.conditionalWrite(includeFrame, `<View style={${getStylePrefix('frame')}.frame}>`).indent(() => {

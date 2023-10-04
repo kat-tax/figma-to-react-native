@@ -6,7 +6,7 @@ import imports from './template/importMap.json';
 import entry from './template/_entry.tpl';
 import loader from './template/_loader.tpl';
 
-import {build} from './esbuild';
+import {build} from 'interface/utils/build';
 import {notify} from 'vendor/logtail';
 
 import type {Settings} from 'types/settings';
