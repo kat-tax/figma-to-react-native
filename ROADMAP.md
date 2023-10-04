@@ -11,8 +11,6 @@
   - cache code to node storage
   - recompile component when update triggered for it
   - batch compilation, put selected components at top of queue
-- Replace css-to-rn w/ lightning.css parser based on:
-  - https://github.com/marklawlor/nativewind/tree/main/packages/react-native-css-interop
 - Replace ESBuild with SWC?
   - https://swc.rs/docs/usage/wasm
 
