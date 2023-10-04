@@ -18,6 +18,8 @@
 
 ## Features
 - Screens (navigation based on prototype settings)
+- Command menu (via https://github.com/pacocoursey/cmdk)
+ - Navigate to components, editor hotkeys, build, etc.
 - Merge previous styles with comment // @f2rn-override
 - Inspect components link to code and highlight
 - Diff text instead of fully replacing (highlight changes?)
@@ -25,7 +27,7 @@
   - sourcemap from node ids -> line + column numbers needed when parsing
 
 ## Known Issues
-- Storybook variant import name wrong
 - Flaky variant style diffing
+- Storybook variant import name wrong
 - Error "failed to export" caused by hidden assets
 - Preview using wrong default value for Child in Frame example (should be SUBMIT not Default)

@@ -1,4 +1,4 @@
-import type {StylesPadding} from 'types/styles';
+import type {StylesPadding} from './style.types';
 
 export function padding(node: any): StylesPadding {
   const style: StylesPadding = {};

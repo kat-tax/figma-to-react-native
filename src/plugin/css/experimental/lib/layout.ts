@@ -1,4 +1,4 @@
-import type {StylesLayout} from 'types/styles';
+import type {StylesLayout} from './style.types';
 
 export function layout(node: any): StylesLayout {
   const style: StylesLayout = {};
