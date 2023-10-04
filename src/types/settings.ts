@@ -5,7 +5,7 @@ import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 export interface Settings {
   react: {
     flavor: 'react-native' | 'tamagui',
-    styleGen: 'figma' | 'experimental',
+    styleGen:  'default' | 'premium' | 'experimental',
     addImport?: boolean,
     addTranslate?: boolean,
   }

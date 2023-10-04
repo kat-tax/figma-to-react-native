@@ -1,4 +1,4 @@
-import type {SizeResult} from '../style.types';
+import type {SizeResult} from '../../types/styles';
 
 export function getSize(node: SceneNode & LayoutMixin): SizeResult {
   if (node.layoutAlign === 'STRETCH' && node.layoutGrow === 1) {

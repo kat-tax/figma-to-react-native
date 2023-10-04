@@ -1,5 +1,5 @@
 import {getColor, getTopFill} from 'plugin/fig/lib';
-import type {StylesBorder} from './style.types';
+import type {StylesBorder} from '../types/styles';
 
 export function border(node: any): StylesBorder {
   const style: StylesBorder = {};

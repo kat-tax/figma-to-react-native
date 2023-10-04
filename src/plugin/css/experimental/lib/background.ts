@@ -1,6 +1,6 @@
 import {getColor, getTopFill} from 'plugin/fig/lib';
 import {getFillStyle} from './utils/getFillStyle';
-import type {StylesBackground} from './style.types';
+import type {StylesBackground} from '../types/styles';
 
 export function background(node: any): StylesBackground {
   const style: StylesBackground = {};

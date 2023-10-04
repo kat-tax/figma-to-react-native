@@ -4,7 +4,7 @@ import {getFontWeight} from './utils/getFontWeight';
 import {getLineHeight} from './utils/getLineHeight';
 import {getLetterSpacing} from './utils/getLetterSpacing';
 
-import type {StylesTypography} from './style.types';
+import type {StylesTypography} from '../types/styles';
 
 export function typography(node: any): StylesTypography {
   let color: string;

@@ -1,5 +1,5 @@
 import {getSize} from './utils/getSize';
-import type {StylesDimension} from './style.types';
+import type {StylesDimension} from '../types/styles';
 
 export function dimension(node: any, isText?: boolean): StylesDimension {
   const style: StylesDimension = {};
