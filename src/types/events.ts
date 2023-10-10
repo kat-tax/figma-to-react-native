@@ -4,6 +4,11 @@ import type {AppPages} from 'types/app';
 import type {Settings} from 'types/settings';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 
+export interface EventAppReady extends EventHandler {
+  name: 'APP_READY';
+  handler: () => void;
+}
+
 export interface EventAppStart extends EventHandler {
   name: 'APP_START';
   handler: (page: AppPages, user: User) => void;

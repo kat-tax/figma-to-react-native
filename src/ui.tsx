@@ -9,7 +9,7 @@ import {init, auth, ErrorBoundary} from 'interface/telemetry';
 import {App} from 'interface/App';
 
 import type {AppPages} from 'types/app';
-import type {EventAppStart} from 'types/events';
+import type {EventAppReady, EventAppStart} from 'types/events';
 
 init();
 
@@ -20,6 +20,10 @@ function Main() {
     setPage(page);
     auth(user);
   }), []);
+
+  useEffect(() => {
+    emit<EventAppReady>('APP_READY');
+  }, []);
 
   useWindowResize(e => emit('RESIZE_WINDOW', e), {
     minWidth: 330,

@@ -1,4 +1,4 @@
-import {showUI, emit, on} from '@create-figma-plugin/utilities';
+import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusComponent} from 'plugin/fig/traverse';
 
 import * as app from 'plugin/app';
@@ -22,11 +22,9 @@ if (!HEADLESS) {
 }
 
 export default async function() {
-  // Load config from storage
-  await config.load(HEADLESS);
-
   // Headless codegen mode
   if (HEADLESS) {
+    await config.load(true);
     figma.codegen.on('generate', (e) => {
       codegen.handleConfigChange();
       return codegen.render(e.node);
@@ -34,69 +32,74 @@ export default async function() {
     return;
   }
 
-  // Load current page from storage
-  const page = await app.loadCurrentPage() || 'code';
-
-  // Update preview mode based on page
-  preview.updateMode(page);
-
-  // Send start event to interface
-  emit<T.EventAppStart>('APP_START', page, figma.currentUser);
-
-  // Load project config from storage
-  // TODO: reload project config on root document update
-  project.loadConfig();
-
-  // Update theme on interval
-  setInterval(preview.updateTheme, 500);
-
-  // Update code once on init
-  preview.updateCode();
-
-  // Update code on selection change
-  figma.on('selectionchange', preview.updateCode);
-
-  // Update code when components change
-  figma.on('documentchange', (e) => {
-    const changes = e.documentChanges.filter(c =>
-      c.type === 'PROPERTY_CHANGE' && (
-        c.node.type === 'COMPONENT_SET'
-        || c.node.type === 'COMPONENT'
-        || c.node.type === 'INSTANCE'
-      )
-    );
-    if (changes.length > 0)
-      preview.updateCode();
-  });
-
-  // Update page (which tab the user is on)
-  on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
+  once<T.EventAppReady>('APP_READY', async () => {
+    // Load current page from storage
+    const page = await app.loadCurrentPage() || 'code';
+  
+    // Load config from storage
+    await config.load(true);
+  
+    // Update preview mode based on page
     preview.updateMode(page);
-    app.saveCurrentPage(page);
-  });
-
-  // Update config when changed from interface
-  on<T.EventConfigUpdate>('CONFIG_UPDATE', (newConfig) => {
-    config.update(newConfig);
-  });
-
-  // Handle exports triggered by user
-  on<T.EventProjectExport>('PROJECT_EXPORT', (newConfig) => {
-    project.build(newConfig);
-  });
-
-  // Focus component in Figma
-  on<T.EventFocus>('FOCUS', (componentId) => {
-    focusComponent(componentId);
-  });
-
-  // Notify user of error coming from interface
-  on<T.EventNotify>('NOTIFY', (message) => {
-    figma.notify(message, {error: true});
-  });
-
-  // Handle interface resizing
-  on('RESIZE_WINDOW', (size: {width: number; height: number}) => {
-    figma.ui.resize(size.width, size.height);
+  
+    // Send start event to interface
+    emit<T.EventAppStart>('APP_START', page, figma.currentUser);
+  
+    // Load project config from storage
+    // TODO: reload project config on root document update
+    project.loadConfig();
+  
+    // Update theme on interval
+    setInterval(preview.updateTheme, 500);
+  
+    // Update code once on init
+    preview.updateCode();
+  
+    // Update code on selection change
+    figma.on('selectionchange', preview.updateCode);
+  
+    // Update code when components change
+    figma.on('documentchange', (e) => {
+      const changes = e.documentChanges.filter(c =>
+        c.type === 'PROPERTY_CHANGE' && (
+          c.node.type === 'COMPONENT_SET'
+          || c.node.type === 'COMPONENT'
+          || c.node.type === 'INSTANCE'
+        )
+      );
+      if (changes.length > 0)
+        preview.updateCode();
+    });
+  
+    // Update page (which tab the user is on)
+    on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
+      preview.updateMode(page);
+      app.saveCurrentPage(page);
+    });
+  
+    // Update config when changed from interface
+    on<T.EventConfigUpdate>('CONFIG_UPDATE', (newConfig) => {
+      config.update(newConfig);
+    });
+  
+    // Handle exports triggered by user
+    on<T.EventProjectExport>('PROJECT_EXPORT', (newConfig) => {
+      project.build(newConfig);
+    });
+  
+    // Focus component in Figma
+    on<T.EventFocus>('FOCUS', (componentId) => {
+      focusComponent(componentId);
+    });
+  
+    // Notify user of error coming from interface
+    on<T.EventNotify>('NOTIFY', (message) => {
+      figma.notify(message, {error: true});
+    });
+  
+    // Handle interface resizing
+    on('RESIZE_WINDOW', (size: {width: number; height: number}) => {
+      figma.ui.resize(size.width, size.height);
+    });
   });
 }
