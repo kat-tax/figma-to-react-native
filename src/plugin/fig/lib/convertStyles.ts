@@ -47,7 +47,17 @@ export async function convertStyles(nodes: Set<string>, variants?: ParseVariantD
     const style = output[key]?.style;
     if (style) {
       const id = key.slice(1).replace(/\-/g, ':');
-      stylesheet[id] = style;
+      const props = {};
+      for (const k in style) {
+        if (k === 'display' && style[k] === 'flex') {
+          if (!style['flexDirection']) {
+            props['flexDirection'] = 'row';
+          }
+        } else {
+          props[k] = style[k];
+        }
+      }
+      stylesheet[id] = props;
     }
   }
 
