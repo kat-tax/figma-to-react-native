@@ -195,18 +195,19 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
       const nodes = crawlChildren(variant.children);
       const children = getChildren(nodes.dict);
       for (const child of children) {
-        const childId = createIdentifierCamel(child.node.name);
+        if (!child || !child.node) continue;
+        const childId = createIdentifierCamel(child?.node.name);
         const baseNode = rootChildren.find((c) =>
-          createIdentifierCamel(c.node.name) === childId
-          && c.node.type === child.node.type
+          createIdentifierCamel(c?.node.name) === childId
+          && c?.node.type === child?.node.type
         );
         if (!variants.mapping[variant.id]) variants.mapping[variant.id] = {};
-        variants.mapping[variant.id][baseNode.node.id] = child.node.id;
+        variants.mapping[variant.id][baseNode?.node.id] = child?.node.id;
         // Node without styles do not need classes
-        if (!NODES_WITH_STYLES.includes(child.node.type))
+        if (!NODES_WITH_STYLES.includes(child?.node.type))
           continue;
         if (!variants.classes[childId]) variants.classes[childId] = {};
-        variants.classes[childId][variant.name] = child.node.id;
+        variants.classes[childId][variant.name] = child?.node.id;
       }
     }
   }
