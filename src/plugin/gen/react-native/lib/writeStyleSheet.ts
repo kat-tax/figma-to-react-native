@@ -79,16 +79,23 @@ export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
       props.forEach(prop => {
         const value = styles[prop];
         // Expand shorthand props
+        // TODO: shouldn't be done here, can't diff this way
         if (prop === 'border') {
-          const [width, style, color] = value;
-          const colorVal = color?.type === 'runtime' && color?.name === 'var'
-            ? `theme.colors.${createIdentifierCamel(color.arguments[0])}`
-            : color;
-          writer.writeLine(`borderWidth: ${width},`);
-          writer.write(`borderStyle: `);
-          writer.quote(style);
-          writer.write(',');
-          writer.writeLine(`borderColor: ${colorVal},`);
+          if (Array.isArray(value)) {
+            const [width, style, color] = value;
+            const colorVal = color?.type === 'runtime' && color?.name === 'var'
+              ? `theme.colors.${createIdentifierCamel(color.arguments[0])}`
+              : color;
+            writer.writeLine(`borderWidth: ${width},`);
+            writer.write(`borderStyle: `);
+            writer.quote(style);
+            writer.write(',');
+            writer.writeLine(`borderColor: ${colorVal},`);
+          } else {
+            writer.writeLine(`borderWidth: 'unset',`);
+            writer.writeLine(`borderStyle: 'unset',`);
+            writer.writeLine(`borderColor: 'unset',`);
+          }
         // Other props (TODO: document this)
         } else {
           writer.write(`${prop}: `);

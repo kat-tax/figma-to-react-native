@@ -58,7 +58,7 @@ export function writeClasses(writer: CodeBlockWriter, data: ParseData, isRootPre
   // Classes object
   writer.write(`const $styles = React.useMemo(() => (`).inlineBlock(() => {
     for (const slug of Object.keys(classes)) {
-      const dynamic = isRootPressable ? pressableFunction : '';
+      const dynamic = slug === 'root' && isRootPressable ? pressableFunction : '';
       writer.write(`${slug}: ${dynamic}[`).indent(() => {
         writer.writeLine(`styles.${slug},`);
         Array.from(classes[slug]).forEach((data: string[][]) => {
@@ -68,7 +68,7 @@ export function writeClasses(writer: CodeBlockWriter, data: ParseData, isRootPre
             // Skip default state
             if (ruleName === '_stateDefault')
               return false;
-            return pressableState
+            return pressableState && dynamic
               ? `(${ruleName} || ${pressableState})`
               : ruleName;
             }).filter(Boolean).join(' && ');

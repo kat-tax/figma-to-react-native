@@ -21,6 +21,11 @@ export async function convertStyles(nodes: Set<string>, variants?: ParseVariantD
         const vnode = figma.getNodeById(vid);
         const vcss = await vnode.getCSSAsync();
         const diff = diffStyles(css[bid], vcss);
+        for (const k in diff) {
+          if (diff[k] === undefined) {
+            diff[k] = 'unset';
+          }
+        }
         if (diff && Object.keys(diff).length > 0) {
           css[vid] = diff;
         }
