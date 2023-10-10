@@ -20,15 +20,6 @@ export function writeImports(
   writer.write(';');
   writer.newLine();
 
-  // Import UniStyles helpers (if not preview mode)
-  if (!metadata.isPreview) {
-    writer.write(`import {useStyles, createStyles} from`);
-    writer.space();
-    writer.quote(`styles`);
-    writer.write(';');
-    writer.newLine();
-  }
-
   // Import LinguiJS if set and Text primitive is used
   if (settings?.react?.addTranslate && data.meta.primitives.has('Text')) {
     writer.write('import {Trans} from');
@@ -47,6 +38,15 @@ export function writeImports(
   writer.quote('react-native');
   writer.write(';');
   writer.newLine();
+
+  // Import UniStyles helpers (if not preview mode)
+  if (!metadata.isPreview) {
+    writer.write(`import {useStyles, createStyles} from`);
+    writer.space();
+    writer.quote(`styles`);
+    writer.write(';');
+    writer.newLine();
+  }
 
   // TODO: aria hooks for each primitive
   // writer.writeLine(`import {useButton} from '@react-native-aria/button';`);

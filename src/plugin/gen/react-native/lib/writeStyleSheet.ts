@@ -25,7 +25,8 @@ export function writeStyleSheet(
       const rootVariants = data.variants?.classes?.root;
       if (rootVariants) {
         Object.keys(rootVariants).forEach(key => {
-          const classStyle = data.stylesheet[rootVariants[key]];
+          const classKey = rootVariants[key];
+          const classStyle = data.stylesheet[classKey];
           if (classStyle) {
             const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
             writeStyle(writer, className, classStyle);
@@ -77,20 +78,37 @@ export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
     writer.write(`${slug}: {`).indent(() => {
       props.forEach(prop => {
         const value = styles[prop];
-        writer.write(`${prop}: `);
-        if (typeof value === 'undefined') {
-          writer.quote('unset');
-        } else if (typeof value === 'number') {
-          writer.write(value.toString());
-        } else if (typeof value === 'string' && value.startsWith('theme.')) {
-          writer.write(value);
-        } else if (value?.type === 'runtime' && value?.name === 'var') {
-          writer.write('theme.colors.' + createIdentifierCamel(value.arguments[0]));
+        // Expand shorthand props
+        if (prop === 'border') {
+          const [width, style, color] = value;
+          const colorVal = color?.type === 'runtime' && color?.name === 'var'
+            ? `theme.colors.${createIdentifierCamel(color.arguments[0])}`
+            : color;
+          writer.writeLine(`borderWidth: ${width},`);
+          writer.write(`borderStyle: `);
+          writer.quote(style);
+          writer.write(',');
+          writer.writeLine(`borderColor: ${colorVal},`);
+        // Other props (TODO: document this)
         } else {
-          writer.quote(value);
+          writer.write(`${prop}: `);
+          if (typeof value === 'undefined') {
+            writer.quote('unset');
+          } else if (typeof value === 'number') {
+            writer.write(Number.isInteger(value)
+              ? value.toString()
+              : parseFloat(value.toFixed(5)).toString()
+            );
+          } else if (typeof value === 'string' && value.startsWith('theme.')) {
+            writer.write(value);
+          } else if (value?.type === 'runtime' && value?.name === 'var') {
+            writer.write('theme.colors.' + createIdentifierCamel(value.arguments[0]));
+          } else {
+            writer.quote(value);
+          }
+          writer.write(',');
+          writer.newLine();
         }
-        writer.write(',');
-        writer.newLine();
       });
     });
     writer.writeLine('},');

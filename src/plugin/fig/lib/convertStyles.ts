@@ -20,7 +20,7 @@ export async function convertStyles(nodes: Set<string>, variants?: ParseVariantD
       for await (const [bid, vid] of Object.entries(variants.mapping[id])) {
         const vnode = figma.getNodeById(vid);
         const vcss = await vnode.getCSSAsync();
-        const diff = diffStyles(vcss, css[bid]);
+        const diff = diffStyles(css[bid], vcss);
         if (diff && Object.keys(diff).length > 0) {
           css[vid] = diff;
         }

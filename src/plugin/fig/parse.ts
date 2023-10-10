@@ -189,7 +189,7 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
   for (const variant of compVars) {  
     variants.mapping[variant.id] = {};
     variants.mapping[variant.id][root.id] = variant.id;
-    variants.classes.root = {};
+    if (!variants.classes.root) variants.classes.root = {};
     variants.classes.root[variant.name] = variant.id;
     if (variant.children) {
       const nodes = crawlChildren(variant.children);
@@ -200,10 +200,13 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
           createIdentifierCamel(c.node.name) === childId
           && c.node.type === child.node.type
         );
-        if (!variants.classes[childId]) variants.classes[childId] = {};
-        variants.classes[childId][variant.name] = child.node.id;
         if (!variants.mapping[variant.id]) variants.mapping[variant.id] = {};
         variants.mapping[variant.id][baseNode.node.id] = child.node.id;
+        // Node without styles do not need classes
+        if (!NODES_WITH_STYLES.includes(child.node.type))
+          continue;
+        if (!variants.classes[childId]) variants.classes[childId] = {};
+        variants.classes[childId][variant.name] = child.node.id;
       }
     }
   }

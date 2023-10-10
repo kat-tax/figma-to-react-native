@@ -4,11 +4,7 @@ import {getPropName} from 'plugin/fig/lib/getPropName';
 
 import type {ParseData, ParseStyles} from 'types/parse';
 
-export function writeClasses(
-  writer: CodeBlockWriter,
-  data: ParseData,
-  isRootPressable?: boolean,
-) {
+export function writeClasses(writer: CodeBlockWriter, data: ParseData, isRootPressable?: boolean) {
   const conditions = new Set<Record<string, string>>();
   const classes = new Set<Record<string, ParseStyles>>();
   const props = new Set<string>();
@@ -36,7 +32,7 @@ export function writeClasses(
 
   // Used for pressable dynamic styles
   const pressableFunction =
-    '(e: {focused: boolean, hovered: boolean, pressed: boolean}) => (';
+    '(e: {focused: boolean, hovered: boolean, pressed: boolean}) => ';
 
   const pressableDisableState = {
     '_stateDisabled': ' || props.disabled',
@@ -61,10 +57,9 @@ export function writeClasses(
   
   // Classes object
   writer.write(`const $styles = React.useMemo(() => (`).inlineBlock(() => {
-    console.log(classes);
     for (const slug of Object.keys(classes)) {
       const dynamic = isRootPressable ? pressableFunction : '';
-      writer.write(`${slug}: ${dynamic}{`).indent(() => {
+      writer.write(`${slug}: ${dynamic}[`).indent(() => {
         writer.writeLine(`styles.${slug},`);
         Array.from(classes[slug]).forEach((data: string[][]) => {
           const [rules, raw] = data;
@@ -81,7 +76,7 @@ export function writeClasses(
           writer.writeLine(`${condition} && styles.${createIdentifierCamel(className)},`);
         });
       });
-      writer.writeLine(dynamic ? '}),' : '},');
+      writer.writeLine('],');
     }
   });
 
