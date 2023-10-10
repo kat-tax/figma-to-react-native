@@ -4,7 +4,6 @@ const user: Settings = {
   react: {
     flavor: 'react-native',
     styleGen: 'default',
-    addImport: false,
     addTranslate: false,
   },
   writer: {

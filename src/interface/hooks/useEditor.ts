@@ -32,7 +32,7 @@ export function useEditor(settings: Settings, links?: PreviewEditorLinks, libs?:
       schemas: [{
         schema,
         fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
-        uri: 'http://ult.dev/figaro-settings-schema.json',
+        uri: 'http://fig.run/settings-schema.json',
       }],
     });
   }, [monaco]);

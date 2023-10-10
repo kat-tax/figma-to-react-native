@@ -24,7 +24,6 @@ export const transformRawValue = (propName, value) => {
 const transformShorthandValue = (propName, value) => {
   const ast = parse(value);
   const tokenStream = new TokenStream(ast.nodes);
-  // console.log('ast', ast, value);
   return transforms[propName](tokenStream);
 };
 

@@ -13,14 +13,12 @@ export function writeImports(
     isPreview?: boolean, 
   }
 ) {
-  // Import React explicitly if set 
-  if (settings?.react?.addImport) {
-    writer.write('import React from');
-    writer.space();
-    writer.quote('react');
-    writer.write(';');
-    writer.newLine();
-  }
+  // Import React
+  writer.write('import React from');
+  writer.space();
+  writer.quote('react');
+  writer.write(';');
+  writer.newLine();
 
   // Import UniStyles helpers (if not preview mode)
   if (!metadata.isPreview) {

@@ -6,7 +6,6 @@ export interface Settings {
   react: {
     flavor: 'react-native' | 'tamagui',
     styleGen:  'default' | 'service' | 'experimental',
-    addImport?: boolean,
     addTranslate?: boolean,
   }
   writer: CodeBlockWriterOptions,

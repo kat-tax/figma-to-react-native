@@ -1,6 +1,6 @@
 import {useRef, useEffect, useCallback} from 'preact/hooks';
 import {on} from '@create-figma-plugin/utilities';
-import {log} from 'vendor/logtail';
+import {log} from 'interface/telemetry';
 
 import {upload} from 'interface/utils/upload';
 import {download} from 'interface/utils/download';

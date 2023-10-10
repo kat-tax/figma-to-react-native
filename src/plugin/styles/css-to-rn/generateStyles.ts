@@ -1,5 +1,5 @@
-import {convertToReactNative} from './lib/convertToReactNative';
-import {processStyles} from './lib/processStyles';
+import {convertToReactNative} from './utils/convertToReactNative';
+import {processStyles} from './utils/processStyles';
 
 import type {ParseStyles} from 'types/parse';
 

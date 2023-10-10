@@ -1,7 +1,12 @@
 import {h} from 'preact';
 import {Root, List, Trigger, Content} from '@radix-ui/react-tabs';
 
-import type {TabsProps as TabsBaseProps, TabsListProps, TabsTriggerProps, TabsContentProps} from '@radix-ui/react-tabs';
+import type {
+  TabsProps as TabsBaseProps,
+  TabsListProps,
+  TabsTriggerProps,
+  TabsContentProps,
+} from '@radix-ui/react-tabs';
 
 interface TabsProps extends TabsBaseProps {
   children: JSX.Element[],

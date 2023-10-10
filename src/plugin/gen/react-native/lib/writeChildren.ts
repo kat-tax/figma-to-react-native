@@ -47,7 +47,7 @@ export function writeChildren(
   });
 }
 
-export function writeChild(
+function writeChild(
   writer: CodeBlockWriter,
   data: ParseData,
   settings: Settings,

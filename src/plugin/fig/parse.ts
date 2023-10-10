@@ -1,88 +1,71 @@
-import {diff} from 'deep-object-diff';
-import {generateStyles} from 'plugin/css';
-import {getInstanceInfo, isNodeVisible, convertAssets, getCustomReaction} from 'plugin/fig/lib';
+import {getInstanceInfo, isNodeVisible, getCustomReaction, convertAssets, convertStyles} from 'plugin/fig/lib';
 import {createIdentifierCamel} from 'common/string';
-import {wait} from 'common/delay';
+import {validate} from './validate';
 
-import type {ParseData, ParseMetaData, ParseNodeTree, ParseStyles} from 'types/parse';
+import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
 import type {Settings} from 'types/settings';
 
 const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'SECTION', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
 export default async function parse(
-  node: ComponentNode,
-  settings: Settings,
+  component: ComponentNode,
+  _settings: Settings,
   isPreview: boolean,
 ): Promise<ParseData> {
-  if (!node) return;
+  // Make sure component can be processed
+  try {
+    validate(component);
+  } catch(e) {
+    figma.notify(e.message, {error: true, timeout: 5000});
+  }
 
-  // DEBUG
-  const start = Date.now();
+  // Gather node data relative to conversion
+  const _t1 = Date.now();
+  const data = crawl(component);
 
-  const {dict, tree, meta} = crawlNodes(node.children);
-  const [root, frame, children] = await Promise.all([
-    parseRoot(node, settings),
-    parseFrame(node, settings),
-    parseChildren(dict, settings),
+  // Generated styles and assets
+  const [stylesheet, {assets, hasImage}] = await Promise.all([
+    convertStyles(data.meta.styleNodes, data.variants),
+    convertAssets(data.meta.assetNodes, isPreview),
   ]);
 
-  const variants = await crawlVariants(node, root, children, tree, meta.assetNodes, settings);
-  const assets = await convertAssets(meta.assetNodes, isPreview);
-  
-  if (assets.hasImage)
-    meta.primitives.add('Image');
+  // Add image primitive if needed
+  if (hasImage) {
+    data.meta.primitives.add('Image');
+  }
 
-  const data: ParseData = {
+  // Profile
+  console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet, assets);
+
+  return {...data, stylesheet, assets};
+}
+
+function crawl(node: ComponentNode) {
+  const _t1 = Date.now();
+  const {dict, tree, meta} = crawlChildren(node.children);
+
+  const root = getRoot(node);
+  const frame = getFrame(node);
+  const children = getChildren(dict);
+  const variants = getVariants(node, children);
+
+  root && meta.styleNodes.add(root.node.id);
+  frame && meta.styleNodes.add(frame.node.id);
+
+  // Profile
+  console.log(`[fig/parse/crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, tree);
+
+  return {
+    tree,
+    meta,
     root,
     frame,
     children,
-    tree,
-    meta,
     variants,
-    assets: assets.data,
-  };
-
-  // DEBUG
-  console.log(`parse: ${Date.now() - start}ms (${dict.size} nodes)`, data);
-
-  return data;
-}
-
-async function parseRoot(node: ComponentNode, settings: Settings): Promise<ParseData['root']> {
-  return {
-    node,
-    slug: 'root',
-    click: getCustomReaction(node),
-    styles: await generateStyles(node, settings),
   };
 }
 
-async function parseFrame(node: ComponentNode, settings: Settings) {
-  if (node.parent.type !== 'FRAME') return null;
-  return {
-    node: node.parent,
-    slug: 'frame',
-    styles: await generateStyles(node.parent, settings),
-  };
-}
-
-async function parseChildren(nodes: Set<SceneNode>, settings: Settings) {
-  const children: Array<{node: SceneNode, styles: ParseStyles, slug: string}> = [];
-  for await (const node of nodes) {
-    // Prevents UI from freezing
-    await wait(0);
-    const slugBase = createIdentifierCamel(node.name);
-    const slugCount = children.filter((c) => createIdentifierCamel(c.node.name) === slugBase).length;
-    const slug = slugCount > 0 ? `${slugBase}${slugCount+1}` : slugBase;
-    const styles = NODES_WITH_STYLES.includes(node.type)
-      ? await generateStyles(node, settings)
-      : null
-    children.push({node, slug, styles});
-  }
-  return children;
-}
-
-function crawlNodes(
+function crawlChildren(
   nodes: readonly SceneNode[],
   dict?: Set<SceneNode>,
   tree?: ParseNodeTree,
@@ -93,6 +76,7 @@ function crawlNodes(
   meta = meta || {
     primitives: new Set(),
     assetNodes: new Set(),
+    styleNodes: new Set(),
     components: {},
     includes: {},
   };
@@ -101,7 +85,7 @@ function crawlNodes(
     // Skip nodes that are not visible and not conditionally rendered
     if (!isNodeVisible(node)) continue;
 
-    // Handle asset nodes differently
+    // Record asset nodes to be exported, nothing further is needed
     const isAsset = (node.isAsset && node.type !== 'INSTANCE') || node.type === 'VECTOR';
     if (isAsset) {
       meta.assetNodes.add(node.id);
@@ -110,14 +94,18 @@ function crawlNodes(
       continue;
     }
 
+    // Record nodes with styles
+    if (NODES_WITH_STYLES.includes(node.type)) {
+      meta.styleNodes.add(node.id);
+    }
+
     // Handle other nodes
     switch (node.type) {
       case 'FRAME':
         meta.primitives.add('View');
-      case 'SECTION':
       case 'COMPONENT':
         // Container, recurse
-        const sub = crawlNodes(node.children, dict, [], meta);
+        const sub = crawlChildren(node.children, dict, [], meta);
         meta.primitives = new Set([...meta.primitives, ...sub.meta.primitives]);
         meta.assetNodes = new Set([...meta.assetNodes, ...sub.meta.assetNodes]);
         meta.components = {...meta.components, ...sub.meta.components};
@@ -163,66 +151,62 @@ function crawlNodes(
         tree.push({node});
     }
   }
+
   return {dict, tree, meta};
 }
 
-async function crawlVariants(
-  node: ComponentNode,
-  root: {node: ComponentNode, styles: ParseStyles},
-  children: {node: SceneNode, styles: ParseStyles}[],
-  _rootTree: ParseNodeTree,
-  _assetNodes: Set<string>,
-  settings: Settings,
-) {
-  const styles: Record<string, Record<string, unknown>> = {};
-  if (!node.variantProperties) return styles;
-  const componentSet = node.parent as ComponentSetNode;
-  const componentVariants = componentSet.children
-    .filter((n: ComponentNode) => n !== componentSet.defaultVariant) as ComponentNode[];
+function getRoot(node: ComponentNode): ParseRoot {
+  return {node, slug: 'root', click: getCustomReaction(node)};
+}
 
-  for await (const variant of componentVariants) {
-    // Variant name
-    const variantName = variant.name;
+function getFrame(node: ComponentNode): ParseFrame {
+  if (node.parent.type !== 'FRAME') return null;
+  return {node: node.parent, slug: 'frame'};
+}
 
-    // TODO: Variant children
-    // const {tree} = crawlNodes(variant.children);
-    //const treeDiff = diff(rootTree, tree);
-  
-    // Root style variants
-    const variantRoot = await parseRoot(variant, settings);
-    const variantRootDiff = diffStyles(root.styles, variantRoot.styles);
-    if (Object.keys(variantRootDiff).length > 0) {
-      if (!styles['root']) styles['root'] = {};
-      styles['root'][variantName] = variantRootDiff;
-    }
-    // Children style variants
-    const variantNodes = crawlNodes(variant.children);
-    const variantChildren = await parseChildren(variantNodes.dict, settings);
-    for (const child of variantChildren) {
-      // Skip nodes without styles
-      if (!NODES_WITH_STYLES.includes(child.node.type))
-        continue;
-      const childIdentifier = createIdentifierCamel(child.node.name);
-      // Find sister node (same slug and same type)
-      const sisterNode = children.find((c) =>
-        createIdentifierCamel(c.node.name) === childIdentifier && c.node.type === child.node.type);
-      const stylesDiff = sisterNode
-        ? diffStyles(sisterNode.styles, child.styles)
-        : child.styles;
-      // Add if there is a diff
-      if (Object.keys(stylesDiff).length > 0) {
-        if (!styles[childIdentifier]) styles[childIdentifier] = {};
-        styles[childIdentifier][variantName] = stylesDiff;
+function getChildren(nodes: Set<SceneNode>): ParseChild[] {
+  const children: ParseChild[] = [];
+  for (const node of nodes) {
+    const id = createIdentifierCamel(node.name);
+    const ref = children.filter((c) => id === createIdentifierCamel(c.node.name)).length;
+    const slug = ref > 0 ? `${id}${ref+1}` : id;
+    children.push({node, slug});
+  }
+  return children;
+}
+
+function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
+  const variants: ParseVariantData = {classes: {}, mapping: {}};
+
+  if (!root || !root.variantProperties)
+    return null;
+
+  const compSet = root.parent as ComponentSetNode;
+  const compVars = compSet.children.filter((n: ComponentNode) =>
+    n !== compSet.defaultVariant
+  ) as ComponentNode[];
+
+  for (const variant of compVars) {  
+    variants.mapping[variant.id] = {};
+    variants.mapping[variant.id][root.id] = variant.id;
+    variants.classes.root = {};
+    variants.classes.root[variant.name] = variant.id;
+    if (variant.children) {
+      const nodes = crawlChildren(variant.children);
+      const children = getChildren(nodes.dict);
+      for (const child of children) {
+        const childId = createIdentifierCamel(child.node.name);
+        const baseNode = rootChildren.find((c) =>
+          createIdentifierCamel(c.node.name) === childId
+          && c.node.type === child.node.type
+        );
+        if (!variants.classes[childId]) variants.classes[childId] = {};
+        variants.classes[childId][variant.name] = child.node.id;
+        if (!variants.mapping[variant.id]) variants.mapping[variant.id] = {};
+        variants.mapping[variant.id][baseNode.node.id] = child.node.id;
       }
-      // TODO: diff assets (vector colors)
     }
   }
 
-  return styles;
-}
-
-function diffStyles(base: ParseStyles, variant: ParseStyles) {
-  const styleDiff = diff(base, variant);
-  // TODO: any transformations of diff needed? Do it here
-  return styleDiff;
+  return variants;
 }

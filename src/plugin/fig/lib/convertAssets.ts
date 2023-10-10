@@ -2,7 +2,7 @@ import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
 
 import type {ParseAssetData} from 'types/parse';
 
-export async function convertAssets(nodes: Set<string>, isPreview: boolean): Promise<{data: ParseAssetData, hasImage: boolean}> {
+export async function convertAssets(nodes: Set<string>, isPreview: boolean): Promise<{assets: ParseAssetData, hasImage: boolean}> {
   const assets: ParseAssetData = {};
   const vectorTypes: NodeType[] = ['VECTOR', 'LINE', 'ELLIPSE', 'POLYGON', 'STAR'];
   const images: Record<string, number> = {};
@@ -51,5 +51,5 @@ export async function convertAssets(nodes: Set<string>, isPreview: boolean): Pro
   } catch (err) {
     console.error('Failed to convert assets', err);
   }
-  return {data: assets, hasImage};
+  return {assets, hasImage};
 }

@@ -15,8 +15,8 @@ export function init() {
   _queue.push((user: User) => LT.info('session', authMeta(user)));
 }
 
-export function identify(user: User) {
-  console.debug(`${NS} [identify]`);
+export function auth(user: User) {
+  console.debug(`${NS} [auth]`);
   start(user);
 }
 
@@ -67,8 +67,6 @@ function flush() {
 
 function authMeta(user: User, metadata: MetaData = {}) {
   metadata.userId = user.id;
-  metadata.userName = user.name;
-  metadata.userPhotoUrl = user.photoUrl;
   metadata.userSessionId = user.sessionId.toString();
   return metadata;
 }

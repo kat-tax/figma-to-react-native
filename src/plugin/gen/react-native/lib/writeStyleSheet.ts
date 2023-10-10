@@ -19,27 +19,31 @@ export function writeStyleSheet(
     writer.write(`${define}${metadata.stylePrefix} = createStyles(theme => (`).inlineBlock(() => {
       // Frame styles
       if (includeFrame && data.frame)
-        writeStyle(writer, 'frame', data.frame.styles);
+        writeStyle(writer, 'frame', data.stylesheet[data.frame.node.id]);
       // Root styles
-      writeStyle(writer, 'root', data.root.styles);
-      if (data.variants.root) {
-        Object.keys(data.variants.root)
-          .forEach(key => {
+      writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
+      const rootVariants = data.variants?.classes?.root;
+      if (rootVariants) {
+        Object.keys(rootVariants).forEach(key => {
+          const classStyle = data.stylesheet[rootVariants[key]];
+          if (classStyle) {
             const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
-            //console.log('writeStyleSheet:', className, data.variants.root[key]);
-            writeStyle(writer, className, data.variants.root[key]);
-          });
+            writeStyle(writer, className, classStyle);
+          }
+        });
       }
       // Children styles
       for (const child of data.children) {
-        if (child.styles) {
-          writeStyle(writer, child.slug, child.styles);
-          if (data.variants[child.slug]) {
-            Object.keys(data.variants[child.slug]).forEach(key => {
-              if (data.variants[child.slug][key]) {
+        const childStyles = data.stylesheet[child.node.id];
+        if (childStyles) {
+          writeStyle(writer, child.slug, childStyles);
+          const childVariants = data.variants?.classes[child.slug];
+          if (childVariants) {
+            Object.keys(childVariants).forEach(key => {
+              const classStyle = data.stylesheet[childVariants[key]];
+              if (classStyle) {
                 const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
-                //console.log('writeStyleSheet:', className, data.variants[child.slug][key]);
-                writeStyle(writer, className, data.variants[child.slug][key]);
+                writeStyle(writer, className, classStyle);
               }
             });
           }
@@ -48,23 +52,23 @@ export function writeStyleSheet(
     });
     writer.write('));');
   };
+
   if (metadata.isPreview) {
     writer.writeLine(`let ${metadata.stylePrefix} = {}`);
     writer.write('try ').inlineBlock(() => {
       _writeStyleSheet();
     });
     writer.write(' catch (e) ').inlineBlock(() => {
-      const lines = [
+      writer.writeLine([
         'logtail.error(e)',
         'logtail.flush()',
         'console.error("[preview] [styles]", e)',
-        // 'alert("Figma -> React Native: Preview Styles Error. Check the console for details.")',
-      ];
-      writer.writeLine(lines.join('; '));
+      ].join('; '));
     });
   } else {
     _writeStyleSheet();
   }
+
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
@@ -80,6 +84,8 @@ export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
           writer.write(value.toString());
         } else if (typeof value === 'string' && value.startsWith('theme.')) {
           writer.write(value);
+        } else if (value?.type === 'runtime' && value?.name === 'var') {
+          writer.write('theme.colors.' + createIdentifierCamel(value.arguments[0]));
         } else {
           writer.quote(value);
         }

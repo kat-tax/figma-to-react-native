@@ -1,4 +1,4 @@
-import {getPropertyName, getStylesForProperty} from 'vendor/css-to-rn';
+import {getPropertyName, getStylesForProperty} from '../vendor';
 
 import type {ParseStyles} from 'types/parse';
 

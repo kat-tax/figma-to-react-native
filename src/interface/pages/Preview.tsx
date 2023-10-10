@@ -1,6 +1,6 @@
 import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
-import {getLoader, getPreview} from 'interface/utils/preview';
+import {init, preview} from 'interface/utils/preview';
 import {Watermark} from 'interface/base/Watermark';
 
 import type {PreviewComponent} from 'types/preview';
@@ -26,13 +26,13 @@ export function Preview(props: PreviewProps) {
   }, [iframe]);
 
   const load = useCallback(() => {
-    getLoader(settings).then(setSrc);
+    init(settings).then(setSrc);
   }, []);
 
   const render = useCallback(() => {
     if (!component || !component.preview) return;
     const tag = '<' + component.name + component.props + '/>';
-    getPreview(component.preview, component.name, tag, settings).then(update);
+    preview(component.preview, component.name, tag, settings).then(update);
     console.debug('[preview]', tag, component.preview);
   }, [component, settings]);
 

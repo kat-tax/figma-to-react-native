@@ -6,9 +6,9 @@ import {useRef, useEffect, useMemo} from 'preact/hooks';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {Watermark} from 'interface/base/Watermark';
 import {throttle} from 'common/delay';
-import {init} from 'vendor/monaco';
+import {init} from 'interface/utils/editor';
 
-import type {Monaco, Editor} from 'vendor/monaco';
+import type {Monaco, Editor} from 'interface/utils/editor';
 import type {PreviewComponent} from 'types/preview';
 import type {Settings} from 'types/settings';
 

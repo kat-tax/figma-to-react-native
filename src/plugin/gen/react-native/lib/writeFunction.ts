@@ -27,18 +27,12 @@ export function writeFunction(
   const name = createIdentifierPascal(masterNode.name);
   
   // Pressable data (on click -> open link set)
-  const pressables = data.root.click?.type === 'URL'
-    ? data.root.click.url
-      ?.split(',')
-      ?.map(s => s
-        ?.trim()
-        ?.split('#')
-      ).map(([prop, label]) => {
-        const id = createIdentifierCamel(label
-          && label !== 'root'
-          && prop === 'onPress'
-            ? `${prop}_${label}`
-            : prop);
+  const pressables = data.root?.click?.type === 'URL'
+    ? data.root.click.url?.split(',')?.map(s => s?.trim()?.split('#'))?.map(([prop, label]) => {
+        const id = createIdentifierCamel(label && label !== 'root' && prop === 'onPress'
+          ? `${prop}_${label}`
+          : prop
+        );
         return [prop, label, id];
       })
     : null;
@@ -65,7 +59,6 @@ export function writeFunction(
         const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
         const isRootPressableState = propName === 'state' && isRootPressable && isVariant;
         const isConditionalProp = isBoolean || isInstanceSwap || isRootPressableState;
-        
         const propCond = isConditionalProp ? '?' : '';
         const propType: string = isVariant
           ? prop.variantOptions
@@ -107,8 +100,8 @@ export function writeFunction(
   }
 
   // Determine if style is conditional or static
-  const getStylePrefix: StylePrefixMapper = (slug) =>
-    Object.keys(data.variants).includes(slug)
+  const getStylePrefix: StylePrefixMapper = (slug) => data?.variants
+    && Object.keys(data.variants.classes).includes(slug)
       ? '$styles' : 'styles';
 
   // Component function body and children
@@ -118,19 +111,18 @@ export function writeFunction(
     writer.blankLine();
 
     // Conditional styling
-    if (isVariant && Object.keys(data.variants).length > 0)
+    if (isVariant && data?.variants && Object.keys(data.variants.classes).length > 0)
       writeClasses(writer, data, isRootPressable);
 
-    // TODO: accessibility
-    /*
-    if (isRootPressable) {
-      writer.writeLine(`const ref = React.useRef(null);`);
-      writer.writeLine(`const {buttonProps} = useButton(props);`);
-      writer.writeLine(`const {hoverProps} = useHover({}, ref);`);
-      writer.writeLine(`const {focusProps} = useFocusRing();`);
-      writer.writeLine(`const ariaProps = {...buttonProps, ...hoverProps, ...focusProps};`);
-      writer.blankLine();
-    }
+    /* TODO: accessibility
+      if (isRootPressable) {
+        writer.writeLine(`const ref = React.useRef(null);`);
+        writer.writeLine(`const {buttonProps} = useButton(props);`);
+        writer.writeLine(`const {hoverProps} = useHover({}, ref);`);
+        writer.writeLine(`const {focusProps} = useFocusRing();`);
+        writer.writeLine(`const ariaProps = {...buttonProps, ...hoverProps, ...focusProps};`);
+        writer.blankLine();
+      }
     */
 
     writer.write(`return (`).indent(() => {
@@ -140,12 +132,18 @@ export function writeFunction(
       const rootProps = isRootPressable
         ? ` onPress={props.${pressId}} disabled={_stateDisabled}` // TODO: ref={ref} {...ariaProps}
         : '';
-
       writer.conditionalWrite(includeFrame, `<View style={${getStylePrefix('frame')}.frame}>`).indent(() => {
-        const indent = includeFrame ? 0 : -1;
-        writer.withIndentationLevel(writer.getIndentationLevel() + indent, () => {
-          writer.write('<'+rootTag+rootStyle+rootProps+'>').indent(() => {
-            writeChildren(writer, data, settings, data.tree, getStylePrefix, metadata.isPreview, pressables);
+        writer.withIndentationLevel(includeFrame ? 0 : -1 + writer.getIndentationLevel(), () => {
+          writer.write('<' + rootTag + rootStyle + rootProps + '>').indent(() => {
+            writeChildren(
+              writer,
+              data,
+              settings,
+              data.tree,
+              getStylePrefix,
+              metadata.isPreview,
+              pressables,
+            );
           });
           writer.writeLine(`</${rootTag}>`);
         });

@@ -1,4 +1,5 @@
 import {getSize} from './utils/getSize';
+
 import type {StylesDimension} from '../types/styles';
 
 export function dimension(node: any, isText?: boolean): StylesDimension {

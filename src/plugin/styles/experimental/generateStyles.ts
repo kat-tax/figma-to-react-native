@@ -1,4 +1,5 @@
-import * as gen from './lib';
+import * as style from './lib';
+
 import type {ParseStyles} from 'types/parse';
 
 export async function generateStyles(node: SceneNode): Promise<ParseStyles> {
@@ -9,21 +10,21 @@ export async function generateStyles(node: SceneNode): Promise<ParseStyles> {
     case 'COMPONENT':
     case 'COMPONENT_SET': {
       return {
-        ...gen.layout(node),
-        ...gen.position(node),
-        ...gen.dimension(node),
-        ...gen.padding(node),
-        ...gen.background(node),
-        ...gen.border(node),
-        //...gen.shadow(node),
-        //...gen.blends(node),
+        ...style.layout(node),
+        ...style.position(node),
+        ...style.dimension(node),
+        ...style.padding(node),
+        ...style.background(node),
+        ...style.border(node),
+        //...style.shadow(node),
+        //...style.blends(node),
       };
     }
     case 'TEXT': {
       return {
-        ...gen.position(node),
-        ...gen.dimension(node, true),
-        ...gen.typography(node),
+        ...style.position(node),
+        ...style.dimension(node, true),
+        ...style.typography(node),
       }
     }
     default: {

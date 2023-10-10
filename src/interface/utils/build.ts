@@ -1,5 +1,5 @@
 import {initialize, transform} from 'esbuild-wasm';
-import {notify} from 'vendor/logtail';
+import {notify} from 'interface/telemetry';
 
 import type {Settings} from 'types/settings';
 

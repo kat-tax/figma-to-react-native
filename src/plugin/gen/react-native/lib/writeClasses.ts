@@ -2,7 +2,7 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getPropName} from 'plugin/fig/lib/getPropName';
 
-import type {ParseData} from 'types/parse';
+import type {ParseData, ParseStyles} from 'types/parse';
 
 export function writeClasses(
   writer: CodeBlockWriter,
@@ -10,14 +10,14 @@ export function writeClasses(
   isRootPressable?: boolean,
 ) {
   const conditions = new Set<Record<string, string>>();
-  const classes = new Set<Record<string, unknown>>();
+  const classes = new Set<Record<string, ParseStyles>>();
   const props = new Set<string>();
   
   // Build classes from variants
-  Object.keys(data.variants).forEach((k: string) => {
+  Object.keys(data.variants.classes).forEach((k: string) => {
     classes[k] = Object
-      .keys(data.variants[k])
-      .filter(v => !!data.variants[k][v])
+      .keys(data.variants.classes[k])
+      .filter(v => !!data.variants.classes[k][v])
       .map(v => {
         const decoded = v.split(', ')?.map(part => {
           const [state, value] = part.split('=');
@@ -35,15 +35,16 @@ export function writeClasses(
   });
 
   // Used for pressable dynamic styles
-  const pressableFunc = '(e: {focused: boolean, hovered: boolean, pressed: boolean}) => ';
+  const pressableFunction =
+    '(e: {focused: boolean, hovered: boolean, pressed: boolean}) => (';
+
+  const pressableDisableState = {
+    '_stateDisabled': ' || props.disabled',
+  };
   const pressableStates = {
     '_stateFocused': 'e.focused',
     '_stateHovered': 'e.hovered',
     '_statePressed': 'e.pressed',
-  };
-
-  const pressableSpecialStates = {
-    '_stateDisabled': ' || props.disabled',
   };
 
   // Write conditions to variables
@@ -52,7 +53,7 @@ export function writeClasses(
     .forEach(cond => {
       // Skip default state
       if (cond === '_stateDefault') return;
-      const specialState = pressableSpecialStates[cond] || '';
+      const specialState = pressableDisableState[cond] || '';
       const expression = conditions[cond];
       writer.write(`const ${cond} = ${expression}${specialState};`).newLine();
     });
@@ -60,28 +61,28 @@ export function writeClasses(
   
   // Classes object
   writer.write(`const $styles = React.useMemo(() => (`).inlineBlock(() => {
-    Object.keys(classes).forEach(slug => {
-      const dynamic = slug === 'root' && isRootPressable ? pressableFunc : '';
-      writer.write(`${slug}: ${dynamic}[`).indent(() => {
+    console.log(classes);
+    for (const slug of Object.keys(classes)) {
+      const dynamic = isRootPressable ? pressableFunction : '';
+      writer.write(`${slug}: ${dynamic}{`).indent(() => {
         writer.writeLine(`styles.${slug},`);
-        Array.from(classes[slug])
-          .forEach((data: string[][]) => {
-            const [rules, raw] = data;
-            const condition = rules.map(ruleName => {
-              const pressableState = dynamic && pressableStates[ruleName] as string;
-              // Skip default state
-              if (ruleName === '_stateDefault')
-                return false;
-              return pressableState
-                ? `(${ruleName} || ${pressableState})`
-                : ruleName;
-              }).filter(Boolean).join(' && ');
-            const className = `${slug}_${raw}`.split(', ').join('_').replace(/\=/g, '_');
-            writer.writeLine(`${condition} && styles.${createIdentifierCamel(className)},`);
-          });
+        Array.from(classes[slug]).forEach((data: string[][]) => {
+          const [rules, raw] = data;
+          const condition = rules.map(ruleName => {
+            const pressableState =  pressableStates[ruleName] as string;
+            // Skip default state
+            if (ruleName === '_stateDefault')
+              return false;
+            return pressableState
+              ? `(${ruleName} || ${pressableState})`
+              : ruleName;
+            }).filter(Boolean).join(' && ');
+          const className = `${slug}_${raw}`.split(', ').join('_').replace(/\=/g, '_');
+          writer.writeLine(`${condition} && styles.${createIdentifierCamel(className)},`);
+        });
       });
-      writer.writeLine('],');
-    });      
+      writer.writeLine(dynamic ? '}),' : '},');
+    }
   });
 
   // Cache props array

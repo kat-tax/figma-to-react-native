@@ -54,14 +54,6 @@ export function handleConfigChange() {
         }
         break;
       }
-      case 'react-import': {
-        const newValue = value === 'on';
-        if (newValue !== config.state.react.addImport) {
-          newConfig.react.addImport = newValue;
-          configChanged = true;
-        }
-        break;
-      }
       case 'translate': {
         const newValue = value === 'on';
         if (newValue !== config.state.react.addTranslate) {

@@ -1,11 +1,11 @@
-import '!./styles/default.css';
-import '!./styles/plugin.css';
+import '!./interface/css/default.css';
+import '!./interface/css/plugin.css';
 
 import {h} from 'preact';
 import {on, emit} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'preact/hooks';
 import {useWindowResize, render} from '@create-figma-plugin/ui';
-import {init, identify, ErrorBoundary} from 'vendor/logtail';
+import {init, auth, ErrorBoundary} from 'interface/telemetry';
 import {App} from 'interface/App';
 
 import type {AppPages} from 'types/app';
@@ -18,7 +18,7 @@ function Main() {
 
   useEffect(() => on<EventAppStart>('APP_START', (page, user) => {
     setPage(page);
-    identify(user);
+    auth(user);
   }), []);
 
   useWindowResize(e => emit('RESIZE_WINDOW', e), {

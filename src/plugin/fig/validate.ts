@@ -1,12 +1,14 @@
-export function validate(node: SceneNode) {
-  // Disallow non-component nodes
-  if (node.type !== 'COMPONENT') {
-    throw new Error('Only components are supported.');
+export function validate(component: ComponentNode) {
+  // Sanity check
+  if (!component || component.type !== 'COMPONENT') {
+    throw new Error(`Component not found.`);
   }
 
-  // Disallow groups, they mess up the layout
-  if (node.findAllWithCriteria({types: ['GROUP']})) {
-    throw new Error('Groups are not supported, please convert them to frames.');
+  // Disallow groups and sections, not worth the hassle
+  if (component.findAllWithCriteria({types: ['GROUP', 'SECTION']}).length > 0) {
+    throw new Error(`Groups & sections are not supported. Convert to frames.`);
   }
+
+  // Good to go!
   return true;
 }
