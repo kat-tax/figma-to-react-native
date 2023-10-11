@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {getPropName, propsToString, getInstanceInfo, getCustomReaction, getPressReaction} from 'plugin/fig/lib';
+import {getPropName, propsToString, getTopFill, getColor, getInstanceInfo, getCustomReaction, getPressReaction} from 'plugin/fig/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {Settings} from 'types/settings';
@@ -14,51 +14,43 @@ export function writeChildren(
   children: ParseNodeTree,
   getStylePrefix: StylePrefixMapper,
   isPreview?: boolean,
-  rootPressables?: string[][],
+  pressables?: string[][],
 ) {
+  const state = {writer, data, settings, getStylePrefix, pressables, isPreview};
   children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
-    const pressId = rootPressables?.find(e => e?.[1] === slug)?.[2];
+    const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
     const masterNode = isVariant ? child.node.parent : child.node;
     const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
-    const isDynamic = Boolean(propRefs?.visible);
     const isPressable = Boolean(pressId);
-
-    writer.conditionalWriteLine(isDynamic, `{props.${getPropName(propRefs?.visible)} && `);
-    writer.withIndentationLevel((isDynamic ? 1 : 0) + writer.getIndentationLevel(), () => {
+    const isConditional = Boolean(propRefs?.visible);
+    writer.conditionalWriteLine(isConditional, `{props.${getPropName(propRefs?.visible)} && `);
+    writer.withIndentationLevel((isConditional ? 1 : 0) + writer.getIndentationLevel(), () => {
       writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressId}}>`);
       writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-        writeChild(
-          writer,
-          data,
-          settings,
-          child,
-          slug,
-          getStylePrefix,
-          isDynamic,
-          isPreview,
-          rootPressables,
-        );
+        writeChild(child, slug, isConditional, state);
       });
       writer.conditionalWriteLine(isPressable, `</Pressable>`);
     });
-    writer.conditionalWriteLine(isDynamic, `}`);
+    writer.conditionalWriteLine(isConditional, `}`);
   });
 }
 
 function writeChild(
-  writer: CodeBlockWriter,
-  data: ParseData,
-  settings: Settings,
   child: ParseNodeTreeItem,
   slug: string,
-  getStylePrefix: StylePrefixMapper,
-  isConditional: boolean = false,
-  isPreview?: boolean,
-  rootPressables?: string[][],
+  isConditional: boolean,
+  state: {
+    writer: CodeBlockWriter,
+    data: ParseData,
+    settings: Settings,
+    getStylePrefix: StylePrefixMapper,
+    pressables?: string[][],
+    isPreview?: boolean,
+  },
 ) {
-  // console.log('writeChild:', child.node.type, child.node.name, child.node.isAsset);
+  const {writer, data, settings, getStylePrefix, pressables, isPreview} = state;
 
   const props = (child.node as InstanceNode)?.componentProperties;
   const propRefs = child.node.componentPropertyReferences;
@@ -71,7 +63,17 @@ function writeChild(
   const isAsset = (child.node.isAsset && !isInstance) || child.node.type === 'VECTOR';
   const isCustom = reaction?.type === 'URL';
 
-  // console.log(child.node.name, reaction, pressable, rootPressables);
+  // TODO: Icon component
+  if (child.node.name.startsWith('Icon') && child.node.type === 'INSTANCE') {
+    const iconVector = child.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
+    const iconFill = getTopFill(iconVector.fills);
+    const iconVar = iconFill?.boundVariables.color;
+    const iconData = figma.variables.getVariableById(iconVar.id);
+    const iconColor = iconData.resolvedType === 'COLOR'
+      ? `{theme.colors.${iconData.name}}`
+      : getColor(iconFill.color);
+    console.log('writeIcon:', child.node.type, child.node.name, child.node, iconVector, iconData, iconColor);
+  }
 
   // Component instance swap
   const swapComponent = propRefs?.mainComponent;
@@ -86,21 +88,15 @@ function writeChild(
   if (isAsset) {
     const asset = data.assets[child.node.id];
     if (asset) {
-      const style = `{width: ${asset.width}, height: ${asset.height}}`;
-      // Embedded asset (preview mode only)
-      if (isPreview) {
-        if (asset.isVector) {
-          writer.writeLine(asset.data);
-        } else {
-          writer.writeLine(`<Image source={{uri: '${asset.data}'}} style={${style}} contentFit="cover"/>`);
-        }
-      // Imported asset (code view & export mode)
+      // Vector
+      if (asset.isVector) {
+        const vectorTag = isPreview ? asset.data : '<' + asset.name + '/>'
+        writer.writeLine(vectorTag);
+      // Raster
       } else {
-        if (asset.isVector) {
-          writer.writeLine('<' + asset.name + '/>');
-        } else {
-          writer.writeLine(`<Image source={{uri: ${asset.name}}} style={${style}} contentFit="cover"/>`);
-        }
+        const uri = isPreview ? `'${asset.data}'` : asset.name;
+        const style = `{width: ${asset.width}, height: ${asset.height}}`;
+        writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} contentFit="cover"/>`);
       }
     } else {
       writer.writeLine(`<View/>`);
@@ -145,7 +141,10 @@ function writeChild(
 
   // Create primitive tag
   } else {
-    const styles = slug ? ` style={${getStylePrefix(slug)}.${slug}}` : '';
+    // Determine if root node is wrapped in a pressable
+    const isRootPressable = pressables !== null && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
+    const dynamic = isRootPressable ? '(e)' : '';
+    const styles = slug ? ` style={${getStylePrefix(slug)}.${slug}${dynamic}}` : '';
     jsxTag = getTag(child.node.type);
     jsxTagWithProps = jsxTag + jsxCustomProps + propJSX + styles;
   }
@@ -176,15 +175,7 @@ function writeChild(
         }
         break;
       case 'View':
-        writeChildren(
-          writer,
-          data,
-          settings,
-          child.children,
-          getStylePrefix,
-          isPreview,
-          rootPressables,
-        );
+        writeChildren(writer, data, settings, child.children, getStylePrefix, isPreview, pressables);
         break;
     }
   });

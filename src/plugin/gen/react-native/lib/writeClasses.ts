@@ -4,10 +4,14 @@ import {getPropName} from 'plugin/fig/lib/getPropName';
 
 import type {ParseData, ParseStyles} from 'types/parse';
 
-export function writeClasses(writer: CodeBlockWriter, data: ParseData, isRootPressable?: boolean) {
-  const conditions = new Set<Record<string, string>>();
-  const classes = new Set<Record<string, ParseStyles>>();
+export function writeClasses(
+  writer: CodeBlockWriter,
+  data: ParseData,
+  isRootPressable?: boolean,
+) {
   const props = new Set<string>();
+  const classes = new Set<Record<string, ParseStyles>>();
+  const conditions = new Set<Record<string, string>>();
   
   // Build classes from variants
   Object.keys(data.variants.classes).forEach((k: string) => {
@@ -32,11 +36,12 @@ export function writeClasses(writer: CodeBlockWriter, data: ParseData, isRootPre
 
   // Used for pressable dynamic styles
   const pressableFunction =
-    '(e: {focused: boolean, hovered: boolean, pressed: boolean}) => ';
+    '(e: PressableStateCallbackType) => ';
 
   const pressableDisableState = {
     '_stateDisabled': ' || props.disabled',
   };
+
   const pressableStates = {
     '_stateFocused': 'e.focused',
     '_stateHovered': 'e.hovered',
@@ -58,7 +63,7 @@ export function writeClasses(writer: CodeBlockWriter, data: ParseData, isRootPre
   // Classes object
   writer.write(`const $styles = React.useMemo(() => (`).inlineBlock(() => {
     for (const slug of Object.keys(classes)) {
-      const dynamic = slug === 'root' && isRootPressable ? pressableFunction : '';
+      const dynamic = isRootPressable ? pressableFunction : '';
       writer.write(`${slug}: ${dynamic}[`).indent(() => {
         writer.writeLine(`styles.${slug},`);
         Array.from(classes[slug]).forEach((data: string[][]) => {

@@ -9,11 +9,9 @@ import * as codegen from 'plugin/codegen';
 
 import type * as T from 'types/events';
 
-const HEADLESS = figma.editorType === 'dev' && figma.mode === 'codegen';
-
-// Show interface if not in headless mode
+// Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
-if (!HEADLESS) {
+if (figma.mode !== 'codegen') {
   showUI({
     width: Math.max(330, Math.min(600, Math.round(figma.viewport.bounds.width / 2))),
     height: Math.round(figma.viewport.bounds.height - 20),
@@ -23,7 +21,7 @@ if (!HEADLESS) {
 
 export default async function() {
   // Headless codegen mode
-  if (HEADLESS) {
+  if (figma.mode === 'codegen') {
     await config.load(true);
     figma.codegen.on('generate', (e) => {
       codegen.handleConfigChange();
@@ -32,12 +30,13 @@ export default async function() {
     return;
   }
 
+  // Wait for interface to be ready
   once<T.EventAppReady>('APP_READY', async () => {
-    // Load current page from storage
-    const page = await app.loadCurrentPage() || 'code';
-  
     // Load config from storage
     await config.load(true);
+
+    // Load current page from storage
+    const page = await app.loadCurrentPage() || 'code';
   
     // Update preview mode based on page
     preview.updateMode(page);

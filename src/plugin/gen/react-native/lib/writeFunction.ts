@@ -25,6 +25,8 @@ export function writeFunction(
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
   const props = propDefs ? Object.entries(propDefs) : [];
   const name = createIdentifierPascal(masterNode.name);
+  const isIcon = name.startsWith('Icon');
+  const hasProps = props.length > 0 || isIcon;
   
   // Pressable data (on click -> open link set)
   const pressables = data.root?.click?.type === 'URL'
@@ -42,7 +44,7 @@ export function writeFunction(
     && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
 
   // Component props
-  if (props.length > 0) {
+  if (hasProps) {
     writer.write(`export interface ${name}Props`).block(() => {
       // Figma props
       let hasWroteDisableProp = false;
@@ -83,6 +85,11 @@ export function writeFunction(
       pressables?.forEach(([,,id]) => {
         writer.writeLine(`${id}?: (e: GestureResponderEvent) => void,`);
       });
+
+      // Icon props
+      if (isIcon) {
+        writer.writeLine(`color?: string,`);
+      }
     });
     writer.blankLine();
   }
@@ -105,7 +112,7 @@ export function writeFunction(
       ? '$styles' : 'styles';
 
   // Component function body and children
-  const attrProps = `${props.length > 0 ? `props: ${name}Props` : ''}`;
+  const attrProps = `${hasProps ? `props: ${name}Props` : ''}`;
   writer.write(`export function ${name}(${attrProps})`).block(() => {
     writer.writeLine(`const {styles} = useStyles(${metadata.stylePrefix});`);
     writer.blankLine();
@@ -135,15 +142,19 @@ export function writeFunction(
       writer.conditionalWrite(includeFrame, `<View style={${getStylePrefix('frame')}.frame}>`).indent(() => {
         writer.withIndentationLevel(includeFrame ? 0 : -1 + writer.getIndentationLevel(), () => {
           writer.write('<' + rootTag + rootStyle + rootProps + '>').indent(() => {
-            writeChildren(
-              writer,
-              data,
-              settings,
-              data.tree,
-              getStylePrefix,
-              metadata.isPreview,
-              pressables,
-            );
+            writer.conditionalWriteLine(isRootPressable, `{(e: PressableStateCallbackType) => <>`);
+            writer.withIndentationLevel((isRootPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
+              writeChildren(
+                writer,
+                data,
+                settings,
+                data.tree,
+                getStylePrefix,
+                metadata.isPreview,
+                pressables,
+              );
+            });
+            writer.conditionalWriteLine(isRootPressable, `</>}`);
           });
           writer.writeLine(`</${rootTag}>`);
         });

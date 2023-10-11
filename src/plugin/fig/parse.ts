@@ -35,7 +35,7 @@ export default async function parse(
   }
 
   // Profile
-  console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet, assets);
+  //console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet, assets);
 
   return {...data, stylesheet, assets};
 }
@@ -53,7 +53,7 @@ function crawl(node: ComponentNode) {
   frame && meta.styleNodes.add(frame.node.id);
 
   // Profile
-  console.log(`[fig/parse/crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, tree);
+  //console.log(`[fig/parse/crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, tree);
 
   return {
     tree,

@@ -5,6 +5,7 @@ import {createRoot} from 'react-dom/client';
 import {useEffect, useState} from 'react';
 import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 import {Inspector} from 'react-dev-inspector';
+// import {Console, Hook, Unhook} from 'console-feed';
 
 export function Preview() {
   const [name, setName] = useState();
@@ -51,6 +52,7 @@ export function Preview() {
         onHoverElement={(e) => console.debug('[inspect]', e)}
         onInspectElement={(e) => console.log(e)}
       />
+      {/*<LogsContainer/>*/}
     </TransformComponent>
   );
 }
@@ -65,6 +67,19 @@ export default function Loader() {
     </TransformWrapper>
   );
 }
+
+/*function LogsContainer() {
+  const [logs, setLogs] = useState([])
+
+  useEffect(() => {
+    const hookedConsole = Hook(window.console, log => setLogs((c) => [...c, log]),
+      false
+    )
+    return () => Unhook(hookedConsole)
+  }, [])
+
+  return <Console logs={logs} variant="dark"/>
+}*/
 
 createRoot(document.getElementById('previewer')).render(
   <React.StrictMode>

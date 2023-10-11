@@ -2,6 +2,8 @@ import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
 
 import type {ParseAssetData} from 'types/parse';
 
+const IMAGE_BLANK_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+
 export async function convertAssets(nodes: Set<string>, isPreview: boolean): Promise<{assets: ParseAssetData, hasImage: boolean}> {
   const assets: ParseAssetData = {};
   const vectorTypes: NodeType[] = ['VECTOR', 'LINE', 'ELLIPSE', 'POLYGON', 'STAR'];
@@ -9,7 +11,6 @@ export async function convertAssets(nodes: Set<string>, isPreview: boolean): Pro
   const vectors: Record<string, number> = {};
   let hasImage = false;
   try {
-    const blankImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
     for await (const id of nodes) {
       let data: string;
       let count: number;
@@ -19,10 +20,11 @@ export async function convertAssets(nodes: Set<string>, isPreview: boolean): Pro
       const isVector = vectorTypes.includes(node.type)
         || (node.findAllWithCriteria && node.findAllWithCriteria({types: vectorTypes})?.length > 0);
       if (isVector) {
-        // console.log('vector', node.id, getColor(getTopFill((node as VectorNode).fills).color));
         if (isPreview) {
           data = await node.exportAsync({format: 'SVG_STRING'});
-          // console.log(data);
+          data = data
+            .replace(/fill=\"none\"/, `fill="currentColor"`)
+            .replace(/fill="#[0-9A-Fa-f]+"/g, 'fill="currentColor"');
         } else {
           bytes = await node.exportAsync({format: 'SVG'});
           data = '';
@@ -33,7 +35,7 @@ export async function convertAssets(nodes: Set<string>, isPreview: boolean): Pro
         let arr: Uint8Array;
         try {arr = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});} catch (err) {}
         if (isPreview) {
-          data = arr ? `data:image/png;base64,${figma.base64Encode(arr)}` : blankImage;
+          data = arr ? `data:image/png;base64,${figma.base64Encode(arr)}` : IMAGE_BLANK_PIXEL;
         } else {
           bytes = arr || null;
           data = '';
