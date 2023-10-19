@@ -1,1 +1,0 @@
-export {generateIndex} from './generateIndex';

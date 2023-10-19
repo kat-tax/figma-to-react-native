@@ -170,7 +170,7 @@ function writeChild(
           if (settings?.react?.addTranslate) {
             writer.write(`<Trans>${propValue}</Trans>`);
           } else {
-            writer.write(propValue);
+            writer.write(`{\`${propValue}\`}`);
           }
         }
         break;

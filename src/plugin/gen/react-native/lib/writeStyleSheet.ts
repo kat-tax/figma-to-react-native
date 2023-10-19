@@ -19,7 +19,7 @@ export function writeStyleSheet(
     writer.write(`${define}${metadata.stylePrefix} = createStyles(theme => (`).inlineBlock(() => {
       // Frame styles
       if (includeFrame && data.frame)
-        writeStyle(writer, 'frame', data.stylesheet[data.frame.node.id]);
+        writeStyle(writer, 'frame', {overflow: 'hidden', ...data.stylesheet[data.frame.node.id]});
       // Root styles
       writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
       const rootVariants = data.variants?.classes?.root;

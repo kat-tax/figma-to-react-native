@@ -87,8 +87,7 @@ export function getCollectionModes(collectionName: string) {
   const component = selection ?? components[0];
   if (!component) return null;
   // Find the "Theme" variable collection
-  const collections = figma.variables.getLocalVariableCollections();
-  const collection = collections?.find(c => c.name === collectionName);
+  const collection = getCollectionByName(collectionName);
   if (!collection) return null;
   // Find the current and default mode
   const current = component.resolvedVariableModes[collection.id];
@@ -98,6 +97,12 @@ export function getCollectionModes(collectionName: string) {
     default: theme.modes.find(m => m.modeId === theme.defaultModeId),
     modes: theme.modes,
   };
+}
+
+export function getCollectionByName(collectionName: string) {
+  const collections = figma.variables.getLocalVariableCollections();
+  const collection = collections?.find(c => c.name === collectionName);
+  return collection;
 }
 
 // Get the page of a node

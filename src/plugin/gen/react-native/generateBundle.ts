@@ -1,14 +1,27 @@
 import parseFigma from 'plugin/fig/parse';
+import {getPage} from 'plugin/fig/traverse';
 import {propsToString} from 'plugin/fig/lib';
 import {createIdentifierPascal} from 'common/string';
-
+import {generatePrimitives} from '../primitives';
 import {generateIndex} from '../common/generateIndex';
 import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
+import {generateTheme} from './generateTheme';
 import {generatePreview} from './generatePreview';
 
 import type {PreviewComponent, PreviewEditorLinks} from 'types/preview';
 import type {Settings} from 'types/settings';
+
+const emptyBundle: PreviewComponent = {
+  name: '',
+  props: '',
+  index: '',
+  code: '',
+  story: '',
+  preview: '',
+  links: {},
+  assets: null,
+};
 
 export async function generateBundle(
   target: ComponentNode,
@@ -17,20 +30,28 @@ export async function generateBundle(
 ): Promise<PreviewComponent> {
   // No target node, return empty bundle
   if (!target) {
+    return emptyBundle;
+  }
+
+  // Generate exo primitives (if any)
+  const isRootExo = getPage(target)?.name === 'Primitives';
+  const exo = generatePrimitives(isPreviewMode, isRootExo);
+  
+  // Primitive component
+  if (isRootExo && exo[target.name]) {
     return {
-      name: '',
-      props: '',
-      index: '',
-      code: '',
-      story: '',
-      preview: '',
-      links: {},
-      assets: null,
+      ...emptyBundle,
+      name: createIdentifierPascal(target.name),
+      preview: generateTheme(settings, true) + '\n\n' + exo[target.name],
+      code: exo[target.name],
     };
   }
 
   // Parse nodes
   const data = await parseFigma(target, settings, isPreviewMode);
+  if (!data) {
+    return emptyBundle;
+  }
 
   // Attributes
   const links: PreviewEditorLinks = {};
@@ -51,7 +72,7 @@ export async function generateBundle(
 
   // Look through instance swaps and imported needed components for preview
   // (buttons that have icons, etc.)
-  // TODO: move some of this to fig/parse and support deeper instance swaps (swap of a swap of swap)
+  // TODO: move some of this to fig/parse and make recursive for deeper instance swaps
   // OR move all of it to preview since this shit was all just to make preview work
   // Currently this only supports two levels of instance swaps
   if (isPreviewMode) {
@@ -100,6 +121,6 @@ export async function generateBundle(
     index: !isPreviewMode ? generateIndex(new Set<string>().add(name), settings) : '',
     code: !isPreviewMode ? generateCode(data, settings) : '',
     story: !isPreviewMode ? generateStory(target, isVariant, propDefs, settings) : '',
-    preview: isPreviewMode ? await generatePreview(data, settings) : '',
+    preview: isPreviewMode ? await generatePreview(data, settings, exo) : '',
   };
 }

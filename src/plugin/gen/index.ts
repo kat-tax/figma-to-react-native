@@ -3,7 +3,7 @@ import * as reactNative from './react-native';
 import type {Settings} from 'types/settings';
 import type {PreviewComponent} from 'types/preview';
 
-export {generateIndex} from './common';
+export {generateIndex} from './common/generateIndex';
 
 export async function generateBundle(node: ComponentNode, settings: Settings, isPreviewMode?: boolean) {
   const instanceSettings = {...settings};

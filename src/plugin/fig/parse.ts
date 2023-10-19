@@ -17,6 +17,7 @@ export default async function parse(
     validate(component);
   } catch(e) {
     figma.notify(e.message, {error: true, timeout: 5000});
+    return null;
   }
 
   // Gather node data relative to conversion

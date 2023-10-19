@@ -14,7 +14,7 @@ export function useProjectBuild(showSuccess: () => void, setExportCount: StateUp
   const session = useRef<SyncSession>(null);
 
   const launch = useCallback((key: string) => {
-    const url = 'http://127.0.0.1:5102'; // 'https://fig.run';
+    const url = 'http://127.0.0.1:5102'; // 'https://fig.run/preview/#/c3439481-59ff-441e-bb27-7f3e4325ecd7';
     open(`${url}/#/${key}`);
   }, []);
 

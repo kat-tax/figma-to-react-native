@@ -30,10 +30,11 @@ export function writeImports(
   }
 
   // Import primitives
-  writer.write(`import {${[
+  const imports = [
     ...data.meta.primitives,
     data.root.click?.type === 'URL' && 'Pressable',
-  ].filter(Boolean).join(', ')}} from`);
+  ].filter(Boolean);
+  writer.write(`import {${(imports.length ? imports : ['View']).join(', ')}} from`);
   writer.space();
   writer.quote('react-native');
   writer.write(';');

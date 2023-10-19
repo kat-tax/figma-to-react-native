@@ -10,14 +10,13 @@ import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';
 
 export function build(projectConfig: ProjectConfig) {
   const user = figma.currentUser;
-  const document = figma.currentPage.parent;
 
   // Send new project config to the interface to use
   emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', projectConfig);
 
   // Save submitted project config to the document
   // except for the method & scope, those should be ephemeral
-  document.setPluginData(F2RN_PROJECT_NS, JSON.stringify({
+  figma.root.setPluginData(F2RN_PROJECT_NS, JSON.stringify({
     ...projectConfig,
     method: 'download',
     scope: 'document',
@@ -30,8 +29,8 @@ export function build(projectConfig: ProjectConfig) {
     case 'document':
     case 'page':
       const useDoc = projectConfig.scope === 'document';
-      const target = useDoc ? document : figma.currentPage;
-      projectName = useDoc ? document.name : figma.currentPage.name;
+      const target = useDoc ? figma.root : figma.currentPage;
+      projectName = useDoc ? figma.root.name : figma.currentPage.name;
       exportNodes = getComponentTargets(target.findAllWithCriteria({types: ['COMPONENT']}));
       break;
     case 'selected':
@@ -76,11 +75,9 @@ export function build(projectConfig: ProjectConfig) {
 }
 
 export function loadConfig() {
-  const document = figma.currentPage.parent;
-
   let config: ProjectConfig;
   try {
-    const rawConfig = document.getPluginData(F2RN_PROJECT_NS);
+    const rawConfig = figma.root.getPluginData(F2RN_PROJECT_NS);
     const parsedConfig = JSON.parse(rawConfig);
     config = parsedConfig;
   } catch (e) {}

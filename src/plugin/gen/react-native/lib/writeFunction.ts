@@ -3,6 +3,7 @@ import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getPropName, sortPropsDef} from 'plugin/fig/lib';
 import {writeChildren} from './writeChildren';
 import {writeClasses} from './writeClasses';
+import {writeState} from './writeState';
 
 import type {ParseData} from 'types/parse';
 import type {Settings} from 'types/settings';
@@ -114,6 +115,9 @@ export function writeFunction(
   // Component function body and children
   const attrProps = `${hasProps ? `props: ${name}Props` : ''}`;
   writer.write(`export function ${name}(${attrProps})`).block(() => {
+    // Write state hooks
+    writeState(writer, data);
+    // Write style hook
     writer.writeLine(`const {styles} = useStyles(${metadata.stylePrefix});`);
     writer.blankLine();
 

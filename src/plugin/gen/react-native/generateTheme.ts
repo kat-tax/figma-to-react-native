@@ -14,6 +14,7 @@ export function generateTheme(settings: Settings, isPreview?: boolean) {
   const theme = getCollectionModes('Theme');
 
   // Write breakpoints
+  // TODO: support custom breakpoints
   writer.write('export const breakpoints = ').inlineBlock(() => {
     writer.writeLine('xs: 0,');
     writer.writeLine('sm: 576,');
