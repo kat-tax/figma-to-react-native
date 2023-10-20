@@ -5,7 +5,7 @@ import {sortProps} from './sortProps';
 export function propsToString(
   props: ComponentPropertyDefinitions | ComponentProperties,
   nodeRef?: Record<string, [BaseNode, BaseNode]>,
-) {
+): string {
   if (!props) return '';
   const attrs = Object.entries(props);
   if (attrs.length === 0) return '';
@@ -64,13 +64,14 @@ export function propsToJSX(
     
     // Props for this instance swap
     const instanceProps = !!variantNode
-        ? propsToString((variantNode as InstanceNode).componentProperties)
-        : node.type === 'COMPONENT'
-          ? propsToString(node.componentPropertyDefinitions)
-          : '';
+      ? propsToString((variantNode as InstanceNode).componentProperties)
+      : node.type === 'COMPONENT'
+        ? propsToString(node.componentPropertyDefinitions)
+        : '';
 
+    const testID = ` testID="${variantNode ? variantNode.id : masterNode.id}"`;
     const name = createIdentifierPascal(masterNode?.name);
-    const tag = name ? '<' + name + instanceProps + '/>' : '<View/>';
+    const tag = name ? '<' + name + instanceProps + testID + '/>' : '<View/>';
 
     return `${k}={${tag}}`;
   }

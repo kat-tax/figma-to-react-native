@@ -1,9 +1,11 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {init, preview} from 'interface/utils/preview';
 import {Watermark} from 'interface/base/Watermark';
 
 import type {PreviewComponent} from 'types/preview';
+import type {EventFocus} from 'types/events';
 import type {Settings} from 'types/settings';
 
 interface PreviewProps {
@@ -60,6 +62,17 @@ export function Preview(props: PreviewProps) {
       removeEventListener('keydown', onKeydown);
       removeEventListener('keyup', onKeyup);
     };
+  }, []);
+
+  // Handle focus events from inspect mode
+  useEffect(() => {
+    const onFocus = (e) => {
+      if (e.data?.type === 'focus' && e.data.id) {
+        emit<EventFocus>('FOCUS', e.data.id);
+      }
+    };
+    addEventListener('message', onFocus);
+    return () => removeEventListener('message', onFocus);
   }, []);
 
   return (

@@ -3,6 +3,7 @@ import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getPropName, sortPropsDef} from 'plugin/fig/lib';
 import {writeChildren} from './writeChildren';
 import {writeClasses} from './writeClasses';
+import {writeProps} from './writeProps';
 import {writeState} from './writeState';
 
 import type {ParseData} from 'types/parse';
@@ -24,10 +25,8 @@ export function writeFunction(
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
   const masterNode = (isVariant ? data.root.node?.parent : data.root.node) as ComponentNode;
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
-  const props = propDefs ? Object.entries(propDefs) : [];
   const name = createIdentifierPascal(masterNode.name);
   const isIcon = name.startsWith('Icon');
-  const hasProps = props.length > 0 || isIcon;
   
   // Pressable data (on click -> open link set)
   const pressables = data.root?.click?.type === 'URL'
@@ -45,55 +44,7 @@ export function writeFunction(
     && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
 
   // Component props
-  if (hasProps) {
-    writer.write(`export interface ${name}Props`).block(() => {
-      // Figma props
-      let hasWroteDisableProp = false;
-      props.sort(sortPropsDef).forEach(([key, prop]) => {
-        const propName = getPropName(key);
-
-        if (propName === 'disabled') {
-          if (hasWroteDisableProp) return;
-          hasWroteDisableProp = true;
-        }
-
-        const isBoolean = prop.type === 'BOOLEAN';
-        const isVariant = prop.type === 'VARIANT';
-        const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
-        const isRootPressableState = propName === 'state' && isRootPressable && isVariant;
-        const isConditionalProp = isBoolean || isInstanceSwap || isRootPressableState;
-        const propCond = isConditionalProp ? '?' : '';
-        const propType: string = isVariant
-          ? prop.variantOptions
-            .map((v) => `'${createIdentifierPascal(v)}'`)
-            .join(' | ')
-          : isInstanceSwap
-            ? `ReactElement`
-            : prop.type === 'TEXT'
-              ? 'string'
-              : prop.type.toLowerCase();
-
-        writer.writeLine(`${propName}${propCond}: ${propType},`);
-
-        // Write disabled prop if needed (special use case)
-        if (isRootPressableState && !hasWroteDisableProp) {
-          writer.writeLine(`disabled?: boolean,`);
-          hasWroteDisableProp = true;
-        }
-      });
-
-      // Custom props
-      pressables?.forEach(([,,id]) => {
-        writer.writeLine(`${id}?: (e: GestureResponderEvent) => void,`);
-      });
-
-      // Icon props
-      if (isIcon) {
-        writer.writeLine(`color?: string,`);
-      }
-    });
-    writer.blankLine();
-  }
+  writeProps(writer, propDefs, name, pressables, isIcon, isRootPressable);
 
   // Component documentation
   if (masterNode.description) {
@@ -113,8 +64,7 @@ export function writeFunction(
       ? '$styles' : 'styles';
 
   // Component function body and children
-  const attrProps = `${hasProps ? `props: ${name}Props` : ''}`;
-  writer.write(`export function ${name}(${attrProps})`).block(() => {
+  writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
     // Write state hooks
     writeState(writer, data);
     // Write style hook
@@ -140,12 +90,13 @@ export function writeFunction(
       const pressId = isRootPressable && pressables?.find(e => e[1] === 'root' || !e[1])?.[2];
       const rootTag = isRootPressable ? 'Pressable' : 'View';
       const rootStyle = ` style={${getStylePrefix('root')}.root}`;
+      const rootTestID = ` testID={props.id}`;
       const rootProps = isRootPressable
         ? ` onPress={props.${pressId}} disabled={_stateDisabled}` // TODO: ref={ref} {...ariaProps}
         : '';
       writer.conditionalWrite(includeFrame, `<View style={${getStylePrefix('frame')}.frame}>`).indent(() => {
         writer.withIndentationLevel(includeFrame ? 0 : -1 + writer.getIndentationLevel(), () => {
-          writer.write('<' + rootTag + rootStyle + rootProps + '>').indent(() => {
+          writer.write('<' + rootTag + rootStyle + rootProps + rootTestID + '>').indent(() => {
             writer.conditionalWriteLine(isRootPressable, `{(e: PressableStateCallbackType) => <>`);
             writer.withIndentationLevel((isRootPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
               writeChildren(

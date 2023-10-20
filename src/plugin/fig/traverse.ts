@@ -115,7 +115,7 @@ export function getPage(node: BaseNode): PageNode {
 }
 
 // Go to the component's page and focus it
-export function focusComponent(id: string) {
+export function focusNode(id: string) {
   try {
     const node = figma.getNodeById(id);
     if (node) {

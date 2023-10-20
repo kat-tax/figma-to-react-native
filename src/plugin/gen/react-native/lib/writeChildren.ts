@@ -134,10 +134,13 @@ function writeChild(
       })?.join('');
   }
 
+  // Test ID
+  const testID = ` testID="${child.node.id}"`;
+
   // Create instance tag
   if (isInstance) {
     jsxTag = createIdentifierPascal(instance.main.name);
-    jsxTagWithProps = jsxTag + jsxCustomProps + propJSX;
+    jsxTagWithProps = jsxTag + jsxCustomProps + propJSX + testID;
 
   // Create primitive tag
   } else {
@@ -146,7 +149,7 @@ function writeChild(
     const dynamic = isRootPressable ? '(e)' : '';
     const styles = slug ? ` style={${getStylePrefix(slug)}.${slug}${dynamic}}` : '';
     jsxTag = getTag(child.node.type);
-    jsxTagWithProps = jsxTag + jsxCustomProps + propJSX + styles;
+    jsxTagWithProps = jsxTag + styles + jsxCustomProps + propJSX + testID;
   }
 
   // No children, self closing tag

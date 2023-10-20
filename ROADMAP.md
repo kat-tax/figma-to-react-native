@@ -32,7 +32,6 @@
   - https://swc.rs/docs/usage/wasm
 
 ## Known Issues
-- Add support for primitive instances
 - Refactor primitive generation code (template string -> codewriter)
 - Fix border colors (without variables) not converting
 - SVGs don't adapt correct colors

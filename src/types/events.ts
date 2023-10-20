@@ -56,7 +56,7 @@ export interface EventProjectConfigLoad extends EventHandler {
 
 export interface EventFocus extends EventHandler {
   name: 'FOCUS';
-  handler: (componentId: string) => void;
+  handler: (nodeId: string) => void;
 }
 
 export interface EventNotify extends EventHandler {

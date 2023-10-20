@@ -50,7 +50,13 @@ export function Preview() {
       <Inspector
         active={hasInspect}
         onHoverElement={(e) => console.debug('[inspect]', e)}
-        onInspectElement={(e) => console.log(e)}
+        onInspectElement={(e) => {
+          const id = e?.fiber?.memoizedProps?.testID;
+          console.log(id, e);
+          if (id) {
+            parent.postMessage({type: 'focus', id});
+          }
+        }}
       />
       {/*<LogsContainer/>*/}
     </TransformComponent>

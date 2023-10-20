@@ -1,5 +1,5 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {focusComponent} from 'plugin/fig/traverse';
+import {focusNode} from 'plugin/fig/traverse';
 
 import * as app from 'plugin/app';
 import * as config from 'plugin/config';
@@ -87,8 +87,8 @@ export default async function() {
     });
   
     // Focus component in Figma
-    on<T.EventFocus>('FOCUS', (componentId) => {
-      focusComponent(componentId);
+    on<T.EventFocus>('FOCUS', (nodeId) => {
+      focusNode(nodeId);
     });
   
     // Notify user of error coming from interface

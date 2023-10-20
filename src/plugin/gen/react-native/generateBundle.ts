@@ -113,11 +113,12 @@ export async function generateBundle(
   }
 
   const name = createIdentifierPascal(masterNode.name);
+  const props = propsToString({...propDefs}, data.meta.includes);
   return {
     name,
     links,
     assets,
-    props: propsToString({...propDefs}, data.meta.includes),
+    props,
     index: !isPreviewMode ? generateIndex(new Set<string>().add(name), settings) : '',
     code: !isPreviewMode ? generateCode(data, settings) : '',
     story: !isPreviewMode ? generateStory(target, isVariant, propDefs, settings) : '',
