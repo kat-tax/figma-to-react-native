@@ -5,8 +5,8 @@ import {memo} from 'preact/compat';
 import {useRef, useEffect, useMemo} from 'preact/hooks';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {Watermark} from 'interface/base/Watermark';
-import {throttle} from 'common/delay';
 import {init} from 'interface/utils/editor';
+import {throttle} from 'common/delay';
 
 import type {Monaco, Editor} from 'interface/utils/editor';
 import type {PreviewComponent} from 'types/preview';
