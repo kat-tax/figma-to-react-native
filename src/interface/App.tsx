@@ -54,7 +54,7 @@ export function App(props: AppProps) {
 
   return isReady ? (
     <Tabs defaultValue={props.startPage} onValueChange={navigate}>
-      <Bar loop aria-label="header">
+      <Bar loop aria-label="main menu">
         {PAGES.filter(e => !e.includes('settings')).map(page => (
           <Link key={page} value={page} title={`View ${page}`}>
             {titleCase(page)}

@@ -30,6 +30,7 @@ export function useConfig(): ConfigData {
     }
   }, [locked]);
 
+
   useEffect(() => on<EventConfigLoad>('CONFIG_LOAD', (config) => {
     const indent = config?.writer?.indentNumberOfSpaces || 2;
     update(JSON.stringify(config, undefined, indent));

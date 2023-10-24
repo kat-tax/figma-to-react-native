@@ -29,7 +29,7 @@ export function Preview(props: PreviewProps) {
 
   const load = useCallback(() => {
     init(settings).then(setSrc);
-  }, []);
+  }, [settings]);
 
   const render = useCallback(() => {
     if (!component || !component.preview) return;
@@ -39,30 +39,10 @@ export function Preview(props: PreviewProps) {
   }, [component, settings]);
 
   // Initialize the loader
-  useEffect(load, []);
+  useEffect(load, [settings]);
 
   // Update the preview when the component or settings change
   useEffect(render, [component, settings]);
-
-  // Enable inspect mode when the user holds down the control/meta key
-  useEffect(() => {
-    const onKeydown = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Meta') {
-        inspect(true);
-      }
-    };
-    const onKeyup = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Meta') {
-        inspect(false);
-      }
-    };
-    addEventListener('keydown', onKeydown);
-    addEventListener('keyup', onKeyup);
-    return () => {
-      removeEventListener('keydown', onKeydown);
-      removeEventListener('keyup', onKeyup);
-    };
-  }, []);
 
   // Handle focus events from inspect mode
   useEffect(() => {
@@ -74,6 +54,29 @@ export function Preview(props: PreviewProps) {
     addEventListener('message', onFocus);
     return () => removeEventListener('message', onFocus);
   }, []);
+
+  // Enable inspect mode when the user holds down the control/meta key
+  useEffect(() => {
+    if (!src) return;
+
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'Control' || e.key === 'Meta') {
+        inspect(true);
+      }
+    };
+    const onKeyup = (e: KeyboardEvent) => {
+      if (e.key === 'Control' || e.key === 'Meta') {
+        inspect(false);
+      }
+    };
+
+    addEventListener('keydown', onKeydown);
+    addEventListener('keyup', onKeyup);
+    return () => {
+      removeEventListener('keydown', onKeydown);
+      removeEventListener('keyup', onKeyup);
+    };
+  }, [src]);
 
   return (
     <Fragment>

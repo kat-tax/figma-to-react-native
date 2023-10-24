@@ -43,7 +43,6 @@ export function Preview() {
     return () => removeEventListener('message', load);
   }, [name]);
 
-
   return (
     <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
       <div id="component"></div>

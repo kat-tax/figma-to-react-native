@@ -31,6 +31,9 @@ dependencies:
   code-block-writer:
     specifier: ^12.0.0
     version: 12.0.0
+  constrained-editor-plugin:
+    specifier: ^1.3.0
+    version: 1.3.0
   deep-object-diff:
     specifier: ^1.1.9
     version: 1.1.9
@@ -73,8 +76,8 @@ devDependencies:
     specifier: ^0.17.19
     version: 0.17.19
   react-native-unistyles:
-    specifier: ^1.0.0-beta.5
-    version: 1.0.0-beta.5(react-native@0.72.5)(react@16.14.0)
+    specifier: ^1.0.0-beta.6
+    version: 1.0.0(react-native@0.72.5)(react@16.14.0)
   react-zoom-pan-pinch:
     specifier: ^3.1.0
     version: 3.1.0(react-dom@18.2.0)(react@16.14.0)
@@ -3420,6 +3423,10 @@ packages:
       - supports-color
     dev: true
 
+  /constrained-editor-plugin@1.3.0:
+    resolution: {integrity: sha512-hZ7cOmhvrMVlMM5RLvtvJr9jCbHEAh4yWxBng5bE2kqr0BbLjrPAhuD/o2N/RFrbfRwnN7l5ieRir5wxUp2tNw==}
+    dev: false
+
   /convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
     dev: true
@@ -5929,8 +5936,8 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-native-unistyles@1.0.0-beta.5(react-native@0.72.5)(react@16.14.0):
-    resolution: {integrity: sha512-YOIaTjgJHC8RMLbYVwczMa1hYZI+PcimBMM/Mx4HzhJM21zMXV165xKWeuQJ8Wpc/y2KouqJlqiKdeVMYwabew==}
+  /react-native-unistyles@1.0.0(react-native@0.72.5)(react@16.14.0):
+    resolution: {integrity: sha512-uvstuvCIjVD0uD0tqw+0vgFJ1a0R1MLhnG8BW2Oh4lso0tKvAuAT8KgHzLQE14RYuIPMHSCOZ4xahcKYoh7L/w==}
     engines: {node: '>= 18.0.0'}
     peerDependencies:
       react: '*'

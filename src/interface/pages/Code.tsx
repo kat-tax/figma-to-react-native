@@ -19,13 +19,32 @@ interface CodeProps {
 }
 
 export const Code = memo((props: CodeProps) => {
+  const constraintRef = useRef<any>(null);
   const editorRef = useRef<Editor>(null);
+
   const updateCode = (newCode: string) => {
     const model = editorRef.current?.getModel();
     if (!model) return;
     const curCode = model.getValue();
     if (curCode === newCode) return;
+
+    // Update editor content
     model.setValue(newCode);
+
+    // TODO: Add editing restraints
+    constraintRef.current.removeRestrictionsIn(model);
+    constraintRef.current.addRestrictionsTo(model, [
+      /*{
+        label: 'util',
+        range: [1, 7, 1, 12], // [startLine, startColumn, endLine, endColumn]
+        validate: (val: string, range: any, info: any) => /^[a-z0-9A-Z]*$/.test(val),
+      },*/
+      {
+        label: 'func',
+        range: [1, 1, 1, 10],
+        allowMultiline: false,
+      },
+    ]);
   };
 
   const update = useMemo(() => throttle(updateCode, 100), []);
@@ -43,8 +62,8 @@ export const Code = memo((props: CodeProps) => {
         options={{...props.options, readOnly: true}}
         loading={<LoadingIndicator/> as JSX.Element}
         onMount={(editor, monaco) => {
-          init(editor, monaco);
           editorRef.current = editor;
+          constraintRef.current = init(editor, monaco);
         }}
       />
     </Fragment>

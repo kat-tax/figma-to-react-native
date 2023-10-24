@@ -10,10 +10,7 @@
 - [ ] Interactions: (accessibility, pressablility, etc.)
 - [ ] Screens: (navigation based on prototype settings)
 - [ ] Improved Devtools:
-  - components link to code and highlight
   - diff text instead of fully replacing (highlight changes?)
-  - highlight selected sub node within code:
-    - sourcemap from node ids -> line + column numbers needed when parsing
   - show console log in preview:
     - https://github.com/storybookjs/react-inspector
 
@@ -28,6 +25,7 @@
   - cache code to node storage
   - recompile component when update triggered for it
   - batch compilation, put selected components at top of queue
+  - combine saved user edits with compiled code
 - Replace ESBuild with SWC?
   - https://swc.rs/docs/usage/wasm
 
@@ -39,3 +37,5 @@
 - Error "failed to export" caused by hidden assets
 - Triage preview using wrong default value for Child in Frame example
 - Address or document TODOs throughout the app :')
+- Code tab is cleared when going to Theme tab
+- Editor sometimes appears in light mode when supposed to be dark

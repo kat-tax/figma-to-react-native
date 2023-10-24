@@ -90,7 +90,7 @@ export function writeFunction(
       const pressId = isRootPressable && pressables?.find(e => e[1] === 'root' || !e[1])?.[2];
       const rootTag = isRootPressable ? 'Pressable' : 'View';
       const rootStyle = ` style={${getStylePrefix('root')}.root}`;
-      const rootTestID = ` testID={props.id}`;
+      const rootTestID = ` testID={props.testID}`;
       const rootProps = isRootPressable
         ? ` onPress={props.${pressId}} disabled={_stateDisabled}` // TODO: ref={ref} {...ariaProps}
         : '';

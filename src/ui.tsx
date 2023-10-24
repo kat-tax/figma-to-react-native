@@ -1,5 +1,6 @@
 import '!./interface/css/default.css';
 import '!./interface/css/plugin.css';
+import '!./interface/css/editor.css';
 
 import {h} from 'preact';
 import {on, emit} from '@create-figma-plugin/utilities';

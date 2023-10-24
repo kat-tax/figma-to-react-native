@@ -41,6 +41,7 @@
     "@uppy/tus": "^3.3.1",
     "client-zip": "^2.4.4",
     "code-block-writer": "^12.0.0",
+    "constrained-editor-plugin": "^1.3.0",
     "deep-object-diff": "^1.1.9",
     "esbuild-wasm": "^0.17.19",
     "lodash.camelcase": "^4.3.0",
