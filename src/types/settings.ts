@@ -10,7 +10,7 @@ export interface Settings {
     /**
      * The flavor of React Native to generate
      */
-    flavor: 'react-native' | 'tamagui',
+    flavor: 'react-native',
     /**
      * The engine used to convert Figma styles to React Native
      */

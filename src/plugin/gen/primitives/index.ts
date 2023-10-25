@@ -12,16 +12,16 @@ export function generatePrimitives(isPreview: boolean, isRoot: boolean): Record<
   for (const component of getComponentTargets(nodes)) {
     switch (component.name) {
       case 'Switch':
-        console.log('Switch', component);
+        //console.log('Switch', component);
         break;
       case 'Radio':
-        console.log('Radio', component);
+        //console.log('Radio', component);
         break;
       case 'Checkbox':
-        console.log('Checkbox', component);
+        //console.log('Checkbox', component);
         break;
       case 'Progress':
-        console.log('Progress', component);
+        //console.log('Progress', component);
         break;
       case 'Slider':
         primitives.Slider = Slider(component, isPreview, isRoot);
