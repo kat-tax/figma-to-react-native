@@ -1,61 +1,47 @@
 # ROADMAP
 
-### Next
-- Add frame selections
-- Fix storybook variants
-- Improve perf (cache data, track revisions)
-- Add useMemo to classes
-- Fix shorthands: borderBottom: '1px solid var(--neutral-12, #EFF0F0)'
-- Improve styling differences
-- Sort props
+# v44
+- Compile components in background:
+  - [ ] use browser bundler, conform preview and code output
+  - [ ] precompile components, cache code to component node storage
+  - [ ] batch compilation, put selected components at top of queue
+  - [ ] recompile component when update triggered for it
+  - [ ] combine constrained user edits with compiled code
 
-### Interface
-- Diff text instead of fully replacing (highlight changes?)
-- Highlight selected sub node within code
-  - sourcemap from node ids -> line + column numbers needed when parsing
+## Style Libraries
+- [x] Unistyles (default)
+- [ ] Tamagui (planned...)
+- [ ] GlueStack (planned...)
+- [ ] NativeWind (maybe...)
 
-### Generation
-- Theme values (fonts & effects left)
-- Interactions (via Pressable & Link)
-- Gradient backgrounds
-- Screens (navigation based on prototype settings)
-- Use Pressable and TextInput using user mappings
-```json
-{
-  "mappings": {
-    // Hovers get a pressable generated over them
-    "PressableContainer": "/$button|^button/i",
-    // Hovers get a pressable generated over them
-    "PressableHover": "/$button|^button/i",
-    // Inputs get Text replaced with TextInput and contents are the placeholder attr
-    "TextInput": "/$input|^input/i",
-  }
-}
-```
-- Auto generate a <Pressable> and apply "Hover" or "Focused" or "Pressed" state?
-```tsx
-<Pressable onClick={console.log}>
-  {({hovered}) => (
-    <Button state={hovered ? 'Hover' : 'Default'}/>
-  )}
-</Pressable>
-```
+## Planned Features
+- [ ] Interactions: (accessibility, pressablility, etc.)
+- [ ] Screens: (navigation based on prototype settings)
+- [ ] Improved Devtools:
+  - diff text instead of fully replacing (highlight changes?)
+  - show console log in preview:
+    - https://github.com/storybookjs/react-inspector
 
-### SaaS
-- Storybook preview
-- Storybook syncing
-- Export to GitHub PR
-- Auto translations
-- AI documentation
-- UI package generation
-- Sync Redux store to Figma variable collection
-- Thumbhash, RNSVG, Image & SVGO compression
+## Planned Tools
+- [ ] Doctor (fix structure, autolayout, etc.)
+- [ ] Auto Shimmer (auto create shimmer variant)
+- [ ] Import Redux Store
+- [ ] Import Primitives
+- [ ] Import Icons
+- [ ] Import Theme
 
-### Extensions
-- Port UI to VSCode
-- Same messaging to Figma & VSCode extension
+## Optimization Goals
+- Replace ESBuild with SWC? (https://swc.rs/docs/usage/wasm)
 
-### Testing
-- Ensure https://www.untitledui.com/ converts
-- Test other UI packs (IntelliJ, find more...)
-- Make sure snapshots of converted projects don't change
+## Known Issues
+- Missing type imports
+- Extraneous Pressable import
+- SVGs don't adapt correct colors
+- Storybook variant import name wrong
+- Border colors (without variables) not converting
+- Error "failed to export" caused by hidden assets
+- Refactor primitive generation code (template string -> codewriter)
+- Triage preview using wrong default value for Child in Frame example
+- Code tab is cleared when going to Theme tab
+- Monaco sometimes appears in light mode
+- Address or document TODOs throughout the app...

@@ -1,63 +1,65 @@
 import {EventHandler} from '@create-figma-plugin/utilities';
 
+import type {AppPages} from 'types/app';
 import type {Settings} from 'types/settings';
-import type {ExportTarget, ExportMode} from 'types/export';
+import type {ProjectBuild, ProjectConfig} from 'types/project';
 
-// From plugin
+export interface EventAppReady extends EventHandler {
+  name: 'APP_READY';
+  handler: () => void;
+}
 
-export interface LoadConfigHandler extends EventHandler {
-  name: 'LOAD_CONFIG';
+export interface EventAppStart extends EventHandler {
+  name: 'APP_START';
+  handler: (page: AppPages, user: User) => void;
+}
+
+export interface EventAppNavigate extends EventHandler {
+  name: 'APP_NAVIGATE';
+  handler: (page: AppPages) => void;
+}
+
+export interface EventConfigLoad extends EventHandler {
+  name: 'CONFIG_LOAD';
   handler: (config: Settings) => void;
 }
 
-export interface UpdateCodeHandler extends EventHandler {
-  name: 'UPDATE_CODE';
+export interface EventConfigUpdate extends EventHandler {
+  name: 'CONFIG_UPDATE';
+  handler: (config: Settings) => void;
+}
+
+export interface EventPreviewComponent extends EventHandler {
+  name: 'PREVIEW_COMPONENT';
   handler: (bundle: string) => void;
 }
 
-export interface UpdateThemeHandler extends EventHandler {
-  name: 'UPDATE_THEME';
+export interface EventPreviewTheme extends EventHandler {
+  name: 'PREVIEW_THEME';
   handler: (theme: string) => void;
 }
 
-export interface CompileHandler extends EventHandler {
-  name: 'COMPILE';
-  handler: (project: string, files: string, index: string, theme: string, assets: Array<[string, Uint8Array]>) => void;
+export interface EventProjectExport extends EventHandler {
+  name: 'PROJECT_EXPORT';
+  handler: (config: ProjectConfig) => void;
 }
 
-export interface SyncHandler extends EventHandler {
-  name: 'SYNC';
-  handler: (project: string, files: string, theme: string, user: User) => void;
+export interface EventProjectBuild extends EventHandler {
+  name: 'PROJECT_BUILD';
+  handler: (project: ProjectBuild, config: ProjectConfig, user: User) => void;
 }
 
-// From interface
-
-export interface UpdateConfigHandler extends EventHandler {
-  name: 'UPDATE_CONFIG';
-  handler: (config: Settings) => void;
+export interface EventProjectConfigLoad extends EventHandler {
+  name: 'PROJECT_CONFIG_LOAD';
+  handler: (config: ProjectConfig) => void;
 }
 
-export interface UpdateModeHandler extends EventHandler {
-  name: 'UPDATE_MODE';
-  handler: (mode: ExportMode) => void;
+export interface EventFocus extends EventHandler {
+  name: 'FOCUS';
+  handler: (nodeId: string) => void;
 }
 
-export interface ZipHandler extends EventHandler {
-  name: 'ZIP';
-  handler: (target: ExportTarget) => void;
-}
-
-export interface StorybookHandler extends EventHandler {
-  name: 'STORYBOOK';
-  handler: (target: ExportTarget) => void;
-}
-
-export interface FocusComponentHandler extends EventHandler {
-  name: 'FOCUS_COMPONENT';
-  handler: (componentId: string) => void;
-}
-
-export interface NotifyErrorHandler extends EventHandler {
-  name: 'NOTIFY_ERROR';
+export interface EventNotify extends EventHandler {
+  name: 'NOTIFY';
   handler: (message: string) => void;
 }

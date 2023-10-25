@@ -1,8 +1,9 @@
 # Project
+manifest.json
 build/
 .ref/
 .old/
-_schema.json
+settings-schema.json
 TODO.md
 
 # OSX

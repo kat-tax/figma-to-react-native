@@ -1,6 +1,12 @@
 import _camelCase from 'lodash.camelcase';
 import _reserved from 'reserved';
 
+export function titleCase(input: string): string {
+  return input.replace(/^[a-z]/, function (m) {
+    return m.toUpperCase();
+  });
+}
+
 export function camelCase(input: string): string {
   return _camelCase(input);
 }

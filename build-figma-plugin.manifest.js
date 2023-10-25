@@ -36,15 +36,6 @@ module.exports = (manifest) => ({
       ],
     },
     {
-      label: 'React Import',
-      itemType: 'select',
-      propertyName: 'react-import',
-      options: [
-        {label: 'Enabled', value: 'on', isDefault: true},
-        {label: 'Disabled', value: 'off'},
-      ],
-    },
-    {
       label: 'Translate',
       itemType: 'select',
       propertyName: 'translate',

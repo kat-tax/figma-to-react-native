@@ -1,0 +1,160 @@
+@font-face {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: normal;
+  src: url(https://rsms.me/inter/font-files/Inter-Regular.woff2?v=3.7) format("woff2"), url(https://rsms.me/inter/font-files/Inter-Regular.woff?v=3.7) format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 500;
+  font-style: normal;
+  src: url(https://rsms.me/inter/font-files/Inter-Medium.woff2?v=3.7) format("woff2"), url(https://rsms.me/inter/font-files/Inter-Medium.woff2?v=3.7) format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 600;
+  font-style: normal;
+  src: url(https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7) format("woff2"), url(https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7) format("woff");
+}
+
+:root {
+  /* Colors */
+  --blue: #18a0fb;
+  --purple: #7b61ff;
+  --hot-pink: #ff00ff;
+  --green: #1bc47d;
+  --red: #f24822;
+  --yellow: #ffeb00;
+  --black: #000000;
+  --black8: rgba(0, 0, 0, .8);
+  --black8-opaque: #333333;
+  --black3: rgba(0, 0, 0, .3);
+  --black3-opaque: #B3B3B3;
+  --white: #ffffff;
+  --white2: rgba(255, 255, 255, .2);
+  --white8: rgba(255, 255, 255, .8);
+  --white4: rgba(255, 255, 255, .4);
+  --grey: #f0f0f0;
+  --silver: #e5e5e5;
+  --hud: #222222;
+  --toolbar: #2c2c2c;
+  --black1: rgba(0, 0, 0, .1);
+  --blue3: rgba(24, 145, 251, .3);
+  --purple4: rgba(123, 97, 255, .4);
+  --hover-fill: rgba(0, 0, 0, .06);
+  --selection-a: #daebf7;
+  --selection-b: #edf5fa;
+  /* Borders */
+  --border-radius-small: 2px;
+  --border-radius-med: 5px;
+  --border-radius-large: 6px;
+  --shadow-hud: 0 5px 17px rgba(0, 0, 0, .2), 0 2px 7px rgba(0, 0, 0, .15);
+  --shadow-floating-window: 0 2px 14px rgba(0, 0, 0, .15);
+  /* Sizes */
+  --size-xxxsmall: 4px;
+  --size-xxsmall: 8px;
+  --size-xsmall: 16px;
+  --size-small: 24px;
+  --size-medium: 32px;
+  --size-large: 40px;
+  --size-xlarge: 48px;
+  --size-xxlarge: 64px;
+  --size-xxxlarge: 80px;
+  /* Typography */
+  --font-stack: "Inter", sans-serif;
+  --font-size-xsmall: 11px;
+  --font-size-small: 12px;
+  --font-size-large: 13px;
+  --font-size-xlarge: 14px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+  --font-line-height: 16px;
+  --font-line-height-large: 24px;
+  --font-letter-spacing-pos-xsmall: .005em;
+  --font-letter-spacing-neg-xsmall: .01em;
+  --font-letter-spacing-pos-small: 0;
+  --font-letter-spacing-neg-small: .005em;
+  --font-letter-spacing-pos-large: -.0025em;
+  --font-letter-spacing-neg-large: .0025em;
+  --font-letter-spacing-pos-xlarge: -.001em;
+  --font-letter-spacing-neg-xlarge: -.001em;
+}
+
+html, body {
+  margin: 0;
+  background-color: var(--figma-color-bg);
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  color: var(--figma-color-text);
+}
+
+iframe {
+  border: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#create-figma-plugin {
+  display: flex;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Radix Tab Figma Styling */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.tab-bar {
+  padding: 4px 5px;
+  border-bottom: 1px solid var(--figma-color-border);
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+}
+
+.tab {
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--font-line-height);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+  font-weight: 500;
+  background: none;
+  color: #b3b3b3;
+  padding: 0 8px;
+  height: 32;
+  border: 0;
+  border-radius: 2px;
+}
+
+.tab.icon {
+  width: 32;
+  padding: 0;
+  opacity: 0.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tab[data-state="active"] {
+  font-weight: 600;
+  color: var(--figma-color-text);
+}
+
+.tab.icon[data-state="active"] {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
+.tab-view {
+  flex: 1;
+  overflow: auto;
+}

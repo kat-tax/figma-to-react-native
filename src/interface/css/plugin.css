@@ -1,0 +1,21 @@
+.center {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  margin-top: 41px;
+  background-color: var(--figma-color-bg);
+}
+
+.page {
+  padding: 0.5em 1.3em;
+}
