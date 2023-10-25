@@ -142,8 +142,8 @@ export function Export(props: ExportProps) {
             onValueChange={form.setFormState}
             options={[
               {children: 'Download', value: 'download'},
-              {children: 'Preview', value: 'preview'},
-              {children: 'Release', value: 'release'},
+              {children: 'Preview', value: 'preview', disabled: true},
+              {children: 'Release', value: 'release', disabled: true},
             ]}
           />
           <F.VerticalSpace space="large"/>
