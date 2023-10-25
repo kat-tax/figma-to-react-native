@@ -1,5 +1,6 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusNode} from 'plugin/fig/traverse';
+import {startCompiler} from 'plugin/gen';
 
 import * as app from 'plugin/app';
 import * as config from 'plugin/config';
@@ -57,18 +58,8 @@ export default async function() {
     // Update code on selection change
     figma.on('selectionchange', preview.updateCode);
   
-    // Update code when components change
-    figma.on('documentchange', (e) => {
-      const changes = e.documentChanges.filter(c =>
-        c.type === 'PROPERTY_CHANGE' && (
-          c.node.type === 'COMPONENT_SET'
-          || c.node.type === 'COMPONENT'
-          || c.node.type === 'INSTANCE'
-        )
-      );
-      if (changes.length > 0)
-        preview.updateCode();
-    });
+    // Start component compiler, update code on change
+    startCompiler(preview.updateCode);
   
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
