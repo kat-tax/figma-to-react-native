@@ -25,7 +25,7 @@ export interface Settings {
   * Options for the code editor.
   */
   monaco: {
-    general: editor.IStandaloneEditorConstructionOptions,
+    general: Omit<editor.IStandaloneEditorConstructionOptions, 'ariaContainerElement' | 'overflowWidgetsDomNode'>,
     compiler?: languages.typescript.CompilerOptions,
     inlayHints?: languages.typescript.InlayHintsOptions,
     diagnostics?: languages.typescript.DiagnosticsOptions,

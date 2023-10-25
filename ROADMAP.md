@@ -1,13 +1,5 @@
 # ROADMAP
 
-# v44
-- Compile components in background:
-  - [ ] use browser bundler, conform preview and code output
-  - [ ] precompile components, cache code to component node storage
-  - [ ] batch compilation, put selected components at top of queue
-  - [ ] recompile component when update triggered for it
-  - [ ] combine constrained user edits with compiled code
-
 ## Style Libraries
 - [x] Unistyles (default)
 - [ ] Tamagui (planned...)
