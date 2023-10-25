@@ -24,16 +24,3 @@
 
 ## Optimization Goals
 - Replace ESBuild with SWC? (https://swc.rs/docs/usage/wasm)
-
-## Known Issues
-- Missing type imports
-- Extraneous Pressable import
-- SVGs don't adapt correct colors
-- Storybook variant import name wrong
-- Border colors (without variables) not converting
-- Error "failed to export" caused by hidden assets
-- Refactor primitive generation code (template string -> codewriter)
-- Triage preview using wrong default value for Child in Frame example
-- Code tab is cleared when going to Theme tab
-- Monaco sometimes appears in light mode
-- Address or document TODOs throughout the app...
