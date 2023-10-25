@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "build-figma-plugin --typecheck --watch",
     "build": "build-figma-plugin --typecheck --minify",
-    "schema": "typescript-json-schema tsconfig.json Settings --out ./src/settings-schema.json"
+    "schema": "typescript-json-schema tsconfig.json Settings --include ./src/types/settings.ts --out ./src/settings-schema.json",
+    "schema-new": "ts-json-schema-generator --tsconfig './tsconfig.json' --path './src/**/*.ts' --type 'Settings'"
   },
   "figma-plugin": {
     "id": "821138713091291738",
@@ -59,6 +60,7 @@
     "esbuild": "^0.17.19",
     "react-native-unistyles": "^1.0.0-beta.6",
     "react-zoom-pan-pinch": "^3.1.0",
+    "ts-json-schema-generator": "^1.4.0",
     "typescript": "^4.9.5",
     "typescript-json-schema": "^0.61.0"
   },
