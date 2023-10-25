@@ -23,25 +23,25 @@
 4. Go to the "Export" tab and choose which components to bulk export.
 5. To change the settings, click the cog icon and edit the JSON. Settings will save and update in real time.
 
+
 ### Plugin Features
 
 |   | Feature |   | 
 | - | ------- | - | 
 | ✨ | Realtime code and preview rendering | ✅ |
-| 🔧 | Flexible and realtime config | ✅ |
-| 🎨 | Theme generation from styles | ✅ |
-| 🎮 | Prototype interactions to components | ⏱ |
+| 🎨 | Theme generation from variable modes | ✅ |
 | 📦 | Batch exporting of components and assets | ✅ |
 | 🏞 | Asset exporting of rasters and vectors | ✅ |
 | ⭐️ | AutoLayout to Flexbox translation | ✅ |
 | 🎲 | Variants and properties support | ✅ |
 | 🧱 | Nested components support | ✅ |
-| 🧩 | Figma variables support | ⏱ |
+| 🧩 | Figma variables support | ✅ |
+| 🎮 | Pressables generation | ✅ |
 | 🎭 | Conditional rendering | ✅ |
 | 🪟 | Borders and rounding | ✅ |
 | 🔄 | Rotations and effects | ⏱ |
 | 🏔 | Background gradients | ⏱ |
-| 📚 | Storybook syncing | ⏱ |
+| 📚 | Storybook syncing | ✅ |
 | 📖 | JSDoc generation | ✅ |
 | 💡 | Dark/light mode | ✅ |
 | 💎 | Tamagui output | ⏱ |
