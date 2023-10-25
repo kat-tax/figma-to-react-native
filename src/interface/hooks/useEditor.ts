@@ -1,7 +1,7 @@
 import {useMonaco} from '@monaco-editor/react';
 import {useEffect} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
-import schema from 'settings-schema.json';
+import schema from 'schemas/settings.json';
 
 import type {Settings} from 'types/settings';
 import type {EventFocus} from 'types/events';
@@ -32,7 +32,7 @@ export function useEditor(settings: Settings, links?: PreviewEditorLinks, libs?:
       schemas: [{
         schema,
         fileMatch: [monaco?.Uri.parse('Settings.json').toString()],
-        uri: 'http://fig.run/settings-schema.json',
+        uri: 'http://fig.run/schema-settings.json',
       }],
     });
   }, [monaco]);

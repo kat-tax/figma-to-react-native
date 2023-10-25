@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "build-figma-plugin --typecheck --watch",
     "build": "build-figma-plugin --typecheck --minify",
-    "schema": "typescript-json-schema tsconfig.json Settings --include ./src/types/settings.ts --out ./src/settings-schema.json"
+    "schema-settings": "typescript-json-schema tsconfig.json Settings --include ./src/types/settings.ts --out ./schemas/settings.json"
   },
   "figma-plugin": {
     "id": "821138713091291738",

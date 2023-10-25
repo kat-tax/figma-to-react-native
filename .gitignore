@@ -3,7 +3,6 @@ manifest.json
 build/
 .ref/
 .old/
-settings-schema.json
 TODO.md
 
 # OSX
