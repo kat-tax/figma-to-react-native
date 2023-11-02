@@ -36,6 +36,7 @@ interface AppProps {
 }
 
 export function App(props: AppProps) {
+  const [page, setPage] = useState<AppPages>(null);
   const [target, setTarget] = useState<string>(null);
   const components = useComponents();
   const settings = useConfig();
@@ -53,6 +54,7 @@ export function App(props: AppProps) {
   const navigate = (value: AppPages) => {
     if (PAGES.includes(value)) {
       emit<EventAppNavigate>('APP_NAVIGATE', value);
+      setPage(value);
     }
   };
 
@@ -86,7 +88,7 @@ export function App(props: AppProps) {
         <Code {...{component, components, options, monaco}}/>
       </Tab>
       <Tab value="preview">
-        <Preview {...{component, settings: settings.config}}/>
+        <Preview {...{component, components, settings: settings.config}}/>
       </Tab>
       <Tab value="story">
         <Story {...{component, options, monaco}}/>
@@ -95,12 +97,12 @@ export function App(props: AppProps) {
         <Theme {...{options, monaco}}/>
       </Tab>
       <Tab value="export">
-        <Export config={project}/>
+        <Export config={project} {...{components}} />
       </Tab>
       <Tab value="settings">
         <Settings {...{settings, options, monaco}}/>
       </Tab>
-      <StatusBar {...{components, targets, target, setTarget}}/>
+      <StatusBar {...{page, project, components, targets, target, setTarget}}/>
     </Tabs>
   ) : (
     <div className="center fill">

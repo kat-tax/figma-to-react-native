@@ -175,6 +175,7 @@ iframe {
 
 .status-actions {
   display: flex;
+  padding-left: 10px;
   flex-direction: row;
   align-items: center;
   gap: 10px;

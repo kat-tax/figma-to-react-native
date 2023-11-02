@@ -8,6 +8,7 @@ import * as F from '@create-figma-plugin/ui';
 
 import type {ProjectConfig} from 'types/project';
 import type {EventProjectExport} from 'types/events';
+import type {Components} from 'interface/hooks/useComponents';
 
 const regexSemver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
@@ -60,12 +61,14 @@ const tips = {
 
 interface ExportProps {
   config: ProjectConfig;
+  components: Components;
 }
 
 export function Export(props: ExportProps) {
   const [hasSuccess, setHasSuccess] = useState(false);
   const [isExporting, setExporting] = useState(false);
   const [exportCount, setExportCount] = useState(0);
+  const isFullyLoaded = props.components.loaded === props.components.total;
 
   const form = F.useForm<ProjectConfig>(props.config, {
     close: () => {},
