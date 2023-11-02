@@ -4,6 +4,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import schema from 'schemas/settings.json';
 import libraries from 'interface/utils/libraries';
 
+import type * as monaco from 'monaco-editor';
 import type {Settings} from 'types/settings';
 import type {EventFocus} from 'types/events';
 import type {PreviewEditorLinks} from 'types/preview';
@@ -15,16 +16,20 @@ export function useEditor(settings: Settings, links?: PreviewEditorLinks) {
   useEffect(() => {
     return monaco?.languages.registerDefinitionProvider('typescript', {
       provideDefinition: (model, position) => {
+        // Find a subcomponent link
         const link = links?.[model.getWordAtPosition(position).word];
         if (link) {
           emit<EventFocus>('FOCUS', link);
-          return [];
+          return [{
+            uri: monaco.Uri.parse(link),
+            range: new monaco.Range(1, 1, 1, 1),
+          }];
         }
         return [];
       }
     }).dispose;
-  }, [links]);
-    
+  }, [monaco, links]);
+
   // Setup JSON schema
   useEffect(() => {
     const json = monaco?.languages.json.jsonDefaults;

@@ -99,7 +99,7 @@ export async function generateBundle(
 
   // Component links
   Object.entries(data.meta.components).forEach((c: any) => {
-    links[createIdentifierPascal(c[1].name)] = c[0];
+    links[createIdentifierPascal(c[1][0].name)] = c[0];
   });
 
   // Bundle assets
