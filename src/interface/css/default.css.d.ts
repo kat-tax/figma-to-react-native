@@ -5,6 +5,8 @@ declare const styles: {
   readonly "tab": string;
   readonly "icon": string;
   readonly "tab-view": string;
+  readonly "status-bar": string;
+  readonly "status-actions": string;
 };
 export = styles;
 

@@ -46,6 +46,7 @@
     "esbuild-wasm": "^0.17.19",
     "lodash.camelcase": "^4.3.0",
     "monaco-editor": "^0.44.0",
+    "monaco-editor-auto-typings": "^0.4.4",
     "preact": "^10.18.1",
     "reserved": "^0.1.2",
     "yjs": "^13.6.8"
@@ -53,11 +54,13 @@
   "devDependencies": {
     "@create-figma-plugin/build": "^2.6.1",
     "@create-figma-plugin/tsconfig": "^2.6.1",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@figma/plugin-typings": "1.79.0",
     "@types/lodash.camelcase": "^4.3.7",
     "@types/react": "^18.2.27",
+    "@types/react-native": "^0.72.5",
     "esbuild": "^0.17.19",
-    "react-native-unistyles": "^1.0.0-beta.6",
+    "react-native-unistyles": "2.0.0-alpha.1",
     "react-zoom-pan-pinch": "^3.1.0",
     "typescript": "^4.9.5",
     "typescript-json-schema": "^0.61.0"

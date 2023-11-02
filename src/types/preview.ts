@@ -9,9 +9,4 @@ export type PreviewComponent = {
   assets: Array<[string, Uint8Array]> | null,
 }
 
-export type PreviewEditorLib = {
-  path: string,
-  content: string,
-}
-
 export type PreviewEditorLinks = Record<string, string>;

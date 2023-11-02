@@ -7,12 +7,9 @@
 - [ ] NativeWind (maybe...)
 
 ## Planned Features
-- [ ] Interactions: (accessibility, pressablility, etc.)
+- [ ] Interactions: (accessibility, pressablility, textinput, etc.)
 - [ ] Screens: (navigation based on prototype settings)
-- [ ] Improved Devtools:
-  - diff text instead of fully replacing (highlight changes?)
-  - show console log in preview:
-    - https://github.com/storybookjs/react-inspector
+- [ ] Show console log in preview (https://github.com/storybookjs/react-inspector)
 
 ## Planned Tools
 - [ ] Doctor (fix structure, autolayout, etc.)
@@ -24,3 +21,4 @@
 
 ## Optimization Goals
 - Replace ESBuild with SWC? (https://swc.rs/docs/usage/wasm)
+- Diff Monaco text instead of fully replacing (and highlight changes)

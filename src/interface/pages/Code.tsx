@@ -9,45 +9,63 @@ import {init} from 'interface/utils/editor';
 import {throttle} from 'common/delay';
 
 import type {Monaco, Editor} from 'interface/utils/editor';
-import type {PreviewComponent} from 'types/preview';
+import type {Components} from 'interface/hooks/useComponents';
 import type {Settings} from 'types/settings';
+import type {PreviewComponent} from 'types/preview';
 
 interface CodeProps {
   component: PreviewComponent;
+  components: Components;
   options: Settings['monaco']['general'];
   monaco: Monaco;
 }
 
 export const Code = memo((props: CodeProps) => {
-  const constraintRef = useRef<any>(null);
-  const editorRef = useRef<Editor>(null);
+  const constraint = useRef<any>(null);
+  const editor = useRef<Editor>(null);
 
   const updateCode = (newCode: string) => {
-    const model = editorRef.current?.getModel();
+    const model = editor.current?.getModel();
     if (!model) return;
     const curCode = model.getValue();
     if (curCode === newCode) return;
+
+    if (props.components) {
+      Object.keys(props.components.data).forEach((name) => {
+        const path = props.monaco.Uri.parse(`figma://model/${name}.tsx`);
+        const model = props.monaco.editor.getModel(path);
+        if (!model) {
+          props.monaco.editor.createModel(
+            props.components.data[name].code,
+            'typescript',
+            path,
+          );
+        } else {
+          model.setValue(props.components.data[name].code);
+        }
+      });
+    }
 
     // Update editor content
     model.setValue(newCode);
 
     // TODO: Add editing restraints
-    constraintRef.current.removeRestrictionsIn(model);
-    constraintRef.current.addRestrictionsTo(model, [
+    constraint.current?.removeRestrictionsIn(model);
+    constraint.current?.addRestrictionsTo(model, [
       /*{
         label: 'util',
         range: [1, 7, 1, 12], // [startLine, startColumn, endLine, endColumn]
         validate: (val: string, range: any, info: any) => /^[a-z0-9A-Z]*$/.test(val),
       },*/
       {
-        label: 'func',
-        range: [1, 1, 1, 10],
-        allowMultiline: false,
+        label: 'start',
+        range: [1, 1, 1, 1],
+        allowMultiline: true,
       },
     ]);
   };
 
-  const update = useMemo(() => throttle(updateCode, 100), []);
+  const update = useMemo(() => throttle(updateCode, 100), [props.components]);
   useEffect(() => update(props.component?.code || ''), [props?.component?.code]);
 
   return (
@@ -55,53 +73,18 @@ export const Code = memo((props: CodeProps) => {
       {!props?.component?.code &&
         <Watermark/>
       }
+      {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path={`${props.component?.name}.tsx`}
+        path={`figma://model/${props.component?.name}.tsx`}
         theme={props.options?.theme}
-        options={{...props.options, readOnly: true}}
+        options={{...props.options, readOnly: false}}
         loading={<LoadingIndicator/> as JSX.Element}
-        onMount={(editor, monaco) => {
-          editorRef.current = editor;
-          constraintRef.current = init(editor, monaco);
+        onMount={(_editor, _monaco) => {
+          editor.current = _editor;
+          constraint.current = init(_editor, _monaco);
         }}
       />
     </Fragment>
   );
 }, (prev, next) => prev.component?.code === next.component?.code);
-
-
-
-
-
-
-
-
-/*
-
-EXPERIMENTAL CODE
-
-import * as Diff from 'diff';
-
-const diff = Diff.diffChars(curCode, newCode);
-// Apply the changes to the model's content
-let currentPosition = 0;
-const editOperation = diff.map(part => {
-  const partLength = part.value.length;
-  const startPosition = model.getPositionAt(currentPosition);
-  const endPosition = model.getPositionAt(currentPosition + partLength);
-  currentPosition += partLength;
-  return {
-    range: new props.monaco.Range(
-      startPosition.lineNumber,
-      startPosition.column,
-      endPosition.lineNumber,
-      endPosition.column
-    ),
-    text: part.value
-  };
-});
-// Apply the edit operation to the model's content
-model.pushEditOperations([], editOperation, () => null);
-
-*/

@@ -2,6 +2,7 @@ import {EventHandler} from '@create-figma-plugin/utilities';
 
 import type {AppPages} from 'types/app';
 import type {Settings} from 'types/settings';
+import type {PreviewComponent} from 'types/preview';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 
 export interface EventAppReady extends EventHandler {
@@ -29,9 +30,20 @@ export interface EventConfigUpdate extends EventHandler {
   handler: (config: Settings) => void;
 }
 
-export interface EventPreviewComponent extends EventHandler {
-  name: 'PREVIEW_COMPONENT';
-  handler: (bundle: string) => void;
+export interface EventSelectComponent extends EventHandler {
+  name: 'SELECT_COMPONENT';
+  handler: (name: string) => void;
+}
+
+export interface EventLoadComponent extends EventHandler {
+  name: 'LOAD_COMPONENT';
+  handler: (
+    component: PreviewComponent,
+    components: Record<string, boolean>,
+    loaded: number,
+    total: number,
+    assets: number,
+  ) => void;
 }
 
 export interface EventPreviewTheme extends EventHandler {

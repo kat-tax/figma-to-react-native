@@ -17,7 +17,7 @@ const user: Settings = {
       lineNumbers: 'off',
       minimap: {enabled: false},
       padding: {top: 10},
-    }
+    },
   },
   esbuild: {
     loader: 'tsx',

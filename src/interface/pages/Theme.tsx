@@ -1,6 +1,6 @@
 import MonacoReact from '@monaco-editor/react';
 
-import {h} from 'preact';
+import {h, Fragment} from 'preact';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {usePreviewTheme} from 'interface/hooks/usePreviewTheme';
 
@@ -13,13 +13,16 @@ interface ThemeProps {
 export function Theme(props: ThemeProps) {
   const theme = usePreviewTheme();
   return (
-    <MonacoReact
-      language="typescript"
-      path="Theme.ts"
-      value={theme}
-      theme={props.options.theme}
-      options={{...props.options, readOnly: true}}
-      loading={<LoadingIndicator/> as JSX.Element}
-    />
+    <Fragment>
+      {/* @ts-ignore Preact issue */}
+      <MonacoReact
+        language="typescript"
+        path="figma://model/theme.ts"
+        value={theme}
+        theme={props.options.theme}
+        options={{...props.options, readOnly: true}}
+        loading={<LoadingIndicator/> as JSX.Element}
+      />
+    </Fragment>
   );
 }

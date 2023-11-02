@@ -34,7 +34,7 @@ export function writeProps(
           .map((v) => `'${createIdentifierPascal(v)}'`)
           .join(' | ')
         : isInstanceSwap
-          ? `ReactElement`
+          ? `React.ReactElement`
           : prop.type === 'TEXT'
             ? 'string'
             : prop.type.toLowerCase();

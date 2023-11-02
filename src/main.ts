@@ -1,14 +1,16 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusNode} from 'plugin/fig/traverse';
-import {startCompiler} from 'plugin/gen';
 
 import * as app from 'plugin/app';
+import * as gen from 'plugin/gen';
 import * as config from 'plugin/config';
-import * as preview from 'plugin/preview';
 import * as project from 'plugin/project';
 import * as codegen from 'plugin/codegen';
 
 import type * as T from 'types/events';
+import type {AppPages} from 'types/app';
+
+let _page: AppPages = 'code';
 
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
@@ -37,34 +39,34 @@ export default async function() {
     await config.load(true);
 
     // Load current page from storage
-    const page = await app.loadCurrentPage() || 'code';
-  
-    // Update preview mode based on page
-    preview.updateMode(page);
+    _page = await app.loadCurrentPage() || 'code';
   
     // Send start event to interface
-    emit<T.EventAppStart>('APP_START', page, figma.currentUser);
+    emit<T.EventAppStart>('APP_START', _page, figma.currentUser);
   
     // Load project config from storage
     // TODO: reload project config on root document update
     project.loadConfig();
   
     // Update theme on interval
-    setInterval(preview.updateTheme, 500);
-  
-    // Update code once on init
-    preview.updateCode();
+    setInterval(() => {
+      if (_page !== 'theme') return;
+      const theme = gen.generateTheme(config.state);
+      emit<T.EventPreviewTheme>('PREVIEW_THEME', theme);
+    }, 500);
   
     // Update code on selection change
-    figma.on('selectionchange', preview.updateCode);
+    figma.on('selectionchange', () => {
+      app.targetSelectedComponent();
+    });
   
     // Start component compiler, update code on change
-    startCompiler(preview.updateCode);
+    gen.startCompiler(app.targetSelectedComponent);
   
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
-      preview.updateMode(page);
       app.saveCurrentPage(page);
+      _page = page;
     });
   
     // Update config when changed from interface

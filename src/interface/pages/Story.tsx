@@ -18,9 +18,10 @@ export function Story(props: StoryProps) {
       {!props.component?.story &&
         <Watermark/>
       }
+      {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path={`${props.component?.name}.story.ts`}
+        path={`figma://model/${props.component?.name}.story.ts`}
         value={props.component?.story}
         theme={props.options?.theme}
         options={{...props.options, readOnly: true}}

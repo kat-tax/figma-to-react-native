@@ -83,4 +83,12 @@ export function writeImports(
       writer.newLine();
     });
   }
+
+  writer.blankLine();
+
+  writer.write(`import type {GestureResponderEvent, PressableStateCallbackType} from`);
+  writer.space();
+  writer.quote(`react-native`);
+  writer.write(';');
+  writer.newLine();
 }
