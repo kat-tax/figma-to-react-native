@@ -57,7 +57,6 @@ export function useEditor(settings: Settings, links?: PreviewEditorLinks) {
       target: monaco.languages.typescript.ScriptTarget.ESNext,
       module: monaco.languages.typescript.ModuleKind.CommonJS,
       noEmit: true,
-      baseUrl: './',
       paths: {
         ['components/*']: ['figma://model/*'],
       }
