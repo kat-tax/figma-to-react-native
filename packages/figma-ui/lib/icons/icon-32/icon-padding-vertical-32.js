@@ -1,0 +1,3 @@
+import { createIcon } from '../create-icon';
+export const IconPaddingVertical32 = createIcon('M23 10H9V9h14v1Zm-4 3h-6v6h6v-6Zm-6-1h-1v8h8v-8h-7ZM9 23h14v-1H9v1Z', { height: 32, width: 32 });
+//# sourceMappingURL=icon-padding-vertical-32.js.map

@@ -1,9 +1,7 @@
 # Project
-lib/
 build/
 .ref/
 .old/
-manifest.json
 TODO.md
 
 # OSX

@@ -1,0 +1,27 @@
+.text {
+  padding-top: 1px;
+  color: var(--figma-color-text);
+  pointer-events: none;
+  transform: translateY(4px);
+}
+.text:before {
+  display: block;
+  height: 0;
+  margin-top: -9px;
+  content: '';
+  pointer-events: none;
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+.left {
+  text-align: left;
+}
+.center {
+  text-align: center;
+}
+.right {
+  text-align: right;
+}

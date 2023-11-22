@@ -1,0 +1,3 @@
+import { createIcon } from '../create-icon';
+export const IconTextAlignRight16 = createIcon('M1 3h14v1H1V3Zm6 4h8v1H7V7Zm8 4H5v1h10v-1Z', { height: 16, width: 16 });
+//# sourceMappingURL=icon-text-align-right-16.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"create-class-name.js","sourceRoot":"","sources":["../../src/utilities/create-class-name.ts"],"names":[],"mappings":"AAAA,MAAM,UAAU,eAAe,CAAC,UAAgC;IAC9D,OAAO,UAAU;SACd,MAAM,CAAC,UAAU,SAAwB;QACxC,OAAO,SAAS,KAAK,IAAI,CAAA;IAC3B,CAAC,CAAC;SACD,IAAI,CAAC,GAAG,CAAC,CAAA;AACd,CAAC"}

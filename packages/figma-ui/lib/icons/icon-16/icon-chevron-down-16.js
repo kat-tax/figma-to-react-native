@@ -1,0 +1,3 @@
+import { createIcon } from '../create-icon';
+export const IconChevronDown16 = createIcon('m7.646 9.708-3-3L5.354 6 8 8.647 10.646 6l.708.708-3 3-.354.353-.354-.353Z', { height: 16, width: 16 });
+//# sourceMappingURL=icon-chevron-down-16.js.map

@@ -1,0 +1,3 @@
+import { createIcon } from '../create-icon';
+export const IconControlChevronUp8 = createIcon('m3.64641 1.64648-3 3 .7071.70711 2.64645-2.64645 2.64645 2.64645.7071-.70711-3-3-.35355-.35355-.35355.35355Z', { height: 8, width: 8 });
+//# sourceMappingURL=icon-control-chevron-up-8.js.map

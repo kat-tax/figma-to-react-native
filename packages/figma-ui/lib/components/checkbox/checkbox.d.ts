@@ -1,0 +1,14 @@
+import { ComponentChildren } from 'preact';
+import { EventHandler } from '../../types/event-handler.js';
+import { FocusableComponentProps } from '../../types/focusable-component-props.js';
+export interface CheckboxProps extends FocusableComponentProps<HTMLInputElement> {
+    children: ComponentChildren;
+    disabled?: boolean;
+    onChange?: EventHandler.onChange<HTMLInputElement>;
+    onValueChange?: EventHandler.onValueChange<boolean>;
+    value: boolean;
+}
+export declare const Checkbox: import("preact").FunctionalComponent<Omit<import("../../utilities/create-component.js").MixinHTMLElementAttributes<HTMLInputElement, CheckboxProps>, "ref"> & {
+    ref?: import("preact").Ref<HTMLInputElement> | undefined;
+}>;
+//# sourceMappingURL=checkbox.d.ts.map

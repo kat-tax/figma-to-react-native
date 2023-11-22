@@ -1,0 +1,1 @@
+{"version":3,"file":"get-current-from-ref.js","sourceRoot":"","sources":["../../src/utilities/get-current-from-ref.ts"],"names":[],"mappings":"AAEA,MAAM,UAAU,iBAAiB,CAAI,GAAiB;IACpD,IAAI,GAAG,CAAC,OAAO,KAAK,IAAI,EAAE;QACxB,MAAM,IAAI,KAAK,CAAC,8BAA8B,CAAC,CAAC;KACjD;IACD,OAAO,GAAG,CAAC,OAAO,CAAC;AACrB,CAAC"}

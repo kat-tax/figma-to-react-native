@@ -1,19 +1,36 @@
 {
-  "extends": "@create-figma-plugin/tsconfig",
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/vendor/css-to-rn/index.js",
-    "src/vendor/css-to-rn/devPropertiesWithoutUnitsRegExp.js"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "compilerOptions": {
-    "target": "ES2020",
+    // Absolute paths
     "baseUrl": "./src",
-    "typeRoots": [
-      "node_modules/@figma",
-      "node_modules/@types"
-    ],
+
+    // Definitions
+    "typeRoots": ["node_modules/@figma", "node_modules/@types"],
+
+    // General
+    "module": "ES2020",
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    // Compiler
+    "noEmit": true,
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+
+    // Preact
+    "jsx": "react",
+    "jsxFactory": "h",
+
+    // JS vendor files
+    "allowJs": true,
+
+    // best practices
     "strict": false,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
+    "composite": true,
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true
   }
 }

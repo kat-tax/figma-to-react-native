@@ -1,0 +1,3 @@
+import { createIcon } from '../create-icon';
+export const IconLayerText16 = createIcon('M3 3h10v3h-1V4H8.5v8H10v1H6v-1h1.5V4H4v2H3V3Z', { height: 16, width: 16 });
+//# sourceMappingURL=icon-layer-text-16.js.map

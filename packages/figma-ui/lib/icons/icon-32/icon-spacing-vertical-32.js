@@ -1,0 +1,3 @@
+import { createIcon } from '../create-icon';
+export const IconSpacingVertical32 = createIcon('M10 9.5v3h12v-3h-1v2H11v-2h-1Zm11 13v-2H11v2h-1v-3h12v3h-1Zm-2-7h-6v1h6v-1Z', { height: 32, width: 32 });
+//# sourceMappingURL=icon-spacing-vertical-32.js.map

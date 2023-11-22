@@ -1,0 +1,97 @@
+:root {
+  --border-radius-2: 2px;
+  --border-radius-6: 6px;
+  --box-shadow: var(--box-shadow-menu);
+  --box-shadow-menu: 0 5px 17px rgba(0, 0, 0, 0.2),
+    0 2px 7px rgba(0, 0, 0, 0.15), inset 0 0 0 0.5px #000000,
+    0 0 0 0.5px rgba(0, 0, 0, 0.1);
+  --box-shadow-modal: 0 2px 14px rgba(0, 0, 0, 0.15),
+    0 0 0 0.5px rgba(0, 0, 0, 0.2);
+  --font-family: 'Inter', 'Helvetica', sans-serif;
+  --font-family-code: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  --font-size-11: 11px;
+  --font-size-12: 12px;
+  --font-weight-regular: 400;
+  --font-weight-bold: 600;
+  --line-height-16: 16px;
+  --opacity-30: 0.3;
+  --space-extra-small: 8px;
+  --space-small: 12px;
+  --space-medium: 16px;
+  --space-large: 20px;
+  --space-extra-large: 24px;
+  --z-index-1: 1;
+  --z-index-2: 2;
+}
+
+.figma-dark {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: currentColor;
+}
+
+body {
+  margin: 0;
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-11);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-16);
+}
+
+div,
+span {
+  cursor: default;
+  user-select: none;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: inherit;
+}
+
+button {
+  padding: 0;
+  border: 0;
+  -webkit-appearance: none;
+  background-color: transparent;
+  font: inherit;
+  outline: 0;
+}
+
+hr {
+  border: 0;
+  margin: 0;
+}
+
+label {
+  display: block;
+}
+
+input,
+textarea {
+  padding: 0;
+  border: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  cursor: default;
+  font: inherit;
+  outline: 0;
+}
+
+svg {
+  display: block;
+}
+
+::selection {
+  background-color: var(--figma-color-bg-onselected);
+}
