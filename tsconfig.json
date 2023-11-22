@@ -1,12 +1,6 @@
 {
-  "extends": "@create-figma-plugin/tsconfig",
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/vendor/css-to-rn/index.js", "src/vendor/css-to-rn/devPropertiesWithoutUnitsRegExp.js"],
   "compilerOptions": {
-    "typeRoots": ["node_modules/@figma", "node_modules/@types"],
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "target": "ES2020",
-    "baseUrl": "./src",
-    "strict": false,
+    "types": ["bun-types"],
+    "skipDefaultLibCheck": true
   }
 }

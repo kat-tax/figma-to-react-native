@@ -1,0 +1,66 @@
+.radioButtons {
+  position: relative;
+  z-index: var(--z-index-1);
+}
+
+.label {
+  position: relative;
+}
+
+.input {
+  position: absolute;
+  z-index: var(--z-index-1); /* stack `.input` on top of everything else */
+  top: -8px;
+  right: -16px;
+  bottom: -8px;
+  left: -16px;
+  display: block;
+  width: calc(100% + 32px);
+}
+.disabled .input {
+  cursor: not-allowed;
+}
+
+.fill {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+}
+.input:checked ~ .fill {
+  background-color: var(--figma-color-icon);
+}
+.disabled .input:checked ~ .fill {
+  background-color: var(--figma-color-icon-disabled);
+}
+
+.border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--figma-color-border-strong);
+  border-radius: 6px;
+}
+.radioButtons:not(.disabled) .input:focus ~ .border {
+  top: -1px;
+  left: -1px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--figma-color-border-brand-strong);
+  border-radius: 7px;
+}
+.disabled .input ~ .border {
+  border-color: var(--figma-color-border-disabled-strong);
+}
+
+.children {
+  min-height: 12px;
+  padding: 2px 0 0 20px;
+}
+.disabled .children {
+  opacity: var(--opacity-30);
+}

@@ -1,0 +1,42 @@
+{
+  "name": "figma-ui",
+  "type": "module",
+  "private": true,
+  "files": [
+    "lib"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./css/*.css": "./lib/css/*.css"
+  },
+  "main": "./lib/index.js",
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "concurrently npm:build:gen-colors-types npm:build:gen-icons && npm run build:gen-index && npm run build:js && npm run build:copy-non-ts-files",
+    "build:gen-colors-types": "tsx scripts/gen-colors-types.ts",
+    "build:gen-icons": "tsx scripts/gen-icons.ts",
+    "build:gen-index": "rimraf src/index.ts && tsx scripts/gen-index.ts -- 'src/**/*.{ts,tsx}' '!src/**/private/**/*'",
+    "build:copy-non-ts-files": "tsx scripts/copy-non-ts-files.ts",
+    "build:js": "tsc --build",
+    "clean": "rimraf --glob '*.log' lib 'src/**/*.css.d.ts' tsconfig.tsbuildinfo"
+  },
+  "devDependencies": {
+    "@sindresorhus/slugify": "^2.2.1",
+    "@types/node": "^20.8.6",
+    "bun-types": "^1.0.11",
+    "camelcase": "^8.0.0",
+    "concurrently": "^8.2.1",
+    "globby": "^13.2.2",
+    "preact": "^10.18.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^5.0.5",
+    "svgo": "^3.0.2",
+    "tsx": "^3.13.0",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "preact": ">=10"
+  },
+  "sideEffects": false
+}
