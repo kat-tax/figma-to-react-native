@@ -5,6 +5,7 @@ export interface ParseData {
   tree: ParseNodeTree,
   meta: ParseMetaData,
   assets: ParseAssetData,
+  assetMap: Record<string, string>,
   variants: ParseVariantData,
   stylesheet: ParseStyleSheet,
 }
@@ -23,7 +24,7 @@ export type ParseVariantData = {
 
 export type ParseAssetData = Record<string, {
   name: string,
-  data: string,
+  embed: string,
   width: number,
   height: number,
   bytes: Uint8Array | null,

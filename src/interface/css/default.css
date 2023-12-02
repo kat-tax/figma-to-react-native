@@ -113,7 +113,6 @@ iframe {
 }
 
 .tab-bar {
-  padding: 4px 5px;
   border-bottom: 1px solid var(--figma-color-border);
   z-index: 5;
   display: flex;

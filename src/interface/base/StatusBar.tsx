@@ -1,5 +1,5 @@
 import {h} from 'preact';
-import {Muted, Dropdown, DropdownOption, IconLayerComponent16} from '@create-figma-plugin/ui';
+import {Muted, Inline, Dropdown, DropdownOption, IconLayerComponent16} from '@create-figma-plugin/ui';
 
 import type {ProjectConfig} from 'types/project';
 import type {ComponentBuild} from 'types/component';
@@ -37,15 +37,16 @@ export function StatusBar(props: StatusBarProps) {
             onChange={(e) => props.setTarget(e.currentTarget.value)}
           />
         : <div className="status-actions">
-            <Muted>{props.project.packageName}</Muted>
-            <Muted>{props.project.packageVersion}</Muted>
+            <Inline>{}</Inline>
           </div>
       }
       {isFullyLoaded
-        ? <div className="status-actions">
-            <Muted>{textComponents}</Muted>
-            <Muted>{textAssets}</Muted>
-          </div>
+        ? Boolean(props.target)
+          ? null
+          : <div className="status-actions">
+              <Muted>{textComponents}</Muted>
+              <Muted>{textAssets}</Muted>
+            </div>
         : <Muted>
             {`Loading components... [${props.build.loaded}/${props.build.total}]`}
           </Muted>

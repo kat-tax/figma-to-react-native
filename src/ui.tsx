@@ -8,6 +8,7 @@ import {useState, useEffect} from 'preact/hooks';
 import {useWindowResize, render} from '@create-figma-plugin/ui';
 import {init, auth, ErrorBoundary} from 'interface/telemetry';
 import {App} from 'interface/App';
+import * as $ from 'interface/store';
 
 import type {AppPages} from 'types/app';
 import type {EventAppReady, EventAppStart} from 'types/events';
@@ -20,6 +21,10 @@ function Main() {
   useEffect(() => on<EventAppStart>('APP_START', (page, user) => {
     setPage(page);
     auth(user);
+    $.provider.awareness.setLocalState({
+      page,
+      user,
+    });
   }), []);
 
   useEffect(() => {

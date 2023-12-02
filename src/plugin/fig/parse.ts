@@ -3,15 +3,10 @@ import {createIdentifierCamel} from 'common/string';
 import {validate} from './validate';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
-import type {Settings} from 'types/settings';
 
 const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'SECTION', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
-export default async function parse(
-  component: ComponentNode,
-  _settings: Settings,
-  isPreview: boolean,
-): Promise<ParseData> {
+export default async function parse(component: ComponentNode): Promise<ParseData> {
   // Make sure component can be processed
   try {
     validate(component);
@@ -25,20 +20,20 @@ export default async function parse(
   const data = crawl(component);
 
   // Generated styles and assets
-  const [stylesheet, {assets, hasImage}] = await Promise.all([
+  const [stylesheet, {assets, assetMap, hasRaster}] = await Promise.all([
     convertStyles(data.meta.styleNodes, data.variants),
-    convertAssets(data.meta.assetNodes, isPreview),
+    convertAssets(data.meta.assetNodes),
   ]);
 
   // Add image primitive if needed
-  if (hasImage) {
+  if (hasRaster) {
     data.meta.primitives.add('Image');
   }
 
   // Profile
-  //console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet, assets);
+  console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet, assets);
 
-  return {...data, stylesheet, assets};
+  return {...data, stylesheet, assets, assetMap};
 }
 
 function crawl(node: ComponentNode) {
@@ -54,7 +49,7 @@ function crawl(node: ComponentNode) {
   frame && meta.styleNodes.add(frame.node.id);
 
   // Profile
-  //console.log(`[fig/parse/crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, tree);
+  console.log(`[fig/parse/crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, tree);
 
   return {
     tree,

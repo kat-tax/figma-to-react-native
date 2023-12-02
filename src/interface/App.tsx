@@ -1,6 +1,5 @@
 import {h, Fragment} from 'preact';
 import {useState} from 'preact/hooks';
-import {LoadingIndicator, IconSearch32} from '@create-figma-plugin/ui';
 import {Tabs, Tab, Bar, Link, Gear, Back} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
 import {StatusBar} from 'interface/base/StatusBar';
@@ -15,12 +14,16 @@ import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentStory} from 'interface/views/ComponentStory';
 import {ComponentPreview} from 'interface/views/ComponentPreview';
 
+import {ModalGPTVision} from 'interface/views/ModalGPTVision';
+
 import {useBuild} from 'interface/hooks/useBuild';
 import {useConfig} from 'interface/hooks/useConfig';
 import {useEditor} from 'interface/hooks/useEditor';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useNavigation} from 'interface/hooks/useNavigation';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
+
+import * as F from '@create-figma-plugin/ui';
 
 import type {AppPages} from 'types/app';
 
@@ -31,6 +34,7 @@ interface AppProps {
 export function App(props: AppProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState(false);
+  const [promptOpen, setPromptOpen] = useState(false);
 
   const project = useProjectConfig();
   const isDark = useDarkMode();
@@ -65,13 +69,32 @@ export function App(props: AppProps) {
             <Link value="story" title="Component story">
               Story
             </Link>
+            {nav.tab === 'code' &&
+              <Fragment>
+                <div style={{flex: 1}}/>
+                <div
+                  className="tab-btn"
+                  title="GPT-4 Vision"
+                  onClick={() => setPromptOpen(true)}>
+                  <F.Modal
+                    title="GPT-4 Vision"
+                    open={promptOpen}
+                    onOverlayClick={() => setPromptOpen(false)}
+                    onEscapeKeyDown={() => setPromptOpen(false)}
+                    onCloseButtonClick={() => setPromptOpen(false)}>
+                    <ModalGPTVision {...{project, build}}/>
+                  </F.Modal>
+                  <F.IconVisibilityVisible32/>
+                </div>
+              </Fragment>
+            }
           </div>
         : <Fragment>
           {searchMode
           ? <SearchBar {...{searchQuery, setSearchQuery, setSearchMode}}/>
           : <div className="tab-bar-nav">
               <div className="tab-btn" title="Search components" onClick={() => setSearchMode(true)}>
-                <IconSearch32/>
+                <F.IconSearch32/>
               </div>
               <Link value="components" title="Project components">
                 Components
@@ -122,7 +145,7 @@ export function App(props: AppProps) {
     </Tabs>
   ) : (
     <div className="center fill">
-      <LoadingIndicator/>
+      <F.LoadingIndicator/>
     </div>
   );
 }

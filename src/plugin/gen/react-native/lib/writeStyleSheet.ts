@@ -16,7 +16,7 @@ export function writeStyleSheet(
 ) {
   const _writeStyleSheet = () => {
     const define = metadata.isPreview ? '' : 'const ';
-    writer.write(`${define}${metadata.stylePrefix} = createStyles(theme => (`).inlineBlock(() => {
+    writer.write(`${define}${metadata.stylePrefix} = createStyleSheet(theme => (`).inlineBlock(() => {
       // Frame styles
       if (includeFrame && data.frame)
         writeStyle(writer, 'frame', {overflow: 'hidden', ...data.stylesheet[data.frame.node.id]});

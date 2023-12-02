@@ -1,9 +1,11 @@
 export type ComponentBuild = {
   roster: ComponentRoster,
+  files: Record<string, string>,
   pages: Array<string>,
   total: number,
   loaded: number,
   assets: number,
+  index: string,
 }
 
 export type ComponentRoster = Record<string, ComponentEntry>

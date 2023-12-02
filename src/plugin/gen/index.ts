@@ -2,9 +2,9 @@ import {emit} from '@create-figma-plugin/utilities';
 import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/traverse';
 import {createIdentifierPascal} from 'common/string';
 import {wait} from 'common/delay';
-
-import * as config from 'plugin/config';
+import {generateIndex} from './common/generateIndex';
 import * as reactNative from './react-native';
+import * as config from 'plugin/config';
 
 import type {Settings} from 'types/settings';
 import type {ComponentData, ComponentRoster} from 'types/component';
@@ -99,10 +99,14 @@ export async function startCompiler(onUpdate: () => void) {
 }
 
 async function compile(components: Set<ComponentNode>) {
+  const _names = new Set<string>();
+  const _files: Record<string, string> = {};
   const _roster: ComponentRoster = {};
+
   let _total = 0;
   let _loaded = 0;
   let _assets = 0;
+
   for (const component of components) {
     if (component.name.startsWith('ph:')) continue;
     const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
@@ -111,9 +115,14 @@ async function compile(components: Set<ComponentNode>) {
     const page = getPage(masterNode).name;
     const key = component.key;
     const id = masterNode.id;
+    _names.add(name);
+    _files[name] = component.key;
     _roster[component.key] = {id, key, name, page, loading: true};
     _total++;
   }
+
+  const index = generateIndex(_names, config.state, true);
+
   for await (const component of components) {
     wait(1); // Prevent UI from freezing
     if (component.name.startsWith('ph:')) continue;
@@ -130,11 +139,13 @@ async function compile(components: Set<ComponentNode>) {
       _cache[component.id] = bundle;
       component.setPluginData('bundle', JSON.stringify(bundle));
       emit<EventComponentBuild>('COMPONENT_BUILD', {
-        pages: pages,
+        index,
+        pages,
         total: _total,
         loaded: _loaded,
         assets: _assets,
         roster: _roster,
+        files: _files,
       }, bundle);
       console.log('[compile]', component.name, component.key, component, bundle);
     } catch (e) {

@@ -1,4 +1,4 @@
 declare module 'styles' {
   export function useStyles(stylesheet?: any): any;
-  export function createStyles(theme: any): any;
+  export function createStyleSheet(theme: any): any;
 }

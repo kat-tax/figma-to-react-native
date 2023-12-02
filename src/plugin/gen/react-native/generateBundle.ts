@@ -4,6 +4,7 @@ import {propsToString} from 'plugin/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 import {generatePrimitives} from '../primitives';
 import {generateIndex} from '../common/generateIndex';
+
 import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
 
@@ -47,7 +48,7 @@ export async function generateBundle(
   }
 
   // Parse nodes
-  const data = await parseFigma(target, settings, isPreviewMode);
+  const data = await parseFigma(target);
   if (!data) {
     return emptyBundle;
   }

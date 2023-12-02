@@ -52,7 +52,7 @@ export default async function() {
     setInterval(() => {
       if (_page !== 'theme') return;
       const theme = gen.generateTheme(config.state);
-      emit<T.EventPreviewTheme>('PREVIEW_THEME', theme);
+      emit<T.EventProjectTheme>('PROJECT_THEME', theme);
     }, 500);
 
     // Start component compiler, update code on change

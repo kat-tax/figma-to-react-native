@@ -90,11 +90,11 @@ function writeChild(
     if (asset) {
       // Vector
       if (asset.isVector) {
-        const vectorTag = isPreview ? asset.data : '<' + asset.name + '/>'
+        const vectorTag = isPreview ? asset.embed : '<' + asset.name + '/>'
         writer.writeLine(vectorTag);
       // Raster
       } else {
-        const uri = isPreview ? `'${asset.data}'` : asset.name;
+        const uri = isPreview ? `'${asset.embed}'` : asset.name;
         const style = `{width: ${asset.width}, height: ${asset.height}}`;
         writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} contentFit="cover"/>`);
       }

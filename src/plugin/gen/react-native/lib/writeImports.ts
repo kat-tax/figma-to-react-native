@@ -42,7 +42,7 @@ export function writeImports(
 
   // Import UniStyles helpers (if not preview mode)
   if (!metadata.isPreview) {
-    writer.write(`import {useStyles, createStyles} from`);
+    writer.write(`import {useStyles, createStyleSheet} from`);
     writer.space();
     writer.quote(`styles`);
     writer.write(';');

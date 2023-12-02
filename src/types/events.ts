@@ -34,11 +34,6 @@ export interface EventSelectComponent extends EventHandler {
   handler: (key: string) => void;
 }
 
-export interface EventPreviewTheme extends EventHandler {
-  name: 'PREVIEW_THEME';
-  handler: (theme: string) => void;
-}
-
 export interface EventComponentBuild extends EventHandler {
   name: 'COMPONENT_BUILD';
   handler: (build: ComponentBuild, component: ComponentData) => void;
@@ -47,6 +42,11 @@ export interface EventComponentBuild extends EventHandler {
 export interface EventProjectBuild extends EventHandler {
   name: 'PROJECT_BUILD';
   handler: (project: ProjectBuild, config: ProjectConfig, user: User) => void;
+}
+
+export interface EventProjectTheme extends EventHandler {
+  name: 'PROJECT_THEME';
+  handler: (theme: string) => void;
 }
 
 export interface EventProjectExport extends EventHandler {

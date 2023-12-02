@@ -24,11 +24,6 @@ export function generateTheme(settings: Settings, isPreview?: boolean) {
   });
   writer.blankLine();
 
-  // Preview mode directly embeds Unistyle helpers
-  if (isPreview) {
-    writer.writeLine(`export const {createStyles, useStyles} = Styles.createUnistyles(breakpoints);`);
-  }
-
   // Found theme variable collection, convert modes to themes
   if (theme) {
     theme.modes.forEach(mode => {

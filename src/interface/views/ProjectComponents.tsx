@@ -2,6 +2,7 @@ import {Fzf, byLengthAsc} from 'fzf';
 import {h, Fragment} from 'preact';
 import {useState, useMemo, useEffect} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
+import {getComponentCode} from 'interface/store';
 
 import * as F from '@create-figma-plugin/ui';
 
@@ -138,8 +139,10 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
       }}
       onDragStart={(e) => {
         setDragging(key);
-        e.dataTransfer.setData('text', key);
-        e.dataTransfer.effectAllowed = 'move';
+        const $code = getComponentCode(key);
+        const code = $code.toString();
+        e.dataTransfer.setData('text/plain', code);
+        e.dataTransfer.effectAllowed = 'link';
       }}>
       <F.Layer
         disabled={loading}

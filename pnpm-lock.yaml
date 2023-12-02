@@ -37,15 +37,24 @@ dependencies:
   deep-object-diff:
     specifier: ^1.1.9
     version: 1.1.9
+  esbuild-plugin-wasm:
+    specifier: ^1.1.0
+    version: 1.1.0
   esbuild-wasm:
     specifier: ^0.17.19
     version: 0.17.19
   fzf:
     specifier: ^0.5.2
     version: 0.5.2
+  hash-wasm:
+    specifier: ^4.11.0
+    version: 4.11.0
   lodash.camelcase:
     specifier: ^4.3.0
     version: 4.3.0
+  loro-crdt:
+    specifier: ^0.5.0
+    version: 0.5.0
   monaco-editor:
     specifier: ^0.44.0
     version: 0.44.0
@@ -3812,6 +3821,11 @@ packages:
       escape-html: 1.0.3
     dev: true
 
+  /esbuild-plugin-wasm@1.1.0:
+    resolution: {integrity: sha512-0bQ6+1tUbySSnxzn5jnXHMDvYnT0cN/Wd4Syk8g/sqAIJUg7buTIi22svS3Qz6ssx895NT+TgLPb33xi1OkZig==}
+    engines: {node: '>=0.10.0'}
+    dev: false
+
   /esbuild-wasm@0.17.19:
     resolution: {integrity: sha512-X9UQEMJMZXwlGCfqcBmJ1jEa+KrLfd+gCBypO/TSzo5hZvbVwFqpxj1YCuX54ptTF75wxmrgorR4RL40AKtLVg==}
     engines: {node: '>=12'}
@@ -4176,6 +4190,10 @@ packages:
     dependencies:
       function-bind: 1.1.1
     dev: true
+
+  /hash-wasm@4.11.0:
+    resolution: {integrity: sha512-HVusNXlVqHe0fzIzdQOGolnFN6mX/fqcrSAOcTBXdvzrXVHwTz11vXeKRmkR5gTuwVpvHZEIyKoePDvuAR+XwQ==}
+    dev: false
 
   /hermes-estree@0.12.0:
     resolution: {integrity: sha512-+e8xR6SCen0wyAKrMT3UD0ZCCLymKhRgjEB5sS28rKiFir/fXgLoeRilRUssFCILmGHb+OvHDUlhxs0+IEyvQw==}
@@ -4732,6 +4750,16 @@ packages:
     hasBin: true
     dependencies:
       js-tokens: 4.0.0
+
+  /loro-crdt@0.5.0:
+    resolution: {integrity: sha512-O7vBYOI1bGQZKlF2UabGVMbIqNtyHKsFUfz3gAy65EzNhFdxFV5BMlm5ViUMd2RAjKHQ8VKuTabV7zeim18cOw==}
+    dependencies:
+      loro-wasm: 0.5.0
+    dev: false
+
+  /loro-wasm@0.5.0:
+    resolution: {integrity: sha512-IvKvlo7cGJo/sR8loy45fugYko3rCGtanphT7dHD9cYJLiOHeKQqTlXYVPmLmfED6ALqfNxpvRWQvLglMW6EtQ==}
+    dev: false
 
   /lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
