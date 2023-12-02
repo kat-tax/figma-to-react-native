@@ -1,5 +1,15 @@
+import {emit} from '@create-figma-plugin/utilities';
+import {getSelectedComponent} from 'plugin/fig/traverse';
 import {F2RN_NAVIGATE_NS} from 'config/env';
 import {AppPages} from 'types/app';
+
+import type {EventSelectComponent} from 'types/events';
+
+export function targetSelectedComponent() {
+  const component = getSelectedComponent();
+  if (!component) return;
+  emit<EventSelectComponent>('SELECT_COMPONENT', component.key);
+}
 
 export async function loadCurrentPage(): Promise<AppPages | null> {
   try {

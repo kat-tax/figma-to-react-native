@@ -9,10 +9,10 @@ const indent = defaultConfig?.writer?.indentNumberOfSpaces || 2;
 const configRaw = JSON.stringify(defaultConfig, undefined, indent);
 
 export type ConfigData = {
-  config: Settings;
-  raw: string;
-  locked: MutableRef<boolean>;
-  update: (payload: string, force?: boolean) => void;
+  config: Settings,
+  raw: string,
+  locked: MutableRef<boolean>,
+  update: (payload: string, force?: boolean) => void,
 }
 
 export function useConfig(): ConfigData {

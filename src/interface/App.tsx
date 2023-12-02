@@ -1,88 +1,124 @@
-import {h} from 'preact';
-import {emit} from '@create-figma-plugin/utilities';
-import {LoadingIndicator} from '@create-figma-plugin/ui';
-import {Tabs, Tab, Bar, Link, Gear} from 'interface/base/Tabs';
-import {titleCase} from 'common/string';
+import {h, Fragment} from 'preact';
+import {useState} from 'preact/hooks';
+import {LoadingIndicator, IconSearch32} from '@create-figma-plugin/ui';
+import {Tabs, Tab, Bar, Link, Gear, Back} from 'interface/base/Tabs';
+import {SearchBar} from 'interface/base/SearchBar';
+import {StatusBar} from 'interface/base/StatusBar';
 
-import {Code} from 'interface/pages/Code';
-import {Story} from 'interface/pages/Story';
-import {Theme} from 'interface/pages/Theme';
-import {Export} from 'interface/pages/Export';
-import {Preview} from 'interface/pages/Preview';
-import {Settings} from 'interface/pages/Settings';
+import {ProjectTheme} from 'interface/views/ProjectTheme';
+import {ProjectAssets} from 'interface/views/ProjectAssets';
+import {ProjectExport} from 'interface/views/ProjectExport';
+import {ProjectSettings} from 'interface/views/ProjectSettings';
+import {ProjectComponents} from 'interface/views/ProjectComponents';
 
+import {ComponentCode} from 'interface/views/ComponentCode';
+import {ComponentStory} from 'interface/views/ComponentStory';
+import {ComponentPreview} from 'interface/views/ComponentPreview';
+
+import {useBuild} from 'interface/hooks/useBuild';
 import {useConfig} from 'interface/hooks/useConfig';
 import {useEditor} from 'interface/hooks/useEditor';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
+import {useNavigation} from 'interface/hooks/useNavigation';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
-import {usePreviewComponent} from 'interface/hooks/usePreviewComponent';
 
 import type {AppPages} from 'types/app';
-import type {EventAppNavigate} from 'types/events';
-
-const PAGES: AppPages[] = [
-  'code',
-  'preview',
-  'story',
-  'theme',
-  'export',
-  'settings',
-];
 
 interface AppProps {
   startPage: AppPages | null,
 }
 
 export function App(props: AppProps) {
-  const isDarkMode = useDarkMode();
-  const component = usePreviewComponent();
-  const settings = useConfig();
-  const project = useProjectConfig();
-  const monaco = useEditor(settings.config, component?.links);
-  const isReady = Boolean(props.startPage && project && monaco);
-  const options = {
-    ...settings.config.monaco.general,
-    tabSize: settings.config.writer.indentNumberOfSpaces,
-    theme: isDarkMode ? 'vs-dark' : 'vs',
-  };
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchMode, setSearchMode] = useState(false);
 
-  const navigate = (value: AppPages) => {
-    if (PAGES.includes(value)) {
-      emit<EventAppNavigate>('APP_NAVIGATE', value);
-    }
+  const project = useProjectConfig();
+  const isDark = useDarkMode();
+  const build = useBuild();
+  const user = useConfig();
+  const nav = useNavigation(build);
+  const monaco = useEditor(user.config/*, component?.links*/);
+
+  const target = nav.componentKey;
+  const setTarget = nav.setComponentKey;
+  const isReady = Boolean(build && props.startPage && project && monaco);
+  const options = {
+    ...user.config.monaco.general,
+    tabSize: user.config.writer.indentNumberOfSpaces,
+    theme: isDark ? 'vs-dark' : 'vs',
   };
 
   return isReady ? (
-    <Tabs defaultValue={props.startPage} onValueChange={navigate}>
-      <Bar loop aria-label="main menu">
-        {PAGES.filter(e => !e.includes('settings')).map(page => (
-          <Link key={page} value={page} title={`View ${page}`}>
-            {titleCase(page)}
-          </Link>
-        ))}
-        <div style={{flex: 1}}/>
-        <Link value="settings" title="Configure plugin" hasIcon>
-          <Gear {...{isDarkMode}}/>
-        </Link>
+    <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
+      <Bar loop aria-label="menu">
+        {Boolean(target)
+        ? <div className="tab-bar-nav">
+            <div className="tab-btn" title="Browse components" onClick={nav.gotoOverview}>
+              <Back {...{isDark}}/>
+            </div>
+            <Link value="code" title="Component code">
+              Code
+            </Link>
+            <Link value="preview" title="Component preview">
+              Preview
+            </Link>
+            <Link value="story" title="Component story">
+              Story
+            </Link>
+          </div>
+        : <Fragment>
+          {searchMode
+          ? <SearchBar {...{searchQuery, setSearchQuery, setSearchMode}}/>
+          : <div className="tab-bar-nav">
+              <div className="tab-btn" title="Search components" onClick={() => setSearchMode(true)}>
+                <IconSearch32/>
+              </div>
+              <Link value="components" title="Project components">
+                Components
+              </Link>
+              <Link value="assets" title="Project assets">
+                Assets
+              </Link>
+              <Link value="theme" title="Project theme">
+                Theme
+              </Link>
+              <Link value="export" title="Project export">
+                Export
+              </Link>
+              <div style={{flex: 1}}/>
+              <Link value="settings" title="Configure plugin" hasIcon>
+                <Gear {...{isDark}}/>
+              </Link>
+            </div>
+          }
+          </Fragment>
+        }
       </Bar>
-      <Tab value="code">
-        <Code {...{component, options, monaco}}/>
+      <Tab value="components">
+        <ProjectComponents {...{build, searchMode, searchQuery, setTarget}}/>
       </Tab>
-      <Tab value="preview">
-        <Preview {...{component, settings: settings.config}}/>
-      </Tab>
-      <Tab value="story">
-        <Story {...{component, options, monaco}}/>
+      <Tab value="assets">
+        <ProjectAssets {...{build, searchMode, searchQuery, setTarget}}/>
       </Tab>
       <Tab value="theme">
-        <Theme {...{options, monaco}}/>
+        <ProjectTheme {...{options, monaco}}/>
       </Tab>
       <Tab value="export">
-        <Export config={project}/>
+        <ProjectExport {...{project, build}}/>
       </Tab>
       <Tab value="settings">
-        <Settings {...{settings, options, monaco}}/>
+        <ProjectSettings {...{settings: user, options, monaco}}/>
       </Tab>
+      <Tab value="code">
+        <ComponentCode {...{target, build, options, monaco}}/>
+      </Tab>
+      <Tab value="preview">
+        <ComponentPreview {...{target, build, settings: user.config}}/>
+      </Tab>
+      <Tab value="story">
+        <ComponentStory {...{target, options, monaco}}/>
+      </Tab>
+      <StatusBar {...{project, build: build, target, setTarget}}/>
     </Tabs>
   ) : (
     <div className="center fill">

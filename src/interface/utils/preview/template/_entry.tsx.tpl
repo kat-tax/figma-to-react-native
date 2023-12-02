@@ -7,8 +7,6 @@ import {Logtail} from '@logtail/browser';
 
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 
-__COMPONENT_DEF__
-
 export function Main() {
   return (
     <ErrorBoundary fallback={

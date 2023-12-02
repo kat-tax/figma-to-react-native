@@ -3,25 +3,28 @@ import MonacoReact from '@monaco-editor/react';
 import {h, Fragment} from 'preact';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {Watermark} from 'interface/base/Watermark';
+import * as $ from 'interface/store';
 
-import type {PreviewComponent} from 'types/preview';
 import type {Settings} from 'types/settings';
 
-interface StoryProps {
-  component: PreviewComponent;
+interface ComponentStoryProps {
+  target: string;
   options: Settings['monaco']['general'];
 }
 
-export function Story(props: StoryProps) {
+export function ComponentStory(props: ComponentStoryProps) {
+  const component = $.components.get(props.target);
+  const story = $.getComponentStory(props.target);
   return (
     <Fragment>
-      {!props.component?.story &&
+      {!story &&
         <Watermark/>
       }
+      {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path={`${props.component?.name}.story.ts`}
-        value={props.component?.story}
+        path={`figma://model/${component?.name}.story.ts`}
+        value={story}
         theme={props.options?.theme}
         options={{...props.options, readOnly: true}}
         loading={<LoadingIndicator/> as JSX.Element}

@@ -1,40 +1,52 @@
 import {build} from 'interface/utils/build';
 import {notify} from 'interface/telemetry';
 // @ts-ignore
-import iframe from './template/iframe.tpl.html';
+import iframe from './template/iframe.html.tpl';
+// @ts-ignore
 import imports from './template/importMap.json';
 // @ts-ignore
-import entry from './template/_entry.tpl';
-import loader from './template/_loader.tpl';
+import _entry from './template/_entry.tsx.tpl';
+// @ts-ignore
+import _loader from './template/_loader.tsx.tpl';
 
 import type {Settings} from 'types/settings';
+import type {ComponentRoster} from 'types/component';
 
-export async function preview(component: string, _name: string, tag: string, settings: Settings) {
-  const previewComponent = atob(entry.toString());
+export async function preview(
+  tag: string,
+  settings: Settings,
+  roster: ComponentRoster,
+) {
+  const previewComponent = atob(_entry.toString());
   const previewSettings = {...settings};
   previewSettings.esbuild.jsx = 'automatic';
   previewSettings.esbuild.jsxDev = true;
-  //previewSettings.esbuild.sourcefile = `${name}.tsx`;
-  //previewSettings.esbuild.sourcemap = 'inline';
-  //previewSettings.esbuild.sourcesContent = true;
-  try {
-    const sourceCode = previewComponent
-      .replace('__COMPONENT_DEF__', component)
-      .replace('__COMPONENT_REF__', tag);
-    const {code} = await build(sourceCode, previewSettings);
-    return code
-      // Replace theme default export with explicit variable
-      .replace(/stdin_default as default\,?/, '')
-      .replace('var stdin_default', 'var theme');
-  } catch (e) {
-    notify(e, 'Failed to build preview component');
-    console.error('[preview] [component]', e.toString());
-    // alert('Figma -> React Native: Preview Component Error. Check the console for details.');
+
+  /*const files: Record<string, string> = {};
+  for (const [key, data] of Object.entries(roster)) {
+    try {
+      const {code} = await build(data.component.code, previewSettings);
+      files[key] = code;
+    } catch (e) {
+      notify(e, `Failed to build preview component: ${name}`);
+      console.error('[preview] [component]', e.toString());
+    }
   }
+  try {
+    const app = previewComponent.replace('__COMPONENT_REF__', tag);
+    const entry = await build(app, previewSettings);
+    const output = bundle(entry.code, {files});
+    console.log('[preview] [output]', output.code, files);
+    return output.code;
+  } catch (e) {
+    notify(e, 'Failed to build preview app');
+    console.error('[preview] [component]', e.toString());
+  }
+  */
 }
 
 export async function init(settings: Settings) {
-  const previewLoader = atob(loader.toString());
+  const previewLoader = atob(_loader.toString());
   const loaderSettings = {...settings};
   loaderSettings.esbuild.jsx = 'transform';
   loaderSettings.esbuild.jsxDev = false;

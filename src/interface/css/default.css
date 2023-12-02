@@ -121,6 +121,18 @@ iframe {
   overflow: auto;
 }
 
+.tab-bar > div {
+  width: 100%;
+}
+
+.tab-bar-nav {
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  flex: 1;
+  padding: 4px;
+}
+
 .tab {
   font-family: var(--font-stack);
   font-size: var(--font-size-xsmall);
@@ -154,7 +166,79 @@ iframe {
   opacity: 1;
 }
 
+.tab-btn {
+  width: 32;
+  height: 32;
+  padding: 0;
+  border: 0;
+  opacity: 0.6;
+  border-radius: 2px;
+  display: flex;
+  background: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.tab-btn:hover {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
 .tab-view {
   flex: 1;
   overflow: auto;
+}
+
+/* Status Bar */
+
+.status-bar {
+  width: 100%;
+  height: 27px;
+  padding-right: 10px;
+  z-index: 99999;
+  gap: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--figma-color-border);
+}
+
+.status-actions {
+  display: flex;
+  padding-left: 10px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Component */
+
+.components {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0px;
+}
+
+/* Disclosure override */
+.components > div {
+  padding: 0;
+  width: 100%;
+}
+
+.component {
+  background-color: #000000;
+  border-radius: 4px;
+  height: 120px;
+  width: 200px;
+}
+
+.components label {
+  width: 100%;
+}
+
+.components .highlight {
+  text-decoration: underline;
+  font-weight: 600;
 }

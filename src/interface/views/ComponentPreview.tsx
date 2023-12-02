@@ -1,26 +1,33 @@
-import {emit} from '@create-figma-plugin/utilities';
 import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
-import {init, preview} from 'interface/utils/preview';
+import {emit} from '@create-figma-plugin/utilities';
 import {Watermark} from 'interface/base/Watermark';
+import {init, preview} from 'interface/utils/preview';
+import * as $ from 'interface/store';
 
-import type {PreviewComponent} from 'types/preview';
-import type {EventFocus} from 'types/events';
+import type {ComponentBuild} from 'types/component';
+import type {EventFocusNode} from 'types/events';
 import type {Settings} from 'types/settings';
 
-interface PreviewProps {
-  component: PreviewComponent,
-  settings: Settings;
+interface ComponentPreviewProps {
+  target: string,
+  build: ComponentBuild,
+  settings: Settings,
 }
 
-export function Preview(props: PreviewProps) {
-  const {component, settings} = props;
+export function ComponentPreview(props: ComponentPreviewProps) {
+  const {target, settings} = props;
+  const component = $.components.get(target);
   const [src, setSrc] = useState('');
 
   const iframe = useRef<HTMLIFrameElement>(null);
 
-  const update = useCallback((preview: string) => {
-    iframe.current?.contentWindow?.postMessage({type: 'preview', preview, name: component?.name});
+  const update = useCallback((bundle: string) => {
+    iframe.current?.contentWindow?.postMessage({
+      type: 'preview',
+      bundle,
+      name: component?.name,
+    });
   }, [iframe, component]);
 
   const inspect = useCallback((enabled: boolean) => {
@@ -32,10 +39,10 @@ export function Preview(props: PreviewProps) {
   }, [settings]);
 
   const render = useCallback(() => {
-    if (!component || !component.preview) return;
+    if (!component) return;
     const tag = '<' + component.name + component.props + '/>';
-    preview(component.preview, component.name, tag, settings).then(update);
-    console.debug('[preview]', tag, component.preview);
+    //preview(tag, settings, props.build.roster).then(update);
+    console.debug('[preview]', tag, component);
   }, [component, settings]);
 
   // Initialize the loader
@@ -48,7 +55,7 @@ export function Preview(props: PreviewProps) {
   useEffect(() => {
     const onFocus = (e) => {
       if (e.data?.type === 'focus' && e.data.id) {
-        emit<EventFocus>('FOCUS', e.data.id);
+        emit<EventFocusNode>('FOCUS', e.data.id);
       }
     };
     addEventListener('message', onFocus);
@@ -60,12 +67,12 @@ export function Preview(props: PreviewProps) {
     if (!src) return;
 
     const onKeydown = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Meta') {
+      if (e.ctrlKey || e.key === 'Meta') {
         inspect(true);
       }
     };
     const onKeyup = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Meta') {
+      if (e.ctrlKey || e.key === 'Meta') {
         inspect(false);
       }
     };
@@ -80,7 +87,7 @@ export function Preview(props: PreviewProps) {
 
   return (
     <Fragment>
-      {!component?.preview &&
+      {!component &&
         <Watermark/>
       }
       <iframe

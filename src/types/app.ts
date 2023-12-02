@@ -1,4 +1,5 @@
 export type AppPages =
+  | 'components'
   | 'code'
   | 'preview'
   | 'story'

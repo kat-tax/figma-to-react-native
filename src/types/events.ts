@@ -1,8 +1,8 @@
-import {EventHandler} from '@create-figma-plugin/utilities';
-
+import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {Settings} from 'types/settings';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
+import type {ComponentData, ComponentBuild} from 'types/component';
 
 export interface EventAppReady extends EventHandler {
   name: 'APP_READY';
@@ -29,9 +29,9 @@ export interface EventConfigUpdate extends EventHandler {
   handler: (config: Settings) => void;
 }
 
-export interface EventPreviewComponent extends EventHandler {
-  name: 'PREVIEW_COMPONENT';
-  handler: (bundle: string) => void;
+export interface EventSelectComponent extends EventHandler {
+  name: 'SELECT_COMPONENT';
+  handler: (key: string) => void;
 }
 
 export interface EventPreviewTheme extends EventHandler {
@@ -39,9 +39,9 @@ export interface EventPreviewTheme extends EventHandler {
   handler: (theme: string) => void;
 }
 
-export interface EventProjectExport extends EventHandler {
-  name: 'PROJECT_EXPORT';
-  handler: (config: ProjectConfig) => void;
+export interface EventComponentBuild extends EventHandler {
+  name: 'COMPONENT_BUILD';
+  handler: (build: ComponentBuild, component: ComponentData) => void;
 }
 
 export interface EventProjectBuild extends EventHandler {
@@ -49,17 +49,27 @@ export interface EventProjectBuild extends EventHandler {
   handler: (project: ProjectBuild, config: ProjectConfig, user: User) => void;
 }
 
+export interface EventProjectExport extends EventHandler {
+  name: 'PROJECT_EXPORT';
+  handler: (config: ProjectConfig) => void;
+}
+
 export interface EventProjectConfigLoad extends EventHandler {
   name: 'PROJECT_CONFIG_LOAD';
   handler: (config: ProjectConfig) => void;
 }
 
-export interface EventFocus extends EventHandler {
+export interface EventFocusNode extends EventHandler {
   name: 'FOCUS';
-  handler: (nodeId: string) => void;
+  handler: (nodeId: string | null) => void;
 }
 
 export interface EventNotify extends EventHandler {
   name: 'NOTIFY';
   handler: (message: string) => void;
+}
+
+export interface DropComponentHandler extends EventHandler {
+  name: 'DROP_COMPONENT'
+  handler: (component: ComponentData) => void
 }

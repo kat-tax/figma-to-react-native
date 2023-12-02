@@ -20,54 +20,47 @@
       }
     </style>
     <style>
-.root {
-  width: 100%;
-  height: 20px;
-  cursor: pointer;
-  display: flex;
-  position: relative;
-  align-items: center;
-  user-select: none;
-  touch-action: none;
-}
-
-.track {
-  height: 4px;
-  position: relative;
-  flex-grow: 1;
-  border-radius: 9999px;
-  background-color: #D2D6D8;
-}
-
-.range {
-  height: 100%;
-  position: absolute;
-  border-radius: 9999px;
-  background-color: #5A48F5;
-}
-
-.thumb {
-  width: 9.5px;
-  height: 9.5px;
-  display: block;
-  border-radius: 9999px;
-  background-color: #5A48F5;
-  box-shadow: #FFFFFF 0 0 0 4.5px;
-  transition: scale .3s ease;
-}
-
-.thumb:hover {
-  scale: 1.1;
-}
-
-.thumb:active {
-  scale: 1.3;
-}
-
-.thumb:focus {
-  outline: none;
-}
-
+     .root {
+        width: 100%;
+        height: 20px;
+        cursor: pointer;
+        display: flex;
+        position: relative;
+        align-items: center;
+        user-select: none;
+        touch-action: none;
+      }
+      .track {
+        height: 4px;
+        position: relative;
+        flex-grow: 1;
+        border-radius: 9999px;
+        background-color: #D2D6D8;
+      }
+      .range {
+        height: 100%;
+        position: absolute;
+        border-radius: 9999px;
+        background-color: #5A48F5;
+      }
+      .thumb {
+        width: 9.5px;
+        height: 9.5px;
+        display: block;
+        border-radius: 9999px;
+        background-color: #5A48F5;
+        box-shadow: #FFFFFF 0 0 0 4.5px;
+        transition: scale .3s ease;
+      }
+      .thumb:hover {
+        scale: 1.1;
+      }
+      .thumb:active {
+        scale: 1.3;
+      }
+      .thumb:focus {
+        outline: none;
+      }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap">
