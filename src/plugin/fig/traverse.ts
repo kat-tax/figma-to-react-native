@@ -3,7 +3,6 @@ export function getSelectedComponent(): ComponentNode {
   const {selection} = figma.currentPage;
   if (selection.length === 0) return null;
   const components = Array.from(getComponentTargets(selection));
-  console.log('[getSelectedComponent]', components);
   return components.length > 0 ? components[0] : null;
 }
 

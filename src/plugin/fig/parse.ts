@@ -1,5 +1,7 @@
-import {getInstanceInfo, isNodeVisible, getCustomReaction, convertAssets, convertStyles} from 'plugin/fig/lib';
+import {getInstanceInfo, isNodeVisible, getCustomReaction} from 'plugin/fig/lib';
 import {createIdentifierCamel} from 'common/string';
+import {convertStyles} from './styles';
+import {convertAssets} from './assets';
 import {validate} from './validate';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
@@ -20,7 +22,7 @@ export default async function parse(component: ComponentNode): Promise<ParseData
   const data = crawl(component);
 
   // Generated styles and assets
-  const [stylesheet, {assets, assetMap, hasRaster}] = await Promise.all([
+  const [stylesheet, {assetData, assetMap, hasRaster}] = await Promise.all([
     convertStyles(data.meta.styleNodes, data.variants),
     convertAssets(data.meta.assetNodes),
   ]);
@@ -31,9 +33,9 @@ export default async function parse(component: ComponentNode): Promise<ParseData
   }
 
   // Profile
-  console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet, assets);
+  console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
 
-  return {...data, stylesheet, assets, assetMap};
+  return {...data, stylesheet, assetData, assetMap};
 }
 
 function crawl(node: ComponentNode) {

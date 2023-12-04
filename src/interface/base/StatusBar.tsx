@@ -12,15 +12,16 @@ interface StatusBarProps {
 }
 
 export function StatusBar(props: StatusBarProps) {
+  const assetCount = props.build.assets ? Object.keys(props.build.assets).length : 0;
   const isFullyLoaded = props.build.loaded === props.build.total;
   const textComponents = `${props.build.total} component${props.build.total === 1 ? '' : 's'}`;
-  const textAssets = `${props.build.assets} asset${props.build.assets === 1 ? '' : 's'}`;
+  const textAssets = `${assetCount} asset${assetCount === 1 ? '' : 's'}`;
   const components: Array<DropdownOption> = props.build?.roster
     ? Object
       .entries(props.build.roster)
       .sort(([,a], [,b]) => a.name.localeCompare(b.name))
-      .map(([key, component]) => ({
-        value: key,
+      .map(([name, component]) => ({
+        value: name,
         text: component.name,
         disabled: component.loading,
       }))

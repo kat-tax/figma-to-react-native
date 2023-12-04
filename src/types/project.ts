@@ -8,7 +8,7 @@ export interface ProjectBuild {
   package?: ProjectBuildPackage,
 }
 
-export type ProjectBuildAssets = Array<[string, Uint8Array]>;
+export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;
 export type ProjectBuildComponents = Array<[string, string, string, string]>;
 export type ProjectBuildPackage = {
   name: string,

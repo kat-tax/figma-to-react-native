@@ -8,10 +8,6 @@ export function writeImports(
   writer: CodeBlockWriter,
   data: ParseData,
   settings: Settings,
-  metadata: {
-    stylePrefix: string,
-    isPreview?: boolean, 
-  }
 ) {
   // Import React
   writer.write('import React from');
@@ -40,14 +36,12 @@ export function writeImports(
   writer.write(';');
   writer.newLine();
 
-  // Import UniStyles helpers (if not preview mode)
-  if (!metadata.isPreview) {
-    writer.write(`import {useStyles, createStyleSheet} from`);
-    writer.space();
-    writer.quote(`styles`);
-    writer.write(';');
-    writer.newLine();
-  }
+  // Import Unistyles helpers
+  writer.write(`import {useStyles, createStyleSheet} from`);
+  writer.space();
+  writer.quote(`styles`);
+  writer.write(';');
+  writer.newLine();
 
   // TODO: aria hooks for each primitive
   // writer.writeLine(`import {useButton} from '@react-native-aria/button';`);
@@ -55,34 +49,32 @@ export function writeImports(
   // writer.writeLine(`import {useFocusRing} from '@react-native-aria/focus';`);
   // writer.newLine();
 
-  if (!metadata.isPreview) {
-    // Import subcomponents
-    Object
-      .entries(data.meta.components)
-      .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
-      .forEach(([_id, [node, _instance]]) => {
-        const component = createIdentifierPascal(node.name);
-        writer.write(`import {${component}} from`);
-        writer.space();
-        writer.quote(`components/${component}`);
-        writer.write(';');
-        writer.newLine();
-      });
-
-    // Import assets
-    Object
-      .entries(data.assets)
-      .sort((a, b) => a[1].name.localeCompare(b[1].name))
-      .forEach(([_id, asset]) => {
-      writer.write(`import ${asset.name} from`);
+  // Import subcomponents
+  Object
+    .entries(data.meta.components)
+    .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
+    .forEach(([_id, [node, _instance]]) => {
+      const component = createIdentifierPascal(node.name);
+      writer.write(`import {${component}} from`);
       writer.space();
-      const base = `assets/${asset.isVector ? 'vectors' : 'images'}`;
-      const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
-      writer.quote(path);
+      writer.quote(`components/${component}`);
       writer.write(';');
       writer.newLine();
     });
-  }
+
+  // Import assets
+  Object
+    .entries(data.assetData)
+    .sort((a, b) => a[1].name.localeCompare(b[1].name))
+    .forEach(([_id, asset]) => {
+    writer.write(`import ${asset.name} from`);
+    writer.space();
+    const base = `assets/${asset.isVector ? 'vectors' : 'rasters'}`;
+    const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
+    writer.quote(path);
+    writer.write(';');
+    writer.newLine();
+  });
 
   writer.blankLine();
 

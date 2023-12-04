@@ -97,7 +97,7 @@ function ProjectPageGroup(props: ProjectPageGroupProps) {
       title={props.page}>
       {props?.entries?.map(entry =>
         <ProjectPageComponent
-          key={entry.item.key}
+          key={entry.item.name}
           entry={entry}
           page={props.page}
           onSelect={props.onSelect}
@@ -114,7 +114,7 @@ interface ProjectPageComponentProps {
 }
 
 function ProjectPageComponent(props: ProjectPageComponentProps) {
-  const {id, key, name, page, loading} = props.entry.item;
+  const {id, name, page, loading} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const hasError = false;
 
@@ -138,8 +138,8 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         }, '*');
       }}
       onDragStart={(e) => {
-        setDragging(key);
-        const $code = getComponentCode(key);
+        setDragging(name);
+        const $code = getComponentCode(name);
         const code = $code.toString();
         e.dataTransfer.setData('text/plain', code);
         e.dataTransfer.effectAllowed = 'link';
@@ -147,7 +147,7 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
       <F.Layer
         disabled={loading}
         component={!hasError}
-        value={key === dragging}
+        value={name === dragging}
         onChange={() => id
           ? props.onSelect(id)
           : undefined

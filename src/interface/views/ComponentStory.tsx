@@ -23,7 +23,7 @@ export function ComponentStory(props: ComponentStoryProps) {
       {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path={`figma://model/${component?.name}.story.ts`}
+        path={`figma://preview/${component?.name}.story.ts`}
         value={story}
         theme={props.options?.theme}
         options={{...props.options, readOnly: true}}

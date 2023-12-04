@@ -16,13 +16,14 @@ export type ConfigData = {
 }
 
 export function useConfig(): ConfigData {
-  const locked = useRef(false);
-  const [raw, setRaw] = useState(configRaw);
   const [config, setConfig] = useState(defaultConfig);
+  const [raw, setRaw] = useState(configRaw);
+  const locked = useRef(false);
+  
   const update = useCallback((payload: string, force?: boolean) => {
     if (!force && locked.current) return;
     let decoded: Settings;
-    try { decoded = JSON.parse(payload)} catch (e) {}
+    try {decoded = JSON.parse(payload)} catch (e) {}
     if (decoded) {
       emit<EventConfigUpdate>('CONFIG_UPDATE', decoded);
       setConfig(decoded);
@@ -30,11 +31,10 @@ export function useConfig(): ConfigData {
     }
   }, [locked]);
 
-
   useEffect(() => on<EventConfigLoad>('CONFIG_LOAD', (config) => {
     const indent = config?.writer?.indentNumberOfSpaces || 2;
     update(JSON.stringify(config, undefined, indent));
   }), []);
 
-  return {config, raw, update, locked};
+  return {config, raw, locked, update};
 }

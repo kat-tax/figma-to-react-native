@@ -9,11 +9,9 @@ import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {ProjectExport} from 'interface/views/ProjectExport';
 import {ProjectSettings} from 'interface/views/ProjectSettings';
 import {ProjectComponents} from 'interface/views/ProjectComponents';
-
 import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentStory} from 'interface/views/ComponentStory';
 import {ComponentPreview} from 'interface/views/ComponentPreview';
-
 import {ModalGPTVision} from 'interface/views/ModalGPTVision';
 
 import {useBuild} from 'interface/hooks/useBuild';
@@ -43,8 +41,8 @@ export function App(props: AppProps) {
   const nav = useNavigation(build);
   const monaco = useEditor(user.config/*, component?.links*/);
 
-  const target = nav.componentKey;
-  const setTarget = nav.setComponentKey;
+  const setTarget = nav.setComponent;
+  const target = nav.component;
   const isReady = Boolean(build && props.startPage && project && monaco);
   const options = {
     ...user.config.monaco.general,
@@ -69,24 +67,22 @@ export function App(props: AppProps) {
             <Link value="story" title="Component story">
               Story
             </Link>
-            {nav.tab === 'code' &&
-              <Fragment>
-                <div style={{flex: 1}}/>
-                <div
-                  className="tab-btn"
+            <div style={{flex: 1}}/>
+            {false && nav.tab === 'code' &&
+              <div
+                className="tab-btn"
+                title="GPT-4 Vision"
+                onClick={() => setPromptOpen(true)}>
+                <F.IconVisibilityVisible32/>
+                <F.Modal
                   title="GPT-4 Vision"
-                  onClick={() => setPromptOpen(true)}>
-                  <F.Modal
-                    title="GPT-4 Vision"
-                    open={promptOpen}
-                    onOverlayClick={() => setPromptOpen(false)}
-                    onEscapeKeyDown={() => setPromptOpen(false)}
-                    onCloseButtonClick={() => setPromptOpen(false)}>
-                    <ModalGPTVision {...{project, build}}/>
-                  </F.Modal>
-                  <F.IconVisibilityVisible32/>
-                </div>
-              </Fragment>
+                  open={promptOpen}
+                  onOverlayClick={() => setPromptOpen(false)}
+                  onEscapeKeyDown={() => setPromptOpen(false)}
+                  onCloseButtonClick={() => setPromptOpen(false)}>
+                  <ModalGPTVision {...{project, build}}/>
+                </F.Modal>
+              </div>
             }
           </div>
         : <Fragment>

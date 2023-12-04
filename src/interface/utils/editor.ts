@@ -5,7 +5,7 @@ import type * as monaco from 'monaco-editor';
 
 // TODO: replace with figma storage?
 const sourceCache = new LocalStorageCache();
-const fileRootPath = 'figma://model/';
+const fileRootPath = 'figma://preview/';
 
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;

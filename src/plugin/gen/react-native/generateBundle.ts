@@ -13,7 +13,6 @@ import type {Settings} from 'types/settings';
 
 const emptyBundle: ComponentData = {
   id: '',
-  key: '',
   page: '',
   name: '',
   props: '',
@@ -27,7 +26,6 @@ const emptyBundle: ComponentData = {
 export async function generateBundle(
   target: ComponentNode,
   settings: Settings,
-  isPreviewMode?: boolean,
 ): Promise<ComponentData> {
   // No target node, return empty bundle
   if (!target) {
@@ -36,12 +34,14 @@ export async function generateBundle(
 
   // Generate exo primitives (if any)
   const isRootExo = getPage(target)?.name === 'Primitives';
-  const exo = generatePrimitives(isPreviewMode, isRootExo);
+  const exo = generatePrimitives(isRootExo);
   
   // Primitive component
   if (isRootExo && exo[target.name]) {
     return {
       ...emptyBundle,
+      id: target.id,
+      page: 'Primitives',
       name: createIdentifierPascal(target.name),
       code: exo[target.name],
     };
@@ -76,30 +76,27 @@ export async function generateBundle(
   });
 
   // Bundle assets
-  const assets: Array<[string, Uint8Array]> = [];
-  if (!isPreviewMode) {
-    for (const [, asset] of Object.entries(data.assets)) {
-      const folder = `${asset.isVector ? 'vectors' : 'images'}`;
-      const extension = `${asset.isVector ? 'svg' : 'png'}`;
-      assets.push([`${folder}/${asset.name}.${extension}`, asset.bytes]);
-    }
+  const assets: Array<[string, boolean, Uint8Array]> = [];
+  for (const [, asset] of Object.entries(data.assetData)) {
+    assets.push([asset.name, asset.isVector, asset.bytes]);
   }
 
+  // Bundle data
   const id = masterNode.id;
-  const key = (masterNode as ComponentNode).key;
   const page = getPage(masterNode)?.name;
   const name = createIdentifierPascal(masterNode.name);
   const props = propsToString({...propDefs}, data.meta.includes);
+  
+  // Return bundle
   return {
     id,
-    key,
     name,
     page,
     props,
     assets,
     links,
-    code: !isPreviewMode ? generateCode(data, settings) : '',
-    index: !isPreviewMode ? generateIndex(new Set<string>().add(name), settings) : '',
-    story: !isPreviewMode ? generateStory(target, isVariant, propDefs, settings) : '',
+    code: generateCode(data, settings),
+    index: generateIndex(new Set<string>().add(name), settings),
+    story: generateStory(target, isVariant, propDefs, settings),
   };
 }

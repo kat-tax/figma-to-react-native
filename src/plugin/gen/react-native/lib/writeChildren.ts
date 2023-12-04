@@ -86,7 +86,7 @@ function writeChild(
 
   // Asset node (svg or image)
   if (isAsset) {
-    const asset = data.assets[child.node.id];
+    const asset = data.assetData[child.node.id];
     if (asset) {
       // Vector
       if (asset.isVector) {

@@ -125,6 +125,7 @@ iframe {
 }
 
 .tab-bar-nav {
+  background-color: var(--figma-color-bg);
   display: flex;
   flex-direction: row;
   overflow: auto;
@@ -201,6 +202,7 @@ iframe {
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg);
 }
 
 .status-actions {

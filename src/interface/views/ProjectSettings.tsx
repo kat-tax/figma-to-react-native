@@ -1,5 +1,4 @@
 import MonacoReact from '@monaco-editor/react';
-
 import {h, Fragment} from 'preact';
 import {useMemo} from 'preact/hooks';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
@@ -8,7 +7,7 @@ import {debounce} from 'common/delay';
 import type {Settings} from 'types/settings';
 import type {ConfigData} from 'interface/hooks/useConfig';
 
-const _path = 'figma://model/settings.json';
+const _path = 'figma://preview/settings.json';
 
 interface ProjectSettingsProps {
   settings: ConfigData;

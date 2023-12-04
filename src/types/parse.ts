@@ -1,13 +1,13 @@
 export interface ParseData {
-  root: ParseRoot,
   frame: ParseFrame | null,
-  children: Array<{node: SceneNode, slug: string}>,
+  root: ParseRoot,
   tree: ParseNodeTree,
   meta: ParseMetaData,
-  assets: ParseAssetData,
-  assetMap: Record<string, string>,
+  children: Array<{node: SceneNode, slug: string}>,
   variants: ParseVariantData,
   stylesheet: ParseStyleSheet,
+  assetData: ParseAssetData,
+  assetMap: Record<string, string>,
 }
 
 export type ParseRoot = {node: ComponentNode, slug: string, click: Action};
@@ -24,6 +24,7 @@ export type ParseVariantData = {
 
 export type ParseAssetData = Record<string, {
   name: string,
+  hash: string,
   embed: string,
   width: number,
   height: number,

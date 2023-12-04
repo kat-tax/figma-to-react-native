@@ -25,12 +25,11 @@ export function ComponentCode(props: ComponentCodeProps) {
   const editor = useRef<Editor>(null);
 
   // Update component dependencies on new build
-  /*useEffect(() => {
-    if (props.build && editor.current) {
-      Object.values(props.build.roster).forEach((data) => {
-        if (!data.key) return;
-        const code = $.getComponentCode(data.key);
-        const uri = `figma://model/${data.name}.tsx`;
+  useEffect(() => {
+    if (props.build) {
+      Object.keys(props.build.roster).forEach(name => {
+        const code = $.getComponentCode(name);
+        const uri = `figma://preview/${name}.tsx`;
         const path = props.monaco.Uri.parse(uri);
         const model = props.monaco.editor.getModel(path);
         if (!model) {
@@ -40,7 +39,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         }
       });
     }
-  }, [props.build]);*/
+  }, [props.build]);
 
   // Update editor constraints on target change
   /*useEffect(() => {
@@ -64,7 +63,7 @@ export function ComponentCode(props: ComponentCodeProps) {
       {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path={`figma://model/${$componentInfo?.name}.tsx`}
+        path={`figma://preview/${$componentInfo?.name}.tsx`}
         theme={props.options?.theme}
         options={{...props.options}}
         loading={<LoadingIndicator/> as JSX.Element}

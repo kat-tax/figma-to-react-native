@@ -35,9 +35,11 @@ export async function convertStyles(nodes: Set<string>, variants?: ParseVariantD
 
   // Send CSS to service
   const response = await fetch(F2RN_STYLEGEN_API, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(css),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
   
   // Parse response and build stylesheet

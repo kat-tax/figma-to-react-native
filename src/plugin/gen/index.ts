@@ -17,15 +17,11 @@ const _cache: Record<string, ComponentData> = {};
 export async function generateBundle(
   node: ComponentNode,
   settings: Settings,
-  isPreviewMode?: boolean,
   skipCache?: boolean,
 ) {
   if (!node) return;
 
   const instanceSettings = {...settings};
-  if (isPreviewMode) {
-    instanceSettings.react.addTranslate = false;
-  }
 
   // Check cache
   /*if (!skipCache && _cache[node.key]) {
@@ -49,7 +45,7 @@ export async function generateBundle(
   switch (settings?.react.flavor) {
     case 'react-native':
     default:
-      bundle = await reactNative.generateBundle(node, instanceSettings, isPreviewMode);
+      bundle = await reactNative.generateBundle(node, instanceSettings);
   }
 
   _cache[node.key] = bundle;
@@ -100,12 +96,11 @@ export async function startCompiler(onUpdate: () => void) {
 
 async function compile(components: Set<ComponentNode>) {
   const _names = new Set<string>();
-  const _files: Record<string, string> = {};
+  const _assets: Record<string, Uint8Array> = {};
   const _roster: ComponentRoster = {};
 
   let _total = 0;
   let _loaded = 0;
-  let _assets = 0;
 
   for (const component of components) {
     if (component.name.startsWith('ph:')) continue;
@@ -113,11 +108,9 @@ async function compile(components: Set<ComponentNode>) {
     const masterNode = (isVariant ? component?.parent : component);
     const name = createIdentifierPascal(masterNode.name);
     const page = getPage(masterNode).name;
-    const key = component.key;
     const id = masterNode.id;
     _names.add(name);
-    _files[name] = component.key;
-    _roster[component.key] = {id, key, name, page, loading: true};
+    _roster[name] = {id, name, page, loading: true};
     _total++;
   }
 
@@ -127,27 +120,27 @@ async function compile(components: Set<ComponentNode>) {
     wait(1); // Prevent UI from freezing
     if (component.name.startsWith('ph:')) continue;
     try {
-      const bundle = await generateBundle(component, config.state, false, true);
-      const name = bundle.name;
+      const bundle = await generateBundle(component, config.state, false);
       const id = bundle.id;
-      const key = component.key;
-      const page = getPage(component).name;
+      const page = bundle.page;
+      const name = bundle.name;
       const pages = figma.root.children.map(p => p.name);
+  
       _loaded++;
-      _assets += bundle.assets?.length || 0;
-      _roster[component.key] = {id, key, name, page, loading: false};
+      _roster[name] = {id, name, page, loading: false};
       _cache[component.id] = bundle;
+  
       component.setPluginData('bundle', JSON.stringify(bundle));
       emit<EventComponentBuild>('COMPONENT_BUILD', {
         index,
         pages,
         total: _total,
         loaded: _loaded,
-        assets: _assets,
         roster: _roster,
-        files: _files,
+        assets: _assets,
+        assetMap: {},
       }, bundle);
-      console.log('[compile]', component.name, component.key, component, bundle);
+      console.log('[compile]', name, bundle);
     } catch (e) {
       console.error('Failed to export', component, e);
     }

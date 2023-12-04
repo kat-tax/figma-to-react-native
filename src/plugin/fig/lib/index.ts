@@ -4,7 +4,5 @@ export {getPropName} from './getPropName';
 export {getInstanceInfo} from './getInstanceInfo';
 export {isNodeVisible} from './isNodeVisible';
 export {propsToString} from './propsToString';
-export {convertAssets} from './convertAssets';
-export {convertStyles} from './convertStyles';
 export {sortProps, sortPropsDef} from './sortProps';
 export {getCustomReaction, getPressReaction} from './reactions';

@@ -11,7 +11,7 @@ export function generateCode(data: ParseData, settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const metadata = {stylePrefix: 'stylesheet'};
   
-  writeImports(writer, data, settings, metadata);
+  writeImports(writer, data, settings);
   writer.blankLine();
   writeFunction(writer, data, settings, metadata);
   writer.blankLine();

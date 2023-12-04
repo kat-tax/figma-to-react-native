@@ -49,8 +49,8 @@ export function build(projectConfig: ProjectConfig) {
         try {
           const bundle = await generateBundle(component, config.state);
           if (bundle.code) {
-            components.push([bundle.name, bundle.index, bundle.code, bundle.story]);
             assets = [...assets, ...bundle.assets];
+            components.push([bundle.name, bundle.index, bundle.code, bundle.story]);
             names.add(bundle.name);
           }
         } catch (e) {

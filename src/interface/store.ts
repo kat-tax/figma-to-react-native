@@ -35,11 +35,10 @@ export function sync(key: string) {
 
 // Setters and getters
 
-export function setProjectFiles(files: Record<string, string>) {
-  const map = doc.getMap<string>('files');
-  map.clear();
-  Object.entries(files).forEach(([path, key]) =>
-    map.set(path, key));
+export function setProjectFiles(files: string[]) {
+  const $files = doc.getArray<string>('files');
+  $files.delete(0, $files.length);
+  files.forEach(file => $files.push([file]));
 }
 
 export function getProjectTheme() {
@@ -62,34 +61,34 @@ export function setProjectIndex(index: string) {
   text.insert(0, index);
 }
 
-export function getComponentCode(key: string) {
-  return doc.getText(`code::${key}`);
+export function getComponentCode(name: string) {
+  return doc.getText(`code::${name}`);
 }
 
-export function setComponentCode(key: string, code: string) {
-  const text = doc.getText(`code::${key}`);
+export function setComponentCode(name: string, code: string) {
+  const text = doc.getText(`code::${name}`);
   text.delete(0, text.length);
   text.insert(0, code);
 }
 
-export function getComponentIndex(key: string) {
-  const text = doc.getText(`index::${key}`);
+export function getComponentIndex(name: string) {
+  const text = doc.getText(`index::${name}`);
   return text.toString();
 }
 
-export function setComponentIndex(key: string, code: string) {
-  const text = doc.getText(`index::${key}`);
+export function setComponentIndex(name: string, code: string) {
+  const text = doc.getText(`index::${name}`);
   text.delete(0, text.length)
   text.insert(0, code);
 }
 
-export function setComponentStory(key: string, code: string) {
-  const text = doc.getText(`story::${key}`);
+export function setComponentStory(name: string, code: string) {
+  const text = doc.getText(`story::${name}`);
   text.delete(0, text.length)
   text.insert(0, code);
 }
 
-export function getComponentStory(key: string) {
-  const text = doc.getText(`story::${key}`);
+export function getComponentStory(name: string) {
+  const text = doc.getText(`story::${name}`);
   return text.toString();
 }

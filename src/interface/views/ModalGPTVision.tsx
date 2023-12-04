@@ -34,7 +34,7 @@ export function ModalGPTVision(props: ModalGPTVisionProps) {
   return (
     <Fragment>
       {isGenerating &&
-        <F.Banner icon={<F.IconCheckCircle32/>}>
+        <F.Banner icon={<F.IconTimer32/>}>
           Generating code, please wait...
         </F.Banner>
       }
@@ -43,7 +43,7 @@ export function ModalGPTVision(props: ModalGPTVisionProps) {
         <div title={tips.packageName}>
           <F.TextboxMultiline
             name="packageName"
-            style={{width: '240px', height: '160px'}}
+            style={{width: '240px', height: '154px'}}
             placeholder="Enter a prompt"
             value={form.formState.packageName || GPT4_VISION_PROMPT}
             onValueInput={form.setFormState}

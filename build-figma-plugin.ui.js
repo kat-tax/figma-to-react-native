@@ -20,8 +20,8 @@ module.exports = (buildOptions) => {
       // Caused by y-monaco loading folding.js
       {
         name: 'fix-y-monaco',
-        setup(build) {
-          build.onLoad({filter: /folding\.js$/}, async (args) => {
+        setup(ctx) {
+          ctx.onLoad({filter: /folding\.js$/}, async (args) => {
             const contents = await fs.readFile(args.path, 'utf8');
             const sanitized = contents.replace(/\\22EF/g, '\\x12');
             return {

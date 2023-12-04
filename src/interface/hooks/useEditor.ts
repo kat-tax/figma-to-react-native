@@ -1,6 +1,6 @@
-import {useEffect} from 'preact/hooks';
-import {useMonaco} from '@monaco-editor/react';
 import {emit} from '@create-figma-plugin/utilities';
+import {useMonaco} from '@monaco-editor/react';
+import {useEffect} from 'preact/hooks';
 import libraries from 'interface/utils/libraries';
 import schema from 'schemas/settings.json';
 
@@ -58,7 +58,7 @@ export function useEditor(settings: Settings, links?: ComponentLinks) {
       module: monaco.languages.typescript.ModuleKind.CommonJS,
       noEmit: true,
       paths: {
-        ['components/*']: ['figma://model/*'],
+        ['components/*']: ['figma://preview/*'],
       }
     });
 

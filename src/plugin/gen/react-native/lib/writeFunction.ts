@@ -1,6 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
-import {getPropName, sortPropsDef} from 'plugin/fig/lib';
 import {writeChildren} from './writeChildren';
 import {writeClasses} from './writeClasses';
 import {writeProps} from './writeProps';
