@@ -8,7 +8,7 @@ import {generateIndex} from '../common/generateIndex';
 import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
 
-import type {ComponentData, ComponentLinks} from 'types/component';
+import type {ComponentData, ComponentAsset, ComponentLinks} from 'types/component';
 import type {Settings} from 'types/settings';
 
 const emptyBundle: ComponentData = {
@@ -21,6 +21,7 @@ const emptyBundle: ComponentData = {
   story: '',
   links: {},
   assets: null,
+  preview: null,
 };
 
 export async function generateBundle(
@@ -75,26 +76,22 @@ export async function generateBundle(
     links[createIdentifierPascal(c[1][0].name)] = c[0];
   });
 
-  // Bundle assets
-  const assets: Array<[string, boolean, Uint8Array]> = [];
-  for (const [, asset] of Object.entries(data.assetData)) {
-    assets.push([asset.name, asset.isVector, asset.bytes]);
-  }
-
   // Bundle data
   const id = masterNode.id;
   const page = getPage(masterNode)?.name;
   const name = createIdentifierPascal(masterNode.name);
   const props = propsToString({...propDefs}, data.meta.includes);
-  
+  const preview = await (masterNode as ComponentNode).exportAsync({format: 'PNG'});
+
   // Return bundle
   return {
     id,
     name,
     page,
     props,
-    assets,
     links,
+    preview,
+    assets: Object.values(data.assetData),
     code: generateCode(data, settings),
     index: generateIndex(new Set<string>().add(name), settings),
     story: generateStory(target, isVariant, propDefs, settings),

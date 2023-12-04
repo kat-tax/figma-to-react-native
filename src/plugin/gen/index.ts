@@ -7,7 +7,7 @@ import * as reactNative from './react-native';
 import * as config from 'plugin/config';
 
 import type {Settings} from 'types/settings';
-import type {ComponentData, ComponentRoster} from 'types/component';
+import type {ComponentAsset, ComponentData, ComponentRoster} from 'types/component';
 import type {EventComponentBuild} from 'types/events';
 
 export {generateIndex} from './common/generateIndex';
@@ -96,7 +96,7 @@ export async function startCompiler(onUpdate: () => void) {
 
 async function compile(components: Set<ComponentNode>) {
   const _names = new Set<string>();
-  const _assets: Record<string, Uint8Array> = {};
+  const _assets: Record<string, ComponentAsset> = {};
   const _roster: ComponentRoster = {};
 
   let _total = 0;
@@ -126,9 +126,13 @@ async function compile(components: Set<ComponentNode>) {
       const name = bundle.name;
       const pages = figma.root.children.map(p => p.name);
   
-      _loaded++;
+      bundle.assets?.forEach(asset => {
+        _assets[asset.hash] = asset;
+      });
+
       _roster[name] = {id, name, page, loading: false};
       _cache[component.id] = bundle;
+      _loaded++;
   
       component.setPluginData('bundle', JSON.stringify(bundle));
       emit<EventComponentBuild>('COMPONENT_BUILD', {

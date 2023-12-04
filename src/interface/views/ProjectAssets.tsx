@@ -1,11 +1,9 @@
 import PhotoAlbum from 'react-photo-album';
-import {Fzf, byLengthAsc} from 'fzf';
 import {h} from 'preact';
-import {useState, useMemo, useEffect} from 'preact/hooks';
-// import {emit} from '@create-figma-plugin/utilities';
+import {useState, useEffect} from 'preact/hooks';
 
-import type {ComponentBuild, ComponentEntry} from 'types/component';
-import type {EventFocusNode} from 'types/events';
+import type {Photo} from 'react-photo-album';
+import type {ComponentBuild} from 'types/component';
 
 interface ProjectAssetsProps {
   build: ComponentBuild,
@@ -13,44 +11,33 @@ interface ProjectAssetsProps {
   searchQuery: string,
 }
 
-type ProjectComponentEntry = {
-  item: ComponentEntry,
-  positions: Set<number>,
-}
-
 export function ProjectAssets(props: ProjectAssetsProps) {
-  const [list, setList] = useState<ProjectComponentEntry[]>([]);
-  const hasComponents = Boolean(props?.build && props.build.roster);
-  const fzfSearch = useMemo(() => {
-    const entries = hasComponents ? Object.values(props.build?.roster) : [];
-    return new Fzf(entries, {
-      selector: (item) => `${item.page}/${item.name}`,
-      tiebreakers: [byLengthAsc],
-      forward: false,
-    });
-  }, [props?.build]);
-
-  const select = (key: string) => {
-    const data = props.build.roster?.[key];
-    //const nodeId = data?.component.id;
-    //if (!nodeId) return;
-    //emit<EventFocusNode>('FOCUS', nodeId);
-  };
+  const [list, setList] = useState<Photo[]>([]);
 
   useEffect(() => {
-    const entries = fzfSearch.find(props.searchQuery);
-    const newList: ProjectComponentEntry[] = hasComponents
-      ? Object.values(entries)
-      : [];
-    setList(newList);
-  }, [props.build, props.searchQuery]);
+    if (!props?.build?.assets) return;
+    const list = Object.values(props.build.assets).map(asset => ({
+      alt: asset.name,
+      src: asset.embed,
+      width: asset.width,
+      height: asset.height,
+    }));
+    setList(list);
+  }, [props.build]);
 
   return (
     <PhotoAlbum
       layout="rows"
-      photos={[]}
+      targetRowHeight={150}
+      padding={20}
+      spacing={10}
+      photos={list}
       renderPhoto={({imageProps: {src, alt, style}}) => (
-        <img src={src} alt={alt} style={style as any}/> as any
+        <img
+          alt={alt}
+          src={src}
+          style={style as any}
+        /> as any
       )}
     />
   );

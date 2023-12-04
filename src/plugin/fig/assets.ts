@@ -37,10 +37,9 @@ export async function convertAssets(nodes: Set<string>): Promise<{
         hasVector = true;
         count = vectors[node.name];
         bytes = await node.exportAsync({format: 'SVG'});
-        embed = await node.exportAsync({format: 'SVG_STRING'});
-        embed = embed
-          .replace(/fill=\"none\"/, `fill="currentColor"`)
-          .replace(/fill="#[0-9A-Fa-f]+"/g, 'fill="currentColor"');
+        embed = bytes
+          ? `data:image/svg+xml;base64,${figma.base64Encode(bytes)}`
+          : '';
       } else {
         rasters[node.name] = 1 + (rasters[node.name] || 0);
         hasRaster = true;

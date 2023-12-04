@@ -64,14 +64,14 @@ export default async function() {
     });
 
     // TODO: finish drop support
-    //figma.on('drop', (event: DropEvent): boolean => {
-    //  const target = event.items[0];
-    //  if (target.type !== 'figma/node-id') return;
-    //  const node = figma.getNodeById(target.data);
-    //  if (node.type !== 'COMPONENT') return;
-    //  (event.node as BaseNode & ChildrenMixin).appendChild(node);
-    //  return false;
-    //})
+    /*figma.on('drop', (event: DropEvent): boolean => {
+      const target = event.items[0];
+      if (target.type !== 'figma/node-id') return;
+      const node = figma.getNodeById(target.data);
+      if (node.type !== 'COMPONENT') return;
+      (event.node as BaseNode & ChildrenMixin).appendChild(node);
+      return false;
+    })*/
   
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {

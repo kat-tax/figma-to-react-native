@@ -80,7 +80,7 @@ export function App(props: AppProps) {
                   onOverlayClick={() => setPromptOpen(false)}
                   onEscapeKeyDown={() => setPromptOpen(false)}
                   onCloseButtonClick={() => setPromptOpen(false)}>
-                  <ModalGPTVision {...{project, build}}/>
+                  <ModalGPTVision {...{target, project, build}}/>
                 </F.Modal>
               </div>
             }

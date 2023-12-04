@@ -8,19 +8,28 @@ import type {ProjectConfig} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 
 const tips = {
-  packageName: `The prompt for this component`,
+  prompt: `The prompt for this component`,
   submit: `Patch your component with GPT-4`,
 };
 
 interface ModalGPTVisionProps {
-  project: ProjectConfig;
-  build: ComponentBuild;
+  target: string,
+  project: ProjectConfig,
+  build: ComponentBuild,
+}
+
+interface ModalGPTVisionForm {
+  prompt: string,
 }
 
 export function ModalGPTVision(props: ModalGPTVisionProps) {
   const [isGenerating, setGenerating] = useState(false);
 
-  const form = F.useForm<ProjectConfig>(props.project, {
+  const initialForm: ModalGPTVisionForm = {
+    prompt: GPT4_VISION_PROMPT,
+  };
+
+  const form = F.useForm<ModalGPTVisionForm>(initialForm, {
     close: () => {},
     submit: (data) => {
       setGenerating(true);
@@ -40,14 +49,14 @@ export function ModalGPTVision(props: ModalGPTVisionProps) {
       }
       <F.Container space="medium">
         <F.VerticalSpace space="large"/>
-        <div title={tips.packageName}>
+        <div title={tips.prompt}>
           <F.TextboxMultiline
-            name="packageName"
+            name="prompt"
             style={{width: '240px', height: '154px'}}
             placeholder="Enter a prompt"
-            value={form.formState.packageName || GPT4_VISION_PROMPT}
+            value={form.formState.prompt}
             onValueInput={form.setFormState}
-            aria-label={tips.packageName}
+            aria-label={tips.prompt}
             variant="border"
           />
           <F.VerticalSpace space="large"/>
