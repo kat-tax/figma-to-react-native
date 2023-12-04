@@ -2589,15 +2589,6 @@
                     "const": "react-native",
                     "description": "The flavor of React Native to generate",
                     "type": "string"
-                },
-                "styleGen": {
-                    "description": "The engine used to convert Figma styles to React Native",
-                    "enum": [
-                        "default",
-                        "experimental",
-                        "service"
-                    ],
-                    "type": "string"
                 }
             },
             "type": "object"

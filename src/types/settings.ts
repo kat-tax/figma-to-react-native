@@ -12,10 +12,6 @@ export interface Settings {
      */
     flavor: 'react-native',
     /**
-     * The engine used to convert Figma styles to React Native
-     */
-    styleGen:  'default' | 'service' | 'experimental',
-    /**
      * Enable to add translations tags to strings
      */
     addTranslate?: boolean,

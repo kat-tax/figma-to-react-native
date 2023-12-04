@@ -3,7 +3,6 @@ import type {Settings} from 'types/settings';
 const user: Settings = {
   react: {
     flavor: 'react-native',
-    styleGen: 'default',
     addTranslate: false,
   },
   writer: {
