@@ -14,10 +14,6 @@ export function writeFunction(
   writer: CodeBlockWriter,
   data: ParseData,
   settings: Settings,
-  metadata: {
-    stylePrefix: string,
-    isPreview?: boolean,
-  },
   includeFrame?: boolean,
 ) {
   // Derived data
@@ -67,7 +63,7 @@ export function writeFunction(
     // Write state hooks
     writeState(writer, data);
     // Write style hook
-    writer.writeLine(`const {styles} = useStyles(${metadata.stylePrefix});`);
+    writer.writeLine(`const {styles} = useStyles(stylesheet);`);
     writer.blankLine();
 
     // Conditional styling
@@ -104,7 +100,6 @@ export function writeFunction(
                 settings,
                 data.tree,
                 getStylePrefix,
-                metadata.isPreview,
                 pressables,
               );
             });

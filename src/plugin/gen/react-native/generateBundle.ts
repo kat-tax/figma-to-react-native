@@ -8,7 +8,7 @@ import {generateIndex} from '../common/generateIndex';
 import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
 
-import type {ComponentData, ComponentAsset, ComponentLinks} from 'types/component';
+import type {ComponentData, ComponentLinks} from 'types/component';
 import type {Settings} from 'types/settings';
 
 const emptyBundle: ComponentData = {
@@ -35,7 +35,7 @@ export async function generateBundle(
 
   // Generate exo primitives (if any)
   const isRootExo = getPage(target)?.name === 'Primitives';
-  const exo = generatePrimitives(isRootExo);
+  const exo = generatePrimitives();
   
   // Primitive component
   if (isRootExo && exo[target.name]) {

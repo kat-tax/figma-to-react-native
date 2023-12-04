@@ -13,10 +13,9 @@ export function writeChildren(
   settings: Settings,
   children: ParseNodeTree,
   getStylePrefix: StylePrefixMapper,
-  isPreview?: boolean,
   pressables?: string[][],
 ) {
-  const state = {writer, data, settings, getStylePrefix, pressables, isPreview};
+  const state = {writer, data, settings, getStylePrefix, pressables};
   children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
@@ -47,10 +46,9 @@ function writeChild(
     settings: Settings,
     getStylePrefix: StylePrefixMapper,
     pressables?: string[][],
-    isPreview?: boolean,
   },
 ) {
-  const {writer, data, settings, getStylePrefix, pressables, isPreview} = state;
+  const {writer, data, settings, getStylePrefix, pressables} = state;
 
   const props = (child.node as InstanceNode)?.componentProperties;
   const propRefs = child.node.componentPropertyReferences;
@@ -90,11 +88,11 @@ function writeChild(
     if (asset) {
       // Vector
       if (asset.isVector) {
-        const vectorTag = isPreview ? asset.embed : '<' + asset.name + '/>'
+        const vectorTag = '<' + asset.name + '/>'
         writer.writeLine(vectorTag);
       // Raster
       } else {
-        const uri = isPreview ? `'${asset.embed}'` : asset.name;
+        const uri = asset.name;
         const style = `{width: ${asset.width}, height: ${asset.height}}`;
         writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} contentFit="cover"/>`);
       }
@@ -178,7 +176,7 @@ function writeChild(
         }
         break;
       case 'View':
-        writeChildren(writer, data, settings, child.children, getStylePrefix, isPreview, pressables);
+        writeChildren(writer, data, settings, child.children, getStylePrefix, pressables);
         break;
     }
   });

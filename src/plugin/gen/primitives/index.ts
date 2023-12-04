@@ -2,7 +2,7 @@ import {getComponentTargets} from 'plugin/fig/traverse';
 
 import {Slider} from './exo/Slider';
 
-export function generatePrimitives(isRoot: boolean): Record<string, string> {
+export function generatePrimitives(): Record<string, string> {
   const page = figma.root.children.find(p => p.name === 'Primitives');
   if (!page) return;
 
@@ -24,7 +24,7 @@ export function generatePrimitives(isRoot: boolean): Record<string, string> {
         console.log('Progress', component);
         break;
       case 'Slider':
-        primitives.Slider = Slider(component, false, isRoot);
+        primitives.Slider = Slider(component);
         break;
     }
   }

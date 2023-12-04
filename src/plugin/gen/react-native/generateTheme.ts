@@ -9,7 +9,7 @@ type ThemeColors = Record<string, ThemeGroup>;
 type ThemeGroup = Record<string, ThemeColor> | ThemeColor;
 type ThemeColor = {value: string, comment: string};
 
-export function generateTheme(settings: Settings, isPreview?: boolean) {
+export function generateTheme(settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const theme = getCollectionModes('Theme');
 
@@ -33,9 +33,8 @@ export function generateTheme(settings: Settings, isPreview?: boolean) {
       writer.write(';');
       writer.blankLine();
     });
-    // Pick default theme (default mode, or current mode if in preview)
-    const defaultTheme = isPreview ? theme.current.name : theme.default.name;
-    writer.writeLine(`export default ${createIdentifierCamel(defaultTheme)}Theme;`);
+    const themeName = createIdentifierCamel(theme.default.name);
+    writer.writeLine(`export default ${themeName}Theme;`);
 
   // No theme variable collection found, local styles only
   } else {

@@ -2,74 +2,52 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData} from 'types/parse';
-import type {Settings} from 'types/settings';
 
 export function writeStyleSheet(
   writer: CodeBlockWriter,
   data: ParseData,
-  _settings: Settings,
-  metadata: {
-    stylePrefix: string,
-    isPreview?: boolean, 
-  },
   includeFrame?: boolean,
 ) {
-  const _writeStyleSheet = () => {
-    const define = metadata.isPreview ? '' : 'const ';
-    writer.write(`${define}${metadata.stylePrefix} = createStyleSheet(theme => (`).inlineBlock(() => {
-      // Frame styles
-      if (includeFrame && data.frame)
-        writeStyle(writer, 'frame', {overflow: 'hidden', ...data.stylesheet[data.frame.node.id]});
-      // Root styles
-      writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
-      const rootVariants = data.variants?.classes?.root;
-      if (rootVariants) {
-        Object.keys(rootVariants).forEach(key => {
-          const classKey = rootVariants[key];
-          const classStyle = data.stylesheet[classKey];
-          if (classStyle) {
-            const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
-            writeStyle(writer, className, classStyle);
-          }
-        });
-      }
-      // Children styles
-      for (const child of data.children) {
-        const childStyles = data.stylesheet[child.node.id];
-        if (childStyles) {
-          writeStyle(writer, child.slug, childStyles);
-          const childVariants = data.variants?.classes[child.slug];
-          if (childVariants) {
-            Object.keys(childVariants).forEach(key => {
-              const classStyle = data.stylesheet[childVariants[key]];
-              if (classStyle) {
-                const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
-                writeStyle(writer, className, classStyle);
-              }
-            });
-          }
+  writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
+    // Frame styles
+    if (includeFrame && data.frame) {
+      writeStyle(writer, 'frame', {overflow: 'hidden', ...data.stylesheet[data.frame.node.id]});
+    }
+
+    // Root styles
+    writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
+    const rootVariants = data.variants?.classes?.root;
+    if (rootVariants) {
+      Object.keys(rootVariants).forEach(key => {
+        const classKey = rootVariants[key];
+        const classStyle = data.stylesheet[classKey];
+        if (classStyle) {
+          const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
+          writeStyle(writer, className, classStyle);
+        }
+      });
+    }
+
+    // Children styles
+    for (const child of data.children) {
+      const childStyles = data.stylesheet[child.node.id];
+      if (childStyles) {
+        writeStyle(writer, child.slug, childStyles);
+        const childVariants = data.variants?.classes[child.slug];
+        if (childVariants) {
+          Object.keys(childVariants).forEach(key => {
+            const classStyle = data.stylesheet[childVariants[key]];
+            if (classStyle) {
+              const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+              writeStyle(writer, className, classStyle);
+            }
+          });
         }
       }
-    });
-    writer.write('));');
-  };
+    }
+  });
 
-  if (metadata.isPreview) {
-    writer.writeLine(`let ${metadata.stylePrefix} = {}`);
-    writer.write('try ').inlineBlock(() => {
-      _writeStyleSheet();
-    });
-    writer.write(' catch (e) ').inlineBlock(() => {
-      writer.writeLine([
-        'logtail.error(e)',
-        'logtail.flush()',
-        'console.error("[preview] [styles]", e)',
-      ].join('; '));
-    });
-  } else {
-    _writeStyleSheet();
-  }
-
+  writer.write('));');
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
