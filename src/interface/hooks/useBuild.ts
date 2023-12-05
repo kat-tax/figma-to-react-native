@@ -2,7 +2,7 @@ import {useState, useEffect} from 'preact/hooks';
 import {on} from '@create-figma-plugin/utilities';
 import * as $ from 'interface/store';
 
-import type {EventComponentBuild, EventProjectTheme} from 'types/events';
+import type {EventComponentBuild} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 
 const initial: ComponentBuild = {
@@ -33,12 +33,7 @@ export function useBuild(): ComponentBuild {
         props: component.props,
       });
     });
-    console.log('[build]', component.name, newBuild);
-  }), []);
-
-  useEffect(() => on<EventProjectTheme>('PROJECT_THEME', (_theme) => {
-    if (_theme !== $.getProjectTheme().toString())
-      $.setProjectTheme(_theme);
+    // console.log('[build]', component.name, newBuild);
   }), []);
 
   return build;

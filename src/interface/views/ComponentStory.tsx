@@ -1,7 +1,9 @@
 import {h, Fragment} from 'preact';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
-import MonacoReact from '@monaco-editor/react';
+import {F2RN_EDITOR_NS} from 'config/env';
 import {Watermark} from 'interface/base/Watermark';
+import MonacoReact from '@monaco-editor/react';
+
 import * as $ from 'interface/store';
 
 import type {Settings} from 'types/settings';
@@ -22,7 +24,7 @@ export function ComponentStory(props: ComponentStoryProps) {
       {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path={`figma://preview/${component?.name}.story.ts`}
+        path={`${F2RN_EDITOR_NS}${component?.name}.story.ts`}
         value={story}
         theme={props.options?.theme}
         options={{...props.options, readOnly: true}}

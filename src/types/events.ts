@@ -59,7 +59,7 @@ export interface EventProjectBuild extends EventHandler {
 
 export interface EventProjectTheme extends EventHandler {
   name: 'PROJECT_THEME';
-  handler: (theme: string) => void;
+  handler: (theme: string, current: string) => void;
 }
 
 export interface EventProjectExport extends EventHandler {

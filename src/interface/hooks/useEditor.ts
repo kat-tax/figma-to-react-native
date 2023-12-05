@@ -1,6 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useMonaco} from '@monaco-editor/react';
 import {useEffect} from 'preact/hooks';
+import {F2RN_EDITOR_NS} from 'config/env';
 import libraries from 'interface/utils/libraries';
 import schema from 'schemas/settings.json';
 
@@ -58,7 +59,7 @@ export function useEditor(settings: Settings, links?: ComponentLinks) {
       module: monaco.languages.typescript.ModuleKind.CommonJS,
       noEmit: true,
       paths: {
-        ['components/*']: ['figma://preview/*'],
+        ['components/*']: [`${F2RN_EDITOR_NS}*`],
       }
     });
 

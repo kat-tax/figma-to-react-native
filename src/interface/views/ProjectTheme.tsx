@@ -1,6 +1,7 @@
 import {h, Fragment} from 'preact';
 import {MonacoBinding} from 'y-monaco';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {F2RN_EDITOR_NS} from 'config/env';
 import MonacoReact from '@monaco-editor/react';
 import * as $ from 'interface/store';
 
@@ -16,7 +17,7 @@ export function ProjectTheme(props: ProjectThemeProps) {
       {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path="figma://model/theme.ts"
+        path={`${F2RN_EDITOR_NS}theme.ts`}
         theme={props.options.theme}
         options={{...props.options, readOnly: true}}
         loading={<LoadingIndicator/> as JSX.Element}

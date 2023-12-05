@@ -74,7 +74,7 @@ export class Compiler {
     args: esbuild.OnResolveArgs,
     importMap?: Record<string, string>,
   ) {
-    console.log('[bundler/onResolveCallback]', args);
+    // console.log('[bundler/onResolveCallback]', args);
     switch (args.kind) {
       case 'entry-point':
         return {path: '/' + args.path};
@@ -92,7 +92,7 @@ export class Compiler {
   private async onLoadCallback(
     args: esbuild.OnLoadArgs,
   ): Promise<esbuild.OnLoadResult> {
-    console.log('[bundler/onLoadCallback]', args);
+    // console.log('[bundler/onLoadCallback]', args);
 
     const extname = Path.extname(args.path);
     const contents = await Promise.resolve(this.resolver.resolve(args.path));

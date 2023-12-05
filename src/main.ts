@@ -48,11 +48,8 @@ export default async function() {
     // TODO: reload project config on root document update
     project.loadConfig();
   
-    // Update theme on interval
-    setInterval(() => {
-      const theme = gen.generateTheme(config.state);
-      emit<T.EventProjectTheme>('PROJECT_THEME', theme);
-    }, 500);
+    // Update theme on document change
+    gen.watchTheme(config.state);
 
     // Start component compiler, update code on change
     gen.startCompiler(app.targetSelectedComponent);
@@ -95,7 +92,7 @@ export default async function() {
       } else {
         focusNode(nodeId);
       }
-      figma.commitUndo();
+      //figma.commitUndo();
     });
   
     // Notify user of error coming from interface

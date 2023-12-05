@@ -3,6 +3,7 @@ import {useRef, useEffect} from 'preact/hooks';
 import MonacoReact from '@monaco-editor/react';
 import {MonacoBinding} from 'y-monaco';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {F2RN_EDITOR_NS} from 'config/env';
 import {Watermark} from 'interface/base/Watermark';
 import {init} from 'interface/utils/editor';
 import * as $ from 'interface/store';
@@ -29,7 +30,7 @@ export function ComponentCode(props: ComponentCodeProps) {
     if (props.build) {
       Object.keys(props.build.roster).forEach(name => {
         const code = $.getComponentCode(name);
-        const uri = `figma://preview/${name}.tsx`;
+        const uri = `${F2RN_EDITOR_NS}${name}.tsx`;
         const path = props.monaco.Uri.parse(uri);
         const model = props.monaco.editor.getModel(path);
         if (!model) {
@@ -45,7 +46,6 @@ export function ComponentCode(props: ComponentCodeProps) {
   /*useEffect(() => {
     if (constraint.current) {
       const model = editor.current?.getModel();
-      console.log('update constraints', model);
       constraint.current?.removeRestrictionsIn(model);
       constraint.current?.addRestrictionsTo(model, [
         {
@@ -63,7 +63,7 @@ export function ComponentCode(props: ComponentCodeProps) {
       {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
-        path={`figma://preview/${$componentInfo?.name}.tsx`}
+        path={`${F2RN_EDITOR_NS}${$componentInfo?.name}.tsx`}
         theme={props.options?.theme}
         options={{...props.options}}
         loading={<LoadingIndicator/> as JSX.Element}

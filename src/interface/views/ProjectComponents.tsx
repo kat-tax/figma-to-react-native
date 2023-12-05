@@ -141,6 +141,7 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         setDragging(name);
         const $code = getComponentCode(name);
         const code = $code.toString();
+        // e.dataTransfer.setDragImage(new Image(), 0, 0);
         e.dataTransfer.setData('text/plain', code);
         e.dataTransfer.effectAllowed = 'link';
       }}>

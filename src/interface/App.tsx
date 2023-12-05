@@ -4,21 +4,22 @@ import {Tabs, Tab, Bar, Link, Gear, Back} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
 import {StatusBar} from 'interface/base/StatusBar';
 
-import {ProjectTheme} from 'interface/views/ProjectTheme';
-import {ProjectAssets} from 'interface/views/ProjectAssets';
-import {ProjectExport} from 'interface/views/ProjectExport';
-import {ProjectSettings} from 'interface/views/ProjectSettings';
-import {ProjectComponents} from 'interface/views/ProjectComponents';
 import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentStory} from 'interface/views/ComponentStory';
 import {ComponentPreview} from 'interface/views/ComponentPreview';
 import {ModalGPTVision} from 'interface/views/ModalGPTVision';
+import {ProjectAssets} from 'interface/views/ProjectAssets';
+import {ProjectTheme} from 'interface/views/ProjectTheme';
+import {ProjectExport} from 'interface/views/ProjectExport';
+import {ProjectSettings} from 'interface/views/ProjectSettings';
+import {ProjectComponents} from 'interface/views/ProjectComponents';
 
 import {useBuild} from 'interface/hooks/useBuild';
 import {useConfig} from 'interface/hooks/useConfig';
 import {useEditor} from 'interface/hooks/useEditor';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useNavigation} from 'interface/hooks/useNavigation';
+import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 
 import * as F from '@create-figma-plugin/ui';
@@ -35,11 +36,12 @@ export function App(props: AppProps) {
   const [promptOpen, setPromptOpen] = useState(false);
 
   const project = useProjectConfig();
-  const isDark = useDarkMode();
+  const theme = useProjectTheme();
   const build = useBuild();
   const user = useConfig();
   const nav = useNavigation(build);
   const monaco = useEditor(user.config/*, component?.links*/);
+  const isDark = useDarkMode();
 
   const setTarget = nav.setComponent;
   const target = nav.component;
@@ -132,12 +134,12 @@ export function App(props: AppProps) {
         <ComponentCode {...{target, build, options, monaco}}/>
       </Tab>
       <Tab value="preview">
-        <ComponentPreview {...{target, build, settings: user.config}}/>
+        <ComponentPreview {...{target, build, theme, settings: user.config}}/>
       </Tab>
       <Tab value="story">
         <ComponentStory {...{target, options, monaco}}/>
       </Tab>
-      <StatusBar {...{project, build: build, target, setTarget}}/>
+      <StatusBar {...{target, build, project, setTarget}}/>
     </Tabs>
   ) : (
     <div className="center fill">

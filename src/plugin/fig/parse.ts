@@ -18,7 +18,7 @@ export default async function parse(component: ComponentNode): Promise<ParseData
   }
 
   // Gather node data relative to conversion
-  const _t1 = Date.now();
+  // const _t1 = Date.now();
   const data = crawl(component);
 
   // Generated styles and assets
@@ -33,13 +33,13 @@ export default async function parse(component: ComponentNode): Promise<ParseData
   }
 
   // Profile
-  console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
+  // console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
 
   return {...data, stylesheet, assetData, assetMap};
 }
 
 function crawl(node: ComponentNode) {
-  const _t1 = Date.now();
+  // const _t1 = Date.now();
   const {dict, tree, meta} = crawlChildren(node.children);
 
   const root = getRoot(node);
@@ -51,7 +51,7 @@ function crawl(node: ComponentNode) {
   frame && meta.styleNodes.add(frame.node.id);
 
   // Profile
-  console.log(`[fig/parse/crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, tree);
+  // console.log(`[fig/parse/crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, tree);
 
   return {
     tree,

@@ -1,14 +1,15 @@
 import {emit} from '@create-figma-plugin/utilities';
+import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/traverse';
-import {createIdentifierPascal} from 'common/string';
+
 import {wait} from 'common/delay';
 import {generateIndex} from './common/generateIndex';
 import * as reactNative from './react-native';
 import * as config from 'plugin/config';
 
 import type {Settings} from 'types/settings';
+import type {EventComponentBuild, EventProjectTheme} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentRoster} from 'types/component';
-import type {EventComponentBuild} from 'types/events';
 
 export {generateIndex} from './common/generateIndex';
 
@@ -61,9 +62,19 @@ export function generateTheme(settings: Settings) {
   }
 }
 
+export function watchTheme(settings: Settings) {
+  const updateTheme = () => {
+    const {code, theme} = generateTheme(settings);
+    const currentTheme = `${createIdentifierCamel(theme.current.name)}Theme`;
+    emit<EventProjectTheme>('PROJECT_THEME', code, currentTheme);
+  };
+  figma.on('documentchange', updateTheme);
+  updateTheme();
+}
+
 export async function startCompiler(onUpdate: () => void) {
-  // Compile components on update
-  figma.on('documentchange', async (e) => {
+  // TODO: Compile components on update
+  /*figma.on('documentchange', async (e) => {
     console.log('[change]', e.documentChanges);
     const updates: SceneNode[] = [];
     e.documentChanges.forEach(change => {
@@ -84,7 +95,7 @@ export async function startCompiler(onUpdate: () => void) {
       onUpdate();
       console.log('[update]', Array.from(update));
     }
-  });
+  });*/
   // Compile all components in background
   const all = figma.root.findAllWithCriteria({types: ['COMPONENT']});
   const init = getComponentTargets(all);
@@ -94,7 +105,7 @@ export async function startCompiler(onUpdate: () => void) {
   }
 }
 
-async function compile(components: Set<ComponentNode>) {
+export async function compile(components: Set<ComponentNode>) {
   const _names = new Set<string>();
   const _assets: Record<string, ComponentAsset> = {};
   const _roster: ComponentRoster = {};

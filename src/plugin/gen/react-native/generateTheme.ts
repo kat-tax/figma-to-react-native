@@ -45,7 +45,7 @@ export function generateTheme(settings: Settings) {
     writer.newLine();
   }
 
-  return writer.toString();
+  return {code: writer.toString(), theme};
 }
 
 function writeColors(writer: CodeBlockWriter, colors: ThemeColors) {

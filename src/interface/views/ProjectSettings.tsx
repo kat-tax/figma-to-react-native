@@ -1,13 +1,14 @@
 import {h, Fragment} from 'preact';
 import {useMemo} from 'preact/hooks';
-import {debounce} from 'common/delay';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {F2RN_EDITOR_NS} from 'config/env';
+import {debounce} from 'common/delay';
 import MonacoReact from '@monaco-editor/react';
 
 import type {Settings} from 'types/settings';
 import type {ConfigData} from 'interface/hooks/useConfig';
 
-const _path = 'figma://preview/settings.json';
+const _path = `${F2RN_EDITOR_NS}settings.json`;
 
 interface ProjectSettingsProps {
   settings: ConfigData;

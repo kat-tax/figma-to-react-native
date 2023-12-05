@@ -3,7 +3,7 @@
     "definitions": {
         "ArrayBuffer": {
             "properties": {
-                "__@toStringTag@167": {
+                "__@toStringTag@283": {
                     "type": "string"
                 },
                 "byteLength": {
@@ -1421,10 +1421,10 @@
         },
         "SharedArrayBuffer": {
             "properties": {
-                "__@species@147": {
+                "__@species@263": {
                     "$ref": "#/definitions/SharedArrayBuffer"
                 },
-                "__@toStringTag@167": {
+                "__@toStringTag@283": {
                     "const": "SharedArrayBuffer",
                     "type": "string"
                 },
@@ -1449,7 +1449,7 @@
                                 "BYTES_PER_ELEMENT": {
                                     "type": "number"
                                 },
-                                "__@toStringTag@167": {
+                                "__@toStringTag@283": {
                                     "const": "Uint8Array",
                                     "type": "string"
                                 },

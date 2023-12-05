@@ -11,17 +11,18 @@ import type {Settings} from 'types/settings';
 
 interface ComponentPreviewProps {
   target: string,
+  theme: string,
   build: ComponentBuild,
   settings: Settings,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {target, settings} = props;
+  const {target, settings, theme} = props;
   const component = $.components.get(target);
   const iframe = useRef<HTMLIFrameElement>(null);
   const [src, setSrc] = useState('');
 
-  const update = useCallback((bundle: string) => {
+  const updateComponent = useCallback((bundle: string) => {
     iframe.current?.contentWindow?.postMessage({
       type: 'preview',
       bundle,
@@ -43,9 +44,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       '<' + component.name + component.props + '/>',
       component.name,
       component.props,
+      theme,
       settings,
       props.build.roster,
-    ).then(update);
+    ).then(updateComponent);
     console.debug('[preview]', component.name, component);
   }, [component, settings, props.build]);
 
@@ -54,6 +56,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   // Update the preview when the component or settings change
   useEffect(render, [component, settings]);
+
+  // Update the preview theme when it changes
+  useEffect(() => {
+    iframe.current?.contentWindow?.postMessage({type: 'theme', theme});
+  }, [iframe, theme]);
 
   // Handle focus events from inspect mode
   useEffect(() => {

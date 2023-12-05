@@ -18,6 +18,7 @@ export async function preview(
   tag: string,
   name: string,
   props: string,
+  theme: string,
   settings: Settings,
   roster: ComponentRoster,
 ) {
@@ -42,10 +43,10 @@ export async function preview(
     files.set('/styles', UNISTYLES_LIB);
     files.set('/theme', $.getProjectTheme().toString());
     files.set(ENTRY_POINT, previewComponent
+      .replace('__CURRENT_THEME__', theme)
       .replace('__COMPONENT_DEF__', imports.join('\n'))
       .replace('__COMPONENT_REF__', tag));
     const output = await build(ENTRY_POINT, files, settings.esbuild, importMap);
-    console.log('[utils/preview/preview]', output, files);
     return output;
   } catch (e) {
     notify(e, 'Failed to build preview app');
@@ -58,7 +59,6 @@ export async function init(settings: Settings) {
   files.set(ENTRY_POINT, atob(loader.toString()));
   try {
     const output = await build(ENTRY_POINT, files, settings.esbuild, importMap);
-    console.log('[utils/preview/init]', output);
     return atob(iframe)
       .replace('__IMPORT_MAP__', JSON.stringify(importMap, undefined, 2))
       .replace('__LOADER__', output);

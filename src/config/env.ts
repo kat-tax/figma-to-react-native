@@ -1,3 +1,4 @@
+export const F2RN_EDITOR_NS = 'figma://preview/';
 export const F2RN_CONFIG_NS = 'f2rn:config:v1';
 export const F2RN_PROJECT_NS = 'f2rn:project:v1';
 export const F2RN_NAVIGATE_NS = 'f2rn:navigate:v1';
