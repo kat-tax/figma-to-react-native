@@ -5,6 +5,7 @@ interface SearchBarProps {
   searchQuery: string,
   setSearchQuery: (value: string) => void,
   setSearchMode: (value: boolean) => void,
+  gotoOverview: () => void,
 }
 
 export function SearchBar(props: SearchBarProps) {
@@ -19,6 +20,8 @@ export function SearchBar(props: SearchBarProps) {
           props.setSearchQuery(value);
           if (!value) {
             props.setSearchMode(false);
+          } else {
+            props.gotoOverview();
           }
         }}
       />

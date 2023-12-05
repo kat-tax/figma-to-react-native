@@ -44,6 +44,7 @@ export function App(props: AppProps) {
   const isDark = useDarkMode();
 
   const setTarget = nav.setComponent;
+  const gotoOverview = nav.gotoOverview;
   const target = nav.component;
   const isReady = Boolean(build && props.startPage && project && monaco);
   const options = {
@@ -98,7 +99,7 @@ export function App(props: AppProps) {
             </div>
           : <Fragment>
             {searchMode
-            ? <SearchBar {...{searchQuery, setSearchQuery, setSearchMode}}/>
+            ? <SearchBar {...{searchQuery, setSearchQuery, setSearchMode, gotoOverview}}/>
             : <div className="tab-bar-nav">
                 <div className="tab-btn" title="Search components" onClick={() => setSearchMode(true)}>
                   <F.IconSearch32/>
