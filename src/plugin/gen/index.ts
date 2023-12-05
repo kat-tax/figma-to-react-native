@@ -113,15 +113,17 @@ export async function compile(components: Set<ComponentNode>) {
   let _total = 0;
   let _loaded = 0;
 
-  for (const component of components) {
+  for await (const component of components) {
     if (component.name.startsWith('ph:')) continue;
     const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
     const masterNode = (isVariant ? component?.parent : component);
+    const imageExport = await (masterNode as ComponentNode).exportAsync({format: 'PNG'});
+    const preview = imageExport ? `data:image/png;base64,${figma.base64Encode(imageExport)}` : '';
     const name = createIdentifierPascal(masterNode.name);
     const page = getPage(masterNode).name;
     const id = masterNode.id;
     _names.add(name);
-    _roster[name] = {id, name, page, loading: true};
+    _roster[name] = {id, name, page, preview, loading: true};
     _total++;
   }
 
@@ -141,8 +143,14 @@ export async function compile(components: Set<ComponentNode>) {
         _assets[asset.hash] = asset;
       });
 
-      _roster[name] = {id, name, page, loading: false};
       _cache[component.id] = bundle;
+      _roster[name] = {
+        ..._roster[name],
+        id,
+        name,
+        page,
+        loading: false,
+      };
       _loaded++;
   
       component.setPluginData('bundle', JSON.stringify(bundle));

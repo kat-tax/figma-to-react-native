@@ -21,7 +21,6 @@ const emptyBundle: ComponentData = {
   story: '',
   links: {},
   assets: null,
-  preview: null,
 };
 
 export async function generateBundle(
@@ -81,7 +80,6 @@ export async function generateBundle(
   const page = getPage(masterNode)?.name;
   const name = createIdentifierPascal(masterNode.name);
   const props = propsToString({...propDefs}, data.meta.includes);
-  const preview = await (masterNode as ComponentNode).exportAsync({format: 'PNG'});
 
   // Return bundle
   return {
@@ -90,7 +88,6 @@ export async function generateBundle(
     page,
     props,
     links,
-    preview,
     assets: Object.values(data.assetData),
     code: generateCode(data, settings),
     index: generateIndex(new Set<string>().add(name), settings),

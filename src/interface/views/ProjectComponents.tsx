@@ -114,7 +114,7 @@ interface ProjectPageComponentProps {
 }
 
 function ProjectPageComponent(props: ProjectPageComponentProps) {
-  const {id, name, page, loading} = props.entry.item;
+  const {id, name, page, preview, loading} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const hasError = false;
 
@@ -141,9 +141,10 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         setDragging(name);
         const $code = getComponentCode(name);
         const code = $code.toString();
-        // e.dataTransfer.setDragImage(new Image(), 0, 0);
+        const img = new Image(100, 100);
+        img.src = preview;
+        e.dataTransfer.setDragImage(img, 0, 0);
         e.dataTransfer.setData('text/plain', code);
-        e.dataTransfer.effectAllowed = 'link';
       }}>
       <F.Layer
         disabled={loading}

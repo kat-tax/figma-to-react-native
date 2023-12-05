@@ -112,12 +112,21 @@ iframe {
   flex: 1;
 }
 
-.tab-bar {
-  border-bottom: 1px solid var(--figma-color-border);
-  z-index: 5;
+.tab-menu {
   display: flex;
   flex-direction: row;
-  overflow: auto;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--figma-color-bg);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+.tab-bar {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-direction: row;
+  flex-shrink: 1;
 }
 
 .tab-bar > div {
@@ -125,11 +134,10 @@ iframe {
 }
 
 .tab-bar-nav {
-  background-color: var(--figma-color-bg);
   display: flex;
+  align-items: center;
   flex-direction: row;
   overflow: auto;
-  flex: 1;
   padding: 4px;
 }
 

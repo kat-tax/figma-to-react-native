@@ -15,6 +15,7 @@ export type ComponentEntry = {
   name: string,
   page: string,
   loading: boolean,
+  preview: string,
 }
 
 export type ComponentData = {
@@ -25,7 +26,6 @@ export type ComponentData = {
   code: string,
   index: string,
   story: string,
-  preview: Uint8Array,
   assets: ComponentAsset[] | null,
   links: ComponentLinks,
 }

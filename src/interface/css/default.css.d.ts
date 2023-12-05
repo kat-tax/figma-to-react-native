@@ -1,6 +1,7 @@
 declare const styles: {
   readonly "create-figma-plugin": string;
   readonly "tabs": string;
+  readonly "tab-menu": string;
   readonly "tab-bar": string;
   readonly "tab-bar-nav": string;
   readonly "tab": string;

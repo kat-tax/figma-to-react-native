@@ -52,69 +52,94 @@ export function App(props: AppProps) {
     theme: isDark ? 'vs-dark' : 'vs',
   };
 
+  const componentList: Array<F.DropdownOption> = Object
+    .entries(build.roster)
+    .sort(([,a], [,b]) => a.name.localeCompare(b.name))
+    .map(([name, component]) => ({
+      value: name,
+      text: component.name,
+      disabled: component.loading,
+    }));
+
   return isReady ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
-      <Bar loop aria-label="menu">
-        {Boolean(target)
-        ? <div className="tab-bar-nav">
-            <div className="tab-btn" title="Browse components" onClick={nav.gotoOverview}>
-              <Back {...{isDark}}/>
-            </div>
-            <Link value="code" title="Component code">
-              Code
-            </Link>
-            <Link value="preview" title="Component preview">
-              Preview
-            </Link>
-            <Link value="story" title="Component story">
-              Story
-            </Link>
-            <div style={{flex: 1}}/>
-            {false && nav.tab === 'code' &&
-              <div
-                className="tab-btn"
-                title="GPT-4 Vision"
-                onClick={() => setPromptOpen(true)}>
-                <F.IconVisibilityVisible32/>
-                <F.Modal
+      <div className="tab-menu">
+        <Bar loop aria-label="menu" style={!target ? {width: '100%'} : undefined}>
+          {Boolean(target)
+          ? <div className="tab-bar-nav">
+              <div className="tab-btn" title="Browse components" onClick={nav.gotoOverview}>
+                <Back {...{isDark}}/>
+              </div>
+              <Link value="code" title="Component code">
+                Code
+              </Link>
+              <Link value="preview" title="Component preview">
+                Preview
+              </Link>
+              <Link value="story" title="Component story">
+                Story
+              </Link>
+              {false && nav.tab === 'code' &&
+                <div
+                  className="tab-btn"
                   title="GPT-4 Vision"
-                  open={promptOpen}
-                  onOverlayClick={() => setPromptOpen(false)}
-                  onEscapeKeyDown={() => setPromptOpen(false)}
-                  onCloseButtonClick={() => setPromptOpen(false)}>
-                  <ModalGPTVision {...{target, project, build}}/>
-                </F.Modal>
+                  onClick={() => setPromptOpen(true)}>
+                  <F.IconVisibilityVisible32/>
+                  <F.Modal
+                    title="GPT-4 Vision"
+                    open={promptOpen}
+                    onOverlayClick={() => setPromptOpen(false)}
+                    onEscapeKeyDown={() => setPromptOpen(false)}
+                    onCloseButtonClick={() => setPromptOpen(false)}>
+                    <ModalGPTVision {...{target, project, build}}/>
+                  </F.Modal>
+                </div>
+              }
+            </div>
+          : <Fragment>
+            {searchMode
+            ? <SearchBar {...{searchQuery, setSearchQuery, setSearchMode}}/>
+            : <div className="tab-bar-nav">
+                <div className="tab-btn" title="Search components" onClick={() => setSearchMode(true)}>
+                  <F.IconSearch32/>
+                </div>
+                <Link value="components" title="Project components">
+                  Components
+                </Link>
+                <Link value="assets" title="Project assets">
+                  Assets
+                </Link>
+                <Link value="theme" title="Project theme">
+                  Theme
+                </Link>
+                <Link value="export" title="Project export">
+                  Export
+                </Link>
+                <div style={{flex: 1}}/>
+                <Link value="settings" title="Configure plugin" hasIcon>
+                  <Gear {...{isDark}}/>
+                </Link>
               </div>
             }
-          </div>
-        : <Fragment>
-          {searchMode
-          ? <SearchBar {...{searchQuery, setSearchQuery, setSearchMode}}/>
-          : <div className="tab-bar-nav">
-              <div className="tab-btn" title="Search components" onClick={() => setSearchMode(true)}>
-                <F.IconSearch32/>
-              </div>
-              <Link value="components" title="Project components">
-                Components
-              </Link>
-              <Link value="assets" title="Project assets">
-                Assets
-              </Link>
-              <Link value="theme" title="Project theme">
-                Theme
-              </Link>
-              <Link value="export" title="Project export">
-                Export
-              </Link>
-              <div style={{flex: 1}}/>
-              <Link value="settings" title="Configure plugin" hasIcon>
-                <Gear {...{isDark}}/>
-              </Link>
-            </div>
+            </Fragment>
           }
-          </Fragment>
+        </Bar>
+        {target &&
+          <F.Dropdown
+            icon={<F.IconLayerComponent16 color="component" />}
+            placeholder="Select a component"
+            options={componentList}
+            value={target}
+            onChange={(e) => setTarget(e.currentTarget.value)}
+            style={{
+              width: 'auto',
+              marginRight: '8px',
+              alignSelf: 'center',
+              color: 'var(--figma-color-text-component)', // 'var(--figma-color-icon-warning)'
+            }}
+          />
         }
-      </Bar>
+      </div>
       <Tab value="components">
         <ProjectComponents {...{build, searchMode, searchQuery, setTarget}}/>
       </Tab>
@@ -139,7 +164,9 @@ export function App(props: AppProps) {
       <Tab value="story">
         <ComponentStory {...{target, options, monaco}}/>
       </Tab>
-      <StatusBar {...{target, build, project, setTarget}}/>
+      {!target &&
+        <StatusBar {...{build, project, setTarget}}/>
+      }
     </Tabs>
   ) : (
     <div className="center fill">

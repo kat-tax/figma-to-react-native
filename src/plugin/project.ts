@@ -49,7 +49,7 @@ export function build(projectConfig: ProjectConfig) {
         try {
           const bundle = await generateBundle(component, config.state);
           if (bundle.code) {
-            assets = [...assets, ...bundle.assets];
+            // TODO: assets = [...assets, ...bundle.assets];
             components.push([bundle.name, bundle.index, bundle.code, bundle.story]);
             names.add(bundle.name);
           }
@@ -64,7 +64,7 @@ export function build(projectConfig: ProjectConfig) {
         id: projectConfig.docKey,
         name: projectName,
         index: generateIndex(names, config.state, true),
-        theme: generateTheme(config.state),
+        theme: generateTheme(config.state).code,
       };
 
       emit<EventProjectBuild>('PROJECT_BUILD', build, projectConfig, user);
