@@ -1,14 +1,14 @@
 import {h, Fragment} from 'preact';
 import {useRef, useEffect} from 'preact/hooks';
 import MonacoReact from '@monaco-editor/react';
-import {MonacoBinding} from 'y-monaco';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {Watermark} from 'interface/base/Watermark';
-import {init} from 'interface/utils/editor';
+import {MonacoBinding} from 'interface/utils/editor/yjs';
+import {init} from 'interface/utils/editor/init';
 import * as $ from 'interface/store';
 
-import type {Monaco, Editor} from 'interface/utils/editor';
+import type {Monaco, Editor} from 'interface/utils/editor/init';
 import type {ComponentBuild} from 'types/component';
 import type {Settings} from 'types/settings';
 
