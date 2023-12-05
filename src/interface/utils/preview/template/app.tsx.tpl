@@ -1,9 +1,12 @@
 // @ts-nocheck
 
 import React from 'react';
-import * as Styles from 'react-native-unistyles';
+import {UnistylesTheme} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
 import {Logtail} from '@logtail/browser';
+import theme from 'theme';
+
+__COMPONENT_DEF__
 
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 
@@ -14,9 +17,9 @@ export function Main() {
         Component error. Check devtools console.
       </pre>
     }>
-      <Styles.UnistylesTheme theme={theme}>
+      <UnistylesTheme theme={theme}>
         __COMPONENT_REF__
-      </Styles.UnistylesTheme>
+      </UnistylesTheme>
     </ErrorBoundary>
   )
 }

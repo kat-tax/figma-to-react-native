@@ -23,7 +23,7 @@ export function Preview() {
         const next = document.createElement('script');
         next.type = 'module';
         next.id = 'target';
-        next.innerHTML = e.data.preview;
+        next.innerHTML = e.data.bundle;
         prev && document.body.removeChild(prev);
         next && document.body.appendChild(next);
         if (name !== e.data.name) {

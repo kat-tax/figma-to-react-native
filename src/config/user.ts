@@ -19,9 +19,7 @@ const user: Settings = {
     }
   },
   esbuild: {
-    loader: 'tsx',
     format: 'esm',
-    define: {'process.env.NODE_ENV': 'development'},
   },
 };
 

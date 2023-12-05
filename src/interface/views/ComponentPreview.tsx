@@ -18,9 +18,8 @@ interface ComponentPreviewProps {
 export function ComponentPreview(props: ComponentPreviewProps) {
   const {target, settings} = props;
   const component = $.components.get(target);
-  const [src, setSrc] = useState('');
-
   const iframe = useRef<HTMLIFrameElement>(null);
+  const [src, setSrc] = useState('');
 
   const update = useCallback((bundle: string) => {
     iframe.current?.contentWindow?.postMessage({
@@ -40,10 +39,15 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   const render = useCallback(() => {
     if (!component) return;
-    const tag = '<' + component.name + component.props + '/>';
-    //preview(tag, settings, props.build.roster).then(update);
-    console.debug('[preview]', tag, component);
-  }, [component, settings]);
+    preview(
+      '<' + component.name + component.props + '/>',
+      component.name,
+      component.props,
+      settings,
+      props.build.roster,
+    ).then(update);
+    console.debug('[preview]', component.name, component);
+  }, [component, settings, props.build]);
 
   // Initialize the loader
   useEffect(load, [settings]);

@@ -1,15 +1,7 @@
 import {downloadZip} from 'client-zip';
+import {UNISTYLES_LIB} from 'config/env';
 
 import type {ProjectBuild} from 'types/project';
-
-const UNISTYLES_LIB = `import {createUnistyles} from 'react-native-unistyles';
-import theme, {breakpoints} from './theme';
-
-export const {createStyleSheet, useStyles} = createUnistyles<
-  typeof breakpoints,
-  typeof theme
->(breakpoints);
-`;
 
 export async function zip(project: ProjectBuild) {
   const lastModified = new Date();

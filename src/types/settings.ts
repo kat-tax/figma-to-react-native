@@ -1,4 +1,4 @@
-import type {TransformOptions} from 'esbuild-wasm';
+import type {BuildOptions} from 'esbuild-wasm';
 import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
 import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 
@@ -29,5 +29,5 @@ export interface Settings {
   /**
   * Options for the preview compiler.
   */
-  esbuild: TransformOptions,
+  esbuild: BuildOptions,
 }

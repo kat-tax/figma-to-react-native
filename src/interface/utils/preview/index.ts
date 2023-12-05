@@ -1,60 +1,71 @@
-import {build} from 'interface/utils/build';
+import * as $ from 'interface/store';
+import {build} from 'interface/utils/bundler';
 import {notify} from 'interface/telemetry';
-// @ts-ignore
+import {UNISTYLES_LIB} from 'config/env';
+
+import importMap from './importMaps/loader.json';
 import iframe from './template/iframe.html.tpl';
-// @ts-ignore
-import imports from './template/importMap.json';
-// @ts-ignore
-import _entry from './template/_entry.tsx.tpl';
-// @ts-ignore
-import _loader from './template/_loader.tsx.tpl';
+import loader from './template/loader.tsx.tpl';
+import app from './template/app.tsx.tpl';
 
 import type {Settings} from 'types/settings';
 import type {ComponentRoster} from 'types/component';
 
+const REGEX_JSX_TAGS = /<\s*([a-zA-Z][^\s>\/]*)[^>]*>/g;
+const ENTRY_POINT = '/index.tsx';
+
 export async function preview(
   tag: string,
+  name: string,
+  props: string,
   settings: Settings,
   roster: ComponentRoster,
 ) {
-  const previewComponent = atob(_entry.toString());
+  const previewComponent = atob(app.toString());
   const previewSettings = {...settings};
   previewSettings.esbuild.jsx = 'automatic';
   previewSettings.esbuild.jsxDev = true;
 
-  /*const files: Record<string, string> = {};
-  for (const [key, data] of Object.entries(roster)) {
+  const files: Map<string, string> = new Map();
+  for (const name of Object.keys(roster)) {
     try {
-      const {code} = await build(data.component.code, previewSettings);
-      files[key] = code;
+      const contents = $.getComponentCode(name);
+      const path = `/components/${name}`;
+      files.set(path, contents.toString());
     } catch (e) {
       notify(e, `Failed to build preview component: ${name}`);
       console.error('[preview] [component]', e.toString());
     }
   }
   try {
-    const app = previewComponent.replace('__COMPONENT_REF__', tag);
-    const entry = await build(app, previewSettings);
-    const output = bundle(entry.code, {files});
-    console.log('[preview] [output]', output.code, files);
-    return output.code;
+    const swaps = Array.from(props.matchAll(REGEX_JSX_TAGS), match => match[1]);
+    const imports = [
+      `import {${name}} from 'components/${name}';`,
+      ...swaps.map((swap) => `import {${swap}} from 'components/${swap}';`),
+    ];
+    files.set('/styles', UNISTYLES_LIB);
+    files.set('/theme', $.getProjectTheme().toString());
+    files.set(ENTRY_POINT, previewComponent
+      .replace('__COMPONENT_DEF__', imports.join('\n'))
+      .replace('__COMPONENT_REF__', tag));
+    const output = await build(ENTRY_POINT, files, previewSettings.esbuild, importMap);
+    console.log('[utils/preview/preview]', output, files);
+    return output;
   } catch (e) {
     notify(e, 'Failed to build preview app');
     console.error('[preview] [component]', e.toString());
   }
-  */
 }
 
 export async function init(settings: Settings) {
-  const previewLoader = atob(_loader.toString());
-  const loaderSettings = {...settings};
-  loaderSettings.esbuild.jsx = 'transform';
-  loaderSettings.esbuild.jsxDev = false;
+  const files = new Map<string, string>();
+  files.set(ENTRY_POINT, atob(loader.toString()));
   try {
-    const {code} = await build(previewLoader, loaderSettings);
+    const output = await build(ENTRY_POINT, files, settings.esbuild, importMap);
+    console.log('[utils/preview/init]', output);
     return atob(iframe)
-      .replace('__IMPORT_MAP__', JSON.stringify(imports, undefined, 2))
-      .replace('__LOADER__', code.toString());
+      .replace('__IMPORT_MAP__', JSON.stringify(importMap, undefined, 2))
+      .replace('__LOADER__', output);
   } catch(e) {
     notify(e, 'Failed to build preview loader');
   }

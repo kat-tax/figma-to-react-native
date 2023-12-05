@@ -16,7 +16,6 @@ export function propsToString(
     .join(' ');
 }
 
-
 export function propsToJSX(
   [key, prop],
   allProps: ComponentPropertyDefinitions | ComponentProperties,
