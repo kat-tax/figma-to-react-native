@@ -16,7 +16,7 @@ let _page: AppPages = 'code';
 // Note: must be called immediately, not in an async function
 if (figma.mode !== 'codegen') {
   showUI({
-    width: Math.max(330, Math.min(600, Math.round(figma.viewport.bounds.width / 2))),
+    width: Math.max(320, Math.min(600, Math.round(figma.viewport.bounds.width / 2))),
     height: Math.round(figma.viewport.bounds.height - 20),
     position: {x: 0, y: Math.round(figma.viewport.bounds.y)},
   });

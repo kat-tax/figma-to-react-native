@@ -32,7 +32,7 @@ function Main() {
   }, []);
 
   useWindowResize(e => emit('RESIZE_WINDOW', e), {
-    minWidth: 330,
+    minWidth: 320,
     minHeight: 250,
   });
 
