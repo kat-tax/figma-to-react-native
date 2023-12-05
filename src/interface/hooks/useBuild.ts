@@ -21,8 +21,8 @@ export function useBuild(): ComponentBuild {
   useEffect(() => on<EventComponentBuild>('COMPONENT_BUILD', (newBuild, component) => {
     setBuild(newBuild);
     $.doc.transact(() => {
-      $.setProjectFiles(Object.keys(newBuild.roster));
       $.setProjectIndex(newBuild.index);
+      $.setProjectFiles(Object.keys(newBuild.roster));
       $.setComponentCode(component.name, component.code);
       $.setComponentIndex(component.name, component.index);
       $.setComponentStory(component.name, component.story);

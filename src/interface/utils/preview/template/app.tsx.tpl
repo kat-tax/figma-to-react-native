@@ -4,28 +4,30 @@ import React from 'react';
 import {UnistylesTheme} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
 import {Logtail} from '@logtail/browser';
-import theme from 'theme';
+import defaultTheme, * as themes from 'theme';
+
+console.log(themes);
 
 __COMPONENT_DEF__
 
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 
-export function Main() {
+export function App() {
   return (
     <ErrorBoundary fallback={
       <pre style={{color: 'red'}}>
         Component error. Check devtools console.
       </pre>
     }>
-      <UnistylesTheme theme={theme}>
+      <UnistylesTheme theme={defaultTheme}>
         __COMPONENT_REF__
       </UnistylesTheme>
     </ErrorBoundary>
   )
 }
 
-AppRegistry.registerComponent('main', () => Main);
-AppRegistry.runApplication('main', {
+AppRegistry.registerComponent('app', () => App);
+AppRegistry.runApplication('app', {
   rootTag: document.getElementById('component'),
 });
 

@@ -22,10 +22,6 @@ export async function preview(
   roster: ComponentRoster,
 ) {
   const previewComponent = atob(app.toString());
-  const previewSettings = {...settings};
-  previewSettings.esbuild.jsx = 'automatic';
-  previewSettings.esbuild.jsxDev = true;
-
   const files: Map<string, string> = new Map();
   for (const name of Object.keys(roster)) {
     try {
@@ -48,7 +44,7 @@ export async function preview(
     files.set(ENTRY_POINT, previewComponent
       .replace('__COMPONENT_DEF__', imports.join('\n'))
       .replace('__COMPONENT_REF__', tag));
-    const output = await build(ENTRY_POINT, files, previewSettings.esbuild, importMap);
+    const output = await build(ENTRY_POINT, files, settings.esbuild, importMap);
     console.log('[utils/preview/preview]', output, files);
     return output;
   } catch (e) {

@@ -11,8 +11,12 @@ export async function build(
   const resolver = new MemoryResolver(files);
   const compiler = new Compiler(resolver);
   const output = await compiler.compile(entry, {
+    ...config,
+    define: {'process.env.NODE_ENV': 'development'},
     target: 'esnext',
     format: 'esm',
+    jsx: 'automatic',
+    jsxDev: true,
   }, importMap);
   console.log('[bundler/build]', output);
   return output;

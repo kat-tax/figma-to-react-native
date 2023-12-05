@@ -1,6 +1,6 @@
-import PhotoAlbum from 'react-photo-album';
 import {h} from 'preact';
 import {useState, useEffect} from 'preact/hooks';
+import PhotoAlbum from 'react-photo-album';
 
 import type {Photo} from 'react-photo-album';
 import type {ComponentBuild} from 'types/component';

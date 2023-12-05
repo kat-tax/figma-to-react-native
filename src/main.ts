@@ -50,7 +50,6 @@ export default async function() {
   
     // Update theme on interval
     setInterval(() => {
-      if (_page !== 'theme') return;
       const theme = gen.generateTheme(config.state);
       emit<T.EventProjectTheme>('PROJECT_THEME', theme);
     }, 500);
