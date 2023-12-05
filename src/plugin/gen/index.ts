@@ -25,22 +25,27 @@ export async function generateBundle(
   const instanceSettings = {...settings};
 
   // Check cache
-  /*if (!skipCache && _cache[node.key]) {
-    console.log('[cache]', node.name);
-    return _cache[node.key];
-  }
-  // Check disk
-  const cached = node.getPluginData('bundle');
-  if (cached) {
-    try {
-      const bundle = JSON.parse(cached) as Component;
-      console.log('[disk]', node.name);
-      _cache[node.key] = bundle;
-      return bundle;
-    } catch (e) {
-      console.error('Failed to parse cached bundle', node, e);
+  if (!skipCache) {
+    // Memory cache
+    if (_cache[node.key]) {
+      console.log('[cache/memory]', node.name);
+      return {bundle: _cache[node.key], cached: true};
     }
-  }*/
+    // Disk cache
+    const data = node.getSharedPluginData('f2rn', 'data');
+    if (data) {
+      try {
+        const bundle = JSON.parse(data) as ComponentData;
+        console.log('[cache/disk]', node.name);
+        _cache[node.key] = bundle;
+        return {bundle, cached: true};
+      } catch (e) {
+        console.error('Failed to parse cached bundle', node, e);
+      }
+    }
+  }
+
+  console.log('[cache/hit]', node.name);
 
   let bundle: ComponentData;
   switch (settings?.react.flavor) {
@@ -51,7 +56,7 @@ export async function generateBundle(
 
   _cache[node.key] = bundle;
 
-  return bundle;
+  return {bundle, cached: false};
 }
 
 export function generateTheme(settings: Settings) {
@@ -72,10 +77,30 @@ export function watchTheme(settings: Settings) {
   updateTheme();
 }
 
-export async function startCompiler(onUpdate: () => void) {
-  // TODO: Compile components on update
-  /*figma.on('documentchange', async (e) => {
+// Compile all components in background
+export async function loadComponents(targetComponent: () => void) {
+  const all = figma.root.findAllWithCriteria({types: ['COMPONENT']});
+  const init = getComponentTargets(all);
+  if (init.size > 0) {
+    const cached = await compile(init);
+    if (cached) {
+      // Select targeted component since it's available now
+      targetComponent();
+      // Refresh component cache
+      await compile(init, true);
+    }
+  }
+}
+
+export async function watchComponents() {
+  figma.on('documentchange', async (e) => {
     console.log('[change]', e.documentChanges);
+    // We need to get all components for the roster
+    const all = figma.root.findAllWithCriteria({types: ['COMPONENT']});
+    const init = getComponentTargets(all);
+    // No components, do nothing
+    if (init.size === 0) return;
+    // Get all components that were updated
     const updates: SceneNode[] = [];
     e.documentChanges.forEach(change => {
       if (change.type !== 'CREATE' && change.type !== 'PROPERTY_CHANGE') return;
@@ -89,51 +114,58 @@ export async function startCompiler(onUpdate: () => void) {
         }
       }
     });
-    if (updates.length > 0) {
-      const update = getComponentTargets(updates);
-      await compile(update);
-      onUpdate();
-      console.log('[update]', Array.from(update));
-    }
-  });*/
-  // Compile all components in background
-  const all = figma.root.findAllWithCriteria({types: ['COMPONENT']});
-  const init = getComponentTargets(all);
-  if (init.size > 0) {
-    await compile(init);
-    //onUpdate();
-  }
+    // No updates, do nothing
+    if (updates.length === 0) return;
+
+
+    // Get updated targets and compile
+    const update = getComponentTargets(updates);
+    await compile(init, true, update);
+    console.log('[update]', Array.from(update));
+  });
 }
 
-export async function compile(components: Set<ComponentNode>) {
+export async function compile(
+  components: Set<ComponentNode>,
+  skipCache?: boolean,
+  updated?: Set<ComponentNode>,
+) {
   const _names = new Set<string>();
   const _assets: Record<string, ComponentAsset> = {};
   const _roster: ComponentRoster = {};
 
   let _total = 0;
   let _loaded = 0;
+  let _cached = false;
 
   for await (const component of components) {
     if (component.name.startsWith('ph:')) continue;
     const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
     const masterNode = (isVariant ? component?.parent : component);
-    const imageExport = await (masterNode as ComponentNode).exportAsync({format: 'PNG'});
+    const imageExport = false; // TODO: await (masterNode as ComponentNode).exportAsync({format: 'PNG'});
     const preview = imageExport ? `data:image/png;base64,${figma.base64Encode(imageExport)}` : '';
     const name = createIdentifierPascal(masterNode.name);
     const page = getPage(masterNode).name;
     const id = masterNode.id;
-    _names.add(name);
-    _roster[name] = {id, name, page, preview, loading: true};
     _total++;
+    _names.add(name);
+    _roster[name] = {
+      id,
+      name,
+      page,
+      preview,
+      loading: !skipCache,
+    };
   }
 
   const index = generateIndex(_names, config.state, true);
+  const targets = updated || components;
 
-  for await (const component of components) {
+  for await (const component of targets) {
     wait(1); // Prevent UI from freezing
     if (component.name.startsWith('ph:')) continue;
     try {
-      const bundle = await generateBundle(component, config.state, false);
+      const {bundle, cached} = await generateBundle(component, config.state, skipCache);
       const id = bundle.id;
       const page = bundle.page;
       const name = bundle.name;
@@ -143,6 +175,8 @@ export async function compile(components: Set<ComponentNode>) {
         _assets[asset.hash] = asset;
       });
 
+      _loaded++;
+      _cached = cached;
       _cache[component.id] = bundle;
       _roster[name] = {
         ..._roster[name],
@@ -151,9 +185,8 @@ export async function compile(components: Set<ComponentNode>) {
         page,
         loading: false,
       };
-      _loaded++;
   
-      component.setPluginData('bundle', JSON.stringify(bundle));
+      component.setSharedPluginData('f2rn', 'data', JSON.stringify(bundle));
       emit<EventComponentBuild>('COMPONENT_BUILD', {
         index,
         pages,
@@ -168,4 +201,6 @@ export async function compile(components: Set<ComponentNode>) {
       console.error('Failed to export', component, e);
     }
   }
+
+  return _cached;
 }

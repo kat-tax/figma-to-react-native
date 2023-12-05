@@ -47,12 +47,11 @@ export default async function() {
     // Load project config from storage
     // TODO: reload project config on root document update
     project.loadConfig();
-  
-    // Update theme on document change
+      
+    // Start codegen
+    gen.loadComponents(app.targetSelectedComponent);
+    gen.watchComponents();
     gen.watchTheme(config.state);
-
-    // Start component compiler, update code on change
-    gen.startCompiler(app.targetSelectedComponent);
 
     // Update code on selection change
     figma.on('selectionchange', () => {

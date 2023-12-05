@@ -47,7 +47,7 @@ export function build(projectConfig: ProjectConfig) {
       let assets: ProjectBuildAssets = [];
       for await (const component of exportNodes) {
         try {
-          const bundle = await generateBundle(component, config.state);
+          const {bundle} = await generateBundle(component, config.state);
           if (bundle.code) {
             // TODO: assets = [...assets, ...bundle.assets];
             components.push([bundle.name, bundle.index, bundle.code, bundle.story]);

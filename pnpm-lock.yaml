@@ -43,6 +43,9 @@ dependencies:
   fzf:
     specifier: ^0.5.2
     version: 0.5.2
+  lib0:
+    specifier: ^0.2.88
+    version: 0.2.88
   lodash.camelcase:
     specifier: ^4.3.0
     version: 4.3.0
@@ -61,9 +64,9 @@ dependencies:
   reserved:
     specifier: ^0.1.2
     version: 0.1.2
-  y-monaco:
-    specifier: ^0.1.5
-    version: 0.1.5(monaco-editor@0.44.0)(yjs@13.6.10)
+  y-protocols:
+    specifier: ^1.0.6
+    version: 1.0.6(yjs@13.6.10)
   y-webrtc:
     specifier: ^10.2.6
     version: 10.2.6(yjs@13.6.10)
@@ -4591,14 +4594,6 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /lib0@0.2.78:
-    resolution: {integrity: sha512-SV2nU43/6eaYnGH3l0lg2wg1ziB/TH3sAd2E8quXPGwrqo+aX98SNT2ZKucpUr5B8A52jD7ZMjAl+r87Fa/bLQ==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dependencies:
-      isomorphic.js: 0.2.5
-    dev: false
-
   /lib0@0.2.88:
     resolution: {integrity: sha512-KyroiEvCeZcZEMx5Ys+b4u4eEBbA1ch7XUaBhYpwa/nPMrzTjUhI4RfcytmQfYoTBPcdyx+FX6WFNIoNuJzJfQ==}
     engines: {node: '>=16'}
@@ -7098,18 +7093,6 @@ packages:
     engines: {node: '>=0.4'}
     dev: true
 
-  /y-monaco@0.1.5(monaco-editor@0.44.0)(yjs@13.6.10):
-    resolution: {integrity: sha512-zyTCMXtewIG+jP9JikJ5NN3/jLCqpkDY3titPIGBrmVeZsJr6qVeFVP3hPfmWOPHGlGZ39KCIzXrC7mFZRNFIw==}
-    engines: {node: '>=12.0.0', npm: '>=6.0.0'}
-    peerDependencies:
-      monaco-editor: '>=0.20.0'
-      yjs: ^13.3.1
-    dependencies:
-      lib0: 0.2.78
-      monaco-editor: 0.44.0
-      yjs: 13.6.10
-    dev: false
-
   /y-protocols@1.0.6(yjs@13.6.10):
     resolution: {integrity: sha512-vHRF2L6iT3rwj1jub/K5tYcTT/mEYDUppgNPXwp8fmLpui9f7Yeq3OEtTLVF012j39QnV+KEQpNqoN7CWU7Y9Q==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
@@ -7127,7 +7110,7 @@ packages:
     peerDependencies:
       yjs: ^13.6.8
     dependencies:
-      lib0: 0.2.78
+      lib0: 0.2.88
       simple-peer: 9.11.1
       y-protocols: 1.0.6(yjs@13.6.10)
       yjs: 13.6.10

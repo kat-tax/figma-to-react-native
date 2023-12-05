@@ -3,7 +3,7 @@ import * as config from 'plugin/config';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];
-  const bundle = await generateBundle(node, config.state);
+  const {bundle} = await generateBundle(node, config.state);
   const {code} = generateTheme(config.state);
   return bundle.code ? [
     {
