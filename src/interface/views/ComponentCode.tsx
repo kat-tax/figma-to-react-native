@@ -1,6 +1,6 @@
 import {h, Fragment} from 'preact';
-import {useRef, useEffect} from 'preact/hooks';
-import MonacoReact from '@monaco-editor/react';
+import {useRef, useState, useEffect, useCallback} from 'preact/hooks';
+import MonacoReact, {DiffEditor} from '@monaco-editor/react';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {Watermark} from 'interface/base/Watermark';
@@ -20,10 +20,29 @@ interface ComponentCodeProps {
 }
 
 export function ComponentCode(props: ComponentCodeProps) {
-  const $componentInfo = $.components.get(props.target);
-  const $componentCode = $.getComponentCode(props.target);
+  const [patch, setPatch] = useState<string>('');
   const constraint = useRef<any>(null);
   const editor = useRef<Editor>(null);
+
+  const $componentInfo = $.components.get(props.target);
+  const $componentCode = $.getComponentCode(props.target);
+
+  // GPT triggered by user
+  const handleGPT = useCallback(async () => {
+    const response = await fetch('http://localhost:8000', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        code: $componentCode.toString(),
+        image: props.build.roster[props.target].preview,
+      }),
+    });
+    const output = await response.text();
+    console.log(output);
+    setPatch(output);
+  }, [$componentCode, props.build]);
 
   // Update component dependencies on new build
   useEffect(() => {
@@ -61,15 +80,15 @@ export function ComponentCode(props: ComponentCodeProps) {
     <Fragment key={props.target}>
       {!$componentInfo && <Watermark/>}
       {/* @ts-ignore Preact issue */}
-      <MonacoReact
+      {!patch && <MonacoReact
         language="typescript"
-        path={`${F2RN_EDITOR_NS}${$componentInfo?.name}.tsx`}
         theme={props.options?.theme}
         options={{...props.options}}
         loading={<LoadingIndicator/> as JSX.Element}
+        path={`${F2RN_EDITOR_NS}${$componentInfo?.name}.tsx`}
         onMount={(e, m) => {
           editor.current = e;
-          constraint.current = setupComponentEditor(e, m);
+          constraint.current = setupComponentEditor(e, m, handleGPT);
           new MonacoBinding(
             $componentCode,
             e.getModel(),
@@ -77,7 +96,20 @@ export function ComponentCode(props: ComponentCodeProps) {
             $.provider.awareness,
           );
         }}
-      />
+      />}
+      {/* @ts-ignore Preact issue */}
+      {patch && <DiffEditor
+        language="typescript"
+        theme={props.options?.theme}
+        options={{...props.options}}
+        loading={<LoadingIndicator/> as JSX.Element}
+        original={$componentCode.toString()}
+        modified={patch}
+        originalModelPath={`${F2RN_EDITOR_NS}${$componentInfo?.name}.tsx`}
+        modifiedModelPath={`${F2RN_EDITOR_NS}patch/${$componentInfo?.name}.tsx`}
+        keepCurrentOriginalModel={true}
+        keepCurrentModifiedModel={false}
+      />}
     </Fragment>
   );
 }

@@ -16,7 +16,11 @@ const sourceCache = new LocalStorageCache();
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
 
-export function setupComponentEditor(editor: Editor, monaco: Monaco) {
+export function setupComponentEditor(
+  editor: Editor,
+  monaco: Monaco,
+  onTriggerGPT: () => void,
+) {
   // Automatically import package types
   AutoTypings.create(editor, {
     monaco,
@@ -37,8 +41,8 @@ export function setupComponentEditor(editor: Editor, monaco: Monaco) {
 
   // Setup custom commands
   editor.addAction({
-    id: 'f2rn-gpt4v',
-    label: 'Patch with GPT4',
+    id: 'f2rn-gpt',
+    label: 'Patch with GPT-4',
     contextMenuGroupId: '1_modification',
     contextMenuOrder: 99,
     precondition: null,
@@ -46,9 +50,8 @@ export function setupComponentEditor(editor: Editor, monaco: Monaco) {
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG,
     ],
-    run: (editor) => {
-      alert("i'm running => " + editor.getPosition());
-      editor.trigger('custom', 'myCustomCommand', {});
+    run: () => {
+      onTriggerGPT();
     },
   });
 
@@ -83,6 +86,34 @@ export function setupTypescript(monaco: Monaco, settings: Settings) {
     filePath: key,
     content: libraries[key],
   })));
+
+  /*
+  monaco.languages.registerCodeLensProvider('typescript', {
+    provideCodeLenses: () => {
+      return {
+        lenses: [
+          {
+            range: {
+              startLineNumber: 1,
+              startColumn: 1,
+              endLineNumber: 2,
+              endColumn: 1,
+            },
+            id: 'accept',
+            command: {
+              id: 'f2rn-gpt-accept',
+              title: 'Apply Changes',
+            },
+          },
+        ],
+        dispose: () => {},
+      };
+    },
+    resolveCodeLens: function (model, codeLens, token) {
+      return codeLens;
+    },
+  });
+  */
 }
 
 export function setupFileOpener(monaco: Monaco, links?: ComponentLinks) {
