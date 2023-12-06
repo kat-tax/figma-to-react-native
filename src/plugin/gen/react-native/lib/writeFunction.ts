@@ -56,14 +56,14 @@ export function writeFunction(
   // Determine if style is conditional or static
   const getStylePrefix: StylePrefixMapper = (slug) => data?.variants
     && Object.keys(data.variants.classes).includes(slug)
-      ? '$styles' : 'styles';
+      ? 'classes' : 'styles';
 
   // Component function body and children
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
     // Write state hooks
     writeState(writer, data);
     // Write style hook
-    writer.writeLine(`const {styles} = useStyles(stylesheet);`);
+    writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
     writer.blankLine();
 
     // Conditional styling

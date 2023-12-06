@@ -1,6 +1,5 @@
-import parseFigma from 'plugin/fig/parse';
-import {getPage} from 'plugin/fig/traverse';
-import {propsToString} from 'plugin/fig/lib';
+import parse from 'plugin/fig';
+import {propsToString, getPage} from 'plugin/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 import {generatePrimitives} from '../primitives';
 import {generateIndex} from '../common/generateIndex';
@@ -48,7 +47,7 @@ export async function generateBundle(
   }
 
   // Parse nodes
-  const data = await parseFigma(target);
+  const data = await parse(target);
   if (!data) {
     return emptyBundle;
   }

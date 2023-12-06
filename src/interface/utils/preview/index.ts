@@ -68,7 +68,9 @@ export async function init(settings: Settings) {
 
 function getImports(name: string, props: string) {
   const regex = /<\s*([a-zA-Z][^\s>\/]*)[^>]*>/g;
-  const swaps = Array.from(props.matchAll(regex), match => match[1]);
+  const swaps = Array
+    .from(props.matchAll(regex), match => match[1])
+    .filter(swap => swap !== 'Icon');
   const imports = [
     `import {${name}} from 'components/${name}';`,
     ...swaps?.map(swap => `import {${swap}} from 'components/${swap}';`),

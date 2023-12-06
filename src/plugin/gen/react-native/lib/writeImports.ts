@@ -36,6 +36,14 @@ export function writeImports(
   writer.write(';');
   writer.newLine();
 
+  // Import icon library
+  writer.write(`import {Icon} from`);
+  writer.space();
+  writer.quote(`@iconify-icon/react`);
+  // TODO: writer.quote(`react-native-iconify`);
+  writer.write(';');
+  writer.newLine();
+
   // Import Unistyles helpers
   writer.write(`import {useStyles, createStyleSheet} from`);
   writer.space();

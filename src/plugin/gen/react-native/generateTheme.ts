@@ -1,7 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
-import {getCollectionModes} from 'plugin/fig/traverse';
-import {getColor} from 'plugin/fig/lib';
+import {getColor, getCollectionModes} from 'plugin/fig/lib';
 
 import type {Settings} from 'types/settings';
 

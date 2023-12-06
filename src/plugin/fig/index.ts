@@ -1,8 +1,6 @@
 import {getInstanceInfo, isNodeVisible, getCustomReaction} from 'plugin/fig/lib';
+import {convertStyles, convertAssets, validate} from './lib';
 import {createIdentifierCamel} from 'common/string';
-import {convertStyles} from './styles';
-import {convertAssets} from './assets';
-import {validate} from './validate';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
 

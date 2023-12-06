@@ -1,6 +1,14 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {getPropName, propsToString, getTopFill, getColor, getInstanceInfo, getCustomReaction, getPressReaction} from 'plugin/fig/lib';
+import {
+  propsToString,
+  getPropName,
+  getPage,
+  getFillToken,
+  getInstanceInfo,
+  getCustomReaction,
+  getPressReaction,
+} from 'plugin/fig/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {Settings} from 'types/settings';
@@ -61,28 +69,17 @@ function writeChild(
   const isAsset = (child.node.isAsset && !isInstance) || child.node.type === 'VECTOR';
   const isCustom = reaction?.type === 'URL';
 
-  // TODO: Icon component
-  if (child.node.name.startsWith('Icon') && child.node.type === 'INSTANCE') {
+  // Icon node
+  if (child.node.type === 'INSTANCE'
+    && child.node.name.includes(':')
+    && getPage(child.node.mainComponent)?.name === 'Icons') {
     const iconVector = child.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
-    const iconFill = getTopFill(iconVector.fills);
-    const iconVar = iconFill?.boundVariables.color;
-    const iconData = figma.variables.getVariableById(iconVar.id);
-    const iconColor = iconData.resolvedType === 'COLOR'
-      ? `{theme.colors.${iconData.name}}`
-      : getColor(iconFill.color);
-    console.log('writeIcon:', child.node.type, child.node.name, child.node, iconVector, iconData, iconColor);
-  }
-
-  // Component instance swap
-  const swapComponent = propRefs?.mainComponent;
-  const swapComponentName = swapComponent ? getPropName(swapComponent) : null;
-  if (swapComponentName) {
-    const statement = `props.${swapComponentName}`;
-    writer.writeLine(isConditional ? statement : `{${statement}}`);
+    const iconColor = '"#FFF"'; // getFillToken(iconVector);
+    writer.writeLine(`<Icon icon="${child.node.name}" color={${iconColor}} size={24}/>`);
     return;
   }
 
-  // Asset node (svg or image)
+  // Asset node
   if (isAsset) {
     const asset = data.assetData[child.node.id];
     if (asset) {
@@ -99,6 +96,15 @@ function writeChild(
     } else {
       writer.writeLine(`<View/>`);
     }
+    return;
+  }
+
+  // Component instance swap
+  const swapComponent = propRefs?.mainComponent;
+  const swapComponentName = swapComponent ? getPropName(swapComponent) : null;
+  if (swapComponentName) {
+    const statement = `props.${swapComponentName}`;
+    writer.writeLine(isConditional ? statement : `{${statement}}`);
     return;
   }
 

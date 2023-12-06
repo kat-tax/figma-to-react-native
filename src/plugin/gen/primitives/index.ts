@@ -1,4 +1,4 @@
-import {getComponentTargets} from 'plugin/fig/traverse';
+import {getComponentTargets} from 'plugin/fig/lib';
 
 import {Slider} from './exo/Slider';
 

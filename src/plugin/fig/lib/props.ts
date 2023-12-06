@@ -1,6 +1,5 @@
-import {createIdentifierPascal, createIdentifier, escapeBacktick} from 'common/string';
-import {getPropName} from './getPropName';
-import {sortProps} from './sortProps';
+import {getPage} from 'plugin/fig/lib';
+import * as string from 'common/string';
 
 export function propsToString(
   props: ComponentPropertyDefinitions | ComponentProperties,
@@ -29,10 +28,10 @@ export function propsToJSX(
     return v ? k : false;
   // Text props k={v} and gets quotes escaped
   } else if (type === 'TEXT') {
-    return `${k}={\`${escapeBacktick(v)}\`}`;
+    return `${k}={\`${string.escapeBacktick(v)}\`}`;
   // Variants are sanitized for invalid identifier chars
   } else if (type === 'VARIANT') {
-    return `${k}="${createIdentifier(v)}"`;
+    return `${k}="${string.createIdentifier(v)}"`;
   // Instance swap
   } else if (type === 'INSTANCE_SWAP') {
     const nodeId = defaultValue || value;
@@ -41,6 +40,8 @@ export function propsToJSX(
     const propsRef = (node as ComponentNode).instances[0].componentPropertyReferences;
     const isVariant = !!props;
     const masterNode = (isVariant ? node?.parent : node);
+    const isIconNode = masterNode.name.includes(':')
+      && getPage(masterNode)?.name === 'Icons';
 
     // Look for visibility prop on this instance swap
     // If it's false, we don't want to include this in the props
@@ -68,10 +69,50 @@ export function propsToJSX(
         ? propsToString(node.componentPropertyDefinitions)
         : '';
 
-    const testID = ` testID="${variantNode ? variantNode.id : masterNode.id}"`;
-    const name = createIdentifierPascal(masterNode?.name);
-    const tag = name ? '<' + name + instanceProps + testID + '/>' : '<View/>';
+    // Test ID for this instance swap
+    const testID = variantNode
+      ? variantNode.id
+      : masterNode.id;
+  
+    // Name of this instance swap
+    const name = isIconNode
+      ? 'Icon'
+      : string.createIdentifierPascal(masterNode?.name);
 
+    // Build JSX tag
+    const tag = name
+      ? `<${name} ${instanceProps} testID="${testID}"/>`
+      : '<View/>';
+
+    // Return JSX tag as prop value
     return `${k}={${tag}}`;
   }
+}
+
+export function getPropName(value: string) {
+  if (!value) return '';
+  return string.createIdentifierCamel(value.split('#').shift());
+}
+
+export function sortProps(a: any, b: any) {
+  // Booleans are always first
+  if (a[1].type === 'BOOLEAN' && b[1].type !== 'BOOLEAN') {
+    return -1;
+  // Otherwise sort alphabetically
+  } else {
+    return a[0].localeCompare(b[0]);
+  }
+}
+
+export function sortPropsDef(a: any, b: any) {
+  const isCondA = a[1].type === 'BOOLEAN' || a[1].type === 'INSTANCE_SWAP';
+  const isCondB = b[1].type === 'BOOLEAN' || b[1].type === 'INSTANCE_SWAP';
+  // Conditional types are last if different
+  if (isCondA !== isCondB)
+    return isCondA ? 1 : -1;
+  // Sort by type alphabetically if different
+  if (a[1].type !== b[1].type)
+    return a[1].type.localeCompare(b[1].type);
+  // Otherwise sort prop name alphabetically
+  return a[0].localeCompare(b[0]);
 }

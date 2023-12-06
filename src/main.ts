@@ -1,5 +1,5 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {focusNode} from 'plugin/fig/traverse';
+import {focusNode} from 'plugin/fig/lib';
 
 import * as app from 'plugin/app';
 import * as gen from 'plugin/gen';

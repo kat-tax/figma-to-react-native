@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
-import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/traverse';
+import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/lib';
 
 import {wait} from 'common/delay';
 import {generateIndex} from './common/generateIndex';

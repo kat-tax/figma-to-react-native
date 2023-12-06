@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
-import {getPropName} from 'plugin/fig/lib/getPropName';
+import {getPropName} from 'plugin/fig/lib';
 
 import type {ParseData, ParseStyles} from 'types/parse';
 
@@ -61,7 +61,7 @@ export function writeClasses(
   writer.blankLine();
   
   // Classes object
-  writer.write(`const $styles = React.useMemo(() => (`).inlineBlock(() => {
+  writer.write(`const classes = React.useMemo(() => (`).inlineBlock(() => {
     for (const slug of Object.keys(classes)) {
       const dynamic = isRootPressable ? pressableFunction : '';
       writer.write(`${slug}: ${dynamic}[`).indent(() => {
