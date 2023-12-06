@@ -5,10 +5,10 @@ import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {Watermark} from 'interface/base/Watermark';
 import {MonacoBinding} from 'interface/utils/editor/yjs';
-import {init} from 'interface/utils/editor/init';
+import {setupComponentEditor} from 'interface/utils/editor/setup';
 import * as $ from 'interface/store';
 
-import type {Monaco, Editor} from 'interface/utils/editor/init';
+import type {Monaco, Editor} from 'interface/utils/editor/setup';
 import type {ComponentBuild} from 'types/component';
 import type {Settings} from 'types/settings';
 
@@ -67,15 +67,15 @@ export function ComponentCode(props: ComponentCodeProps) {
         theme={props.options?.theme}
         options={{...props.options}}
         loading={<LoadingIndicator/> as JSX.Element}
-        onMount={(_editor, _monaco) => {
-          editor.current = _editor;
-          constraint.current = init(_editor, _monaco);
+        onMount={(e, m) => {
+          editor.current = e;
+          constraint.current = setupComponentEditor(e, m);
           new MonacoBinding(
             $componentCode,
-            _editor.getModel(),
-            new Set([_editor]),
+            e.getModel(),
+            new Set([e]),
             $.provider.awareness,
-          )
+          );
         }}
       />
     </Fragment>

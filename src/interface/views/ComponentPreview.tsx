@@ -20,6 +20,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const {target, settings, theme} = props;
   const component = $.components.get(target);
   const iframe = useRef<HTMLIFrameElement>(null);
+  const loaded = useRef(false);
   const [src, setSrc] = useState('');
 
   const updateComponent = useCallback((bundle: string) => {
@@ -40,6 +41,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   const render = useCallback(() => {
     if (!component) return;
+    if (!loaded.current) return;
     preview(
       '<' + component.name + component.props + '/>',
       component.name,
@@ -104,7 +106,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       <iframe
         ref={iframe}
         srcDoc={src}
-        onLoad={render}
+        onLoad={() => {
+          loaded.current = true;
+          render();
+        }}
         style={{
           opacity: src ? 1 : 0,
           transition: 'opacity .5s',

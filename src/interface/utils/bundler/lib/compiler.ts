@@ -4,6 +4,9 @@ import {Path} from './path';
 
 const wasmURL = 'https://unpkg.com/esbuild-wasm@0.17.19/esbuild.wasm';
 
+let _initialized = false;
+let _initializing = false;
+
 export interface Resolver {
   resolve(path: string): Promise<string> | string,
 }
@@ -13,7 +16,6 @@ export interface CompilerOptions extends esbuild.InitializeOptions {}
 export class Compiler {
   private readonly decoder: TextDecoder;
   private readonly barrier: Barrier;
-  private static initialized = false;
 
   constructor(
     private readonly resolver: Resolver,
@@ -24,17 +26,19 @@ export class Compiler {
   ) {
     this.decoder = new TextDecoder();
     this.barrier = new Barrier(true);
-    // Call initialize only if it hasn't been called before
-    if (!Compiler.initialized) {
-      esbuild.initialize({...this.options})
-        .then(() => {
-          Compiler.initialized = true;
-          this.barrier.resume();
-        });
-    // If already initialized, resume the barrier immediately
-    } else {
+    if (!_initialized && !_initializing) {
+      this.initialize();
+    } else if(_initialized) {
       this.barrier.resume();
     }
+  }
+
+  private async initialize() {
+    _initializing = true;
+    await esbuild.initialize({...this.options});
+    _initialized = true;
+    _initializing = false;
+    this.barrier.resume();
   }
 
   public async compile(

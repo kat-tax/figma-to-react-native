@@ -40,7 +40,7 @@ export function App(props: AppProps) {
   const build = useBuild();
   const user = useConfig();
   const nav = useNavigation(build);
-  const monaco = useEditor(user.config/*, component?.links*/);
+  const monaco = useEditor(user.config, build.links);
   const isDark = useDarkMode();
 
   const setTarget = nav.setComponent;

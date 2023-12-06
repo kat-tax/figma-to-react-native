@@ -9,7 +9,7 @@ import * as config from 'plugin/config';
 
 import type {Settings} from 'types/settings';
 import type {EventComponentBuild, EventProjectTheme} from 'types/events';
-import type {ComponentAsset, ComponentData, ComponentRoster} from 'types/component';
+import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
 
 export {generateIndex} from './common/generateIndex';
 
@@ -133,6 +133,7 @@ export async function compile(
   const _names = new Set<string>();
   const _assets: Record<string, ComponentAsset> = {};
   const _roster: ComponentRoster = {};
+  let _links: ComponentLinks = {};
 
   let _total = 0;
   let _loaded = 0;
@@ -177,6 +178,7 @@ export async function compile(
 
       _loaded++;
       _cached = cached;
+      _links = {..._links, ...bundle.links};
       _cache[component.id] = bundle;
       _roster[name] = {
         ..._roster[name],
@@ -190,6 +192,7 @@ export async function compile(
       emit<EventComponentBuild>('COMPONENT_BUILD', {
         index,
         pages,
+        links: _links,
         total: _total,
         loaded: _loaded,
         roster: _roster,

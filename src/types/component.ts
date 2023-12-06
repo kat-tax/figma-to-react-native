@@ -3,6 +3,7 @@ export type ComponentBuild = {
   assets: Record<string, ComponentAsset>,
   assetMap: Record<string, string>,
   pages: Array<string>,
+  links: ComponentLinks,
   total: number,
   loaded: number,
   index: string,

@@ -9,6 +9,7 @@ const initial: ComponentBuild = {
   loaded: 0,
   total: 0,
   pages: [],
+  links: {},
   roster: {},
   assets: {},
   assetMap: {},
