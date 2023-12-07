@@ -1,4 +1,4 @@
-import {getInstanceInfo, isNodeVisible, getCustomReaction} from 'plugin/fig/lib';
+import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'plugin/fig/lib';
 import {getAssets, getStyleSheet, getColorSheet, validate} from './lib';
 import {createIdentifierCamel} from 'common/string';
 
@@ -93,7 +93,7 @@ function crawlChildren(
     }
 
     // Record nodes with styles
-    if (NODES_WITH_STYLES.includes(node.type)) {
+    if (NODES_WITH_STYLES.includes(node.type) && !node.isAsset) {
       meta.styleNodes.add(node.id);
     }
 
@@ -101,8 +101,8 @@ function crawlChildren(
     switch (node.type) {
       case 'FRAME':
         meta.primitives.add('View');
+      // Container, recurse
       case 'COMPONENT':
-        // Container, recurse
         const sub = crawlChildren(node.children, dict, [], meta);
         meta.primitives = new Set([...meta.primitives, ...sub.meta.primitives]);
         meta.assetNodes = new Set([...meta.assetNodes, ...sub.meta.assetNodes]);
@@ -111,8 +111,8 @@ function crawlChildren(
         dict = new Set([...dict, node, ...sub.dict]);
         tree.push({node, children: sub.tree});
         break;
+      // Instance swap
       case 'INSTANCE':
-        // Instance swap
         const info = getInstanceInfo(node);
         if (info.propName) {
           meta.includes[info.main.id] = [info.main, node];
@@ -130,7 +130,8 @@ function crawlChildren(
                 if ((node.componentProperties[swapPropsRef.visible] as any)?.value === false)
                   swapInvisible = true;
               }
-              if (!swapInvisible) {
+              // If swap component is an icon and not invisible, add to components to import
+              if (!isNodeIcon(swapComponent) && !swapInvisible) {
                 meta.components[swapComponent.id] = [swapComponent, node];
               }
             }

@@ -1,4 +1,10 @@
 import {getPropName} from './props';
+import {getPage} from './traverse';
+
+export function isNodeIcon(node: BaseNode) {
+  return node.name.includes(':')
+    && getPage(node)?.name === 'Icons';
+}
 
 export function isNodeVisible(node: SceneNode) {
   const isVariant = !!(node as SceneNode & VariantMixin).variantProperties;

@@ -10,6 +10,7 @@ export {
 } from './colors';
 
 export {
+  isNodeIcon,
   isNodeVisible,
   getInstanceInfo,
   getCustomReaction,

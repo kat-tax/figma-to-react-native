@@ -1,4 +1,4 @@
-import {getPage} from 'plugin/fig/lib';
+import {isNodeIcon} from 'plugin/fig/lib';
 import * as string from 'common/string';
 
 import type {ParseColorSheet} from 'types/parse';
@@ -51,7 +51,7 @@ export function propValueToJSX(
     const propsRef = node.instances[0].componentPropertyReferences;
     const isVariant = !!props;
     const masterNode = (isVariant ? node?.parent : node);
-    const isIconNode = masterNode.name.includes(':') && getPage(masterNode)?.name === 'Icons';
+    const isIconNode = isNodeIcon(masterNode);
 
     // Look for visibility prop on this instance swap
     // If it's false, we don't want to include this in the props

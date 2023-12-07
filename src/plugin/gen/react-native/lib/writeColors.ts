@@ -47,7 +47,7 @@ export function writeColors(
     for (const slug of Object.keys(fills)) {
       const dynamic = isRootPressable ? pressableFunction : '';
       const variants = data.variants.fills[slug];
-      console.log('[colors]', slug, variants, data.colorsheet, data.variants.fills);
+      // console.log('[colors]', slug, variants, data.colorsheet, data.variants.fills);
       writer.write(`${slug}: ${dynamic}[`).indent(() => {
         // TODO: writer.writeLine(`${default color},`);
         Array.from(fills[slug]).forEach((value: string[][]) => {
@@ -63,7 +63,7 @@ export function writeColors(
             }).filter(Boolean).join(' && ');
           const varNodeId = variants[raw.toString()];
           const fillToken = data.colorsheet[varNodeId];
-          console.log('[colors/rule]', raw, slug, fillToken, varNodeId);
+          // console.log('[colors/rule]', raw, slug, fillToken, varNodeId);
           writer.writeLine(`${condition} && ${fillToken},`);
         });
       });
