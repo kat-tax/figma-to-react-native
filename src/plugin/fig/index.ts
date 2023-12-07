@@ -184,20 +184,19 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
     return null;
 
   const compSet = root.parent as ComponentSetNode;
-  const compVars = compSet.children.filter((n: ComponentNode) =>
-    n !== compSet.defaultVariant
-  ) as ComponentNode[];
+  const compVars = compSet.children as ComponentNode[];
 
   for (const variant of compVars) {
-
     // Variant root mapping
     variants.mapping[variant.id] = {};
     variants.mapping[variant.id][root.id] = variant.id;
 
-    // Variant root class
+    // Variant root class (exclude default)
     if (!variants.classes.root)
       variants.classes.root = {};
-    variants.classes.root[variant.name] = variant.id;
+      if (variant.id !== compSet.defaultVariant.id) {
+        variants.classes.root[variant.name] = variant.id;
+      }
 
     // Variant children mapping, classes, and fills
     if (variant.children) {
