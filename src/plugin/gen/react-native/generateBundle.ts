@@ -1,5 +1,5 @@
 import parse from 'plugin/fig';
-import {propsToString, getPage} from 'plugin/fig/lib';
+import {getPropsJSX, getPage} from 'plugin/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 import {generatePrimitives} from '../primitives';
 import {generateIndex} from '../common/generateIndex';
@@ -78,7 +78,7 @@ export async function generateBundle(
   const id = masterNode.id;
   const page = getPage(masterNode)?.name;
   const name = createIdentifierPascal(masterNode.name);
-  const props = propsToString({...propDefs}, data.meta.includes);
+  const props = getPropsJSX({...propDefs}, data.colorsheet, data.meta.includes);
 
   // Return bundle
   return {

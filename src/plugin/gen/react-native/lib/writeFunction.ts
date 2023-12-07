@@ -2,6 +2,7 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {writeChildren} from './writeChildren';
 import {writeClasses} from './writeClasses';
+import {writeColors} from './writeColors';
 import {writeProps} from './writeProps';
 import {writeState} from './writeState';
 
@@ -60,15 +61,22 @@ export function writeFunction(
 
   // Component function body and children
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
+    
     // Write state hooks
     writeState(writer, data);
+    
     // Write style hook
     writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
     writer.blankLine();
 
-    // Conditional styling
-    if (isVariant && data?.variants && Object.keys(data.variants.classes).length > 0)
-      writeClasses(writer, data, isRootPressable);
+    // Write variant conditionals
+    if (isVariant && data?.variants) {
+      // writeConditions(writer, data, isRootPressable);
+      if (Object.keys(data.variants.classes).length > 0)
+        writeClasses(writer, data, isRootPressable);
+      if (Object.keys(data.variants.fills).length > 0)
+        writeColors(writer, data, isRootPressable);
+    }
 
     /* TODO: accessibility
       if (isRootPressable) {
@@ -81,6 +89,7 @@ export function writeFunction(
       }
     */
 
+    // Write component JSX
     writer.write(`return (`).indent(() => {
       const pressId = isRootPressable && pressables?.find(e => e[1] === 'root' || !e[1])?.[2];
       const rootTag = isRootPressable ? 'Pressable' : 'View';

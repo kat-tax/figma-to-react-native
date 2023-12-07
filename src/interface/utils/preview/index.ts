@@ -23,14 +23,19 @@ export async function preview(
 ) {
   // Build filesystem
   const files: Map<string, string> = new Map();
-  for (const name of Object.keys(roster)) {
+  for (const file of Object.keys(roster)) {
     try {
-      const contents = $.getComponentCode(name);
-      const path = `/components/${name}`;
-      files.set(path, contents.toString());
+      const contents = $.getComponentCode(file);
+      const path = `/components/${file}`;
+      const code = contents.toString();
+      files.set(path, code);
+      if (name === file) {
+        console.debug('[preview]', tag);
+        // console.debug(code);
+      }
     } catch (e) {
-      notify(e, `Failed to build preview component: ${name}`);
-      console.error('[preview] [component]', e.toString());
+      notify(e, `Failed to build preview component: ${file}`);
+      console.error('[preview]', e.toString());
     }
   }
 
@@ -46,7 +51,7 @@ export async function preview(
     return await build(ENTRY_POINT, files, settings.esbuild, importMap);
   } catch (e) {
     notify(e, 'Failed to build preview app');
-    console.error('[preview] [component]', e.toString());
+    console.error('[preview/app]', e.toString());
   }
 }
 

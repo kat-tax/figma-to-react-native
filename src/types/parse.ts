@@ -6,6 +6,7 @@ export interface ParseData {
   children: Array<{node: SceneNode, slug: string}>,
   variants: ParseVariantData,
   stylesheet: ParseStyleSheet,
+  colorsheet: ParseColorSheet,
   assetData: ParseAssetData,
   assetMap: Record<string, string>,
 }
@@ -18,8 +19,9 @@ export type ParseNodeTree = Array<ParseNodeTreeItem>;
 export type ParseNodeTreeItem = {node: SceneNode, children?: ParseNodeTree};
 
 export type ParseVariantData = {
-  classes: Record<string, Record<string, string>>,
   mapping: Record<string, Record<string, string>>,
+  classes: Record<string, Record<string, string>>,
+  fills: Record<string, Record<string, string>>,
 };
 
 export type ParseAssetData = Record<string, {
@@ -41,6 +43,7 @@ export type ParseMetaData = {
 };
 
 export type ParseStyleSheet = Record<string, ParseStyles>;
+export type ParseColorSheet = Record<string, string>;
 
 export type ParseStyles = {
   [key: string]: string | number,

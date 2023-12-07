@@ -52,8 +52,8 @@ export function writeClasses(
   Object.keys(conditions)
     .sort((a, b) => a.localeCompare(b))
     .forEach(cond => {
-      // Skip default state
-      if (cond === '_stateDefault') return;
+      // TRIAGE: Skip default state
+      // if (cond === '_stateDefault') return;
       const specialState = pressableDisableState[cond] || '';
       const expression = conditions[cond];
       writer.write(`const ${cond} = ${expression}${specialState};`).newLine();
@@ -70,9 +70,9 @@ export function writeClasses(
           const [rules, raw] = data;
           const condition = rules.map(ruleName => {
             const pressableState =  pressableStates[ruleName] as string;
-            // Skip default state
-            if (ruleName === '_stateDefault')
-              return false;
+            // TRIAGE: Skip default state
+            //if (ruleName === '_stateDefault')
+            //  return false;
             return pressableState && dynamic
               ? `(${ruleName} || ${pressableState})`
               : ruleName;

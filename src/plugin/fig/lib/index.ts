@@ -1,12 +1,13 @@
-export {convertAssets} from './assets';
-export {convertStyles} from './styles';
 export {validate} from './validate';
+export {getAssets} from './assets';
+export {getStyleSheet} from './styles';
 
 export {
-  getColor,
-  getTopFill,
+  getColorSheet,
   getFillToken,
-} from './color';
+  getTopFill,
+  getColor,
+} from './colors';
 
 export {
   isNodeVisible,
@@ -17,7 +18,7 @@ export {
 
 export {
   getPropName,
-  propsToString,
+  getPropsJSX,
   sortProps,
   sortPropsDef,
 } from './props';

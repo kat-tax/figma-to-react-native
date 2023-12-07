@@ -6,7 +6,7 @@ import type {ParseStyleSheet, ParseVariantData} from 'types/parse';
 type StyleSheet = Record<string, StyleClass>;
 type StyleClass = {[key: string]: string};
 
-export async function convertStyles(nodes: Set<string>, variants?: ParseVariantData): Promise<ParseStyleSheet> {
+export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantData): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
   let css: StyleSheet = {};
   for await (const id of nodes) {

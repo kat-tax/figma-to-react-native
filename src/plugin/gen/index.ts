@@ -114,9 +114,9 @@ export async function watchComponents() {
         }
       }
     });
+
     // No updates, do nothing
     if (updates.length === 0) return;
-
 
     // Get updated targets and compile
     const update = getComponentTargets(updates);
@@ -199,7 +199,7 @@ export async function compile(
         assets: _assets,
         assetMap: {},
       }, bundle);
-      console.log('[compile]', name, bundle);
+      // console.log('[compile]', name, bundle);
     } catch (e) {
       console.error('Failed to export', component, e);
     }

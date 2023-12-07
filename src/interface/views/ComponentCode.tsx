@@ -40,7 +40,6 @@ export function ComponentCode(props: ComponentCodeProps) {
       }),
     });
     const output = await response.text();
-    console.log(output);
     setPatch(output);
   }, [$componentCode, props.build]);
 

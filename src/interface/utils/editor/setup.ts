@@ -123,7 +123,7 @@ export function setupFileOpener(monaco: Monaco, links?: ComponentLinks) {
       if (base === F2RN_EDITOR_NS) {
         const name = resource.path.match(/\/([^\/]+)\.[^.]+$/)?.[1];
         const link = links?.[name];
-        console.log('openCodeEditor', resource, name, links, link);
+        console.debug('[open file]', resource, name, links, link);
         if (link) {
           emit<EventFocusNode>('FOCUS', link);
         }

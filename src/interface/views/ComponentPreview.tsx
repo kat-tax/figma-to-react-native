@@ -50,7 +50,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       settings,
       props.build.roster,
     ).then(updateComponent);
-    console.debug('[preview]', component.name, component);
   }, [component, settings, props.build]);
 
   // Initialize the loader

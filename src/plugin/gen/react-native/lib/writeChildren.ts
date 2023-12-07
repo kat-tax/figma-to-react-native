@@ -1,13 +1,13 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
 import {
-  propsToString,
-  getPropName,
   getPage,
+  getPropsJSX,
+  getPropName,
   getFillToken,
   getInstanceInfo,
-  getCustomReaction,
   getPressReaction,
+  getCustomReaction,
 } from 'plugin/fig/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
@@ -23,7 +23,7 @@ export function writeChildren(
   getStylePrefix: StylePrefixMapper,
   pressables?: string[][],
 ) {
-  const state = {writer, data, settings, getStylePrefix, pressables};
+  const state = {writer, data, settings, pressables, getStylePrefix};
   children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
@@ -52,30 +52,51 @@ function writeChild(
     writer: CodeBlockWriter,
     data: ParseData,
     settings: Settings,
-    getStylePrefix: StylePrefixMapper,
     pressables?: string[][],
+    getStylePrefix: StylePrefixMapper,
   },
 ) {
-  const {writer, data, settings, getStylePrefix, pressables} = state;
+  const {writer, data, settings, pressables, getStylePrefix} = state;
 
-  const props = (child.node as InstanceNode)?.componentProperties;
+  // Derived data
+  const testID = ` testID="${child.node.id}"`;
   const propRefs = child.node.componentPropertyReferences;
-  const pressable = getPressReaction(child.node as InstanceNode);
-  const reaction = getCustomReaction(child.node as InstanceNode);
   const instance = getInstanceInfo(child.node as InstanceNode);
-  const propJSX = propsToString(props);
-  const isText = child.node.type === 'TEXT';
+  const reaction = getCustomReaction(instance.node);
+  const pressable = getPressReaction(instance.node);
+  const swapNodeProp = getPropName(propRefs?.mainComponent);
+  const jsxBaseProps = getPropsJSX(instance.node.componentProperties, data.colorsheet, data.meta.includes);
+  const hasCustomProps = reaction?.type === 'URL';
+  const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
-  const isAsset = (child.node.isAsset && !isInstance) || child.node.type === 'VECTOR';
-  const isCustom = reaction?.type === 'URL';
+  const isAsset = child.node.type === 'VECTOR' || (child.node.isAsset && !isInstance);
+  const isText = child.node.type === 'TEXT';
+  const isSwap = Boolean(swapNodeProp);
+  const isIcon = isInstance
+    && child.node.name.includes(':')
+    && getPage((child.node as InstanceNode).mainComponent)?.name === 'Icons'
 
   // Icon node
-  if (child.node.type === 'INSTANCE'
-    && child.node.name.includes(':')
-    && getPage(child.node.mainComponent)?.name === 'Icons') {
-    const iconVector = child.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
-    const iconColor = '"#FFF"'; // getFillToken(iconVector);
-    writer.writeLine(`<Icon icon="${child.node.name}" color={${iconColor}} size={24}/>`);
+  if (isIcon) {
+    const iconVector = instance.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
+    const iconColor = getFillToken(iconVector);
+    const hasVariant = !!Object.values(data.variants.fills[slug]);
+    const fillToken = hasVariant ? `colors.${slug}` : iconColor;
+    const dynamic = isRootPressable ? '(e)' : '';
+    const style = `{color: ${fillToken}${dynamic}}`;
+    // Swap icon, override props for this instance
+    if (isSwap) {
+      const statement = `React.cloneElement(props.${swapNodeProp}, `;
+      writer.write((isConditional ? '' : '{') + statement).inlineBlock(() => {
+        writer.writeLine(`style: ${style},`);
+        writer.writeLine(`size: ${child.node.width},`);
+      });
+      writer.write(')' + (isConditional ? '' : '}'));
+      writer.newLine();
+    // Explicit icon, use Icon component directly
+    } else {
+      writer.writeLine(`<Icon icon="${child.node.name}" size={${child.node.width}} style={${style}}/>`);
+    }
     return;
   }
 
@@ -83,11 +104,11 @@ function writeChild(
   if (isAsset) {
     const asset = data.assetData[child.node.id];
     if (asset) {
-      // Vector
+      // Vector node
       if (asset.isVector) {
         const vectorTag = '<' + asset.name + '/>'
         writer.writeLine(vectorTag);
-      // Raster
+      // Raster node
       } else {
         const uri = asset.name;
         const style = `{width: ${asset.width}, height: ${asset.height}}`;
@@ -99,22 +120,20 @@ function writeChild(
     return;
   }
 
-  // Component instance swap
-  const swapComponent = propRefs?.mainComponent;
-  const swapComponentName = swapComponent ? getPropName(swapComponent) : null;
-  if (swapComponentName) {
-    const statement = `props.${swapComponentName}`;
+  // Swap node
+  if (isSwap) {
+    const statement = `props.${swapNodeProp}`;
     writer.writeLine(isConditional ? statement : `{${statement}}`);
     return;
   }
 
-  // JSX tag will change depending on node type
+  // Normal node
   let jsxTag: string;
   let jsxTagWithProps: string;
   let jsxCustomProps = '';
 
-  // Custom props from the interaction to inject
-  if (isCustom) {
+  // Custom props (via prototype interaction)
+  if (hasCustomProps) {
     jsxCustomProps = reaction.url
       ?.split(',')
       ?.map(p => p.trim())
@@ -138,22 +157,18 @@ function writeChild(
       })?.join('');
   }
 
-  // Test ID
-  const testID = ` testID="${child.node.id}"`;
-
   // Create instance tag
   if (isInstance) {
     jsxTag = createIdentifierPascal(instance.main.name);
-    jsxTagWithProps = jsxTag + jsxCustomProps + propJSX + testID;
+    jsxTagWithProps = jsxTag + jsxCustomProps + jsxBaseProps + testID;
 
   // Create primitive tag
   } else {
     // Determine if root node is wrapped in a pressable
-    const isRootPressable = pressables !== null && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
     const dynamic = isRootPressable ? '(e)' : '';
     const styles = slug ? ` style={${getStylePrefix(slug)}.${slug}${dynamic}}` : '';
     jsxTag = getTag(child.node.type);
-    jsxTagWithProps = jsxTag + styles + jsxCustomProps + propJSX + testID;
+    jsxTagWithProps = jsxTag + styles + jsxCustomProps + jsxBaseProps + testID;
   }
 
   // No children, self closing tag

@@ -33,10 +33,6 @@ export function ModalGPTVision(props: ModalGPTVisionProps) {
     close: () => {},
     submit: (data) => {
       setGenerating(true);
-      // TODO: load saved prompt from component data
-      // TODO: send component image export and prompt to ui
-      // TODO: submit to GPT-4 Vision
-      // TODO: update component code via the store
     },
   });
 

@@ -4,9 +4,9 @@ import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
 import type {ParseAssetData} from 'types/parse';
 
 const IMAGE_BLANK_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
-const VECTOR_NODE_TYPES: NodeType[] = ['VECTOR', 'LINE', 'ELLIPSE', 'POLYGON', 'STAR'];
+const VECTOR_NODE_TYPES: NodeType[] = ['VECTOR', 'LINE', 'POLYGON', 'STAR'];
 
-export async function convertAssets(nodes: Set<string>): Promise<{
+export async function getAssets(nodes: Set<string>): Promise<{
   assetData: ParseAssetData,
   assetMap: Record<string, string>,
   hasRaster: boolean,

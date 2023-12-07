@@ -1,8 +1,16 @@
 import {getPage} from 'plugin/fig/lib';
 import * as string from 'common/string';
 
-export function propsToString(
+import type {ParseColorSheet} from 'types/parse';
+
+export function getPropName(value: string) {
+  if (!value) return '';
+  return string.createIdentifierCamel(value.split('#').shift());
+}
+
+export function getPropsJSX(
   props: ComponentPropertyDefinitions | ComponentProperties,
+  colorsheet: ParseColorSheet,
   nodeRef?: Record<string, [BaseNode, BaseNode]>,
 ): string {
   if (!props) return '';
@@ -10,19 +18,22 @@ export function propsToString(
   if (attrs.length === 0) return '';
   return ' ' + Object.entries(props)
     .sort(sortProps)
-    .map((val) => propsToJSX(val, props, nodeRef))
+    .map(p => propValueToJSX(p, props, colorsheet, nodeRef))
     .filter(Boolean)
     .join(' ');
 }
 
-export function propsToJSX(
+export function propValueToJSX(
   [key, prop],
   allProps: ComponentPropertyDefinitions | ComponentProperties,
+  colorsheet: ParseColorSheet,
   nodeRef?: Record<string, [BaseNode, BaseNode]>,
 ) {
-  const {type, value, defaultValue}: any = prop;
+  type Prop = {type: string, value: string, defaultValue: string};
+  const {type, value, defaultValue}: Prop = prop;
   const k = getPropName(key);
   const v = value || defaultValue;
+
   // Boolean prop shorthand (omit if false)
   if (type === 'BOOLEAN') {
     return v ? k : false;
@@ -34,14 +45,13 @@ export function propsToJSX(
     return `${k}="${string.createIdentifier(v)}"`;
   // Instance swap
   } else if (type === 'INSTANCE_SWAP') {
-    const nodeId = defaultValue || value;
-    const node = figma.getNodeById(nodeId);
-    const props = (node as SceneNode & VariantMixin).variantProperties;
-    const propsRef = (node as ComponentNode).instances[0].componentPropertyReferences;
+    const id = defaultValue || value;
+    const node = figma.getNodeById(id) as ComponentNode;
+    const props = node.variantProperties;
+    const propsRef = node.instances[0].componentPropertyReferences;
     const isVariant = !!props;
     const masterNode = (isVariant ? node?.parent : node);
-    const isIconNode = masterNode.name.includes(':')
-      && getPage(masterNode)?.name === 'Icons';
+    const isIconNode = masterNode.name.includes(':') && getPage(masterNode)?.name === 'Icons';
 
     // Look for visibility prop on this instance swap
     // If it's false, we don't want to include this in the props
@@ -54,44 +64,44 @@ export function propsToJSX(
 
     // This instance swap is a variant that needs props passed to it
     // Find the instance node using the master node and the nodeRef map saved from fig/parse
-    // TODO: a bit hacky, but only needed for previews that pass components to an instance swap prop
+    // REFACTOR: a bit hacky, but only needed for previews that pass components to an instance swap prop
     let variantNode: BaseNode;
     if (isVariant) {
       if (nodeRef[masterNode.id]) {
         variantNode = nodeRef[masterNode.id][1];
       }
     }
-    
-    // Props for this instance swap
-    const instanceProps = !!variantNode
-      ? propsToString((variantNode as InstanceNode).componentProperties)
-      : node.type === 'COMPONENT'
-        ? propsToString(node.componentPropertyDefinitions)
-        : '';
 
-    // Test ID for this instance swap
-    const testID = variantNode
-      ? variantNode.id
-      : masterNode.id;
+    // Props for this instance swap
+    const propsInstance = !!variantNode
+      ? getPropsJSX((variantNode as InstanceNode).componentProperties, colorsheet, nodeRef)
+      : node.type === 'COMPONENT'
+        ? getPropsJSX(node.componentPropertyDefinitions, colorsheet, nodeRef)
+        : '';
   
-    // Name of this instance swap
-    const name = isIconNode
-      ? 'Icon'
-      : string.createIdentifierPascal(masterNode?.name);
+    // Name of this instance swap tag
+    const tagName = !isIconNode
+      ? string.createIdentifierPascal(masterNode?.name)
+      : 'Icon';
+    
+    // Props specific to icon nodes
+    const propsIcon = isIconNode
+      ? ` icon="${masterNode.name}"`
+      : ' ';
+
+    // Test ID (if not icon)
+    const propTestID = !isIconNode
+      ? ` testID="${variantNode ? variantNode.id : masterNode.id}"`
+      : '';
 
     // Build JSX tag
-    const tag = name
-      ? `<${name} ${instanceProps} testID="${testID}"/>`
+    const tag = tagName
+      ? `<${tagName}${propsIcon}${propsInstance}${propTestID}/>`
       : '<View/>';
 
     // Return JSX tag as prop value
     return `${k}={${tag}}`;
   }
-}
-
-export function getPropName(value: string) {
-  if (!value) return '';
-  return string.createIdentifierCamel(value.split('#').shift());
 }
 
 export function sortProps(a: any, b: any) {

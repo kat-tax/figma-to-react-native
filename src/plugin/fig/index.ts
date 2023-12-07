@@ -1,12 +1,12 @@
 import {getInstanceInfo, isNodeVisible, getCustomReaction} from 'plugin/fig/lib';
-import {convertStyles, convertAssets, validate} from './lib';
+import {getAssets, getStyleSheet, getColorSheet, validate} from './lib';
 import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
 
 const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'SECTION', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
-export default async function parse(component: ComponentNode): Promise<ParseData> {
+export default async function(component: ComponentNode): Promise<ParseData> {
   // Make sure component can be processed
   try {
     validate(component);
@@ -20,9 +20,10 @@ export default async function parse(component: ComponentNode): Promise<ParseData
   const data = crawl(component);
 
   // Generated styles and assets
-  const [stylesheet, {assetData, assetMap, hasRaster}] = await Promise.all([
-    convertStyles(data.meta.styleNodes, data.variants),
-    convertAssets(data.meta.assetNodes),
+  const [stylesheet, colorsheet, {assetData, assetMap, hasRaster}] = await Promise.all([
+    getStyleSheet(data.meta.styleNodes, data.variants),
+    getColorSheet(data.meta.assetNodes, data.variants),
+    getAssets(data.meta.assetNodes),
   ]);
 
   // Add image primitive if needed
@@ -33,7 +34,7 @@ export default async function parse(component: ComponentNode): Promise<ParseData
   // Profile
   // console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
 
-  return {...data, stylesheet, assetData, assetMap};
+  return {...data, stylesheet, colorsheet, assetData, assetMap};
 }
 
 function crawl(node: ComponentNode) {
@@ -82,7 +83,8 @@ function crawlChildren(
     if (!isNodeVisible(node)) continue;
 
     // Record asset nodes to be exported, nothing further is needed
-    const isAsset = (node.isAsset && node.type !== 'INSTANCE') || node.type === 'VECTOR';
+    const isInstance = node.type === 'INSTANCE';
+    const isAsset = (node.isAsset && !isInstance) || node.type === 'VECTOR';
     if (isAsset) {
       meta.assetNodes.add(node.id);
       dict.add(node);
@@ -172,7 +174,11 @@ function getChildren(nodes: Set<SceneNode>): ParseChild[] {
 }
 
 function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
-  const variants: ParseVariantData = {classes: {}, mapping: {}};
+  const variants: ParseVariantData = {
+    mapping: {},
+    classes: {},
+    fills: {},
+  };
 
   if (!root || !root.variantProperties)
     return null;
@@ -182,28 +188,47 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
     n !== compSet.defaultVariant
   ) as ComponentNode[];
 
-  for (const variant of compVars) {  
+  for (const variant of compVars) {
+
+    // Variant root mapping
     variants.mapping[variant.id] = {};
     variants.mapping[variant.id][root.id] = variant.id;
-    if (!variants.classes.root) variants.classes.root = {};
+
+    // Variant root class
+    if (!variants.classes.root)
+      variants.classes.root = {};
     variants.classes.root[variant.name] = variant.id;
+
+    // Variant children mapping, classes, and fills
     if (variant.children) {
       const nodes = crawlChildren(variant.children);
       const children = getChildren(nodes.dict);
       for (const child of children) {
         if (!child || !child.node) continue;
+
+        // Find matching base node
         const childId = createIdentifierCamel(child?.node.name);
         const baseNode = rootChildren.find((c) =>
           createIdentifierCamel(c?.node.name) === childId
           && c?.node.type === child?.node.type
         );
-        if (!variants.mapping[variant.id]) variants.mapping[variant.id] = {};
+
+        // Map variant child nodes
         variants.mapping[variant.id][baseNode?.node.id] = child?.node.id;
-        // Node without styles do not need classes
-        if (!NODES_WITH_STYLES.includes(child?.node.type))
-          continue;
-        if (!variants.classes[childId]) variants.classes[childId] = {};
-        variants.classes[childId][variant.name] = child?.node.id;
+  
+        // Node with fills
+        if (child?.node?.isAsset) {
+          if (!variants.fills[childId])
+            variants.fills[childId] = {};
+          variants.fills[childId][variant.name] = child?.node.id;
+        }
+
+        // Node with styles
+        if (NODES_WITH_STYLES.includes(child?.node.type)) {
+          if (!variants.classes[childId])
+            variants.classes[childId] = {};
+          variants.classes[childId][variant.name] = child?.node.id;
+        }
       }
     }
   }

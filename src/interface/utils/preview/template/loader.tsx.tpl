@@ -18,6 +18,7 @@ export function Preview() {
         setInspect(e.data.enabled);
       }
       if (e.data?.type === 'preview') {
+        // console.debug('[loader]', e.data.bundle);
         const component = document.getElementById('component');
         const prev = document.getElementById('target');
         const next = document.createElement('script');
