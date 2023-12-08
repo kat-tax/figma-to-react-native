@@ -1,4 +1,9 @@
-import {Compiler, Resolver} from './lib/compiler';
+import {Compiler} from './lib/compiler';
+import {Resolver} from './lib/resolver';
+
+import react from './plugins/react';
+import png from './plugins/png';
+import svg from './plugins/svg';
 
 import type {BuildOptions} from 'esbuild-wasm';
 
@@ -8,9 +13,8 @@ export async function build(
   config: BuildOptions,
   importMap?: Record<string, string>,
 ): Promise<string> {
-  // console.log('[bundler]', entry, files)
   const resolver = new MemoryResolver(files);
-  const compiler = new Compiler(resolver);
+  const compiler = new Compiler();
   return await compiler.compile(entry, {
     ...config,
     define: {'process.env.NODE_ENV': '"development"'},
@@ -18,7 +22,11 @@ export async function build(
     format: 'esm',
     jsx: 'automatic',
     jsxDev: true,
-  }, importMap);
+  }, [
+    png({resolver}),
+    svg({resolver}),
+    react({resolver, importMap}),
+  ]);
 }
 
 export class MemoryResolver implements Resolver {

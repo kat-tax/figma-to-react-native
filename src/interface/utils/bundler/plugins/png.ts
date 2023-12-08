@@ -1,7 +1,7 @@
-import {bytesToDataURL} from '../lib/encoding';
+import {bytesToDataURL} from '../utils/data';
 
 import type {Plugin} from 'esbuild';
-import type {Resolver} from '../lib/compiler';
+import type {Resolver} from '../lib/resolver';
 
 interface PluginOptions {
   resolver: Resolver,

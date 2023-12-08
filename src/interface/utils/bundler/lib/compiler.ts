@@ -1,23 +1,12 @@
 import {initialize, build} from 'esbuild-wasm';
 import {Barrier} from './barrier';
 
-import react from '../plugins/react';
-import svg from '../plugins/svg';
-import png from '../plugins/png';
-
-import type {InitializeOptions, BuildOptions} from 'esbuild-wasm';
+import type {InitializeOptions, BuildOptions, Plugin} from 'esbuild-wasm';
 
 const wasmURL = 'https://unpkg.com/esbuild-wasm@0.17.19/esbuild.wasm';
 
 let _initialized = false;
 let _initializing = false;
-
-export interface Resolver {
-  resolve(path: string):
-    | Promise<string | Uint8Array>
-    | Uint8Array
-    | string,
-}
 
 export interface CompilerOptions extends InitializeOptions {}
 
@@ -26,7 +15,6 @@ export class Compiler {
   private readonly barrier: Barrier;
 
   constructor(
-    private readonly resolver: Resolver,
     private readonly options: CompilerOptions = {
       wasmURL,
       worker: true,
@@ -52,23 +40,15 @@ export class Compiler {
   public async compile(
     entryPoint: string,
     options: BuildOptions = {},
-    importMap?: Record<string, string>,
+    plugins: Plugin[] = [],
   ) {
     await this.barrier.wait();
-    const resolver = this.resolver;
     const result = await build({
-      // Conform entry point
+      plugins,
       entryPoints: [
         entryPoint.charAt(0) === '/'
           ? entryPoint.slice(1)
           : entryPoint,
-      ],
-      // ESBuild plugins
-      plugins: [
-        svg({resolver}),
-        png({resolver}),
-        // Always last
-        react({resolver, importMap}),
       ],
       // User options
       ...options,
