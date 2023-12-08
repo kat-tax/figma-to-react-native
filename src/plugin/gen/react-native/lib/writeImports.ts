@@ -27,7 +27,8 @@ export function writeImports(
 
   // Import primitives
   const imports = [
-    ...data.meta.primitives,
+    'View',
+    ...Array.from(data.meta.primitives).filter(p => p !== 'View'),
     data.root.click?.type === 'URL' && 'Pressable',
   ].filter(Boolean);
   writer.write(`import {${(imports.length ? imports : ['View']).join(', ')}} from`);

@@ -48,7 +48,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       component.props,
       theme,
       settings,
-      props.build.roster,
+      props.build,
     ).then(updateComponent);
   }, [component, settings, props.build]);
 

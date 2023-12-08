@@ -25,7 +25,6 @@ export function useBuild(): ComponentBuild {
   const [build, setBuild] = useState<ComponentBuild>(initial);
   
   useEffect(() => on<EventComponentBuild>('COMPONENT_BUILD', (newBuild, component) => {
-    // console.log('[build]', component.name, newBuild);
     setBuild(newBuild);
     $.doc.transact(() => {
       $.setProjectIndex(newBuild.index);
@@ -33,6 +32,8 @@ export function useBuild(): ComponentBuild {
       $.setComponentCode(component.name, component.code);
       $.setComponentIndex(component.name, component.index);
       $.setComponentStory(component.name, component.story);
+      Object.values(build.assets).forEach(asset =>
+        $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes));
       $.components.set(component.name, {
         id: component.id,
         page: component.page,

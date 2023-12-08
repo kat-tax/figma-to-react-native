@@ -1,6 +1,11 @@
-import * as esbuild from 'esbuild-wasm';
+import {initialize, build} from 'esbuild-wasm';
 import {Barrier} from './barrier';
-import {Path} from './path';
+
+import react from '../plugins/react';
+import svg from '../plugins/svg';
+import png from '../plugins/png';
+
+import type {InitializeOptions, BuildOptions} from 'esbuild-wasm';
 
 const wasmURL = 'https://unpkg.com/esbuild-wasm@0.17.19/esbuild.wasm';
 
@@ -8,10 +13,13 @@ let _initialized = false;
 let _initializing = false;
 
 export interface Resolver {
-  resolve(path: string): Promise<string> | string,
+  resolve(path: string):
+    | Promise<string | Uint8Array>
+    | Uint8Array
+    | string,
 }
 
-export interface CompilerOptions extends esbuild.InitializeOptions {}
+export interface CompilerOptions extends InitializeOptions {}
 
 export class Compiler {
   private readonly decoder: TextDecoder;
@@ -35,7 +43,7 @@ export class Compiler {
 
   private async initialize() {
     _initializing = true;
-    await esbuild.initialize({...this.options});
+    await initialize({...this.options});
     _initialized = true;
     _initializing = false;
     this.barrier.resume();
@@ -43,82 +51,34 @@ export class Compiler {
 
   public async compile(
     entryPoint: string,
-    options: esbuild.BuildOptions = {},
+    options: BuildOptions = {},
     importMap?: Record<string, string>,
   ) {
     await this.barrier.wait();
-    const result = await esbuild.build({
+    const resolver = this.resolver;
+    const result = await build({
+      // Conform entry point
       entryPoints: [
         entryPoint.charAt(0) === '/'
           ? entryPoint.slice(1)
           : entryPoint,
       ],
+      // ESBuild plugins
       plugins: [
-        {
-          name: 'esbuild-wasm-bundler',
-          setup: (build) => {
-            const filter = /.*/;
-            build.onResolve({filter}, (args) =>
-              this.onResolveCallback(args, importMap));
-            build.onLoad({filter}, (args) =>
-              this.onLoadCallback(args));
-          },
-        },
+        svg({resolver}),
+        png({resolver}),
+        // Always last
+        react({resolver, importMap}),
       ],
+      // User options
       ...options,
-      // required
+      // Required options
       bundle: true,
       write: false,
-    })
+    });
+
+    // Return the first output file
     const contents = result.outputFiles![0].contents;
     return this.decoder.decode(contents);
-  }
-
-  private onResolveCallback(
-    args: esbuild.OnResolveArgs,
-    importMap?: Record<string, string>,
-  ) {
-    // console.log('[bundler/onResolveCallback]', args);
-    switch (args.kind) {
-      case 'entry-point':
-        return {path: '/' + args.path};
-      case 'import-statement':
-          if (importMap && importMap[args.path])
-            return {path: args.path, external: true};
-          // const dirname = Path.dirname(args.importer);
-          // const path = Path.join(dirname, args.path);
-          return {path: '/' + args.path};
-      default:
-        throw Error('not resolvable');
-    }
-  }
-
-  private async onLoadCallback(
-    args: esbuild.OnLoadArgs,
-  ): Promise<esbuild.OnLoadResult> {
-    // console.log('[bundler/onLoadCallback]', args);
-
-    const extname = Path.extname(args.path);
-    const contents = await Promise.resolve(this.resolver.resolve(args.path));
-    
-    const isComponent = args.path.startsWith('/components/');
-    const isAsset = args.path.startsWith('/assets/');
-    const isStyles = args.path.startsWith('/styles');
-    const isTheme = args.path.startsWith('/theme');
-    const isCss = extname === '.css';
-
-    let loader: esbuild.Loader = 'default';
-
-    if (isComponent) {
-      loader = 'tsx';
-    } else if (isAsset) {
-      loader = 'base64';
-    } else if (isCss) {
-      loader = 'css';
-    } else if (isStyles || isTheme) {
-      loader = 'ts';
-    }
-
-    return {contents, loader};
   }
 }

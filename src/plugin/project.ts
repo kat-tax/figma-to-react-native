@@ -55,7 +55,7 @@ export function build(projectConfig: ProjectConfig) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
             components.push([bundle.name, bundle.index, bundle.code, bundle.story]);
             names.add(bundle.name);
-            console.log('[project/bundle]', bundle);
+            // console.log('[project/bundle]', bundle);
           }
         } catch (e) {
           console.error('Failed to export', component, e);
@@ -77,7 +77,7 @@ export function build(projectConfig: ProjectConfig) {
         assets: buildAssets,
       };
 
-      console.log('[project/build]', build, projectConfig);
+      // console.log('[project/build]', build, projectConfig);
 
       emit<EventProjectBuild>('PROJECT_BUILD', build, projectConfig, user);
     }, 500);

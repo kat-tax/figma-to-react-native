@@ -9,7 +9,7 @@ import loader from './template/loader.tsx.tpl';
 import app from './template/app.tsx.tpl';
 
 import type {Settings} from 'types/settings';
-import type {ComponentRoster} from 'types/component';
+import type {ComponentBuild} from 'types/component';
 
 const ENTRY_POINT = '/index.tsx';
 
@@ -19,22 +19,36 @@ export async function preview(
   props: string,
   theme: string,
   settings: Settings,
-  roster: ComponentRoster,
+  buildData: ComponentBuild,
 ) {
-  // Build filesystem
-  const files: Map<string, string> = new Map();
-  for (const file of Object.keys(roster)) {
+  // Virtual filesystem
+  const files: Map<string, string | Uint8Array> = new Map();
+
+  // Add components to filesystem
+  for (const component of Object.keys(buildData.roster)) {
     try {
-      const contents = $.getComponentCode(file);
-      const path = `/components/${file}`;
+      const contents = $.getComponentCode(component);
+      const path = `/components/${component}`;
       const code = contents.toString();
       files.set(path, code);
-      if (name === file) {
+      if (name === component) {
         console.debug('[preview]', tag);
-        // console.debug(code);
       }
     } catch (e) {
-      notify(e, `Failed to build preview component: ${file}`);
+      notify(e, `Failed to build preview component: ${component}`);
+      console.error('[preview]', e.toString());
+    }
+  }
+
+  // Add assets to filesystem
+  for (const asset of Object.values(buildData.assets)) {
+    try {
+      const ext = asset.isVector ? 'svg' : 'png';
+      const folder = asset.isVector ? 'vectors' : 'rasters';
+      const path = `/assets/${folder}/${asset.name}.${ext}`;
+      files.set(path, asset.bytes);
+    } catch (e) {
+      notify(e, `Failed to build preview asset: ${asset.name}`);
       console.error('[preview]', e.toString());
     }
   }

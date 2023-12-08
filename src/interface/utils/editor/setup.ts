@@ -86,34 +86,6 @@ export function setupTypescript(monaco: Monaco, settings: Settings) {
     filePath: key,
     content: libraries[key],
   })));
-
-  /*
-  monaco.languages.registerCodeLensProvider('typescript', {
-    provideCodeLenses: () => {
-      return {
-        lenses: [
-          {
-            range: {
-              startLineNumber: 1,
-              startColumn: 1,
-              endLineNumber: 2,
-              endColumn: 1,
-            },
-            id: 'accept',
-            command: {
-              id: 'f2rn-gpt-accept',
-              title: 'Apply Changes',
-            },
-          },
-        ],
-        dispose: () => {},
-      };
-    },
-    resolveCodeLens: function (model, codeLens, token) {
-      return codeLens;
-    },
-  });
-  */
 }
 
 export function setupFileOpener(monaco: Monaco, links?: ComponentLinks) {

@@ -15,13 +15,16 @@ export function App() {
   const [theme, setTheme] = React.useState('__CURRENT_THEME__');
 
   React.useEffect(() => {
-    const updateTheme = (e: JSON) => {
-      if (e.data?.type === 'theme') {
-        setTheme(e.data.theme);
+    const updateProps = (e: JSON) => {
+      switch (e.data?.type) {
+        case 'theme':
+          return setTheme(e.data.theme);
+        case 'variant':
+          return console.log('variant', e.data.variant);
       }
     };
-    addEventListener('message', updateTheme);
-    return () => removeEventListener('message', updateTheme);
+    addEventListener('message', updateProps);
+    return () => removeEventListener('message', updateProps);
   }, []);
 
   return (

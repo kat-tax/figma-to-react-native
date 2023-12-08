@@ -15,6 +15,8 @@ export const provider = new WebrtcProvider('xxx', doc);
 
 provider.connect();
 
+export const assets = doc.getMap<Uint8Array>('assets');
+
 export const components = doc.getMap<{
   id: string,
   page: string,

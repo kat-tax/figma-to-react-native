@@ -3,7 +3,6 @@ import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
 
 import type {ParseAssetData} from 'types/parse';
 
-const IMAGE_BLANK_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 const VECTOR_NODE_TYPES: NodeType[] = ['VECTOR', 'LINE', 'POLYGON', 'STAR'];
 
 export async function getAssets(nodes: Set<string>): Promise<{
@@ -25,12 +24,16 @@ export async function getAssets(nodes: Set<string>): Promise<{
       let embed: string;
       let count: number;
       let bytes: Uint8Array;
-
+  
       const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin;
-      const {width, height} = node;
+      
       const isVector = VECTOR_NODE_TYPES.includes(node.type)
         || (node.findAllWithCriteria
           && node.findAllWithCriteria({types: VECTOR_NODE_TYPES})?.length > 0);
+      
+      const identifier = isVector
+        ? createIdentifierPascal(node.name)
+        : createIdentifierCamel(node.name);
 
       if (isVector) {
         vectors[node.name] = 1 + (vectors[node.name] || 0);
@@ -39,24 +42,21 @@ export async function getAssets(nodes: Set<string>): Promise<{
         bytes = await node.exportAsync({format: 'SVG'});
         embed = bytes
           ? `data:image/svg+xml;base64,${figma.base64Encode(bytes)}`
-          : '';
+          : 'data:image/svg+xml;base64,<svg/>';
       } else {
         rasters[node.name] = 1 + (rasters[node.name] || 0);
         hasRaster = true;
         count = rasters[node.name];
-        let bytes: Uint8Array;
-        try {bytes = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});} catch (err) {}
-        bytes = bytes || null;
+        bytes = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});
         embed = bytes
           ? `data:image/png;base64,${figma.base64Encode(bytes)}`
-          : IMAGE_BLANK_PIXEL;
+          : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
       }
 
-      const nameBase = isVector
-        ? createIdentifierPascal(node.name)
-        : createIdentifierCamel(node.name);
-      const name = count > 1 ? `${nameBase}${count}` : nameBase;
-      const hash = bytes ? blake2sHex(bytes) : '';
+      const name = count > 1 ? `${identifier}${count}` : identifier;
+      const data = bytes || embed;
+      const hash = bytes ? blake2sHex(data) : '';
+      const {width, height} = node;
       assetData[id] = {width, height, name, hash, embed, bytes, isVector};
       assetMap[id] = hash;
     }
