@@ -7,6 +7,7 @@ import {on, emit} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'preact/hooks';
 import {useWindowResize, render} from '@create-figma-plugin/ui';
 import {init, auth, ErrorBoundary} from 'interface/telemetry';
+import {F2RN_UI_MIN_WIDTH} from 'config/env';
 import {App} from 'interface/App';
 import * as $ from 'interface/store';
 
@@ -32,8 +33,9 @@ function Main() {
   }, []);
 
   useWindowResize(e => emit('RESIZE_WINDOW', e), {
-    minWidth: 320,
-    minHeight: 250,
+    minWidth: F2RN_UI_MIN_WIDTH,
+    minHeight: 200,
+    resizeBehaviorOnDoubleClick: 'minimize',
   });
 
   return (

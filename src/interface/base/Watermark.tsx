@@ -5,7 +5,7 @@ export function Watermark() {
   return (
     <Container space="small" className="center fill">
       <IconComponent32 color="component"/>
-      <Muted>Select a component</Muted>
+      <Muted>Loading component...</Muted>
     </Container>
   );
 }

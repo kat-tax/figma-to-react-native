@@ -73,7 +73,7 @@ export function watchTheme(settings: Settings) {
     const currentTheme = `${createIdentifierCamel(theme.current.name)}Theme`;
     emit<EventProjectTheme>('PROJECT_THEME', code, currentTheme);
   };
-  figma.on('documentchange', updateTheme);
+  setInterval(updateTheme, 300);
   updateTheme();
 }
 

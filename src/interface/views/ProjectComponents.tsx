@@ -3,6 +3,7 @@ import {useState, useMemo, useEffect} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
 import {Fzf, byLengthAsc} from 'fzf';
 import {getComponentCode} from 'interface/store';
+import {ProjectAssets} from 'interface/views/ProjectAssets';
 
 import * as F from '@create-figma-plugin/ui';
 
@@ -68,19 +69,26 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         }}>
         {props.build?.pages?.map(page =>        
           <ProjectPageGroup
-            page={page}
-            entries={list[page]}
+            key={page}
+            title={page}
             onSelect={select}
+            entries={list[page]}
           />
         )}
+        <ProjectPageGroup
+          title="Assets"
+          onSelect={select}
+          component={<ProjectAssets {...props}/>}
+        />
       </F.Container>
     </Fragment>
   );
 }
 
 interface ProjectPageGroupProps {
-  page: string;
-  entries: ProjectComponentEntry[],
+  title: string;
+  entries?: ProjectComponentEntry[],
+  component?: JSX.Element,
   onSelect: (id: string) => void;
 }
 
@@ -91,15 +99,16 @@ function ProjectPageGroup(props: ProjectPageGroupProps) {
 
   return (
     <F.Disclosure
-      onClick={() => setExpanded(!isExpanded)}
-      open={isExpanded}
       style={{width: '100%'}}
-      title={props.page}>
+      title={props.title}
+      open={isExpanded}
+      onClick={() => setExpanded(!isExpanded)}>
+      {props?.component}
       {props?.entries?.map(entry =>
         <ProjectPageComponent
           key={entry.item.name}
           entry={entry}
-          page={props.page}
+          page={props.title}
           onSelect={props.onSelect}
         />
       )}
@@ -116,6 +125,7 @@ interface ProjectPageComponentProps {
 function ProjectPageComponent(props: ProjectPageComponentProps) {
   const {id, name, page, preview, loading} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
+  const hasUnsavedChanges = false;
   const hasError = false;
 
   return (
@@ -158,16 +168,19 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
           ? 'Loading...'
           : hasError
             ? 'Error'
-            : undefined
+            : hasUnsavedChanges
+              ? 'Modified'
+              : ''
         }
-        icon={!hasError
-          ? <F.IconLayerComponent16/>
-          : <F.IconWarning16 color="danger"/>
+        icon={hasError
+          ? <F.IconWarning16 color="danger"/>
+          : <F.IconLayerComponent16 color="component"/>
         }>
         <HighlightChars
           str={`${page}/${name}`}
           indices={props.entry.positions}
         />
+        <CollabDots target={name}/>
       </F.Layer>
     </F.Stack>
   );
@@ -199,3 +212,28 @@ function HighlightChars(props: HighlightCharsProps) {
     </Fragment>
   );
 };
+
+
+interface CollabDotsProps {
+  target: string,
+}
+
+function CollabDots(props: CollabDotsProps) {
+  const users = [{
+    id: '1',
+    color: 'red',
+  }, {
+    id: '2',
+    color: 'blue',
+  }];
+  return null;
+  return (
+    <span style={{marginLeft: 4}}>
+      {users.map(({id, color}) =>
+        <span key={id} style={{color}}>
+          •
+        </span>
+      )}
+    </span>
+  );
+}

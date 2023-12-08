@@ -23,8 +23,8 @@ const tips = {
 
   scope: `Export Scope:
 
-  • Entire Project: Export all components in the project
-  • Current Page: Export all components on the current page
+  • Document: Export all components in the document
+  • Page: Export all components on the current page
   • Selection: Export all selected components`,
 
   apiKey: `Your Project Key generated at:
@@ -132,8 +132,8 @@ export function ProjectExport(props: ProjectExportProps) {
           </a>
         </F.Banner>
       }
-      <F.Container space="medium" style={{maxWidth: 330}}>
-        <F.VerticalSpace space="large"/>
+      <F.Container space="medium" style={{maxWidth: 600}}>
+        <F.VerticalSpace space="small"/>
         <div title={tips.export}>
           <F.Bold>Method</F.Bold>
           <F.VerticalSpace space="small"/>
@@ -160,8 +160,8 @@ export function ProjectExport(props: ProjectExportProps) {
               value={form.formState.scope}
               onValueChange={form.setFormState}
               options={[
-                {children: 'Entire Project', value: 'document'},
-                {children: 'Current Page', value: 'page'},
+                {children: 'Document', value: 'document'},
+                {children: 'Page', value: 'page'},
                 {children: 'Selection', value: 'selected'},
               ]}
             />
@@ -230,7 +230,7 @@ export function ProjectExport(props: ProjectExportProps) {
                 onValueChange={form.setFormState}>
                 <F.Text>Export as Package</F.Text>
               </F.Checkbox>}
-              {false && <F.VerticalSpace space="medium"/>}
+              {false && <F.VerticalSpace space="small"/>}
               <F.Checkbox
                 name="enableAutoTranslations"
                 title={tips.optimizeAssets}
@@ -238,6 +238,7 @@ export function ProjectExport(props: ProjectExportProps) {
                 onValueChange={form.setFormState}>
                 <F.Text>Export icons</F.Text>
               </F.Checkbox>
+              <F.VerticalSpace space="small"/>
               <F.Checkbox
                 name="enableAutoTranslations"
                 title={tips.optimizeAssets}
@@ -245,7 +246,7 @@ export function ProjectExport(props: ProjectExportProps) {
                 onValueChange={form.setFormState}>
                 <F.Text>Optimize assets</F.Text>
               </F.Checkbox>
-              <F.VerticalSpace space="medium"/>
+              <F.VerticalSpace space="small"/>
               <F.Checkbox
                 name="enableAutoTranslations"
                 title={tips.autoTranslate}
@@ -253,7 +254,7 @@ export function ProjectExport(props: ProjectExportProps) {
                 onValueChange={form.setFormState}>
                 <F.Text>Auto translate</F.Text>
               </F.Checkbox>
-              <F.VerticalSpace space="medium"/>
+              <F.VerticalSpace space="small"/>
             </Fragment>
           }
           <Fragment>
@@ -264,7 +265,7 @@ export function ProjectExport(props: ProjectExportProps) {
               onValueChange={form.setFormState}>
               <F.Text>Include frames</F.Text>
             </F.Checkbox>
-            <F.VerticalSpace space="medium"/>
+            <F.VerticalSpace space="small"/>
           </Fragment>
         </Fragment>
         <Fragment>

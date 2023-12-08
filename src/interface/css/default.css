@@ -126,7 +126,8 @@ iframe {
   overflow-x: auto;
   overflow-y: hidden;
   flex-direction: row;
-  flex-shrink: 1;
+  flex-shrink: 0;
+  flex-grow: 1;
 }
 
 .tab-bar > div {
@@ -250,4 +251,47 @@ iframe {
 .components .highlight {
   text-decoration: underline;
   font-weight: 600;
+}
+
+/* Dropdowns */
+
+/* Positioning menu dropdown */
+.drop-mod-menu [class*="_dropdown_"] {
+  width: 32px;
+  margin-right: 5px;
+  align-self: center;
+}
+
+/* Positioning target dropdown */
+.drop-mod-target [class*="_dropdown_"],
+.drop-mod-target-unsaved [class*="_dropdown_"] {
+  width: auto;
+  margin-right: 8px;
+  align-self: center;
+}
+
+/* Status icon padding removed for menu and target */
+.drop-mod-target-unsaved [class*="_optionValue_"],
+.drop-mod-menu [class*="_optionValue_"] {
+  padding: 4px var(--space-medium);
+}
+
+/* Text changed for target */
+.drop-mod-target [class*="_dropdown_"] {
+  color: var(--figma-color-text-component);
+}
+
+/* Text changed for unsaved target */
+.drop-mod-target-unsaved [class*="_dropdown_"] {
+  color: var(--figma-color-icon-warning);
+}
+
+/* Placeholder text changed for unsaved target */
+.drop-mod-target-unsaved [class*="_placeholder_"] {
+  color: var(--figma-color-icon-warning);
+}
+
+/* Status chevron icon removed for menu */
+.drop-mod-menu [class*="_chevronIcon_"] {
+  display: none;
 }

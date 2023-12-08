@@ -13,6 +13,9 @@ declare const styles: {
   readonly "components": string;
   readonly "component": string;
   readonly "highlight": string;
+  readonly "drop-mod-menu": string;
+  readonly "drop-mod-target": string;
+  readonly "drop-mod-target-unsaved": string;
 };
 export = styles;
 

@@ -2,13 +2,11 @@ import {h, Fragment} from 'preact';
 import {useState} from 'preact/hooks';
 import {Tabs, Tab, Bar, Link, Gear, Back} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
-import {StatusBar} from 'interface/base/StatusBar';
 
 import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentStory} from 'interface/views/ComponentStory';
 import {ComponentPreview} from 'interface/views/ComponentPreview';
-import {ModalGPTVision} from 'interface/views/ModalGPTVision';
-import {ProjectAssets} from 'interface/views/ProjectAssets';
+
 import {ProjectTheme} from 'interface/views/ProjectTheme';
 import {ProjectExport} from 'interface/views/ProjectExport';
 import {ProjectSettings} from 'interface/views/ProjectSettings';
@@ -33,7 +31,7 @@ interface AppProps {
 export function App(props: AppProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState(false);
-  const [promptOpen, setPromptOpen] = useState(false);
+  const [unsaved, setUnsaved] = useState(false);
 
   const project = useProjectConfig();
   const theme = useProjectTheme();
@@ -42,18 +40,30 @@ export function App(props: AppProps) {
   const nav = useNavigation(build);
   const monaco = useEditor(user.config, build.links);
   const isDark = useDarkMode();
-
+  
   const setTarget = nav.setComponent;
   const gotoOverview = nav.gotoOverview;
   const target = nav.component;
   const isReady = Boolean(build && props.startPage && project && monaco);
+  const hasDropModMenu = !target;
+  const hasDropModTarget = !!target;
+  const hasDropModTargetUnsaved = hasDropModTarget && unsaved;
+  
   const options = {
     ...user.config.monaco.general,
     tabSize: user.config.writer.indentNumberOfSpaces,
     theme: isDark ? 'vs-dark' : 'vs',
   };
 
-  const componentList: Array<F.DropdownOption> = Object
+  const dropClass = hasDropModMenu
+    ? 'drop-mod-menu'
+    : hasDropModTargetUnsaved
+      ? 'drop-mod-target-unsaved'
+      : hasDropModTarget
+        ? 'drop-mod-target'
+          : '';
+
+  const optionsComponents: Array<F.DropdownOption> = Object
     .entries(build.roster)
     .sort(([,a], [,b]) => a.name.localeCompare(b.name))
     .map(([name, component]) => ({
@@ -62,13 +72,38 @@ export function App(props: AppProps) {
       disabled: component.loading,
     }));
 
+  const optionsUnsavedComponent: Array<F.DropdownOption> = [
+    {
+      text: 'Apply Changes',
+      value: 'apply',
+    },
+    {
+      text: 'Discard Changes',
+      value: 'discard',
+    },
+  ];
+
+  const optionsProject: Array<F.DropdownOption> = [
+    {
+      text: 'Export',
+      value: 'export',
+    },
+    {
+      text: 'Settings',
+      value: 'settings',
+    },
+  ];
+
   return isReady ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
-      <div className="tab-menu">
-        <Bar loop aria-label="menu" style={!target ? {width: '100%'} : undefined}>
+      <div className={`tab-menu ${dropClass}`}>
+        <Bar loop aria-label="menu">
           {Boolean(target)
           ? <div className="tab-bar-nav">
-              <div className="tab-btn" title="Browse components" onClick={nav.gotoOverview}>
+              <div
+                className="tab-btn"
+                title="Browse components"
+                onClick={nav.gotoOverview}>
                 <Back {...{isDark}}/>
               </div>
               <Link value="code" title="Component code">
@@ -80,72 +115,68 @@ export function App(props: AppProps) {
               <Link value="story" title="Component story">
                 Story
               </Link>
-              {false && nav.tab === 'code' &&
-                <div
-                  className="tab-btn"
-                  title="GPT-4 Vision"
-                  onClick={() => setPromptOpen(true)}>
-                  <F.IconVisibilityVisible32/>
-                  <F.Modal
-                    title="GPT-4 Vision"
-                    open={promptOpen}
-                    onOverlayClick={() => setPromptOpen(false)}
-                    onEscapeKeyDown={() => setPromptOpen(false)}
-                    onCloseButtonClick={() => setPromptOpen(false)}>
-                    <ModalGPTVision {...{target, project, build}}/>
-                  </F.Modal>
-                </div>
-              }
             </div>
           : <Fragment>
             {searchMode
             ? <SearchBar {...{searchQuery, setSearchQuery, setSearchMode, gotoOverview}}/>
             : <div className="tab-bar-nav">
-                <div className="tab-btn" title="Search components" onClick={() => setSearchMode(true)}>
+                <div
+                  className="tab-btn"
+                  title="Search components"
+                  onClick={() => setSearchMode(true)}>
                   <F.IconSearch32/>
                 </div>
                 <Link value="components" title="Project components">
-                  Components
-                </Link>
-                <Link value="assets" title="Project assets">
                   Assets
                 </Link>
                 <Link value="theme" title="Project theme">
                   Theme
                 </Link>
-                <Link value="export" title="Project export">
-                  Export
-                </Link>
-                <div style={{flex: 1}}/>
-                <Link value="settings" title="Configure plugin" hasIcon>
-                  <Gear {...{isDark}}/>
+                <Link value="icons" title="Project icons">
+                  Icons
                 </Link>
               </div>
             }
             </Fragment>
           }
         </Bar>
-        {target &&
+        {!Boolean(target) && !searchMode &&
           <F.Dropdown
-            icon={<F.IconLayerComponent16 color="component" />}
-            placeholder="Select a component"
-            options={componentList}
-            value={target}
-            onChange={(e) => setTarget(e.currentTarget.value)}
-            style={{
-              width: 'auto',
-              marginRight: '8px',
-              alignSelf: 'center',
-              color: 'var(--figma-color-text-component)', // 'var(--figma-color-icon-warning)'
+            icon={<F.IconEllipsis32/>}
+            options={optionsProject}
+            value={null}
+            onChange={(e) => {
+              switch (e.currentTarget.value) {
+                // Links
+                case 'export':
+                case 'settings':
+                  nav.gotoTab(e.currentTarget.value);
+                  break;
+              }
             }}
+          />
+        }
+        {target && !unsaved &&
+          <F.Dropdown
+            placeholder="Select a component"
+            icon={<F.IconLayerComponent16 color="component"/>}
+            onChange={(e) => setTarget(e.currentTarget.value)}
+            options={optionsComponents}
+            value={target}
+          />
+        }
+        {target && unsaved &&
+          <F.Dropdown
+            placeholder="Unsaved changes"
+            icon={<F.IconLayerComponent16 color="warning"/>}
+            onChange={(e) => console.log(e.currentTarget.value)}
+            options={optionsUnsavedComponent}
+            value={null}
           />
         }
       </div>
       <Tab value="components">
         <ProjectComponents {...{build, searchMode, searchQuery, setTarget}}/>
-      </Tab>
-      <Tab value="assets">
-        <ProjectAssets {...{build, searchMode, searchQuery, setTarget}}/>
       </Tab>
       <Tab value="theme">
         <ProjectTheme {...{options, monaco}}/>
@@ -165,9 +196,6 @@ export function App(props: AppProps) {
       <Tab value="story">
         <ComponentStory {...{target, options, monaco}}/>
       </Tab>
-      {!target &&
-        <StatusBar {...{build, project, setTarget}}/>
-      }
     </Tabs>
   ) : (
     <div className="center fill">

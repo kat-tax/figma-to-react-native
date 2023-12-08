@@ -10,7 +10,6 @@ export function Slider(component: ComponentNode) {
     fillTrack: getFillToken(nodeTrack),
     fillThumb: getFillToken(nodeThumb),
     importStyles: `import {useStyles} from 'styles';\n`,
-    // previewRoot: isPreview && isRoot ? [`<div style={{minWidth: '80vw'}}>`, `</div>`] : [``,  ``],
   }).slice(1);
 }
 

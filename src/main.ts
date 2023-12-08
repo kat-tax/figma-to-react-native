@@ -1,4 +1,5 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
+import {F2RN_UI_MIN_WIDTH} from 'config/env';
 import {focusNode} from 'plugin/fig/lib';
 
 import * as app from 'plugin/app';
@@ -16,9 +17,12 @@ let _page: AppPages = 'code';
 // Note: must be called immediately, not in an async function
 if (figma.mode !== 'codegen') {
   showUI({
-    width: Math.max(320, Math.min(600, Math.round(figma.viewport.bounds.width / 2))),
-    height: Math.round(figma.viewport.bounds.height - 20),
-    position: {x: 0, y: Math.round(figma.viewport.bounds.y)},
+    width: F2RN_UI_MIN_WIDTH,
+    height: Math.round(figma.viewport.bounds.height),
+    position: {
+      x: Math.round(figma.viewport.bounds.x) - 300,
+      y: Math.round(figma.viewport.bounds.y) - 20,
+    },
   });
 }
 
@@ -58,16 +62,6 @@ export default async function() {
       app.targetSelectedComponent();
     });
 
-    // TODO: finish drop support
-    /*figma.on('drop', (event: DropEvent): boolean => {
-      const target = event.items[0];
-      if (target.type !== 'figma/node-id') return;
-      const node = figma.getNodeById(target.data);
-      if (node.type !== 'COMPONENT') return;
-      (event.node as BaseNode & ChildrenMixin).appendChild(node);
-      return false;
-    })*/
-  
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
       app.saveCurrentPage(page);
@@ -91,7 +85,6 @@ export default async function() {
       } else {
         focusNode(nodeId);
       }
-      //figma.commitUndo();
     });
   
     // Notify user of error coming from interface
