@@ -1,6 +1,6 @@
 import {h, Fragment} from 'preact';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
-import {Watermark} from 'interface/base/Watermark';
+import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {F2RN_EDITOR_NS} from 'config/env';
 import MonacoReact from '@monaco-editor/react';
 
@@ -18,7 +18,9 @@ export function ComponentStory(props: ComponentStoryProps) {
   const story = $.getComponentStory(props.target);
   return (
     <Fragment>
-      {!story && <Watermark/>}
+      {!story &&
+        <ScreenWarning message="Component not found"/>
+      }
       {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"

@@ -2,7 +2,7 @@ import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
 import {init, preview} from 'interface/utils/preview';
-import {Watermark} from 'interface/base/Watermark';
+import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 
 import type {ComponentBuild} from 'types/component';
@@ -100,7 +100,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   return (
     <Fragment>
       {!component &&
-        <Watermark/>
+        <ScreenWarning message="Component not found"/>
       }
       <iframe
         ref={iframe}

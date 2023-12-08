@@ -5,7 +5,7 @@ import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {MonacoBinding} from 'interface/utils/editor/yjs';
 import {setupComponentEditor} from 'interface/utils/editor/setup';
-import {Watermark} from 'interface/base/Watermark';
+import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 
 import type {Monaco, Editor} from 'interface/utils/editor/setup';
@@ -77,7 +77,9 @@ export function ComponentCode(props: ComponentCodeProps) {
 
   return (
     <Fragment>
-      {!$componentInfo && <Watermark/>}
+      {!$componentInfo && 
+        <ScreenWarning message="Component not found"/>
+      }
       {/* @ts-ignore Preact issue */}
       {!patch && <MonacoReact
         language="typescript"

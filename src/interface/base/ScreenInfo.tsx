@@ -1,11 +1,11 @@
 import {h} from 'preact';
 import {Container, Muted, IconNotice32} from '@create-figma-plugin/ui';
 
-interface NotFoundProps {
+interface ScreenInfoProps {
   message: string,
 }
 
-export function NotFound(props: NotFoundProps) {
+export function ScreenInfo(props: ScreenInfoProps) {
   return (
     <Container space="small" className="center fill">
       <IconNotice32 color="secondary"/>

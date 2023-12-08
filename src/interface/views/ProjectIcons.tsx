@@ -5,7 +5,7 @@ import {VirtuosoGrid} from 'react-virtuoso';
 import {useState, useEffect, useMemo} from 'preact/hooks';
 import {Icon, listIcons, loadIcons} from '@iconify/react';
 import {ProgressBar} from 'interface/base/ProgressBar';
-import {NotFound} from 'interface/base/NotFound';
+import {ScreenInfo} from 'interface/base/ScreenInfo';
 
 import * as F from '@create-figma-plugin/ui';
 
@@ -44,7 +44,7 @@ export function ProjectIcons({build, iconSet, iconProvider, iconHost}: ProjectIc
 
   if (!iconSet) {
     return (
-      <NotFound message="No icons found"/>
+      <ScreenInfo message="No icons found"/>
     );
   }
 
