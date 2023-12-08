@@ -1,8 +1,8 @@
 import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
-import {Watermark} from 'interface/base/Watermark';
 import {init, preview} from 'interface/utils/preview';
+import {Watermark} from 'interface/base/Watermark';
 import * as $ from 'interface/store';
 
 import type {ComponentBuild} from 'types/component';

@@ -8,6 +8,7 @@ import {ComponentStory} from 'interface/views/ComponentStory';
 import {ComponentPreview} from 'interface/views/ComponentPreview';
 
 import {ProjectTheme} from 'interface/views/ProjectTheme';
+import {ProjectIcons} from 'interface/views/ProjectIcons';
 import {ProjectExport} from 'interface/views/ProjectExport';
 import {ProjectSettings} from 'interface/views/ProjectSettings';
 import {ProjectComponents} from 'interface/views/ProjectComponents';
@@ -180,6 +181,9 @@ export function App(props: AppProps) {
       </Tab>
       <Tab value="theme">
         <ProjectTheme {...{options, monaco}}/>
+      </Tab>
+      <Tab value="icons">
+        <ProjectIcons iconSet="ph"/>
       </Tab>
       <Tab value="export">
         <ProjectExport {...{project, build}}/>

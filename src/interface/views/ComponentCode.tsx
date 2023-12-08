@@ -3,9 +3,9 @@ import {useRef, useState, useEffect, useCallback} from 'preact/hooks';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {F2RN_EDITOR_NS} from 'config/env';
-import {Watermark} from 'interface/base/Watermark';
 import {MonacoBinding} from 'interface/utils/editor/yjs';
 import {setupComponentEditor} from 'interface/utils/editor/setup';
+import {Watermark} from 'interface/base/Watermark';
 import * as $ from 'interface/store';
 
 import type {Monaco, Editor} from 'interface/utils/editor/setup';
