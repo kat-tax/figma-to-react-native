@@ -13,8 +13,10 @@ export async function build(
   config: BuildOptions,
   importMap?: Record<string, string>,
 ): Promise<string> {
+
   const resolver = new MemoryResolver(files);
   const compiler = new Compiler();
+
   return await compiler.compile(entry, {
     ...config,
     define: {'process.env.NODE_ENV': '"development"'},
