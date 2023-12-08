@@ -7,6 +7,7 @@ import * as config from 'plugin/config';
 
 import type {ProjectBuild, ProjectConfig, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
 import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';
+import type {ComponentAsset} from 'types/component';
 
 export function build(projectConfig: ProjectConfig) {
   const user = figma.currentUser;
@@ -43,29 +44,40 @@ export function build(projectConfig: ProjectConfig) {
     figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
     setTimeout(async () => {
       const names = new Set<string>();
+      const assets = new Map<string, ComponentAsset>();
+      const buildAssets: ProjectBuildAssets = [];
       const components: ProjectBuildComponents = [];
-      let assets: ProjectBuildAssets = [];
+
       for await (const component of exportNodes) {
         try {
           const {bundle} = await generateBundle(component, config.state);
           if (bundle.code) {
-            // TODO: assets = [...assets, ...bundle.assets];
+            bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
             components.push([bundle.name, bundle.index, bundle.code, bundle.story]);
             names.add(bundle.name);
+            console.log('[project/bundle]', bundle);
           }
         } catch (e) {
           console.error('Failed to export', component, e);
         }
       }
 
+      assets.forEach(asset => buildAssets.push([
+        asset.name,
+        asset.isVector,
+        asset.bytes,
+      ]));
+
       const build: ProjectBuild = {
-        assets,
         components,
-        id: projectConfig.docKey,
         name: projectName,
+        id: projectConfig.docKey,
         index: generateIndex(names, config.state, true),
         theme: generateTheme(config.state).code,
+        assets: buildAssets,
       };
+
+      console.log('[project/build]', build, projectConfig);
 
       emit<EventProjectBuild>('PROJECT_BUILD', build, projectConfig, user);
     }, 500);

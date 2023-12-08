@@ -1,6 +1,7 @@
 # ROADMAP
 
 ## V46 — User Edits
+- `Compiler` MVP app ui package (runnable w/ storybook)
 - `Compiler` Compare user changes to last build
 - `Interface` Show modified state in list + component views
 - `Monaco` Type theme file (update on theme update)
@@ -19,8 +20,10 @@
 
 ## V49 — Asset Gallery
 - `Compiler` Fix assets + links clearing on new build
-- `Interface` Add bounding box + title + hover
+- `Interface` Enable assets tab and rename component tab
+- `Interface` Add all tabs to main menu, make collapse to overflow
 - `Interface` Add filtering to gallery
+- `Interface` Add bounding box + title + hover
 - `Interface` Add lightbox (yet-another-react-lightbox)
 - `Interface` Add drag and drop to figma / others
 

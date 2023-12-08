@@ -9,6 +9,7 @@ import {ComponentPreview} from 'interface/views/ComponentPreview';
 
 import {ProjectTheme} from 'interface/views/ProjectTheme';
 import {ProjectIcons} from 'interface/views/ProjectIcons';
+import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {ProjectExport} from 'interface/views/ProjectExport';
 import {ProjectSettings} from 'interface/views/ProjectSettings';
 import {ProjectComponents} from 'interface/views/ProjectComponents';
@@ -134,11 +135,14 @@ export function App(props: AppProps) {
                 <Link value="components" title="Project components">
                   Assets
                 </Link>
-                <Link value="theme" title="Project theme">
-                  Theme
-                </Link>
+                {/*<Link value="assets" title="Project assets">
+                  Assets
+                </Link>*/}
                 <Link value="icons" title="Project icons">
                   Icons
+                </Link>
+                <Link value="theme" title="Project theme">
+                  Theme
                 </Link>
               </div>
             }
@@ -200,6 +204,9 @@ export function App(props: AppProps) {
       </Tab>
       <Tab value="icons">
         <ProjectIcons {...{build, iconSet: 'ph'}}/>
+      </Tab>
+      <Tab value="assets">
+        <ProjectAssets {...{build, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="export">
         <ProjectExport {...{project, build}}/>

@@ -31,7 +31,7 @@ export async function getAssets(nodes: Set<string>): Promise<{
       const isVector = VECTOR_NODE_TYPES.includes(node.type)
         || (node.findAllWithCriteria
           && node.findAllWithCriteria({types: VECTOR_NODE_TYPES})?.length > 0);
-      
+
       if (isVector) {
         vectors[node.name] = 1 + (vectors[node.name] || 0);
         hasVector = true;
@@ -56,12 +56,12 @@ export async function getAssets(nodes: Set<string>): Promise<{
         ? createIdentifierPascal(node.name)
         : createIdentifierCamel(node.name);
       const name = count > 1 ? `${nameBase}${count}` : nameBase;
-      const hash = blake2sHex(bytes);
+      const hash = bytes ? blake2sHex(bytes) : '';
       assetData[id] = {width, height, name, hash, embed, bytes, isVector};
       assetMap[id] = hash;
     }
   } catch (err) {
-    console.error('[convertAssets] failed to convert assets', err);
+    console.error('[assets] Failed to convert', err);
   }
   return {
     assetData,

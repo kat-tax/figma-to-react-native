@@ -10,7 +10,7 @@ export function getColorSheet(
   const colors: ParseColorSheet = {};
   for (const id of nodes) {
     const node = figma.getNodeById(id) as ComponentNode;
-    if (node.isAsset) {
+    if (node.isAsset && node.findAllWithCriteria) {
       const vector = node.findAllWithCriteria({types: ['VECTOR']})[0];
       if (vector?.type === 'VECTOR') {
         colors[id] = getFillToken(vector);
@@ -23,7 +23,7 @@ export function getColorSheet(
     for (const id of Object.keys(variants.mapping)) {
       for (const [baseId, variantId] of Object.entries(variants.mapping[id])) {
         const vnode = figma.getNodeById(variantId) as ComponentNode;
-        if (vnode.isAsset) {
+        if (vnode.isAsset && vnode.findAllWithCriteria) {
           const vector = vnode.findAllWithCriteria({types: ['VECTOR']})[0];
           if (vector?.type === 'VECTOR') {
             const token = getFillToken(vector);
