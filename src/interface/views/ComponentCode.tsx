@@ -76,7 +76,7 @@ export function ComponentCode(props: ComponentCodeProps) {
   }, [props.target]);*/
 
   return (
-    <Fragment key={props.target}>
+    <Fragment>
       {!$componentInfo && <Watermark/>}
       {/* @ts-ignore Preact issue */}
       {!patch && <MonacoReact
