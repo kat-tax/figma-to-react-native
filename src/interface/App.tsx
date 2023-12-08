@@ -75,12 +75,16 @@ export function App(props: AppProps) {
 
   const optionsUnsavedComponent: Array<F.DropdownOption> = [
     {
-      text: 'Apply Changes',
-      value: 'apply',
+      text: 'Patch',
+      value: 'patch',
     },
     {
-      text: 'Discard Changes',
-      value: 'discard',
+      text: 'View diff',
+      value: 'view',
+    },
+    {
+      text: 'Reset',
+      value: 'reset',
     },
   ];
 
@@ -144,8 +148,8 @@ export function App(props: AppProps) {
         {!Boolean(target) && !searchMode &&
           <F.Dropdown
             icon={<F.IconEllipsis32/>}
-            options={optionsProject}
             value={null}
+            options={optionsProject}
             onChange={(e) => {
               switch (e.currentTarget.value) {
                 // Links
@@ -161,18 +165,30 @@ export function App(props: AppProps) {
           <F.Dropdown
             placeholder="Select a component"
             icon={<F.IconLayerComponent16 color="component"/>}
-            onChange={(e) => setTarget(e.currentTarget.value)}
-            options={optionsComponents}
             value={target}
+            options={optionsComponents}
+            onChange={(e) => setTarget(e.currentTarget.value)}
           />
         }
         {target && unsaved &&
           <F.Dropdown
-            placeholder="Unsaved changes"
+            placeholder="Review changes"
             icon={<F.IconLayerComponent16 color="warning"/>}
-            onChange={(e) => console.log(e.currentTarget.value)}
-            options={optionsUnsavedComponent}
             value={null}
+            options={optionsUnsavedComponent}
+            onChange={(e) => {
+              switch (e.currentTarget.value) {
+                case 'patch':
+                  confirm(`Are you sure you want to apply your changes to the generated code?`);
+                  break;
+                case 'view':
+                  console.log('view diff');
+                  break;
+                case 'reset':
+                  confirm(`Are you sure you want to clear your changes?`);
+                  break;
+                }
+            }}
           />
         }
       </div>
@@ -183,7 +199,7 @@ export function App(props: AppProps) {
         <ProjectTheme {...{options, monaco}}/>
       </Tab>
       <Tab value="icons">
-        <ProjectIcons iconSet="ph"/>
+        <ProjectIcons {...{build, iconSet: 'ph'}}/>
       </Tab>
       <Tab value="export">
         <ProjectExport {...{project, build}}/>

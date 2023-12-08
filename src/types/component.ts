@@ -1,8 +1,9 @@
 export type ComponentBuild = {
   roster: ComponentRoster,
+  icons: ComponentIcons,
   assets: Record<string, ComponentAsset>,
   assetMap: Record<string, string>,
-  pages: Array<string>,
+  pages: string[],
   links: ComponentLinks,
   total: number,
   loaded: number,
@@ -27,6 +28,7 @@ export type ComponentData = {
   code: string,
   index: string,
   story: string,
+  icons: ComponentIcons,
   assets: ComponentAsset[] | null,
   links: ComponentLinks,
 }
@@ -39,6 +41,12 @@ export type ComponentAsset = {
   embed: string,
   bytes: Uint8Array,
   isVector?: boolean,
+}
+
+export type ComponentIcons = {
+  used: string[],
+  list: string[],
+  map: Record<string, string>,
 }
 
 export type ComponentLinks = Record<string, string>;

@@ -10,6 +10,7 @@ export {
 } from './colors';
 
 export {
+  focusNode,
   isNodeIcon,
   isNodeVisible,
   getInstanceInfo,
@@ -31,6 +32,6 @@ export {
   getComponentParent,
   getCollectionModes,
   getCollectionByName,
+  getAllIconComponents,
   getPage,
-  focusNode,
 } from './traverse';

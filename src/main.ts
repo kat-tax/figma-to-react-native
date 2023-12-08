@@ -20,7 +20,7 @@ if (figma.mode !== 'codegen') {
     width: F2RN_UI_MIN_WIDTH,
     height: Math.round(figma.viewport.bounds.height),
     position: {
-      x: Math.round(figma.viewport.bounds.x) - 300,
+      x: Math.round(figma.viewport.bounds.x) - 999999,
       y: Math.round(figma.viewport.bounds.y) - 20,
     },
   });
@@ -61,6 +61,23 @@ export default async function() {
     figma.on('selectionchange', () => {
       app.targetSelectedComponent();
     });
+
+    // Handle dropping of components from plugin
+    figma.on('drop', (event: DropEvent): boolean => {
+      const item = event.items[0];
+      if (item?.type !== 'figma/node-id') return true;
+      const target = event.node as BaseNode & ChildrenMixin;
+      const node = figma.getNodeById(item.data);
+      const master = node.type === 'COMPONENT_SET' ? node.defaultVariant : node;
+      if (master.type === 'COMPONENT') {
+        const instance = master.createInstance();
+        target.appendChild(instance);
+        instance.x = event.absoluteX;
+        instance.y = event.absoluteY;
+        figma.currentPage.selection = [instance];
+      }
+      return false;
+    })
 
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {

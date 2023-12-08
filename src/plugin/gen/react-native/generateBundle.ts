@@ -1,4 +1,4 @@
-import parse from 'plugin/fig';
+import parseFigmaComponent from 'plugin/fig';
 import {getPropsJSX, getPage} from 'plugin/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 import {generatePrimitives} from '../primitives';
@@ -20,6 +20,11 @@ const emptyBundle: ComponentData = {
   story: '',
   links: {},
   assets: null,
+  icons: {
+    used: [],
+    list: [],
+    map: {},
+  },
 };
 
 export async function generateBundle(
@@ -46,8 +51,8 @@ export async function generateBundle(
     };
   }
 
-  // Parse nodes
-  const data = await parse(target);
+  // Normal component, parse figma data
+  const data = await parseFigmaComponent(target);
   if (!data) {
     return emptyBundle;
   }
@@ -79,6 +84,15 @@ export async function generateBundle(
   const page = getPage(masterNode)?.name;
   const name = createIdentifierPascal(masterNode.name);
   const props = getPropsJSX({...propDefs}, data.colorsheet, data.meta.includes);
+  const assets = Object.values(data.assetData);
+  const code = generateCode(data, settings);
+  const index = generateIndex(new Set<string>().add(name), settings);
+  const story = generateStory(target, isVariant, propDefs, settings);
+  const icons = {
+    used: Array.from(data.meta.iconsUsed),
+    list: Array.from(data.meta.iconsList),
+    map: Object.fromEntries(data.meta.iconsMap),
+  };
 
   // Return bundle
   return {
@@ -87,9 +101,10 @@ export async function generateBundle(
     page,
     props,
     links,
-    assets: Object.values(data.assetData),
-    code: generateCode(data, settings),
-    index: generateIndex(new Set<string>().add(name), settings),
-    story: generateStory(target, isVariant, propDefs, settings),
+    icons,
+    assets,
+    code,
+    index,
+    story,
   };
 }

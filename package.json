@@ -32,6 +32,7 @@
   "dependencies": {
     "@create-figma-plugin/ui": "^2.6.1",
     "@create-figma-plugin/utilities": "^2.6.1",
+    "@iconify/react": "^4.1.1",
     "@logtail/browser": "^0.4.18",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-tabs": "^1.0.4",
@@ -50,6 +51,7 @@
     "monaco-editor-auto-typings": "^0.4.5",
     "preact": "^10.18.1",
     "react-photo-album": "^2.3.0",
+    "react-virtuoso": "^4.6.2",
     "reserved": "^0.1.2",
     "y-protocols": "^1.0.6",
     "y-webrtc": "^10.2.6",

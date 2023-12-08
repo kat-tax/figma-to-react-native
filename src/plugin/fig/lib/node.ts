@@ -1,9 +1,18 @@
 import {getPropName} from './props';
 import {getPage} from './traverse';
 
-export function isNodeIcon(node: BaseNode) {
-  return node.name.includes(':')
-    && getPage(node)?.name === 'Icons';
+export function focusNode(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page) {
+        figma.currentPage = page;
+      }
+      figma.currentPage.selection = [node as SceneNode];
+      figma.viewport.scrollAndZoomIntoView([node]);
+    }
+  } catch (e) {}
 }
 
 export function isNodeVisible(node: SceneNode) {
@@ -11,6 +20,10 @@ export function isNodeVisible(node: SceneNode) {
   const masterNode = (isVariant ? node?.parent : node);
   const propRefs = (masterNode as ComponentNode)?.componentPropertyReferences;
   return node.visible || propRefs?.visible;
+}
+
+export function isNodeIcon(node: BaseNode) {
+  return node.name.includes(':') && getPage(node)?.name === 'Icons';
 }
 
 export function getInstanceInfo(node: InstanceNode) {
@@ -28,6 +41,7 @@ export function getCustomReaction(node: ComponentNode | InstanceNode) {
     ?.filter(r => r.trigger?.type === 'ON_CLICK'
       && r.action?.type === 'URL')[0]?.action;
 }
+
 export function getPressReaction(node: ComponentNode | InstanceNode) {
   return node.reactions?.filter(r => r.trigger?.type === 'ON_PRESS')?.[0];
 }

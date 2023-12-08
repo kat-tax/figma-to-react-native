@@ -1,5 +1,5 @@
 import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'plugin/fig/lib';
-import {getAssets, getStyleSheet, getColorSheet, validate} from './lib';
+import {getAssets, getStyleSheet, getAllIconComponents, getColorSheet, validate} from './lib';
 import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
@@ -15,8 +15,10 @@ export default async function(component: ComponentNode): Promise<ParseData> {
     return null;
   }
 
-  // Gather node data relative to conversion
+  // Profile
   // const _t1 = Date.now();
+
+  // Gather node data relative to conversion
   const data = crawl(component);
 
   // Generated styles and assets
@@ -45,6 +47,10 @@ function crawl(node: ComponentNode) {
   const frame = getFrame(node);
   const children = getChildren(dict);
   const variants = getVariants(node, children);
+  const icons = getAllIconComponents();
+
+  meta.iconsList = new Set(icons.map((i) => i.name));
+  meta.iconsMap = new Map(icons.map((i) => [i.name, i.id]));
 
   root && meta.styleNodes.add(root.node.id);
   frame && meta.styleNodes.add(frame.node.id);
@@ -74,6 +80,9 @@ function crawlChildren(
     primitives: new Set(),
     assetNodes: new Set(),
     styleNodes: new Set(),
+    iconsList: new Set(),
+    iconsUsed: new Set(),
+    iconsMap: new Map(),
     components: {},
     includes: {},
   };
@@ -104,9 +113,10 @@ function crawlChildren(
       // Container, recurse
       case 'COMPONENT':
         const sub = crawlChildren(node.children, dict, [], meta);
-        meta.primitives = new Set([...meta.primitives, ...sub.meta.primitives]);
-        meta.assetNodes = new Set([...meta.assetNodes, ...sub.meta.assetNodes]);
         meta.components = {...meta.components, ...sub.meta.components};
+        meta.iconsUsed = new Set([...meta.iconsUsed, ...sub.meta.iconsUsed]);
+        meta.assetNodes = new Set([...meta.assetNodes, ...sub.meta.assetNodes]);
+        meta.primitives = new Set([...meta.primitives, ...sub.meta.primitives]);
         meta.includes = {...meta.includes, ...sub.meta.includes};
         dict = new Set([...dict, node, ...sub.dict]);
         tree.push({node, children: sub.tree});
@@ -130,8 +140,11 @@ function crawlChildren(
                 if ((node.componentProperties[swapPropsRef.visible] as any)?.value === false)
                   swapInvisible = true;
               }
-              // If swap component is an icon and not invisible, add to components to import
-              if (!isNodeIcon(swapComponent) && !swapInvisible) {
+              // If swap componet is icon, no need to import, just record the name
+              if (isNodeIcon(swapComponent)) {
+                meta.iconsUsed.add(swapComponent.name);
+              // If swap component not invisible, add to import list
+              } else if (!swapInvisible) {
                 meta.components[swapComponent.id] = [swapComponent, node];
               }
             }
@@ -185,7 +198,9 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
     return null;
 
   const compSet = root.parent as ComponentSetNode;
-  const compVars = compSet.children as ComponentNode[];
+  const compVars = compSet.children.filter((n: ComponentNode) =>
+    n !== compSet.defaultVariant
+  ) as ComponentNode[];
 
   for (const variant of compVars) {
     // Variant root mapping
@@ -195,9 +210,7 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
     // Variant root class (exclude default)
     if (!variants.classes.root)
       variants.classes.root = {};
-      if (variant.id !== compSet.defaultVariant.id) {
-        variants.classes.root[variant.name] = variant.id;
-      }
+      variants.classes.root[variant.name] = variant.id;
 
     // Variant children mapping, classes, and fills
     if (variant.children) {

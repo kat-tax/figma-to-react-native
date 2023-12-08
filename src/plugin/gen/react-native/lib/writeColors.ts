@@ -47,9 +47,11 @@ export function writeColors(
     for (const slug of Object.keys(fills)) {
       const dynamic = isRootPressable ? pressableFunction : '';
       const variants = data.variants.fills[slug];
-      // console.log('[colors]', slug, variants, data.colorsheet, data.variants.fills);
+      console.log('[colors]', slug, data);
       writer.write(`${slug}: ${dynamic}[`).indent(() => {
-        // TODO: writer.writeLine(`${default color},`);
+        // TODO: fix default color
+        const defaultColor = 'theme.colors.primaryForeground';
+        writer.writeLine(`${defaultColor},`);
         Array.from(fills[slug]).forEach((value: string[][]) => {
           const [rules, raw] = value;
           const condition = rules.map(ruleName => {

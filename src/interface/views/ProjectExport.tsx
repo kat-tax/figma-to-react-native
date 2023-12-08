@@ -145,7 +145,7 @@ export function ProjectExport(props: ProjectExportProps) {
             options={[
               {children: 'Download', value: 'download'},
               {children: 'Preview', value: 'preview', disabled: true},
-              {children: 'Release', value: 'release'},
+              {children: 'Release', value: 'release', disabled: true},
             ]}
           />
           <F.VerticalSpace space="large"/>
@@ -231,14 +231,6 @@ export function ProjectExport(props: ProjectExportProps) {
                 <F.Text>Export as Package</F.Text>
               </F.Checkbox>}
               {false && <F.VerticalSpace space="small"/>}
-              <F.Checkbox
-                name="enableAutoTranslations"
-                title={tips.optimizeAssets}
-                value={form.formState.enableAutoTranslations}
-                onValueChange={form.setFormState}>
-                <F.Text>Export icons</F.Text>
-              </F.Checkbox>
-              <F.VerticalSpace space="small"/>
               <F.Checkbox
                 name="enableAutoTranslations"
                 title={tips.optimizeAssets}

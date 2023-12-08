@@ -7,6 +7,9 @@ dependencies:
   '@create-figma-plugin/utilities':
     specifier: ^2.6.1
     version: 2.6.1
+  '@iconify/react':
+    specifier: ^4.1.1
+    version: 4.1.1(react@16.14.0)
   '@logtail/browser':
     specifier: ^0.4.18
     version: 0.4.18
@@ -61,6 +64,9 @@ dependencies:
   react-photo-album:
     specifier: ^2.3.0
     version: 2.3.0(react@16.14.0)
+  react-virtuoso:
+    specifier: ^4.6.2
+    version: 4.6.2(react-dom@18.2.0)(react@16.14.0)
   reserved:
     specifier: ^0.1.2
     version: 0.1.2
@@ -2025,6 +2031,19 @@ packages:
     dependencies:
       '@hapi/hoek': 9.3.0
     dev: true
+
+  /@iconify/react@4.1.1(react@16.14.0):
+    resolution: {integrity: sha512-jed14EjvKjee8mc0eoscGxlg7mSQRkwQG3iX3cPBCO7UlOjz0DtlvTqxqEcHUJGh+z1VJ31Yhu5B9PxfO0zbdg==}
+    peerDependencies:
+      react: '>=16'
+    dependencies:
+      '@iconify/types': 2.0.0
+      react: 16.14.0
+    dev: false
+
+  /@iconify/types@2.0.0:
+    resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
+    dev: false
 
   /@jest/create-cache-key-function@29.7.0:
     resolution: {integrity: sha512-4QqS3LY5PBmTRHj9sAg1HLoPzqAI0uOX6wI/TRqHIcOxlFidy6YEmCQJk6FSZjNLGCeubDMfmkWL+qaLKhSGQA==}
@@ -6099,6 +6118,17 @@ packages:
       react: 16.14.0
       react-is: 18.2.0
     dev: true
+
+  /react-virtuoso@4.6.2(react-dom@18.2.0)(react@16.14.0):
+    resolution: {integrity: sha512-vvlqvzPif+MvBrJ09+hJJrVY0xJK9yran+A+/1iwY78k0YCVKsyoNPqoLxOxzYPggspNBNXqUXEcvckN29OxyQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16 || >=17 || >= 18'
+      react-dom: '>=16 || >=17 || >= 18'
+    dependencies:
+      react: 16.14.0
+      react-dom: 18.2.0(react@16.14.0)
+    dev: false
 
   /react-zoom-pan-pinch@3.3.0(react-dom@18.2.0)(react@16.14.0):
     resolution: {integrity: sha512-vy1h8aenDzXye+HRqANZaSA8IPHoqOiuDPFBkswoyPUH8uMfsmbeH6gFI4r4BhEJa0xIlcA+FbvhidRWKGUrOg==}

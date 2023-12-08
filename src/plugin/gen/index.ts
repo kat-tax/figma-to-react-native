@@ -131,6 +131,9 @@ export async function compile(
   updated?: Set<ComponentNode>,
 ) {
   const _names = new Set<string>();
+  const _iconsUsed = new Set<string>();
+  const _iconsList = new Set<string>();
+  const _iconsMap = new Map<string, string>();
   const _assets: Record<string, ComponentAsset> = {};
   const _roster: ComponentRoster = {};
   let _links: ComponentLinks = {};
@@ -166,19 +169,17 @@ export async function compile(
     wait(1); // Prevent UI from freezing
     if (component.name.startsWith('ph:')) continue;
     try {
+      // Compile component
       const {bundle, cached} = await generateBundle(component, config.state, skipCache);
-      const id = bundle.id;
-      const page = bundle.page;
-      const name = bundle.name;
-      const pages = figma.root.children.map(p => p.name);
-  
-      bundle.assets?.forEach(asset => {
-        _assets[asset.hash] = asset;
-      });
 
+      // Derive data
+      const {id, page, name, links, icons, assets} = bundle;
+      const pages = figma.root.children.map(p => p.name);
+
+      // Aggregate data
       _loaded++;
       _cached = cached;
-      _links = {..._links, ...bundle.links};
+      _links = {..._links, ...links};
       _cache[component.id] = bundle;
       _roster[name] = {
         ..._roster[name],
@@ -187,8 +188,18 @@ export async function compile(
         page,
         loading: false,
       };
-  
+
+      // Aggregate assets and icons
+      assets?.forEach(asset => (_assets[asset.hash] = asset));
+      icons?.used?.forEach(icon => (_iconsUsed.add(icon)));
+      icons?.list?.forEach(icon => (_iconsList.add(icon)));
+      Object.entries(icons?.map)?.map(([icon, nodeId]) =>
+        _iconsMap.set(icon, nodeId));
+      
+      // Cache compilation to disk
       component.setSharedPluginData('f2rn', 'data', JSON.stringify(bundle));
+
+      // Send compilation to interface
       emit<EventComponentBuild>('COMPONENT_BUILD', {
         index,
         pages,
@@ -198,7 +209,13 @@ export async function compile(
         roster: _roster,
         assets: _assets,
         assetMap: {},
+        icons: {
+          used: Array.from(_iconsUsed),
+          list: Array.from(_iconsList),
+          map: Object.fromEntries(_iconsMap),
+        },
       }, bundle);
+
       // console.log('[compile]', name, bundle);
     } catch (e) {
       console.error('Failed to export', component, e);

@@ -58,30 +58,28 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   }, [props.build, props.searchQuery]);
 
   return (
-    <Fragment>
-      <F.Container
-        className="components"
-        space="small"
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-        }}>
-        {props.build?.pages?.map(page =>        
-          <ProjectPageGroup
-            key={page}
-            title={page}
-            onSelect={select}
-            entries={list[page]}
-          />
-        )}
+    <F.Container
+      className="components"
+      space="small"
+      style={{
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+      }}>
+      {props.build?.pages?.map(page =>        
         <ProjectPageGroup
-          title="Assets"
+          key={page}
+          title={page}
           onSelect={select}
-          component={<ProjectAssets {...props}/>}
+          entries={list[page]}
         />
-      </F.Container>
-    </Fragment>
+      )}
+      <ProjectPageGroup
+        title="Assets"
+        onSelect={select}
+        component={<ProjectAssets {...props}/>}
+      />
+    </F.Container>
   );
 }
 
@@ -221,7 +219,7 @@ interface CollabDotsProps {
 function CollabDots(props: CollabDotsProps) {
   const users = [{
     id: '1',
-    color: 'red',
+    color: 'green',
   }, {
     id: '2',
     color: 'blue',

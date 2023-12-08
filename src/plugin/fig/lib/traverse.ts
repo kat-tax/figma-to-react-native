@@ -81,6 +81,13 @@ export function getComponentParent(node: SceneNode): ComponentNode {
   return null;
 }
 
+export function getAllIconComponents() {
+  const iconPage = figma.root?.children?.find(p => p.name === 'Icons');
+  const components = iconPage?.findAllWithCriteria({types: ['COMPONENT']});
+  const icons = components?.filter(c => c.name.includes(':'));
+  return icons;
+}
+
 export function getCollectionModes(collectionName: string) {
   // Find a component (preferably the selected one)
   const selection = getSelectedComponent();
@@ -113,19 +120,4 @@ export function getPage(node: BaseNode): PageNode {
     if (!node) return null;
   }
   return node;
-}
-
-// Go to the component's page and focus it
-export function focusNode(id: string) {
-  try {
-    const node = figma.getNodeById(id);
-    if (node) {
-      const page = getPage(node);
-      if (page && figma.currentPage !== page) {
-        figma.currentPage = page;
-      }
-      figma.currentPage.selection = [node as SceneNode];
-      figma.viewport.scrollAndZoomIntoView([node]);
-    }
-  } catch (e) {}
 }
