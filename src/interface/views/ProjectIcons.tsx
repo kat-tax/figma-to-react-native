@@ -23,7 +23,7 @@ export function ProjectIcons({build, iconProvider, iconHost}: ProjectIconsProps)
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
   const iconSet = build.icons.sets[0]; // TODO: support multiple sets
-  const icons = useMemo(() => listIcons().slice(0, 100), [loadedIcons]);
+  const icons = useMemo(() => listIcons().slice(0, 500), [loadedIcons]);
   
   useEffect(() => {
     if (!iconSet) return;
@@ -62,6 +62,7 @@ export function ProjectIcons({build, iconProvider, iconHost}: ProjectIconsProps)
         flex: 1,
         flexDirection: 'row',
         alignItems: 'flex-start',
+        paddingBottom: '60px',
       }}>
       {/* @ts-ignore Preact Issue*/}
       {icons
@@ -106,7 +107,8 @@ export function ProjectIcons({build, iconProvider, iconHost}: ProjectIconsProps)
               color={'var(--color-text)'}
             />
           </F.IconButton>
-        ))}
+        ))
+      }
     </F.Container>
   );
 

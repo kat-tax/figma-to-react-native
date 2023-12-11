@@ -44,26 +44,3 @@ export function Tab(props: TabProps) {
   // @ts-ignore Preact issue
   return <Content {...props} className="tab-view"/>;
 }
-
-interface BackProps {
-  isDark: boolean,
-}
-
-export function Back(props: BackProps) {
-  return (
-    <svg
-      class="svg"
-      xmlns="http://www.w3.org/2000/svg"
-      width="8"
-      height="12"
-      viewBox="0 0 8 12">
-        <path
-          fill={props.isDark ? 'white' : 'black'}
-          fill-opacity="1"
-          fill-rule="evenodd"
-          stroke="none"
-          d="m6.344.343.706.708L2.083 6l4.967 4.95-.706.708L.667 6 6.344.343z">
-        </path>
-    </svg>
-  );
-}

@@ -140,6 +140,19 @@ iframe {
   flex-direction: row;
   overflow: auto;
   padding: 4px;
+  padding-right: 0;
+}
+
+.tab-bar-nav .tab[title="Project Components"] {
+  padding-left: 2px;
+}
+
+.tab-bar-nav .tab[title="Component Code"] {
+  padding-left: 6px;
+}
+
+.tab-bar-nav .tab[title="Component Story"] {
+  margin-right: 6px;
 }
 
 .tab {

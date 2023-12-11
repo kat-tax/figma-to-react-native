@@ -175,7 +175,7 @@ export async function compile(
 
       // Derive data
       const {id, page, name, links, icons, assets} = bundle;
-      const pages = figma.root.children.map(p => p.name);
+      const pages = figma.root.children?.map(p => p.name);
 
       // Aggregate data
       _loaded++;

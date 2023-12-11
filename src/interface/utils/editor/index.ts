@@ -17,48 +17,6 @@ const sourceCache = new LocalStorageCache();
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
 
-export function initComponentEditor(
-  editor: Editor,
-  monaco: Monaco,
-  onTriggerGPT: () => void,
-) {
-  // Automatically import package types
-  AutoTypings.create(editor, {
-    monaco,
-    sourceCache,
-    shareCache: true,
-    preloadPackages: true,
-    fileRootPath: F2RN_EDITOR_NS,
-    versions: {
-      '@types/react': '17.0.2',
-      '@types/react-native': '0.72.6',
-      'react-native-svg': '13.14.0',
-    },
-  });
-
-  // Setup constrained editor to limit user input
-  const constraint = constrainedEditor(monaco);
-  constraint.initializeIn(editor);
-
-  // Setup custom commands
-  editor.addAction({
-    id: 'f2rn-gpt',
-    label: 'Patch with GPT-4',
-    contextMenuGroupId: '1_modification',
-    contextMenuOrder: 99,
-    precondition: null,
-    keybindingContext: null,
-    keybindings: [
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG,
-    ],
-    run: () => {
-      onTriggerGPT();
-    },
-  });
-
-  return constraint;
-}
-
 export function initTypescript(monaco: Monaco, settings: Settings) {
   const ts = monaco.languages.typescript.typescriptDefaults;
   ts?.setInlayHintsOptions(settings.monaco.inlayHints);
@@ -118,4 +76,46 @@ export function initSettingsSchema(monaco: Monaco) {
       ],
     }],
   });
+}
+
+export function initComponentEditor(
+  editor: Editor,
+  monaco: Monaco,
+  onTriggerGPT: () => void,
+) {
+  // Automatically import package types
+  AutoTypings.create(editor, {
+    monaco,
+    sourceCache,
+    shareCache: true,
+    preloadPackages: true,
+    fileRootPath: F2RN_EDITOR_NS,
+    versions: {
+      '@types/react': '17.0.2',
+      '@types/react-native': '0.72.6',
+      'react-native-svg': '13.14.0',
+    },
+  });
+
+  // Setup constrained editor to limit user input
+  const constraint = constrainedEditor(monaco);
+  constraint.initializeIn(editor);
+
+  // Setup custom commands
+  editor.addAction({
+    id: 'f2rn-gpt',
+    label: 'Patch with GPT-4',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 99,
+    precondition: null,
+    keybindingContext: null,
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG,
+    ],
+    run: () => {
+      onTriggerGPT();
+    },
+  });
+
+  return constraint;
 }
