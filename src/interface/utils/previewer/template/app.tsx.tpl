@@ -4,7 +4,7 @@ import React from 'react';
 import {UnistylesTheme} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
 import {Logtail} from '@logtail/browser';
-import {Icon} from '@iconify-icon/react';
+import {Icon} from 'react-native-exo';
 import defaultTheme, * as themes from 'theme';
 
 __COMPONENT_DEF__

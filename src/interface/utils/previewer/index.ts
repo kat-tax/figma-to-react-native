@@ -44,7 +44,7 @@ export async function preview(
   for (const asset of Object.values(buildData.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
-      const folder = asset.isVector ? 'vectors' : 'rasters';
+      const folder = asset.isVector ? 'vectors' : 'images';
       const path = `/assets/${folder}/${asset.name}.${ext}`;
       files.set(path, asset.bytes);
     } catch (e) {

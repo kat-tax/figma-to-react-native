@@ -112,7 +112,7 @@ function writeChild(
       } else {
         const uri = asset.name;
         const style = `{width: ${asset.width}, height: ${asset.height}}`;
-        writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} contentFit="cover"/>`);
+        writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} resizeMode="cover"/>`);
       }
     } else {
       writer.writeLine(`<View/>`);

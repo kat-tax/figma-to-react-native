@@ -21,8 +21,9 @@ const emptyBundle: ComponentData = {
   links: {},
   assets: null,
   icons: {
-    used: [],
+    sets: [],
     list: [],
+    used: [],
     map: {},
   },
 };
@@ -37,11 +38,11 @@ export async function generateBundle(
   }
 
   // Generate exo primitives (if any)
-  const isRootExo = getPage(target)?.name === 'Primitives';
+  const isExo = getPage(target)?.name === 'Primitives';
   const exo = generatePrimitives();
   
   // Primitive component
-  if (isRootExo && exo[target.name]) {
+  if (isExo && exo[target.name]) {
     return {
       ...emptyBundle,
       id: target.id,
@@ -89,8 +90,9 @@ export async function generateBundle(
   const index = generateIndex(new Set<string>().add(name), settings);
   const story = generateStory(target, isVariant, propDefs, settings);
   const icons = {
-    used: Array.from(data.meta.iconsUsed),
+    sets: Array.from(data.meta.iconsSets),
     list: Array.from(data.meta.iconsList),
+    used: Array.from(data.meta.iconsUsed),
     map: Object.fromEntries(data.meta.iconsMap),
   };
 

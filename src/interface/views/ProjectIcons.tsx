@@ -15,14 +15,14 @@ import type {ComponentBuild} from 'types/component';
 
 interface ProjectIconsProps {
   build: ComponentBuild,
-  iconSet?: string,
-  iconProvider?: string,
   iconHost?: string,
+  iconProvider?: string,
 }
 
-export function ProjectIcons({build, iconSet, iconProvider, iconHost}: ProjectIconsProps) {
+export function ProjectIcons({build, iconProvider, iconHost}: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
+  const iconSet = build.icons.sets[0]; // TODO: support multiple sets
   const icons = useMemo(() => listIcons().slice(0, 100), [loadedIcons]);
   
   useEffect(() => {

@@ -1,7 +1,7 @@
 import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {emit} from '@create-figma-plugin/utilities';
-import {init, preview} from 'interface/utils/preview';
+import {init, preview} from 'interface/utils/previewer';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 

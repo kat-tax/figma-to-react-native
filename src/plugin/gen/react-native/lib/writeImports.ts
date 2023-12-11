@@ -9,21 +9,24 @@ export function writeImports(
   data: ParseData,
   settings: Settings,
 ) {
-  // Import React
-  writer.write('import React from');
+  // Import react hooks
+  const hooks = [
+    'useMemo',
+    'useState',
+    'cloneElement',
+  ].filter(Boolean);
+  writer.write(`import React, {${hooks.join(', ')}} from`);
   writer.space();
   writer.quote('react');
   writer.write(';');
   writer.newLine();
 
-  // Import LinguiJS if set and Text primitive is used
-  if (settings?.react?.addTranslate && data.meta.primitives.has('Text')) {
-    writer.write('import {Trans} from');
-    writer.space();
-    writer.quote('@lingui/macro');
-    writer.write(';');
-    writer.newLine();
-  }
+  // Import Unistyles helpers
+  writer.write(`import {useStyles, createStyleSheet} from`);
+  writer.space();
+  writer.quote(`styles`);
+  writer.write(';');
+  writer.newLine();
 
   // Import primitives
   const imports = [
@@ -40,17 +43,18 @@ export function writeImports(
   // Import icon library
   writer.write(`import {Icon} from`);
   writer.space();
-  writer.quote(`@iconify-icon/react`);
-  // TODO: writer.quote(`react-native-iconify`);
+  writer.quote(`react-native-exo`);
   writer.write(';');
   writer.newLine();
 
-  // Import Unistyles helpers
-  writer.write(`import {useStyles, createStyleSheet} from`);
-  writer.space();
-  writer.quote(`styles`);
-  writer.write(';');
-  writer.newLine();
+  // Import translation macro
+  if (settings?.react?.addTranslate && data.meta.primitives.has('Text')) {
+    writer.write('import {Trans} from');
+    writer.space();
+    writer.quote('@lingui/macro');
+    writer.write(';');
+    writer.newLine();
+  }
 
   // TODO: aria hooks for each primitive
   // writer.writeLine(`import {useButton} from '@react-native-aria/button';`);
@@ -78,7 +82,7 @@ export function writeImports(
     .forEach(([_id, asset]) => {
     writer.write(`import ${asset.name} from`);
     writer.space();
-    const base = `assets/${asset.isVector ? 'vectors' : 'rasters'}`;
+    const base = `assets/${asset.isVector ? 'vectors' : 'images'}`;
     const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
     writer.quote(path);
     writer.write(';');

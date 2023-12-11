@@ -20,8 +20,8 @@ function Main() {
   const [page, setPage] = useState<AppPages>(null);
 
   useEffect(() => on<EventAppStart>('APP_START', (page, user) => {
-    setPage(page);
     auth(user);
+    setPage(page);
     $.provider.awareness.setLocalState({
       page,
       user,

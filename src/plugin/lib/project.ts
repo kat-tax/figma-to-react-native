@@ -3,7 +3,7 @@ import {getComponentTargets} from 'plugin/fig/lib';
 import {generateBundle, generateIndex, generateTheme} from 'plugin/gen';
 import {F2RN_PROJECT_NS} from 'config/env';
 import defaultConfig from 'config/project';
-import * as config from 'plugin/config';
+import {config} from 'plugin';
 
 import type {ProjectBuild, ProjectConfig, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
 import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';

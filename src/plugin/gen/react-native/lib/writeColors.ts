@@ -43,11 +43,11 @@ export function writeColors(
   });
 
   // Classes object
-  writer.write(`const colors = React.useMemo(() => (`).inlineBlock(() => {
+  writer.write(`const colors = useMemo(() => (`).inlineBlock(() => {
     for (const slug of Object.keys(fills)) {
       const dynamic = isRootPressable ? pressableFunction : '';
       const variants = data.variants.fills[slug];
-      console.log('[colors]', slug, data);
+      // console.log('[colors]', slug, data);
       writer.write(`${slug}: ${dynamic}[`).indent(() => {
         // TODO: fix default color
         const defaultColor = 'theme.colors.primaryForeground';

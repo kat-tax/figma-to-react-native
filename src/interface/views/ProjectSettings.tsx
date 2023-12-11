@@ -6,7 +6,7 @@ import {debounce} from 'common/delay';
 import MonacoReact from '@monaco-editor/react';
 
 import type {Settings} from 'types/settings';
-import type {ConfigData} from 'interface/hooks/useConfig';
+import type {ConfigData} from 'interface/hooks/useUserSettings';
 
 const _path = `${F2RN_EDITOR_NS}settings.json`;
 

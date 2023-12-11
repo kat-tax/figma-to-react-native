@@ -20,9 +20,7 @@
 
 ## V49 — Asset Gallery
 - `Compiler` Fix assets + links clearing on new build
-- `Interface` Enable assets tab and rename component tab
-- `Interface` Add all tabs to main menu, make collapse to overflow
-- `Interface` Add filtering to gallery
+- `Interface` Add filtering to asset + icon gallery
 - `Interface` Add bounding box + title + hover
 - `Interface` Add lightbox (yet-another-react-lightbox)
 - `Interface` Add drag and drop to figma / others

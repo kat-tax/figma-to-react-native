@@ -89,10 +89,7 @@ export function getAllIconComponents() {
 }
 
 export function getCollectionModes(collectionName: string) {
-  // Find a component (preferably the selected one)
-  const selection = getSelectedComponent();
-  const components = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']});
-  const component = selection ?? components[0];
+  const component = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']})?.pop();
   if (!component) return null;
   // Find the "Theme" variable collection
   const collection = getCollectionByName(collectionName);

@@ -19,7 +19,7 @@ export async function zip(project: ProjectBuild) {
     payload.push({name: `components/${name}/${name}.stories.tsx`, lastModified, input: story});
   });
   project.assets.forEach(([name, isVector, bytes]) => {
-    const folder = isVector ? 'vectors' : 'rasters';
+    const folder = isVector ? 'vectors' : 'images';
     const extension = isVector ? 'svg' : 'png';
     payload.push({
       name: `assets/${folder}/${name}.${extension}`,

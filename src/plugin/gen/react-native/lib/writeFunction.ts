@@ -80,7 +80,7 @@ export function writeFunction(
 
     /* TODO: accessibility
       if (isRootPressable) {
-        writer.writeLine(`const ref = React.useRef(null);`);
+        writer.writeLine(`const ref = useRef(null);`);
         writer.writeLine(`const {buttonProps} = useButton(props);`);
         writer.writeLine(`const {hoverProps} = useHover({}, ref);`);
         writer.writeLine(`const {focusProps} = useFocusRing();`);

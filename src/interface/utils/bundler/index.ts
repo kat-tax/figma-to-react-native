@@ -13,13 +13,13 @@ export async function build(
   config: BuildOptions,
   importMap?: Record<string, string>,
 ): Promise<string> {
-
-  const resolver = new MemoryResolver(files);
+  const resolver = new Resolver(files);
   const compiler = new Compiler();
 
   return await compiler.compile(entry, {
     ...config,
     define: {'process.env.NODE_ENV': '"development"'},
+    inject: ['import-react'],
     target: 'esnext',
     format: 'esm',
     jsx: 'automatic',
@@ -29,13 +29,4 @@ export async function build(
     svg({resolver}),
     react({resolver, importMap}),
   ]);
-}
-
-export class MemoryResolver implements Resolver {
-  constructor(private readonly files: Map<string, string | Uint8Array>) {}
-  public resolve(path: string) {
-    if (!this.files.has(path))
-      throw Error(`[bundler] ${path} not found`);
-    return this.files.get(path)!;
-  }
 }

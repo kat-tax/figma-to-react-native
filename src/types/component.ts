@@ -44,8 +44,9 @@ export type ComponentAsset = {
 }
 
 export type ComponentIcons = {
-  used: string[],
+  sets: string[],
   list: string[],
+  used: string[],
   map: Record<string, string>,
 }
 

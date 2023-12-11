@@ -80,6 +80,7 @@ function crawlChildren(
     primitives: new Set(),
     assetNodes: new Set(),
     styleNodes: new Set(),
+    iconsSets: new Set(),
     iconsList: new Set(),
     iconsUsed: new Set(),
     iconsMap: new Map(),

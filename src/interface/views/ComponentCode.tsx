@@ -3,12 +3,12 @@ import {useRef, useState, useEffect, useCallback} from 'preact/hooks';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {F2RN_EDITOR_NS} from 'config/env';
-import {MonacoBinding} from 'interface/utils/editor/yjs';
-import {setupComponentEditor} from 'interface/utils/editor/setup';
+import {MonacoBinding} from 'interface/utils/editor/lib/yjs';
+import {initComponentEditor} from 'interface/utils/editor';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 
-import type {Monaco, Editor} from 'interface/utils/editor/setup';
+import type {Monaco, Editor} from 'interface/utils/editor';
 import type {ComponentBuild} from 'types/component';
 import type {Settings} from 'types/settings';
 
@@ -89,7 +89,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         path={`${F2RN_EDITOR_NS}${$componentInfo?.name}.tsx`}
         onMount={(e, m) => {
           editor.current = e;
-          constraint.current = setupComponentEditor(e, m, handleGPT);
+          constraint.current = initComponentEditor(e, m, handleGPT);
           new MonacoBinding(
             $componentCode,
             e.getModel(),

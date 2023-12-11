@@ -1,5 +1,3 @@
-import {bytesToDataURL} from '../utils/data';
-
 import type {Plugin} from 'esbuild';
 import type {Resolver} from '../lib/resolver';
 
@@ -29,7 +27,7 @@ export default (opts: PluginOptions): Plugin => ({
       const data = await Promise.resolve(opts.resolver.resolve(args.path));
       const image = (data instanceof Uint8Array)
         ? await bytesToDataURL(data, 'image/png')
-        : data;
+        : `data:image/png;base64,${data}`;
       return {
         contents: image,
         loader: 'text',
@@ -38,3 +36,12 @@ export default (opts: PluginOptions): Plugin => ({
   },
 });
 
+async function bytesToDataURL(bytes: Uint8Array, type?: string): Promise<string> {
+  const blob = new Blob([bytes], {type});
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+}

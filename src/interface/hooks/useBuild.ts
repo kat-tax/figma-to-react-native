@@ -15,8 +15,9 @@ const initial: ComponentBuild = {
   assets: {},
   assetMap: {},
   icons: {
-    used: [],
+    sets: [],
     list: [],
+    used: [],
     map: {},
   },
 };

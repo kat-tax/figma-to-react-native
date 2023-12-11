@@ -270,9 +270,8 @@ iframe {
   align-self: center;
 }
 
-/* Status icon padding removed for menu and target */
-.drop-mod-target-unsaved [class*="_optionValue_"],
-.drop-mod-menu [class*="_optionValue_"] {
+/* Status icon padding removed for unsaved target */
+.drop-mod-target-unsaved [class*="_optionValue_"] {
   padding: 4px var(--space-medium);
 }
 

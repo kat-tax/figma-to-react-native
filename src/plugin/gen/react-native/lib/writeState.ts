@@ -23,6 +23,6 @@ export function writeState(
     // TODO: handle other variable types (number / boolean only atm)
     // TODO: add typing based on variable type
     const initValue = variable.valuesByMode[state.defaultModeId];
-    writer.writeLine(`const [${name}, set${titleCase(name)}] = React.useState(${initValue});`);
+    writer.writeLine(`const [${name}, set${titleCase(name)}] = useState(${initValue});`);
   });
 }

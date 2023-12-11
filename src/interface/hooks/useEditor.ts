@@ -1,6 +1,6 @@
 import {useMonaco} from '@monaco-editor/react';
 import {useEffect} from 'preact/hooks';
-import * as lib from 'interface/utils/editor/setup';
+import * as lib from 'interface/utils/editor';
 
 import type {Settings} from 'types/settings';
 import type {ComponentLinks} from 'types/component';
@@ -10,17 +10,17 @@ export function useEditor(settings: Settings, links?: ComponentLinks) {
 
   useEffect(() => {
     if (!monaco) return;
-    return lib.setupFileOpener(monaco, links);
+    return lib.initFileOpener(monaco, links);
   }, [monaco, links]);
 
   useEffect(() => {
     if (!monaco) return;
-    lib.setupSettingsSchema(monaco);
+    lib.initSettingsSchema(monaco);
   }, [monaco]);
 
   useEffect(() => {
     if (!monaco) return;
-    lib.setupTypescript(monaco, settings);
+    lib.initTypescript(monaco, settings);
   }, [monaco, settings]);
 
   return monaco;

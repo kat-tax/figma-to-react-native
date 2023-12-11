@@ -15,11 +15,10 @@ export type ConfigData = {
   update: (payload: string, force?: boolean) => void,
 }
 
-export function useConfig(): ConfigData {
+export function useUserSettings(): ConfigData {
   const [config, setConfig] = useState(defaultConfig);
   const [raw, setRaw] = useState(configRaw);
   const locked = useRef(false);
-  
   const update = useCallback((payload: string, force?: boolean) => {
     if (!force && locked.current) return;
     let decoded: Settings;

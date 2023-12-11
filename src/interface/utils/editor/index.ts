@@ -1,22 +1,23 @@
-import {emit} from '@create-figma-plugin/utilities';
-// @ts-ignore
+// @ts-ignore No types
 import {constrainedEditor} from 'constrained-editor-plugin';
 import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings/custom-editor';
+import {emit} from '@create-figma-plugin/utilities';
 import {F2RN_EDITOR_NS} from 'config/env';
-import libraries from 'interface/utils/libraries';
-import schema from 'schemas/settings.json';
+
+import schema from './schemas/settings.json';
+import types from './types';
 
 import type * as monaco from 'monaco-editor';
-import type {ComponentLinks} from 'types/component';
-import type {EventFocusNode} from 'types/events';
 import type {Settings} from 'types/settings';
+import type {EventFocusNode} from 'types/events';
+import type {ComponentLinks} from 'types/component';
 
 const sourceCache = new LocalStorageCache();
 
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
 
-export function setupComponentEditor(
+export function initComponentEditor(
   editor: Editor,
   monaco: Monaco,
   onTriggerGPT: () => void,
@@ -58,7 +59,7 @@ export function setupComponentEditor(
   return constraint;
 }
 
-export function setupTypescript(monaco: Monaco, settings: Settings) {
+export function initTypescript(monaco: Monaco, settings: Settings) {
   const ts = monaco.languages.typescript.typescriptDefaults;
   ts?.setInlayHintsOptions(settings.monaco.inlayHints);
   ts?.setDiagnosticsOptions(settings.monaco.diagnostics);
@@ -74,21 +75,21 @@ export function setupTypescript(monaco: Monaco, settings: Settings) {
     }
   });
 
-  const libs = Object.keys(libraries);
+  const libs = Object.keys(types);
   libs.forEach((key) => {
     monaco.editor.createModel(
-      libraries[key],
+      types[key],
       'typescript',
       monaco.Uri.parse(key),
     );
   });
   ts?.setExtraLibs(libs.map((key) => ({
     filePath: key,
-    content: libraries[key],
+    content: types[key],
   })));
 }
 
-export function setupFileOpener(monaco: Monaco, links?: ComponentLinks) {
+export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
   return monaco.editor.registerEditorOpener({
     openCodeEditor(_source, resource, _selectionOrPosition) {
       const base = `${resource.scheme}://${resource.authority}/`;
@@ -105,7 +106,7 @@ export function setupFileOpener(monaco: Monaco, links?: ComponentLinks) {
   }).dispose;
 }
 
-export function setupSettingsSchema(monaco: Monaco) {
+export function initSettingsSchema(monaco: Monaco) {
   const json = monaco.languages.json.jsonDefaults;
   json?.setDiagnosticsOptions({
     validate: true,

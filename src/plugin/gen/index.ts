@@ -1,11 +1,10 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/lib';
-
+import {config} from 'plugin';
 import {wait} from 'common/delay';
 import {generateIndex} from './common/generateIndex';
 import * as reactNative from './react-native';
-import * as config from 'plugin/config';
 
 import type {Settings} from 'types/settings';
 import type {EventComponentBuild, EventProjectTheme} from 'types/events';
@@ -70,6 +69,7 @@ export function generateTheme(settings: Settings) {
 export function watchTheme(settings: Settings) {
   const updateTheme = () => {
     const {code, theme} = generateTheme(settings);
+    if (!theme) return;
     const currentTheme = `${createIdentifierCamel(theme.current.name)}Theme`;
     emit<EventProjectTheme>('PROJECT_THEME', code, currentTheme);
   };
@@ -131,6 +131,7 @@ export async function compile(
   updated?: Set<ComponentNode>,
 ) {
   const _names = new Set<string>();
+  const _iconsSets = new Set<string>();
   const _iconsUsed = new Set<string>();
   const _iconsList = new Set<string>();
   const _iconsMap = new Map<string, string>();
@@ -190,11 +191,19 @@ export async function compile(
       };
 
       // Aggregate assets and icons
-      assets?.forEach(asset => (_assets[asset.hash] = asset));
-      icons?.used?.forEach(icon => (_iconsUsed.add(icon)));
-      icons?.list?.forEach(icon => (_iconsList.add(icon)));
-      Object.entries(icons?.map)?.map(([icon, nodeId]) =>
-        _iconsMap.set(icon, nodeId));
+      Object.entries(icons?.map)?.map(([icon, nodeId]) => {
+        _iconsMap.set(icon, nodeId);
+      });
+      icons?.list?.forEach(icon => {
+        _iconsList.add(icon);
+        _iconsSets.add(icon.split(':')[0]);
+      });
+      icons?.used?.forEach(icon => {
+        _iconsUsed.add(icon);
+      });
+      assets?.forEach(asset => {
+        _assets[asset.hash] = asset;
+      });
       
       // Cache compilation to disk
       component.setSharedPluginData('f2rn', 'data', JSON.stringify(bundle));
@@ -210,6 +219,7 @@ export async function compile(
         assets: _assets,
         assetMap: {},
         icons: {
+          sets: Array.from(_iconsSets),
           used: Array.from(_iconsUsed),
           list: Array.from(_iconsList),
           map: Object.fromEntries(_iconsMap),

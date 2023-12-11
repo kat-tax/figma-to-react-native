@@ -11,12 +11,27 @@ export interface ParseData {
   assetMap: Record<string, string>,
 }
 
-export type ParseRoot = {node: ComponentNode, slug: string, click: Action};
-export type ParseFrame = {node: FrameNode, slug: string};
-export type ParseChild = {node: SceneNode, slug: string};
+export type ParseRoot = {
+  node: ComponentNode,
+  slug: string,
+  click: Action,
+};
+
+export type ParseFrame = {
+  node: FrameNode,
+  slug: string,
+};
+
+export type ParseChild = {
+  node: SceneNode,
+  slug: string,
+};
 
 export type ParseNodeTree = Array<ParseNodeTreeItem>;
-export type ParseNodeTreeItem = {node: SceneNode, children?: ParseNodeTree};
+export type ParseNodeTreeItem = {
+  node: SceneNode,
+  children?: ParseNodeTree,
+};
 
 export type ParseVariantData = {
   mapping: Record<string, Record<string, string>>,
@@ -38,6 +53,7 @@ export type ParseMetaData = {
   primitives: Set<string>,
   assetNodes: Set<string>,
   styleNodes: Set<string>,
+  iconsSets: Set<string>,
   iconsUsed: Set<string>,
   iconsList: Set<string>,
   iconsMap: Map<string, string>,

@@ -1,12 +1,15 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {F2RN_UI_MIN_WIDTH} from 'config/env';
 import {focusNode} from 'plugin/fig/lib';
-
-import * as app from 'plugin/app';
-import * as gen from 'plugin/gen';
-import * as config from 'plugin/config';
-import * as project from 'plugin/project';
-import * as codegen from 'plugin/codegen';
+import {
+  gen,
+  app,
+  drop,
+  icons,
+  config,
+  codegen,
+  project,
+} from 'plugin';
 
 import type * as T from 'types/events';
 import type {AppPages} from 'types/app';
@@ -62,22 +65,8 @@ export default async function() {
       app.targetSelectedComponent();
     });
 
-    // Handle dropping of components from plugin
-    figma.on('drop', (event: DropEvent): boolean => {
-      const item = event.items[0];
-      if (item?.type !== 'figma/node-id') return true;
-      const target = event.node as BaseNode & ChildrenMixin;
-      const node = figma.getNodeById(item.data);
-      const master = node.type === 'COMPONENT_SET' ? node.defaultVariant : node;
-      if (master.type === 'COMPONENT') {
-        const instance = master.createInstance();
-        target.appendChild(instance);
-        instance.x = event.absoluteX;
-        instance.y = event.absoluteY;
-        figma.currentPage.selection = [instance];
-      }
-      return false;
-    })
+    // Handle dropping of components, icons, and assets
+    figma.on('drop', drop.importNode);
 
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
@@ -90,11 +79,16 @@ export default async function() {
       config.update(newConfig);
     });
   
-    // Handle exports triggered by user
+    // Handle exporting project
     on<T.EventProjectExport>('PROJECT_EXPORT', (newConfig) => {
       project.build(newConfig);
     });
-  
+
+    // Handle importing icons
+    on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (set, svgs) => {
+      icons.importSet(set, svgs);
+    });
+
     // Focus component in Figma
     on<T.EventFocusNode>('FOCUS', (nodeId) => {
       if (nodeId === null) {

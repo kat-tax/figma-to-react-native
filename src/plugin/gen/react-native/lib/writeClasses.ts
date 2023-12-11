@@ -61,7 +61,7 @@ export function writeClasses(
   writer.blankLine();
   
   // Classes object
-  writer.write(`const classes = React.useMemo(() => (`).inlineBlock(() => {
+  writer.write(`const classes = useMemo(() => (`).inlineBlock(() => {
     for (const slug of Object.keys(classes)) {
       const dynamic = isRootPressable ? pressableFunction : '';
       writer.write(`${slug}: ${dynamic}[`).indent(() => {

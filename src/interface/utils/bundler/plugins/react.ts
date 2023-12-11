@@ -6,6 +6,14 @@ interface PluginOptions {
   importMap?: Record<string, string>,
 }
 
+const injectReact = `
+  import {createElement, Fragment} from 'react';
+  export {
+    createElement as 'React.createElement',
+    Fragment as 'React.Fragment',
+  }
+`;
+
 export default (opts: PluginOptions): Plugin => ({
   name: 'react',
   setup: (build) => {
@@ -14,27 +22,43 @@ export default (opts: PluginOptions): Plugin => ({
     build.onResolve({filter}, (args) => {
       switch (args.kind) {
         case 'entry-point':
-          return {path: '/' + args.path};
+          return {
+            path: '/' + args.path,
+          };
         case 'import-statement':
-            if (opts.importMap && opts.importMap[args.path])
-              return {path: args.path, external: true};
-            return {path: '/' + args.path};
+          // Package import
+          if (opts.importMap && opts.importMap[args.path]) {
+            return {
+              path: args.path,
+              external: true,
+            };
+          // Local import
+          } else {
+            return {
+              path: '/' + args.path,
+            };
+          }
         default:
           throw Error('not resolvable');
       }
     });
   
     build.onLoad({filter}, async (args) => {
-      const isTheme = args.path.startsWith('/theme');
-      const isStyles = args.path.startsWith('/styles');
+      const isReactInject = args.path === '/import-react';
       const isComponent = args.path.startsWith('/components/');
+      const isStyles = args.path.startsWith('/styles');
+      const isTheme = args.path.startsWith('/theme');
       return {
-        contents: await Promise.resolve(opts.resolver.resolve(args.path)),
-        loader: isComponent
-          ? 'tsx'
-          : isStyles || isTheme
-            ? 'ts'
-            : 'default',
+        contents: isReactInject
+          ? injectReact
+          : await Promise.resolve(opts.resolver.resolve(args.path)),
+        loader: isReactInject
+          ? 'js'
+          : isComponent
+            ? 'tsx'
+            : isStyles || isTheme
+              ? 'ts'
+              : 'default',
         };
     });
   },
