@@ -1,6 +1,6 @@
 import {useMonaco} from '@monaco-editor/react';
 import {useEffect} from 'preact/hooks';
-import * as lib from 'interface/utils/editor';
+import * as lib from 'interface/utils/code';
 
 import type {Settings} from 'types/settings';
 import type {ComponentLinks} from 'types/component';

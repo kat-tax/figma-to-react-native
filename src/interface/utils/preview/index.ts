@@ -1,12 +1,12 @@
 import * as $ from 'interface/store';
-import {build} from 'interface/utils/bundler';
+import {build} from 'interface/utils/bundle';
 import {notify} from 'interface/telemetry';
 import {UNISTYLES_LIB} from 'config/env';
 
-import importMap from './importMaps/loader.json';
-import iframe from './template/iframe.html.tpl';
-import loader from './template/loader.tsx.tpl';
-import app from './template/app.tsx.tpl';
+import importMap from './importMap.json';
+import iframe from './templates/iframe.html.tpl';
+import loader from './templates/loader.tsx.tpl';
+import app from './templates/app.tsx.tpl';
 
 import type {Settings} from 'types/settings';
 import type {ComponentBuild} from 'types/component';

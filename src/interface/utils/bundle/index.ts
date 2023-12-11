@@ -2,6 +2,7 @@ import {Compiler} from './lib/compiler';
 import {Resolver} from './lib/resolver';
 
 import react from './plugins/react';
+import css from './plugins/css';
 import png from './plugins/png';
 import svg from './plugins/svg';
 
@@ -27,6 +28,7 @@ export async function build(
   }, [
     png({resolver}),
     svg({resolver}),
+    css({resolver}),
     react({resolver, importMap}),
   ]);
 }

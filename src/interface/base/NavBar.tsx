@@ -3,7 +3,8 @@ import {useEffect, useState} from 'preact/hooks';
 import {useWindowSize} from "@uidotdev/usehooks";
 import {Bar, Link} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
-import {changes, actions} from 'interface/utils/changes';
+import {patch, actions} from 'interface/utils/code/lib/patch';
+import {titleCase} from 'common/string';
 
 import * as F from '@create-figma-plugin/ui';
 
@@ -11,7 +12,6 @@ import type {StateUpdater} from 'preact/hooks';
 import type {ComponentBuild} from 'types/component';
 import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {Navigation} from 'interface/hooks/useNavigation';
-import {titleCase} from 'common/string';
 
 interface NavBarProps {
   nav: Navigation,
@@ -157,7 +157,7 @@ export function NavBar(props: NavBarProps) {
           placeholder="Review changes"
           value={null}
           icon={<F.IconLayerComponent16 color="warning"/>}
-          onChange={(e) => changes(e.currentTarget.value)}
+          onChange={(e) => patch(e.currentTarget.value)}
         />
       }
     </div>

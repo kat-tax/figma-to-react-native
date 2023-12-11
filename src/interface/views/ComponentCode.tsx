@@ -3,12 +3,12 @@ import {useRef, useState, useEffect, useCallback} from 'preact/hooks';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {initComponentEditor} from 'interface/utils/editor';
-import {MonacoBinding} from 'interface/utils/editor/lib/yjs';
+import {initComponentEditor} from 'interface/utils/code';
+import {MonacoBinding} from 'interface/utils/code/lib/yjs';
 import {F2RN_EDITOR_NS} from 'config/env';
 import * as $ from 'interface/store';
 
-import type {Monaco, Editor} from 'interface/utils/editor';
+import type {Monaco, Editor} from 'interface/utils/code';
 import type {ComponentBuild} from 'types/component';
 import type {Settings} from 'types/settings';
 

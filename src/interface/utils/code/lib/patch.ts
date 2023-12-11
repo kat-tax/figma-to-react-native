@@ -1,15 +1,15 @@
 export const actions = [
-  'diff',
-  'patch',
+  'apply',
+  'view diff',
   'reset',
 ];
 
-export async function changes(action: string) {
+export async function patch(action: string) {
   switch (action) {
-    case 'diff':
+    case 'View Diff':
       console.log('[diff]', action);
       break;
-    case 'patch':
+    case 'Apply':
       confirm(`Are you sure you want to apply the component code changes?`);
       break;
     case 'reset':

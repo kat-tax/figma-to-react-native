@@ -1,7 +1,7 @@
 import {h, Fragment} from 'preact';
 import {LoadingIndicator} from '@create-figma-plugin/ui';
 import MonacoReact from '@monaco-editor/react';
-import {MonacoBinding} from 'interface/utils/editor/lib/yjs';
+import {MonacoBinding} from 'interface/utils/code/lib/yjs';
 import {F2RN_EDITOR_NS} from 'config/env';
 import * as $ from 'interface/store';
 

@@ -1,50 +1,75 @@
-import {emit} from '@create-figma-plugin/utilities';
-import {h} from 'preact';
-import {Fragment} from 'preact';
-import {VirtuosoGrid} from 'react-virtuoso';
+import {h, Fragment} from 'preact';
 import {useState, useEffect, useMemo} from 'preact/hooks';
+import {VirtuosoGrid} from 'react-virtuoso';
+import {emit} from '@create-figma-plugin/utilities';
 import {Icon, listIcons, loadIcons} from '@iconify/react';
 import {ProgressBar} from 'interface/base/ProgressBar';
-import {ScreenInfo} from 'interface/base/ScreenInfo';
 
 import * as F from '@create-figma-plugin/ui';
 
 import type {ReactNode} from 'react';
-import type {EventFocusNode} from 'types/events';
 import type {ComponentBuild} from 'types/component';
+import type {EventFocusNode, EventProjectImportIcons} from 'types/events';
+
+async function fetchIcons (
+  iconSet: string,
+  onProgress: (value: number) => void,
+): Promise<string[]> {
+  if (!iconSet) return;
+  const host = 'https://api.iconify.design';
+  const res = await fetch(`${host}/collection?prefix=${iconSet}`);
+  const val = await res.json();
+  const set = val.uncategorized;
+  const list = set.map((icon: string) => `${iconSet}:${icon}`);
+  return new Promise((resolve, _reject) => {
+    loadIcons(list, (_loaded, _missing, pending, _unsubscribe) => {
+      onProgress(Math.round((_loaded.length / list.length) * 100));
+      if (pending.length) return;
+      resolve(list);
+    });
+  });
+};
 
 interface ProjectIconsProps {
   build: ComponentBuild,
-  iconHost?: string,
   iconProvider?: string,
 }
 
-export function ProjectIcons({build, iconProvider, iconHost}: ProjectIconsProps) {
+export function ProjectIcons({build, iconProvider}: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
-  const iconSet = build.icons.sets[0]; // TODO: support multiple sets
-  const icons = useMemo(() => listIcons().slice(0, 500), [loadedIcons]);
+  const [importing, setImporting] = useState(false);
+  const iconSet = '';//build.icons.sets[0]; // TODO: support multiple sets
+  const icons = useMemo(() => listIcons().slice(0, 2000), [loadedIcons]);
+
+
+
+  const importIcons = async () => {
+    const choice = confirm('Importing icons will overwrite any existing icons in the project.\n\nContinue?');
+    if (!choice) return;
+    setImporting(true);
+    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', 'ph', {});
+  };
   
   useEffect(() => {
-    if (!iconSet) return;
-    const host = iconHost || 'https://api.iconify.design';
-    fetch(`${host}/collection?prefix=${iconSet}`)
-      .then(res => res.json())
-      .then(res => {
-        const src = res.uncategorized;
-        const list = src.map((icon: string) => `${iconSet}:${icon}`);
-        loadIcons(list, (_loaded, _missing, pending, _unsubscribe) => {
-          const progress = Math.round((_loaded.length / list.length) * 100);
-          setLoadProgress(progress);
-          if (pending.length) return;
-          setLoadedIcons(list);
-        });
-      });
-  }, [iconSet, iconProvider, iconHost, build]);
+    if (!importing) return;
+    fetchIcons(iconSet, setLoadProgress).then(list => {
+      setImporting(false);
+      setLoadedIcons(list);
+    });
+  }, [iconSet, iconProvider, build]);
 
   if (!iconSet) {
     return (
-      <ScreenInfo message="No icons found"/>
+      <F.Container space="small" className="center fill">
+        <F.Button
+          secondary
+          loading={importing}
+          style={{border: importing ? 'none' : undefined}}
+          onClick={() => importIcons()}>
+          Import Icons
+        </F.Button>
+      </F.Container>
     );
   }
 
