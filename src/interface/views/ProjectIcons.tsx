@@ -1,9 +1,11 @@
 import {h, Fragment} from 'preact';
-import {useState, useEffect, useMemo} from 'preact/hooks';
+import {Fzf, byLengthAsc} from 'fzf';
 import {VirtuosoGrid} from 'react-virtuoso';
-import {emit} from '@create-figma-plugin/utilities';
-import {Icon, listIcons, loadIcons} from '@iconify/react';
+import {useState, useEffect, useMemo} from 'preact/hooks';
+import {Icon, listIcons, getIcon} from '@iconify/react';
 import {ProgressBar} from 'interface/base/ProgressBar';
+import {loadIconSet} from 'interface/utils/importer/icons';
+import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from '@create-figma-plugin/ui';
 
@@ -11,53 +13,36 @@ import type {ReactNode} from 'react';
 import type {ComponentBuild} from 'types/component';
 import type {EventFocusNode, EventProjectImportIcons} from 'types/events';
 
-async function fetchIcons (
-  iconSet: string,
-  onProgress: (value: number) => void,
-): Promise<string[]> {
-  if (!iconSet) return;
-  const host = 'https://api.iconify.design';
-  const res = await fetch(`${host}/collection?prefix=${iconSet}`);
-  const val = await res.json();
-  const set = val.uncategorized;
-  const list = set.map((icon: string) => `${iconSet}:${icon}`);
-  return new Promise((resolve, _reject) => {
-    loadIcons(list, (_loaded, _missing, pending, _unsubscribe) => {
-      onProgress(Math.round((_loaded.length / list.length) * 100));
-      if (pending.length) return;
-      resolve(list);
-    });
-  });
-};
-
 interface ProjectIconsProps {
   build: ComponentBuild,
-  iconProvider?: string,
 }
 
-export function ProjectIcons({build, iconProvider}: ProjectIconsProps) {
-  const [loadProgress, setLoadProgress] = useState(0);
-  const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
+export function ProjectIcons(props: ProjectIconsProps) {
+  const [iconSet, setIconSet] = useState(props.build.icons.sets[0]);
   const [importing, setImporting] = useState(false);
-  const iconSet = '';//build.icons.sets[0]; // TODO: support multiple sets
-  const icons = useMemo(() => listIcons().slice(0, 2000), [loadedIcons]);
+  const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
+  const [loadProgress, setLoadProgress] = useState(0);
 
+  const icons = useMemo(() => listIcons().slice(0, 1000), [loadedIcons]);
 
-
-  const importIcons = async () => {
-    const choice = confirm('Importing icons will overwrite any existing icons in the project.\n\nContinue?');
+  const importIcons = async (setName: string) => {
+    const choice = confirm('Importing icons will overwrite the "Icon" page if it exists.\n\nContinue?');
     if (!choice) return;
     setImporting(true);
-    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', 'ph', {});
+    const icons = await loadIconSet(setName, setLoadProgress);
+    const data = Object.fromEntries(icons.map(i => [i, getIcon(i).body]));
+    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', 'ph', data);
+    setIconSet('ph');
+    setImporting(false);
   };
   
   useEffect(() => {
-    if (!importing) return;
-    fetchIcons(iconSet, setLoadProgress).then(list => {
+    if (!iconSet || importing) return;
+    loadIconSet(iconSet, setLoadProgress).then(list => {
       setImporting(false);
       setLoadedIcons(list);
     });
-  }, [iconSet, iconProvider, build]);
+  }, [iconSet, props.build]);
 
   if (!iconSet) {
     return (
@@ -66,7 +51,7 @@ export function ProjectIcons({build, iconProvider}: ProjectIconsProps) {
           secondary
           loading={importing}
           style={{border: importing ? 'none' : undefined}}
-          onClick={() => importIcons()}>
+          onClick={() => importIcons('ph')}>
           Import Icons
         </F.Button>
       </F.Container>
@@ -93,9 +78,9 @@ export function ProjectIcons({build, iconProvider}: ProjectIconsProps) {
       {icons
         .map(icon => ({
           icon,
-          nodeId: build.icons.map[icon],
-          missing: !build.icons.list.includes(icon),
-          used: build.icons.used.includes(icon),
+          nodeId: props.build.icons.map[icon],
+          missing: !props.build.icons.list.includes(icon),
+          used: props.build.icons.used.includes(icon),
         }))
         .sort((a, b) => {
           if (a.used && !b.used) return -1;

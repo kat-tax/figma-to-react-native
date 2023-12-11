@@ -1,5 +1,5 @@
 import * as $ from 'interface/store';
-import {build} from 'interface/utils/bundle';
+import {build} from 'interface/utils/bundler';
 import {notify} from 'interface/telemetry';
 import {UNISTYLES_LIB} from 'config/env';
 

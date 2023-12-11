@@ -1,26 +1,31 @@
+const svgProps = `xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"`;
+
 export function importSet(prefix: string, icons: Record<string, string>) {
-  // Get / create icon page
+  console.log('[generateIcons]', prefix, icons);
+
+  // Create page
   let page = figma.root.children.find(p => p.name === 'Icons');
   if (!page) {
     page = figma.createPage();
     page.name = 'Icons';
     figma.root.appendChild(page);
   }
+  
+  // Create frame
+  const frame = figma.createFrame();
+  frame.name = prefix;
 
-  Object.values(icons).forEach(([name, svg]) => {
-    // Create icon
-    const icon = figma.createNodeFromSvg(svg);
+  // Create icons
+  Object.entries(icons).forEach(([name, svg]) => {
+    const icon = figma.createNodeFromSvg(`<svg ${svgProps}>${svg}</svg>`);
     icon.name = name;
     icon.resize(24, 24);
-
-    // Add to component
     const component = figma.createComponent();
     component.name = name;
     component.appendChild(icon);
-
-    // Add to page
-    page.appendChild(component);
+    frame.appendChild(component);
   });
 
-  console.log('[generateIcons]', prefix);
+  // Add frame to page
+  page.appendChild(frame);
 }

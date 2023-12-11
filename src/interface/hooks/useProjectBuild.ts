@@ -1,8 +1,8 @@
 import {useEffect} from 'preact/hooks';
 import {on} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
-import {upload} from 'interface/utils/export/upload';
-import {download} from 'interface/utils/export/download';
+import {upload} from 'interface/utils/exporter/upload';
+import {download} from 'interface/utils/exporter/download';
 
 import type {StateUpdater} from 'preact/hooks';
 import type {EventProjectBuild} from 'types/events';
