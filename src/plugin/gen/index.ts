@@ -27,7 +27,7 @@ export async function generateBundle(
   if (!skipCache) {
     // Memory cache
     if (_cache[node.key]) {
-      console.log('[cache/memory]', node.name);
+      //console.log('[cache/memory]', node.name);
       return {bundle: _cache[node.key], cached: true};
     }
     // Disk cache
@@ -35,7 +35,7 @@ export async function generateBundle(
     if (data) {
       try {
         const bundle = JSON.parse(data) as ComponentData;
-        console.log('[cache/disk]', node.name);
+        //console.log('[cache/disk]', node.name);
         _cache[node.key] = bundle;
         return {bundle, cached: true};
       } catch (e) {
@@ -44,7 +44,7 @@ export async function generateBundle(
     }
   }
 
-  console.log('[cache/hit]', node.name);
+  //console.log('[cache/hit]', node.name);
 
   let bundle: ComponentData;
   switch (settings?.react.flavor) {

@@ -23,7 +23,6 @@ export function generateCode(data: ParseData, settings: Settings) {
   writeFunction(body, flags, data, settings);
   writeStyleSheet(body, flags, data);
   writeImports(head, flags, data);
-  
-  console.log('[IMPORTS]', flags);
+
   return head.toString() + body.toString();
 }

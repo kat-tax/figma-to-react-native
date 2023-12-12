@@ -25,7 +25,7 @@ export function writeFunction(
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
   const name = createIdentifierPascal(masterNode.name);
   const isIcon = name.startsWith('Icon');
-  
+
   // Pressable data (on click -> open link set)
   const pressables = data.root?.click?.type === 'URL'
     ? data.root.click.url?.split(',')?.map(s => s?.trim()?.split('#'))?.map(([prop, label]) => {

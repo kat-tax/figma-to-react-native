@@ -104,6 +104,7 @@ function crawlChildren(
     // Handle other nodes
     switch (node.type) {
       // Container, recurse
+      case 'FRAME':
       case 'COMPONENT':
         const sub = crawlChildren(node.children, dict, [], meta);
         meta.components = {...meta.components, ...sub.meta.components};
