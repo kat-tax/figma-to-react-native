@@ -6,14 +6,6 @@ interface PluginOptions {
   importMap?: Record<string, string>,
 }
 
-const injectReact = `
-  import {createElement, Fragment} from 'react';
-  export {
-    createElement as 'React.createElement',
-    Fragment as 'React.Fragment',
-  }
-`;
-
 export default (opts: PluginOptions): Plugin => ({
   name: 'react',
   setup: (build) => {
@@ -50,7 +42,7 @@ export default (opts: PluginOptions): Plugin => ({
       const isTheme = args.path.startsWith('/theme');
       return {
         contents: isReactInject
-          ? injectReact
+          ? `export * as React from 'react'`
           : await Promise.resolve(opts.resolver.resolve(args.path)),
         loader: isReactInject
           ? 'js'

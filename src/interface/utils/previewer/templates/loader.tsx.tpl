@@ -1,6 +1,5 @@
 // @ts-nocheck
 
-import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {useEffect, useState} from 'react';
 import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
@@ -14,30 +13,31 @@ export function Preview() {
 
   useEffect(() => {
     const load = (e: JSON) => {
-      if (e.data?.type === 'inspect') {
-        setInspect(e.data.enabled);
-      }
-      if (e.data?.type === 'preview') {
-        // console.debug('[loader]', e.data.bundle);
-        const component = document.getElementById('component');
-        const prev = document.getElementById('target');
-        const next = document.createElement('script');
-        next.type = 'module';
-        next.id = 'target';
-        next.innerHTML = e.data.bundle;
-        prev && document.body.removeChild(prev);
-        next && document.body.appendChild(next);
-        if (name !== e.data.name) {
-          const isInitLoad = !name;
-          setName(e.data.name);
-          setTimeout(() =>
-            requestIdleCallback(() =>
-              requestAnimationFrame(() =>
-                zoomToElement(component, 1, isInitLoad ? 0 : 100)
+      switch (e.data?.type) {
+        case 'inspect':
+          setInspect(e.data.enabled);
+          break;
+        case 'preview':
+          const component = document.getElementById('component');
+          const prev = document.getElementById('target');
+          const next = document.createElement('script');
+          next.type = 'module';
+          next.id = 'target';
+          next.innerHTML = e.data.bundle;
+          prev && document.body.removeChild(prev);
+          next && document.body.appendChild(next);
+          if (name !== e.data.name) {
+            const isInitLoad = !name;
+            setName(e.data.name);
+            setTimeout(() =>
+              requestIdleCallback(() =>
+                requestAnimationFrame(() =>
+                  zoomToElement(component, 1, isInitLoad ? 0 : 100)
+                )
               )
-            )
-          , isInitLoad ? 500 : 0);
-        }
+            , isInitLoad ? 500 : 0);
+          }
+          break;
       }
     };
     addEventListener('message', load);

@@ -1,6 +1,5 @@
 // @ts-nocheck
 
-import React from 'react';
 import {UnistylesTheme} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
 import {Logtail} from '@logtail/browser';

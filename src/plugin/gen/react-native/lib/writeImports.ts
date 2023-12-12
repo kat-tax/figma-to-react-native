@@ -15,7 +15,7 @@ export function writeImports(
     'useState',
     'cloneElement',
   ].filter(Boolean);
-  writer.write(`import React, {${hooks.join(', ')}} from`);
+  writer.write(`import {${hooks.join(', ')}} from`);
   writer.space();
   writer.quote('react');
   writer.write(';');

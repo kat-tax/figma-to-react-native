@@ -18,28 +18,24 @@ interface ComponentPreviewProps {
 
 export function ComponentPreview(props: ComponentPreviewProps) {
   const {target, settings, theme} = props;
-  const component = $.components.get(target);
+  const [src, setSrc] = useState('');
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
-  const [src, setSrc] = useState('');
+  const component = $.components.get(target);
 
-  const updateComponent = useCallback((bundle: string) => {
-    iframe.current?.contentWindow?.postMessage({
-      type: 'preview',
-      bundle,
-      name: component?.name,
+  // Inits the loader that renders component apps
+  const initLoader = useCallback(() => {
+    init(settings).then(code => {
+      loaded.current = true;
+      setSrc(code);
+      if (component) {
+        initApp();
+      }
     });
-  }, [iframe, component]);
+  }, [iframe, component, settings]);
 
-  const inspect = useCallback((enabled: boolean) => {
-    iframe.current?.contentWindow?.postMessage({type: 'inspect', enabled});
-  }, [iframe]);
-
-  const load = useCallback(() => {
-    init(settings).then(setSrc);
-  }, [settings]);
-
-  const render = useCallback(() => {
+  // Inits a component app in the loader
+  const initApp = useCallback(() => {
     if (!component) return;
     if (!loaded.current) return;
     preview(
@@ -49,14 +45,24 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       theme,
       settings,
       props.build,
-    ).then(updateComponent);
-  }, [component, settings, props.build]);
+    ).then(bundle => {
+      const ctx = iframe.current?.contentWindow;
+      const name = component?.name;
+      ctx?.postMessage({type: 'preview', bundle, name})
+    });
+  }, [iframe, component, settings, props.build]);
 
-  // Initialize the loader
-  useEffect(load, [settings]);
+  // Enable inspect mode in the app
+  const inspectApp = useCallback((enabled: boolean) => {
+    const ctx = iframe.current?.contentWindow;
+    ctx?.postMessage({type: 'inspect', enabled});
+  }, [iframe]);
 
-  // Update the preview when the component or settings change
-  useEffect(render, [component, settings]);
+  // Render the loader when the settings change
+  useEffect(initLoader, [settings]);
+
+  // Render the app when the component or settings change
+  useEffect(initApp, [component, settings]);
 
   // Update the preview theme when it changes
   useEffect(() => {
@@ -77,18 +83,14 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Enable inspect mode when the user holds down the control/meta key
   useEffect(() => {
     if (!src) return;
-
     const onKeydown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.key === 'Meta') {
-        inspect(true);
-      }
+      if (e.ctrlKey || e.key === 'Meta')
+        inspectApp(true);
     };
     const onKeyup = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.key === 'Meta') {
-        inspect(false);
-      }
+      if (e.ctrlKey || e.key === 'Meta')
+        inspectApp(false);
     };
-
     addEventListener('keydown', onKeydown);
     addEventListener('keyup', onKeyup);
     return () => {
@@ -106,8 +108,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         ref={iframe}
         srcDoc={src}
         onLoad={() => {
-          loaded.current = true;
-          render();
+          if (loaded.current) {
+            initApp();
+          } else {
+            initLoader();
+          }
         }}
         style={{
           opacity: src ? 1 : 0,
