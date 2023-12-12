@@ -119,9 +119,13 @@ function crawlChildren(
         const info = getInstanceInfo(node);
         if (info.propName) {
           meta.includes[info.main.id] = [info.main, node];
-        // Subcomponent (w/ components possibly in props)
         } else {
-          meta.components[info.main.id] = [info.main, node];
+          // Record subcomponent
+          if (!isNodeIcon(info.main)) {
+            meta.components[info.main.id] = [info.main, node];
+          }
+
+          // Record components used in subcomponent props
           Object.keys(info.props).forEach((key) => {
             const {type, value} = info.props[key];
             if (type === 'INSTANCE_SWAP' && typeof value === 'string') {
