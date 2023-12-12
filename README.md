@@ -39,12 +39,11 @@
 | 🎮 | Pressables generation | ✅ |
 | 🎭 | Conditional rendering | ✅ |
 | 🪟 | Borders and rounding | ✅ |
-| 🔄 | Rotations and effects | ⏱ |
-| 🏔 | Background gradients | ⏱ |
+| 🔄 | Rotations and effects | ✅ |
+| 🏔 | Background gradients | ✅ |
 | 📚 | Storybook syncing | ✅ |
 | 📖 | JSDoc generation | ✅ |
 | 💡 | Dark/light mode | ✅ |
-| 💎 | Tamagui output | ⏱ |
 
 
 ### Community
