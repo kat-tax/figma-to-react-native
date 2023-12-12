@@ -7,7 +7,7 @@ import {on, emit} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'preact/hooks';
 import {useWindowResize, render} from '@create-figma-plugin/ui';
 import {init, auth, ErrorBoundary} from 'interface/telemetry';
-import {F2RN_UI_MIN_WIDTH} from 'config/env';
+import {F2RN_UI_WIDTH_MIN} from 'config/env';
 import {App} from 'interface/App';
 import * as $ from 'interface/store';
 
@@ -18,30 +18,35 @@ init();
 
 function Main() {
   const [page, setPage] = useState<AppPages>(null);
+  const [vscode, setVSCode] = useState<boolean>(null);
 
-  useEffect(() => on<EventAppStart>('APP_START', (page, user) => {
-    auth(user);
-    setPage(page);
+  // Receive start data from the plugin
+  useEffect(() => on<EventAppStart>('APP_START', (_page, _user, _vscode) => {
+    auth(_user);
+    setPage(_page);
+    setVSCode(_vscode);
     $.provider.awareness.setLocalState({
-      page,
-      user,
+      page: _page,
+      user: _user,
     });
   }), []);
 
+  // Tell the plugin that the UI is ready
   useEffect(() => {
     emit<EventAppReady>('APP_READY');
   }, []);
 
+  // Handle window resize
   useWindowResize(e => emit('RESIZE_WINDOW', e), {
-    minWidth: F2RN_UI_MIN_WIDTH,
-    minHeight: 200,
     resizeBehaviorOnDoubleClick: 'minimize',
+    minWidth: F2RN_UI_WIDTH_MIN,
+    minHeight: 200,
   });
 
   return (
     <div style={{width: '100%'}}>
       <ErrorBoundary>
-        <App startPage={page}/>
+        <App startPage={page} isVSCode={vscode}/>
       </ErrorBoundary>
     </div>
   );

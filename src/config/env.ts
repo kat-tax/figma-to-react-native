@@ -1,4 +1,4 @@
-export const F2RN_UI_MIN_WIDTH = 249;
+export const F2RN_UI_WIDTH_MIN = 249;
 
 export const F2RN_EDITOR_NS = 'figma://preview/';
 export const F2RN_CONFIG_NS = 'f2rn:config:v1';

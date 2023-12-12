@@ -24,7 +24,8 @@
     ],
     "capabilities": [
       "codegen",
-      "inspect"
+      "inspect",
+      "vscode"
     ],
     "main": "src/main.ts",
     "ui": "src/ui.tsx"

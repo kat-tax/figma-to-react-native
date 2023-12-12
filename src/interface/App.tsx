@@ -28,6 +28,7 @@ import type {AppPages, AppTabs} from 'types/app';
 
 interface AppProps {
   startPage: AppPages | null,
+  isVSCode: boolean,
 }
 
 const tabs: AppTabs = {
@@ -57,6 +58,7 @@ export function App(props: AppProps) {
   const monaco = useEditor(settings.config, build.links);
   const nav = useNavigation(build);
 
+  const isVSCode = props.isVSCode;
   const isReady = Boolean(props.startPage && project && monaco);
   const isDark = useDarkMode();
   const target = nav.component;
@@ -72,6 +74,7 @@ export function App(props: AppProps) {
         nav,
         tabs,
         build,
+        isVSCode,
         searchMode,
         searchQuery,
         setSearchMode,

@@ -103,8 +103,18 @@ export async function watchComponents() {
     // Get all components that were updated
     const updates: SceneNode[] = [];
     e.documentChanges.forEach(change => {
-      if (change.type !== 'CREATE' && change.type !== 'PROPERTY_CHANGE') return;
-      if (change.node.removed) return;
+      // Ignore events that aren't relevant
+      if (change.type !== 'CREATE'
+        && change.type !== 'PROPERTY_CHANGE')
+          return;
+      // Ignore events only effecting pluginData
+      if (change.type === 'PROPERTY_CHANGE'
+        && change.properties.includes('pluginData'))
+          return;
+      // TODO: track deletions
+      if (change.node.removed)
+        return;
+      // Queue component to update
       if (change.node.type === 'COMPONENT') {
         updates.push(change.node as SceneNode);
       } else {

@@ -13,7 +13,7 @@ export interface EventAppReady extends EventHandler {
 
 export interface EventAppStart extends EventHandler {
   name: 'APP_START';
-  handler: (page: AppPages, user: User) => void;
+  handler: (page: AppPages, user: User, vscode: boolean) => void;
 }
 
 export interface EventAppNavigate extends EventHandler {
@@ -79,6 +79,11 @@ export interface EventProjectImportIcons extends EventHandler {
 
 /* General */
 
+export interface EventOpenLink extends EventHandler {
+  name: 'OPEN_LINK';
+  handler: (url: string) => void;
+}
+
 export interface EventFocusNode extends EventHandler {
   name: 'FOCUS';
   handler: (nodeId: string | null) => void;
@@ -86,5 +91,5 @@ export interface EventFocusNode extends EventHandler {
 
 export interface EventNotify extends EventHandler {
   name: 'NOTIFY';
-  handler: (message: string) => void;
+  handler: (message: string, error?: boolean) => void;
 }

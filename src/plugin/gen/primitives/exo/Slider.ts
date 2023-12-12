@@ -31,7 +31,7 @@ export const template = (_: {
   fillThumb: string,
   importStyles: string,
 }) => `
-import {Slider as SliderBase} from 'react-native-exo';
+import {Slider as SliderBase} from 'react-exo';
 ${_.importStyles}
 export interface SliderProps {
   ${props.map(p => p.join(': ')).join(',\n  ')}

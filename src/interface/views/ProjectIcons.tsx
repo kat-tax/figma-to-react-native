@@ -1,6 +1,7 @@
 import {h, Fragment} from 'preact';
-import {Fzf, byLengthAsc} from 'fzf';
 import {VirtuosoGrid} from 'react-virtuoso';
+import {Fzf, byLengthAsc} from 'fzf';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useState, useEffect, useMemo} from 'preact/hooks';
 import {Icon, listIcons, getIcon} from '@iconify/react';
 import {ProgressBar} from 'interface/base/ProgressBar';
@@ -11,7 +12,7 @@ import * as F from '@create-figma-plugin/ui';
 
 import type {ReactNode} from 'react';
 import type {ComponentBuild} from 'types/component';
-import type {EventFocusNode, EventProjectImportIcons} from 'types/events';
+import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/events';
 
 interface ProjectIconsProps {
   build: ComponentBuild,
@@ -22,6 +23,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [importing, setImporting] = useState(false);
   const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
   const [loadProgress, setLoadProgress] = useState(0);
+  const [_copiedText, copyToClipboard] = useCopyToClipboard();
 
   const icons = useMemo(() => listIcons().slice(0, 1000), [loadedIcons]);
 
@@ -51,7 +53,9 @@ export function ProjectIcons(props: ProjectIconsProps) {
           secondary
           loading={importing}
           style={{border: importing ? 'none' : undefined}}
-          onClick={() => importIcons('ph')}>
+          onClick={() => {
+            importIcons('ph');
+          }}>
           Import Icons
         </F.Button>
       </F.Container>
@@ -92,10 +96,18 @@ export function ProjectIcons(props: ProjectIconsProps) {
         .map(({icon, nodeId, missing}) => (
           <F.IconButton
             key={icon}
+            title={icon}
             disabled={missing}
             draggable={!missing}
             onClick={() => emit<EventFocusNode>('FOCUS', nodeId)}
-            onDragStart={(e) => e.dataTransfer.setData('text/plain', icon)}
+            onDblClick={() => {
+              copyToClipboard(`<Icon icon="${icon}"/>`);
+              emit<EventNotify>('NOTIFY', 'Copied icon to clipboard');
+            }}
+            onDragStart={(e) => {
+              const tag = `<Icon icon="${icon}"/>`;
+              e.dataTransfer.setData('text/plain', tag);
+            }}
             onDragEnd={(e) => {
               if (e.view.length === 0) return;
               window.parent.postMessage({

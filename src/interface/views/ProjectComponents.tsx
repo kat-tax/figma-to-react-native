@@ -1,9 +1,9 @@
 import {h, Fragment} from 'preact';
-import {useState, useMemo, useEffect} from 'preact/hooks';
-import {emit} from '@create-figma-plugin/utilities';
 import {Fzf, byLengthAsc} from 'fzf';
+import {useState, useMemo, useEffect} from 'preact/hooks';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
+import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from '@create-figma-plugin/ui';
 

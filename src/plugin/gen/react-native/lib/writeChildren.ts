@@ -86,7 +86,7 @@ function writeChild(
     const style = `{color: ${fillToken}${dynamic}}`;
     // Swap icon, override props for this instance
     if (isSwap) {
-      const statement = `React.cloneElement(props.${swapNodeProp}, `;
+      const statement = `cloneElement(props.${swapNodeProp}, `;
       writer.write((isConditional ? '' : '{') + statement).inlineBlock(() => {
         writer.writeLine(`style: ${style},`);
         writer.writeLine(`size: ${child.node.width},`);

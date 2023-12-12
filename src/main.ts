@@ -1,5 +1,5 @@
+import {F2RN_UI_WIDTH_MIN} from 'config/env';
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {F2RN_UI_MIN_WIDTH} from 'config/env';
 import {focusNode} from 'plugin/fig/lib';
 import {
   gen,
@@ -19,14 +19,12 @@ let _page: AppPages = 'code';
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
 if (figma.mode !== 'codegen') {
-  showUI({
-    width: F2RN_UI_MIN_WIDTH,
-    height: Math.round(figma.viewport.bounds.height),
-    position: {
-      x: Math.round(figma.viewport.bounds.x) - 999999,
-      y: Math.round(figma.viewport.bounds.y) - 20,
-    },
-  });
+  // @ts-ignore
+  const width = F2RN_UI_WIDTH_MIN;
+  const height = Math.round(figma.viewport.bounds.height);
+  const x = Math.round(figma.viewport.bounds.x) - 999999;
+  const y = Math.round(figma.viewport.bounds.y) - 20;
+  showUI({width, height, position: {x, y}});
 }
 
 export default async function() {
@@ -49,7 +47,13 @@ export default async function() {
     _page = await app.loadCurrentPage() || 'code';
 
     // Send start event to interface
-    emit<T.EventAppStart>('APP_START', _page, figma.currentUser);
+    emit<T.EventAppStart>(
+      'APP_START',
+      _page,
+      figma.currentUser,
+      // @ts-ignore
+      Boolean(figma.vscode),
+    );
   
     // Load project config from storage
     // TODO: reload project config on root document update
@@ -63,6 +67,11 @@ export default async function() {
     // Update code on selection change
     figma.on('selectionchange', () => {
       app.targetSelectedComponent();
+      // @ts-ignore
+      if (figma.vscode
+        && figma.currentPage.selection.length === 0) {
+        // TODO: go to overview when no component selected
+      }
     });
 
     // Handle dropping of components, icons, and assets
@@ -98,9 +107,15 @@ export default async function() {
       }
     });
   
+    // Open links coming from interface
+    on<T.EventOpenLink>('OPEN_LINK', (link) => {
+      // @ts-ignore
+      figma.openExternal(link);
+    });
+  
     // Notify user of error coming from interface
-    on<T.EventNotify>('NOTIFY', (message) => {
-      figma.notify(message, {error: true});
+    on<T.EventNotify>('NOTIFY', (message, error) => {
+      figma.notify(message, {error});
     });
   
     // Handle interface resizing

@@ -17,6 +17,7 @@ interface NavBarProps {
   nav: Navigation,
   tabs: AppTabs,
   build: ComponentBuild,
+  isVSCode: boolean,
   setSearchQuery: StateUpdater<string>,
   setSearchMode: StateUpdater<boolean>,
   searchQuery: string,
