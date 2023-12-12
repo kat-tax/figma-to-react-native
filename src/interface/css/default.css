@@ -307,3 +307,9 @@ iframe {
 .drop-mod-menu [class*="_chevronIcon_"] {
   display: none;
 }
+
+/* Virtual List */
+.virtuoso-grid-list {
+  display: flex;
+  flex-flow: wrap;
+}

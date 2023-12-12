@@ -25,7 +25,21 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [_copiedText, copyToClipboard] = useCopyToClipboard();
 
-  const icons = useMemo(() => listIcons().slice(0, 1000), [loadedIcons]);
+  const icons = useMemo(() => listIcons()
+    .map(icon => ({
+      icon,
+      nodeId: props.build.icons.map[icon],
+      missing: !props.build.icons.list.includes(icon),
+      used: props.build.icons.used.includes(icon),
+    }))
+    .sort((a, b) => {
+      if (a.used && !b.used) return -1;
+      if (!a.used && b.used) return 1;
+      if (a.missing && !b.missing) return 1;
+      if (!a.missing && b.missing) return -1;
+      return 0;
+    })
+  , [props.build, loadedIcons]);
 
   const importIcons = async (setName: string) => {
     const choice = confirm('Importing icons will overwrite the "Icon" page if it exists.\n\nContinue?');
@@ -33,8 +47,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setImporting(true);
     const icons = await loadIconSet(setName, setLoadProgress);
     const data = Object.fromEntries(icons.map(i => [i, getIcon(i).body]));
-    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', 'ph', data);
-    setIconSet('ph');
+    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', setName, data);
+    setIconSet(setName);
     setImporting(false);
   };
   
@@ -69,99 +83,64 @@ export function ProjectIcons(props: ProjectIconsProps) {
   }
 
   return (
-    <F.Container
-      className="icons"
-      space="small"
-      style={{
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        paddingBottom: '60px',
-      }}>
-      {/* @ts-ignore Preact Issue*/}
-      {icons
-        .map(icon => ({
-          icon,
-          nodeId: props.build.icons.map[icon],
-          missing: !props.build.icons.list.includes(icon),
-          used: props.build.icons.used.includes(icon),
-        }))
-        .sort((a, b) => {
-          if (a.used && !b.used) return -1;
-          if (!a.used && b.used) return 1;
-          if (a.missing && !b.missing) return 1;
-          if (!a.missing && b.missing) return -1;
-          return 0;
-        })
-        .map(({icon, nodeId, missing}) => (
-          <F.IconButton
-            key={icon}
-            title={icon}
-            disabled={missing}
-            draggable={!missing}
-            onClick={() => emit<EventFocusNode>('FOCUS', nodeId)}
-            onDblClick={() => {
-              copyToClipboard(`<Icon icon="${icon}"/>`);
-              emit<EventNotify>('NOTIFY', 'Copied icon to clipboard');
-            }}
-            onDragStart={(e) => {
-              const tag = `<Icon icon="${icon}"/>`;
-              e.dataTransfer.setData('text/plain', tag);
-            }}
-            onDragEnd={(e) => {
-              if (e.view.length === 0) return;
-              window.parent.postMessage({
-                pluginDrop: {
-                  clientX: e.clientX,
-                  clientY: e.clientY,
-                  items: [{
-                    type: 'figma/node-id',
-                    data: nodeId,
-                  }],
-                }
-              }, '*');
-            }}>
-            {/* @ts-ignore Preact Issue*/}
-            <Icon
-              icon={icon}
-              width={16}
-              height={16}
-              color={'var(--color-text)'}
-            />
-          </F.IconButton>
-        ))
-      }
-    </F.Container>
-  );
-
-  // TODO: virtualize
-  return (
     <Fragment>
       {/* @ts-ignore Preact Issue*/}
       <VirtuosoGrid
         overscan={200}
-        style={{
-          height: '400px',
-          margin: '4px',
-          marginRight: '0',
-        }}
-        components={{
-          //Item: ItemContainer,
-          //List: ListContainer,
-        }}
-        totalCount={loadedIcons.length}
-        itemContent={i => <F.IconButton>
-          {/* @ts-ignore Preact Issue*/}
-          <Icon
-            icon={loadedIcons[i]}
-            width={16}
-            height={16}
-            color={'var(--color-text)'}
-          />
-        </F.IconButton> as ReactNode}
+        style={{height: '100%'}}       
+        totalCount={icons.length}
+        itemContent={i => (
+          <Fragment>
+            {/* @ts-ignore Preact Issue*/}
+            <IconListItem {...icons[i]} copy={copyToClipboard}/>
+          </Fragment> as ReactNode
+        )}
       />
     </Fragment>
   );
+}
 
+interface IconListItemProps {
+  icon: string,
+  nodeId: string,
+  missing: boolean,
+  used: boolean,
+  copy: (text: string) => void,
+}
 
+function IconListItem(props: IconListItemProps) {
+  const tag = `<Icon icon="${props.icon}"/>`;
+  return (
+    <F.IconButton
+      title={props.icon}
+      disabled={props.missing}
+      draggable={!props.missing}
+      onClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
+      onDblClick={() => {
+        props.copy(tag);
+        emit<EventNotify>('NOTIFY', 'Copied icon to clipboard');
+      }}
+      onDragStart={(e) => {e.dataTransfer.setData('text/plain', tag)}}
+      onDragEnd={(e) => {
+        if (e.view.length === 0) return;
+        window.parent.postMessage({
+          pluginDrop: {
+            clientX: e.clientX,
+            clientY: e.clientY,
+            items: [{
+              type: 'figma/node-id',
+              data: props.nodeId,
+            }],
+          }
+        }, '*');
+      }}>
+      {/* @ts-ignore Preact Issue*/}
+      <Icon
+        icon={props.icon}
+        width={16}
+        height={16}
+        color={'var(--color-text)'}
+      />
+    </F.IconButton>
+  );
 }

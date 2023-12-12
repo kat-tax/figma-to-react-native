@@ -16,6 +16,7 @@ declare const styles: {
   readonly "drop-mod-menu": string;
   readonly "drop-mod-target": string;
   readonly "drop-mod-target-unsaved": string;
+  readonly "virtuoso-grid-list": string;
 };
 export = styles;
 

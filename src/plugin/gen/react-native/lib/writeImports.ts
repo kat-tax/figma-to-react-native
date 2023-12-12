@@ -87,7 +87,7 @@ export function writeImports(
         writer.write(';');
         writer.newLine();
       });
-    writer.blankLine();
+    writer.blankLineIfLastNot();
   }
 
   // Types
