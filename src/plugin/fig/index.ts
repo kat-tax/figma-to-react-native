@@ -44,8 +44,8 @@ function crawl(node: ComponentNode) {
   const variants = getVariants(node, children);
   const icons = getAllIconComponents();
 
-  meta.iconsList = new Set(icons.map((i) => i.name));
-  meta.iconsMap = new Map(icons.map((i) => [i.name, i.id]));
+  meta.iconsList = new Set(icons?.map((i) => i.name));
+  meta.iconsMap = new Map(icons?.map((i) => [i.name, i.id]));
 
   root && meta.styleNodes.add(root.node.id);
   frame && meta.styleNodes.add(frame.node.id);

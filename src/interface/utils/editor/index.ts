@@ -48,7 +48,7 @@ export function initTypescript(monaco: Monaco, settings: Settings) {
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
-  const regexTestId = /testID=(?:"(\d{4}:\d{3})"|{(props\.testID)})/;
+  const regexTestId = /testID=(?:"(\d+:\d+)"|{(props\.testID)})/;
   const regexComponentName = /\/([^\/]+)\.[^.]+$/;
   return monaco.editor.registerEditorOpener({
     openCodeEditor(source, resource) {

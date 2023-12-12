@@ -34,14 +34,14 @@ export function generateTheme(settings: Settings) {
     });
     const themeName = createIdentifierCamel(theme.default.name);
     writer.writeLine(`export default ${themeName}Theme;`);
-
   // No theme variable collection found, local styles only
   } else {
-    writer.write(`export default `).inlineBlock(() => {
+    writer.write(`export const defaultTheme = `).inlineBlock(() => {
       writeColors(writer, getLocalStylesColors());
     });
     writer.write(';');
-    writer.newLine();
+    writer.blankLine();
+    writer.writeLine(`export default defaultTheme;`);
   }
 
   return {code: writer.toString(), theme};
@@ -53,22 +53,8 @@ function writeColors(writer: CodeBlockWriter, colors: ThemeColors) {
     writer.write('colors: ').inlineBlock(() => {
       Object.keys(colors).forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = colors[group];
-        // Single color values
-        if (groupItem.value) {
-          writeColor(writer, groupId, groupItem as ThemeColor);
-        // Multi color values
-        } else {
-          writer.write(`${groupId}: `).inlineBlock(() => {
-            Object.keys(groupItem).forEach(name => {
-              const color: ThemeColor = groupItem[name];
-              writeColor(writer, name, color);
-              writer.newLine();
-            });
-            writer.newLineIfLastNot();
-          });
-          writer.write(',');
-        }
+        const groupItem = colors[group] as ThemeColor;
+        writeColor(writer, groupId, groupItem);
         writer.newLine();
       });
     });
@@ -77,7 +63,7 @@ function writeColors(writer: CodeBlockWriter, colors: ThemeColors) {
 
   // No colors found, write empty object
   } else {
-    writer.write('// No figma styles found');
+    writer.write('// No local color styles or color variables found');
   }
 }
 
@@ -114,43 +100,15 @@ function getVariableColors(themeId: string): ThemeColors {
 }
 
 function getLocalStylesColors(): ThemeColors {
-  // Build color map
   const colors: ThemeColors = {};
-  figma.getLocalPaintStyles().forEach(paint => {
-    // TODO: support infinitely deep color groups
-    const [group, token] = paint.name.split('/');
-
-    // Insert this color into the color group
-    // @ts-ignore (TODO: expect only solid paints to fix this)
-    const value = getColor(paint.paints[0].color);
-    const comment = paint.description;
-    const data = {value, comment};
-
-    // Token is undefined, it's a single value color
-    if (!token) {
-      colors[group] = data;
-      return;
-    }
-
-    // Reproduce Figma's var(...) sanitizer
-    const subgroup = token
-      // Lowercase string
-      ?.toLowerCase()
-      // Strip out all non-alphanumeric characters (excluding spaces)
-      ?.replace(/[^a-zA-Z0-9\s]+/g, '')
-      // Replace spaces with underscores
-      ?.replace(/\s/g, '_')
-
-    // If the group of colors doesn't exist, initialize it
-    if (!colors[group]) {
-      colors[group] = {};
-    }
-    
-    // Value is undefined, skip
-    if (!value) return;
-
-    colors[group][subgroup] = data;
-  });
+  figma.getLocalPaintStyles()
+    .forEach(paint => {
+      colors[paint.name] = {
+        // @ts-ignore (TODO: expect only solid paints to fix this)
+        value: getColor(paint.paints[0].color),
+        comment: paint.description,
+      }
+    });
 
   return colors;
 }
