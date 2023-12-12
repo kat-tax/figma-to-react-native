@@ -115,8 +115,8 @@ function IconListItem(props: IconListItemProps) {
       title={props.icon}
       disabled={props.missing}
       draggable={!props.missing}
-      onClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
-      onDblClick={() => {
+      onDblClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
+      onClick={() => {
         props.copy(tag);
         emit<EventNotify>('NOTIFY', 'Copied icon to clipboard');
       }}
