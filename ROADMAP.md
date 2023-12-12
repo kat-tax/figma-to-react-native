@@ -1,6 +1,19 @@
 # ROADMAP
 
-## V46 — User Edits
+## V46 - Polish
+- `Compiler` Fix default color (regressed)
+- `Compiler` Add remaining EXO primitives
+- `Compiler` On component/icon/asset delete keep record, merge last build with new
+- `Compiler`  Stylegen improvements
+- `Previewer` Fix extraneous builds
+- `Previewer` Pass bundler error text to interface
+- `Previewer` Render selected variant (don't recompile, update tag)
+- `Monaco` Hover over icon name for preview
+- `Monaco` Improve intellisense startup time
+- `Monaco` Add color provider for theme tokens
+- `Monaco` Auto-collapse classes, colors, and stylesheet
+
+## V47 — User Edits
 - `Compiler` MVP app ui package (runnable w/ storybook)
 - `Compiler` Compare user changes to last build
 - `Interface` Show modified state in list + component views
@@ -8,15 +21,11 @@
 - `Monaco` Show modified lines in gutter (like git)
 - `Monaco` Show selected node in gutter
 
-## V47 — Collaboration
-- `YJS` Setup websocket provider
+## V48 — Collaboration
+- `YJS` Setup websocket provider (y-sweet)
 - `Monaco` Show awareness in editors (selections + cursors)
 - `Interface` Show color dots in component list
 - `Storybook` Update syncing api to match plugin
-
-## V48 — Icon Management
-- `Interface` Add import icon set UI
-- `Compiler` Use icon set instead of hardcoded "ph:"
 
 ## V49 — Asset Gallery
 - `Compiler` Fix assets + links clearing on new build
