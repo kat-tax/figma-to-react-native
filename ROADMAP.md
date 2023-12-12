@@ -4,7 +4,7 @@
 - `Compiler` Fix default color (regressed)
 - `Compiler` Add remaining EXO primitives
 - `Compiler` On component/icon/asset delete keep record, merge last build with new
-- `Compiler`  Stylegen improvements
+- `Compiler` Stylegen improvements
 - `Previewer` Fix extraneous builds
 - `Previewer` Pass bundler error text to interface
 - `Previewer` Render selected variant (don't recompile, update tag)
