@@ -3,9 +3,11 @@ import {titleCase} from 'common/string';
 import {getCollectionByName, getPage} from 'plugin/fig/lib';
 
 import type {ParseData} from 'types/parse';
+import type {ImportFlags} from './writeImports';
 
 export function writeState(
   writer: CodeBlockWriter,
+  flags: ImportFlags,
   data: ParseData,
 ) {
   // Check if root has a variable group (matches page and name)
@@ -24,5 +26,6 @@ export function writeState(
     // TODO: add typing based on variable type
     const initValue = variable.valuesByMode[state.defaultModeId];
     writer.writeLine(`const [${name}, set${titleCase(name)}] = useState(${initValue});`);
+    flags.react.useState = true;
   });
 }

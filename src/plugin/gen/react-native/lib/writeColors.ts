@@ -3,9 +3,11 @@ import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getPropName} from 'plugin/fig/lib';
 
 import type {ParseData} from 'types/parse';
+import type {ImportFlags} from './writeImports';
 
 export function writeColors(
   writer: CodeBlockWriter,
+  flags: ImportFlags,
   data: ParseData,
   isRootPressable?: boolean,
 ) {
@@ -43,6 +45,7 @@ export function writeColors(
   });
 
   // Classes object
+  flags.react.useMemo = true;
   writer.write(`const colors = useMemo(() => (`).inlineBlock(() => {
     for (const slug of Object.keys(fills)) {
       const dynamic = isRootPressable ? pressableFunction : '';

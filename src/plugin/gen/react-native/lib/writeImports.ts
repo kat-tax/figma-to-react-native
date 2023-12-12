@@ -2,59 +2,56 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
 
 import type {ParseData} from 'types/parse';
-import type {Settings} from 'types/settings';
+
+export interface ImportFlags {
+  exo: {
+    Icon?: boolean,
+  },
+  lingui: {
+    Trans?: boolean,
+  },
+  unistyles: {
+    useStyles?: boolean,
+    createStyleSheet?: boolean,
+  },
+  react: {
+    useMemo?: boolean,
+    useState?: boolean,
+    cloneElement?: boolean,
+  },
+  reactNative: {
+    View?: boolean,
+    Text?: boolean,
+    Image?: boolean,
+    Pressable?: boolean,
+  },
+  reactNativeTypes: {
+    GestureResponderEvent?: boolean,
+    PressableStateCallbackType?: boolean,
+  },
+}
 
 export function writeImports(
   writer: CodeBlockWriter,
+  flags: ImportFlags,
   data: ParseData,
-  settings: Settings,
 ) {
-  // Import react hooks
-  const hooks = [
-    'useMemo',
-    'useState',
-    'cloneElement',
-  ].filter(Boolean);
-  writer.write(`import {${hooks.join(', ')}} from`);
-  writer.space();
-  writer.quote('react');
-  writer.write(';');
-  writer.newLine();
-
-  // Import Unistyles helpers
-  writer.write(`import {useStyles, createStyleSheet} from`);
-  writer.space();
-  writer.quote(`styles`);
-  writer.write(';');
-  writer.newLine();
-
-  // Import primitives
-  const imports = [
-    'View',
-    ...Array.from(data.meta.primitives).filter(p => p !== 'View'),
-    data.root.click?.type === 'URL' && 'Pressable',
-  ].filter(Boolean);
-  writer.write(`import {${(imports.length ? imports : ['View']).join(', ')}} from`);
-  writer.space();
-  writer.quote('react-native');
-  writer.write(';');
-  writer.newLine();
-
-  // Import icon library
-  writer.write(`import {Icon} from`);
-  writer.space();
-  writer.quote(`react-native-exo`);
-  writer.write(';');
-  writer.newLine();
-
-  // Import translation macro
-  if (settings?.react?.addTranslate && data.meta.primitives.has('Text')) {
-    writer.write('import {Trans} from');
+  function writeImport(name: string, props: Record<string, boolean>, isType?: boolean) {
+    const names = Object.entries(props).map(([k, f]) => f && k).filter(Boolean);
+    if (!names.length) return;
+    writer.write(`import ${isType ? 'type ' : ''}{${names.join(', ')}} from`);
     writer.space();
-    writer.quote('@lingui/macro');
+    writer.quote(name);
     writer.write(';');
     writer.newLine();
   }
+
+  // Header
+  writeImport('react', flags.react);
+  writeImport('styles', flags.unistyles);
+  writeImport('react-native', flags.reactNative);
+  writeImport('react-native-exo', flags.exo);
+  writeImport('@lingui/macro', flags.lingui);
 
   // TODO: aria hooks for each primitive
   // writer.writeLine(`import {useButton} from '@react-native-aria/button';`);
@@ -62,38 +59,42 @@ export function writeImports(
   // writer.writeLine(`import {useFocusRing} from '@react-native-aria/focus';`);
   // writer.newLine();
 
-  // Import subcomponents
-  Object
-    .entries(data.meta.components)
-    .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
-    .forEach(([_id, [node, _instance]]) => {
-      const component = createIdentifierPascal(node.name);
-      writer.write(`import {${component}} from`);
-      writer.space();
-      writer.quote(`components/${component}`);
-      writer.write(';');
-      writer.newLine();
-    });
+  // Subcomponents
+  const components = Object.entries(data.meta.components);
+  if (components.length > 0) {
+    components
+      .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
+      .forEach(([_id, [node, _instance]]) => {
+        const component = createIdentifierPascal(node.name);
+        writer.write(`import {${component}} from`);
+        writer.space();
+        writer.quote(`components/${component}`);
+        writer.write(';');
+        writer.newLine();
+      });
+  }
 
-  // Import assets
-  Object
-    .entries(data.assetData)
-    .sort((a, b) => a[1].name.localeCompare(b[1].name))
-    .forEach(([_id, asset]) => {
-    writer.write(`import ${asset.name} from`);
-    writer.space();
-    const base = `assets/${asset.isVector ? 'vectors' : 'images'}`;
-    const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
-    writer.quote(path);
-    writer.write(';');
-    writer.newLine();
-  });
+  const assets = Object.entries(data.assetData);
+  if (assets.length > 0) {
+    assets
+      .sort((a, b) => a[1].name.localeCompare(b[1].name))
+      .forEach(([_id, asset]) => {
+        writer.write(`import ${asset.name} from`);
+        writer.space();
+        const base = `assets/${asset.isVector ? 'vectors' : 'images'}`;
+        const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
+        writer.quote(path);
+        writer.write(';');
+        writer.newLine();
+      });
+    writer.blankLine();
+  }
 
-  writer.blankLine();
+  // Types
+  if (flags.reactNativeTypes) {
+    writer.blankLine();
+    writeImport('react-native', flags.reactNativeTypes, true);
+  }
 
-  writer.write(`import type {GestureResponderEvent, PressableStateCallbackType} from`);
-  writer.space();
-  writer.quote(`react-native`);
-  writer.write(';');
-  writer.newLine();
+  writer.blankLineIfLastNot();
 }

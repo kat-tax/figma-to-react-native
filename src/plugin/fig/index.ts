@@ -22,16 +22,11 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   const data = crawl(component);
 
   // Generated styles and assets
-  const [stylesheet, colorsheet, {assetData, assetMap, hasRaster}] = await Promise.all([
+  const [stylesheet, colorsheet, {assetData, assetMap}] = await Promise.all([
     getStyleSheet(data.meta.styleNodes, data.variants),
     getColorSheet(data.meta.assetNodes, data.variants),
     getAssets(data.meta.assetNodes),
   ]);
-
-  // Add image primitive if needed
-  if (hasRaster) {
-    data.meta.primitives.add('Image');
-  }
 
   // Profile
   // console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
@@ -77,7 +72,6 @@ function crawlChildren(
   dict = dict || new Set();
   tree = tree || [];
   meta = meta || {
-    primitives: new Set(),
     assetNodes: new Set(),
     styleNodes: new Set(),
     iconsSets: new Set(),
@@ -109,15 +103,12 @@ function crawlChildren(
 
     // Handle other nodes
     switch (node.type) {
-      case 'FRAME':
-        meta.primitives.add('View');
       // Container, recurse
       case 'COMPONENT':
         const sub = crawlChildren(node.children, dict, [], meta);
         meta.components = {...meta.components, ...sub.meta.components};
         meta.iconsUsed = new Set([...meta.iconsUsed, ...sub.meta.iconsUsed]);
         meta.assetNodes = new Set([...meta.assetNodes, ...sub.meta.assetNodes]);
-        meta.primitives = new Set([...meta.primitives, ...sub.meta.primitives]);
         meta.includes = {...meta.includes, ...sub.meta.includes};
         dict = new Set([...dict, node, ...sub.dict]);
         tree.push({node, children: sub.tree});
@@ -155,7 +146,6 @@ function crawlChildren(
         tree.push({node});
         break;
       case 'TEXT':
-        meta.primitives.add('Text');
         dict.add(node);
         tree.push({node});
         break;

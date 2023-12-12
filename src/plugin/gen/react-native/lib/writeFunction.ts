@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
+
 import {writeChildren} from './writeChildren';
 import {writeClasses} from './writeClasses';
 import {writeColors} from './writeColors';
@@ -8,15 +9,16 @@ import {writeState} from './writeState';
 
 import type {ParseData} from 'types/parse';
 import type {Settings} from 'types/settings';
+import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string) => string;
 
 export function writeFunction(
   writer: CodeBlockWriter,
+  flags: ImportFlags,
   data: ParseData,
   settings: Settings,
-  includeFrame?: boolean,
-) {
+): ImportFlags {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
   const masterNode = (isVariant ? data.root.node?.parent : data.root.node) as ComponentNode;
@@ -40,7 +42,7 @@ export function writeFunction(
     && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
 
   // Component props
-  writeProps(writer, propDefs, name, pressables, isIcon, isRootPressable);
+  writeProps(writer, flags, propDefs, name, pressables, isIcon, isRootPressable);
 
   // Component documentation
   if (masterNode.description) {
@@ -61,21 +63,21 @@ export function writeFunction(
 
   // Component function body and children
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
-    
+
     // Write state hooks
-    writeState(writer, data);
+    writeState(writer, flags, data);
     
     // Write style hook
+    flags.unistyles.useStyles = true;
     writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
     writer.blankLine();
 
     // Write variant conditionals
     if (isVariant && data?.variants) {
-      // writeConditions(writer, data, isRootPressable);
       if (Object.keys(data.variants.classes).length > 0)
-        writeClasses(writer, data, isRootPressable);
+        writeClasses(writer, flags, data, isRootPressable);
       if (Object.keys(data.variants.fills).length > 0)
-        writeColors(writer, data, isRootPressable);
+        writeColors(writer, flags, data, isRootPressable);
     }
 
     /* TODO: accessibility
@@ -98,27 +100,31 @@ export function writeFunction(
       const rootProps = isRootPressable
         ? ` onPress={props.${pressId}} disabled={_stateDisabled}` // TODO: ref={ref} {...ariaProps}
         : '';
-      writer.conditionalWrite(includeFrame, `<View style={${getStylePrefix('frame')}.frame}>`).indent(() => {
-        writer.withIndentationLevel(includeFrame ? 0 : -1 + writer.getIndentationLevel(), () => {
-          writer.write('<' + rootTag + rootStyle + rootProps + rootTestID + '>').indent(() => {
-            writer.conditionalWriteLine(isRootPressable, `{(e: PressableStateCallbackType) => <>`);
-            writer.withIndentationLevel((isRootPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-              writeChildren(
-                writer,
-                data,
-                settings,
-                data.tree,
-                getStylePrefix,
-                pressables,
-              );
-            });
-            writer.conditionalWriteLine(isRootPressable, `</>}`);
-          });
-          writer.writeLine(`</${rootTag}>`);
+
+      flags.reactNative[rootTag] = true;
+      if (isRootPressable)
+        flags.reactNativeTypes.PressableStateCallbackType = true;
+
+      writer.write('<' + rootTag + rootStyle + rootProps + rootTestID + '>').indent(() => {
+        writer.conditionalWriteLine(isRootPressable, `{(e: PressableStateCallbackType) => <>`);
+        writer.withIndentationLevel((isRootPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
+          writeChildren(
+            writer,
+            flags,
+            data,
+            settings,
+            data.tree,
+            getStylePrefix,
+            pressables,
+          );
         });
+        writer.conditionalWriteLine(isRootPressable, `</>}`);
       });
-      writer.conditionalWriteLine(includeFrame, `</View>`);
+      writer.writeLine(`</${rootTag}>`);
     });
     writer.writeLine(');');
   });
+
+  writer.blankLine();
+  return flags;
 }

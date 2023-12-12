@@ -23,6 +23,7 @@ export const props = [
   ['trackColor?', 'string'],
   ['rangeColor?', 'string'],
   ['thumbColor?', 'string'],
+  ['testID?', 'string'],
 ];
 
 export const template = (_: {

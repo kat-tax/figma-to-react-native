@@ -2,18 +2,15 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData} from 'types/parse';
+import type {ImportFlags} from './writeImports';
 
 export function writeStyleSheet(
   writer: CodeBlockWriter,
+  flags: ImportFlags,
   data: ParseData,
-  includeFrame?: boolean,
-) {
+): ImportFlags {
+  flags.unistyles.createStyleSheet = true;
   writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
-    // Frame styles
-    if (includeFrame && data.frame) {
-      writeStyle(writer, 'frame', {overflow: 'hidden', ...data.stylesheet[data.frame.node.id]});
-    }
-
     // Root styles
     writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
     const rootVariants = data.variants?.classes?.root;
@@ -46,8 +43,10 @@ export function writeStyleSheet(
       }
     }
   });
-
   writer.write('));');
+  writer.newLine();
+  writer.blankLine();
+  return flags;
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {

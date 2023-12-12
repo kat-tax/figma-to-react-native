@@ -50,7 +50,6 @@ export type ParseAssetData = Record<string, {
 }>;
 
 export type ParseMetaData = {
-  primitives: Set<string>,
   assetNodes: Set<string>,
   styleNodes: Set<string>,
   iconsSets: Set<string>,

@@ -2,8 +2,11 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
 import {getPropName, sortPropsDef} from 'plugin/fig/lib';
 
+import type {ImportFlags} from './writeImports';
+
 export function writeProps(
   writer: CodeBlockWriter,
+  flags: ImportFlags,
   propDefs: ComponentPropertyDefinitions,
   componentName: string,
   pressables: string[][],
@@ -49,9 +52,12 @@ export function writeProps(
     });
 
     // Custom props
-    pressables?.forEach(([,,id]) => {
-      writer.writeLine(`${id}?: (e: GestureResponderEvent) => void,`);
-    });
+    if (pressables?.length > 0) {
+      flags.reactNativeTypes.GestureResponderEvent = true;
+      pressables.forEach(([,,id]) => {
+        writer.writeLine(`${id}?: (e: GestureResponderEvent) => void,`);
+      });
+    }
 
     // Icon props
     if (isIcon) {

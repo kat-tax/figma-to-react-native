@@ -6,24 +6,26 @@ import {
   getPropName,
   getFillToken,
   getInstanceInfo,
-  getPressReaction,
   getCustomReaction,
+  // getPressReaction,
 } from 'plugin/fig/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {Settings} from 'types/settings';
+import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string) => string;
 
 export function writeChildren(
   writer: CodeBlockWriter,
+  flags: ImportFlags,
   data: ParseData,
   settings: Settings,
   children: ParseNodeTree,
   getStylePrefix: StylePrefixMapper,
   pressables?: string[][],
 ) {
-  const state = {writer, data, settings, pressables, getStylePrefix};
+  const state = {writer, flags, data, settings, pressables, getStylePrefix};
   children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
@@ -32,6 +34,8 @@ export function writeChildren(
     const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
     const isPressable = Boolean(pressId);
     const isConditional = Boolean(propRefs?.visible);
+    if (isPressable)
+      flags.reactNative.Pressable = true;
     writer.conditionalWriteLine(isConditional, `{props.${getPropName(propRefs?.visible)} && `);
     writer.withIndentationLevel((isConditional ? 1 : 0) + writer.getIndentationLevel(), () => {
       writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressId}}>`);
@@ -50,6 +54,7 @@ function writeChild(
   isConditional: boolean,
   state: {
     writer: CodeBlockWriter,
+    flags: ImportFlags,
     data: ParseData,
     settings: Settings,
     pressables?: string[][],
@@ -63,7 +68,7 @@ function writeChild(
   const propRefs = child.node.componentPropertyReferences;
   const instance = getInstanceInfo(child.node as InstanceNode);
   const reaction = getCustomReaction(instance.node);
-  const pressable = getPressReaction(instance.node);
+  // TODO: const pressable = getPressReaction(instance.node);
   const swapNodeProp = getPropName(propRefs?.mainComponent);
   const jsxBaseProps = getPropsJSX(instance.node.componentProperties, data.colorsheet, data.meta.includes);
   const hasCustomProps = reaction?.type === 'URL';
@@ -86,6 +91,7 @@ function writeChild(
     const style = `{color: ${fillToken}${dynamic}}`;
     // Swap icon, override props for this instance
     if (isSwap) {
+      state.flags.react.cloneElement = true;
       const statement = `cloneElement(props.${swapNodeProp}, `;
       writer.write((isConditional ? '' : '{') + statement).inlineBlock(() => {
         writer.writeLine(`style: ${style},`);
@@ -96,6 +102,7 @@ function writeChild(
     // Explicit icon, use Icon component directly
     } else {
       writer.writeLine(`<Icon icon="${child.node.name}" size={${child.node.width}} style={${style}}/>`);
+      state.flags.exo.Icon = true;
     }
     return;
   }
@@ -113,6 +120,7 @@ function writeChild(
         const uri = asset.name;
         const style = `{width: ${asset.width}, height: ${asset.height}}`;
         writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} resizeMode="cover"/>`);
+        state.flags.reactNative.Image = true;
       }
     } else {
       writer.writeLine(`<View/>`);
@@ -161,14 +169,16 @@ function writeChild(
   if (isInstance) {
     jsxTag = createIdentifierPascal(instance.main.name);
     jsxTagWithProps = jsxTag + jsxCustomProps + jsxBaseProps + testID;
-
+    if (jsxTagWithProps.includes('<Icon'))
+      state.flags.exo.Icon = true;
   // Create primitive tag
   } else {
     // Determine if root node is wrapped in a pressable
     const dynamic = isRootPressable ? '(e)' : '';
     const styles = slug ? ` style={${getStylePrefix(slug)}.${slug}${dynamic}}` : '';
-    jsxTag = getTag(child.node.type);
+    jsxTag = getReactNativeTag(child.node.type);
     jsxTagWithProps = jsxTag + styles + jsxCustomProps + jsxBaseProps + testID;
+    state.flags.reactNative[jsxTag] = true;
   }
 
   // No children, self closing tag
@@ -180,6 +190,17 @@ function writeChild(
   // Child nodes, open tag and write children
   writer.write(`<${jsxTagWithProps}>`).indent(() => {
     switch (jsxTag) {
+      case 'View':
+        writeChildren(
+          writer,
+          state.flags,
+          data,
+          settings,
+          child.children,
+          getStylePrefix,
+          pressables,
+        );
+        break;
       case 'Text':
         const propId = propRefs?.characters;
         const propName = propId ? getPropName(propId) : null;
@@ -190,14 +211,12 @@ function writeChild(
           writer.write(`{${propValue}}`);
         } else {
           if (settings?.react?.addTranslate) {
+            state.flags.lingui.Trans = true;
             writer.write(`<Trans>${propValue}</Trans>`);
           } else {
             writer.write(`{\`${propValue}\`}`);
           }
         }
-        break;
-      case 'View':
-        writeChildren(writer, data, settings, child.children, getStylePrefix, pressables);
         break;
     }
   });
@@ -206,14 +225,12 @@ function writeChild(
   writer.writeLine(`</${jsxTag}>`);
 }
 
-function getTag(type: string) {
+function getReactNativeTag(type: string): 'View' | 'Text' | 'Image' {
   switch (type) {
     case 'TEXT':
       return 'Text';
     case 'IMAGE':
       return 'Image';
-    case 'VECTOR':
-      return 'Svg';
     case 'COMPONENT':
     case 'INSTANCE':
     case 'RECTANGLE':

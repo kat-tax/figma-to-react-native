@@ -56,7 +56,7 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
       const base = `${resource.scheme}://${resource.authority}/`;
       if (base === F2RN_EDITOR_NS) {
         // Search for component name in links
-        nodeId = links?.[resource.path.match(regexComponentName)?.[1]];
+        nodeId = links?.[resource.path?.match(regexComponentName)?.[1]];
         // Search for test ids if no component name found
         if (!nodeId) {
           const sel = source.getSelection();
