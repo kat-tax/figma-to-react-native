@@ -18,6 +18,8 @@ const emptyBundle: ComponentData = {
   index: '',
   code: '',
   story: '',
+  width: 0,
+  height: 0,
   links: {},
   assets: null,
   icons: {
@@ -47,6 +49,8 @@ export async function generateBundle(
       ...emptyBundle,
       id: target.id,
       page: 'Primitives',
+      width: target.width,
+      height: target.height,
       name: createIdentifierPascal(target.name),
       code: exo[target.name],
     };
@@ -83,13 +87,15 @@ export async function generateBundle(
 
   // Bundle data
   const id = masterNode.id;
-  const page = getPage(masterNode)?.name;
+  const width = data.frame ? data.frame.node.width : data.root.node.width;
+  const height = data.frame ? data.frame.node.height : data.root.node.height;
   const name = createIdentifierPascal(masterNode.name);
+  const page = getPage(masterNode)?.name;
   const props = getPropsJSX({...propDefs}, data.colorsheet, data.meta.includes);
-  const assets = Object.values(data.assetData);
   const code = generateCode(data, settings);
   const index = generateIndex(new Set<string>().add(name), settings);
   const story = generateStory(target, isVariant, propDefs, settings);
+  const assets = Object.values(data.assetData);
   const icons = {
     sets: Array.from(data.meta.iconsSets),
     list: Array.from(data.meta.iconsList),
@@ -103,6 +109,8 @@ export async function generateBundle(
     name,
     page,
     props,
+    width,
+    height,
     links,
     icons,
     assets,

@@ -28,6 +28,8 @@ export type ComponentData = {
   code: string,
   index: string,
   story: string,
+  width: number,
+  height: number,
   icons: ComponentIcons,
   assets: ComponentAsset[] | null,
   links: ComponentLinks,

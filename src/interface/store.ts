@@ -15,6 +15,8 @@ export const components = doc.getMap<{
   page: string,
   name: string,
   props: string,
+  width: number,
+  height: number,
 }>('components');
 
 export const project = doc.getMap<{

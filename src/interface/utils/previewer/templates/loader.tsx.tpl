@@ -6,6 +6,17 @@ import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-
 import {Inspector} from 'react-dev-inspector';
 // import {Console, Hook, Unhook} from 'console-feed';
 
+export default function Loader() {
+  return (
+    <TransformWrapper
+      initialPositionX={window.innerWidth / 2}
+      initialPositionY={window.innerHeight * 2}
+      doubleClick={{mode: 'reset'}}>
+      <Preview/>
+    </TransformWrapper>
+  );
+}
+
 export function Preview() {
   const [name, setName] = useState();
   const {zoomToElement} = useControls();
@@ -13,26 +24,35 @@ export function Preview() {
 
   useEffect(() => {
     const load = (e: JSON) => {
+      const component = document.getElementById('component');
       switch (e.data?.type) {
         case 'inspect':
           setInspect(e.data.enabled);
           break;
+        case 'resize':
+          zoomToElement(component, 1, 0);
+          break;
         case 'preview':
-          const component = document.getElementById('component');
+          // Update frame
+          component.style.display = 'flex';
+          component.style.width = e.data.width ? e.data.width + 'px' : 'auto';
+          component.style.height = e.data.height ? e.data.height + 'px' : 'auto';
+          // Update script
           const prev = document.getElementById('target');
           const next = document.createElement('script');
-          next.type = 'module';
           next.id = 'target';
+          next.type = 'module';
           next.innerHTML = e.data.bundle;
           prev && document.body.removeChild(prev);
           next && document.body.appendChild(next);
+          // New component
           if (name !== e.data.name) {
             const isInitLoad = !name;
             setName(e.data.name);
             setTimeout(() =>
               requestIdleCallback(() =>
                 requestAnimationFrame(() =>
-                  zoomToElement(component, 1, isInitLoad ? 0 : 100)
+                  zoomToElement(component, 1, isInitLoad ? 0 : 150)
                 )
               )
             , isInitLoad ? 500 : 0);
@@ -60,17 +80,6 @@ export function Preview() {
       />
       {/*<LogsContainer/>*/}
     </TransformComponent>
-  );
-}
-
-export default function Loader() {
-  return (
-    <TransformWrapper
-      initialPositionX={window.innerWidth / 2}
-      initialPositionY={window.innerHeight * 2}
-      doubleClick={{mode: 'reset'}}>
-      <Preview/>
-    </TransformWrapper>
   );
 }
 

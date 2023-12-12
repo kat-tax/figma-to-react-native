@@ -1,5 +1,5 @@
 import * as $ from 'interface/store';
-import {build} from 'interface/utils/bundler';
+import {bundle} from 'interface/utils/bundler';
 import {notify} from 'interface/telemetry';
 import {UNISTYLES_LIB} from 'config/env';
 
@@ -13,19 +13,23 @@ import type {ComponentBuild} from 'types/component';
 
 const ENTRY_POINT = '/index.tsx';
 
-export async function preview(
+interface PreviewOptions {
   tag: string,
   name: string,
   props: string,
   theme: string,
   settings: Settings,
-  buildData: ComponentBuild,
-) {
+  build: ComponentBuild,
+}
+
+export async function preview(options: PreviewOptions) {
+  const {tag, name, props, theme, settings, build} = options;
+
   // Virtual filesystem
   const files: Map<string, string | Uint8Array> = new Map();
 
   // Add components to filesystem
-  for (const component of Object.keys(buildData.roster)) {
+  for (const component of Object.keys(build.roster)) {
     try {
       const contents = $.getComponentCode(component);
       const path = `/components/${component}`;
@@ -41,7 +45,7 @@ export async function preview(
   }
 
   // Add assets to filesystem
-  for (const asset of Object.values(buildData.assets)) {
+  for (const asset of Object.values(build.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
       const folder = asset.isVector ? 'vectors' : 'images';
@@ -62,7 +66,7 @@ export async function preview(
       .replace('__CURRENT_THEME__', theme)
       .replace('__COMPONENT_DEF__', getImports(name, props))
       .replace('__COMPONENT_REF__', tag));
-    return await build(ENTRY_POINT, files, settings.esbuild, importMap);
+    return await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
   } catch (e) {
     notify(e, 'Failed to build preview app');
     console.error('[preview/app]', e.toString());
@@ -76,7 +80,7 @@ export async function init(settings: Settings) {
   
   // Build preview loader
   try {
-    const output = await build(ENTRY_POINT, files, settings.esbuild, importMap);
+    const output = await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
     return atob(iframe)
       .replace('__IMPORT_MAP__', JSON.stringify(importMap, undefined, 2))
       .replace('__LOADER__', output);

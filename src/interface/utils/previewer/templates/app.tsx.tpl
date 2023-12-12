@@ -33,9 +33,7 @@ export function App() {
       </pre>
     }>
       <UnistylesTheme theme={themes[theme] || defaultTheme}>
-        <div style={{minWidth: '80vw'}}>
-          __COMPONENT_REF__
-        </div>
+        __COMPONENT_REF__
       </UnistylesTheme>
     </ErrorBoundary>
   )

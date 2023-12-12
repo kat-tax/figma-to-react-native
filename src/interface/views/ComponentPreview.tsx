@@ -1,5 +1,6 @@
 import {h, Fragment} from 'preact';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
+import {useWindowSize} from '@uidotdev/usehooks';
 import {emit} from '@create-figma-plugin/utilities';
 import {init, preview} from 'interface/utils/previewer';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
@@ -17,10 +18,11 @@ interface ComponentPreviewProps {
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {target, settings, theme} = props;
+  const {target, theme, build, settings} = props;
   const [src, setSrc] = useState('');
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
+  const screen = useWindowSize();
   const component = $.components.get(target);
 
   // Inits the loader that renders component apps
@@ -37,18 +39,13 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Inits a component app in the loader
   const initApp = useCallback(() => {
     if (!component) return;
-    if (!loaded.current) return;
-    preview(
-      '<' + component.name + component.props + '/>',
-      component.name,
-      component.props,
-      theme,
-      settings,
-      props.build,
-    ).then(bundle => {
+    if (!loaded.current) return
+    const {name, props, width, height} = component;
+    const tag = '<' + component.name + component.props + '/>';
+    preview({tag, name, props, theme, settings, build}).then(bundle => {
       const ctx = iframe.current?.contentWindow;
       const name = component?.name;
-      ctx?.postMessage({type: 'preview', bundle, name})
+      ctx?.postMessage({type: 'preview', bundle, name, width, height})
     });
   }, [iframe, component, settings, props.build]);
 
@@ -64,9 +61,16 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Render the app when the component or settings change
   useEffect(initApp, [component, settings]);
 
+  // Update the preview size when it changes
+  useEffect(() => {
+    const ctx = iframe.current?.contentWindow;
+    ctx?.postMessage({type: 'resize', width: screen.width, height: screen.height});
+  }, [iframe, screen]);
+
   // Update the preview theme when it changes
   useEffect(() => {
-    iframe.current?.contentWindow?.postMessage({type: 'theme', theme});
+    const ctx = iframe.current?.contentWindow;
+    ctx?.postMessage({type: 'theme', theme});
   }, [iframe, theme]);
 
   // Handle focus events from inspect mode

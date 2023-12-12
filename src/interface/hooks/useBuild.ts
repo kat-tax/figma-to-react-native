@@ -40,6 +40,8 @@ export function useBuild(): ComponentBuild {
         page: component.page,
         name: component.name,
         props: component.props,
+        width: component.width,
+        height: component.height,
       });
     });
     // console.log('[build]', component.name, newBuild);
