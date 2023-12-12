@@ -62,18 +62,13 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
           const sel = source.getSelection();
           const model = source.getModel();
           for (let i = sel.startLineNumber; i <= sel.endLineNumber; i++) {
-            const line = model.getLineContent(i);
-            const match = line.match(regexTestId);
+            const line = model?.getLineContent(i);
+            const match = line?.match(regexTestId);
             const [_, literal, prop] = match;
             nodeId = prop
-              ? links?.[model.uri.path.match(regexComponentName)?.[1]]
+              ? links?.[model.uri.path?.match(regexComponentName)?.[1]]
               : literal;
           }
-        }
-        // Search for component name in source
-        if (!nodeId) {
-          const match = source.getValue().match(regexComponentName);
-          nodeId = links?.[match?.[1]];
         }
       }
       // Focus node in editor
