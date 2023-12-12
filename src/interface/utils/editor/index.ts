@@ -48,17 +48,40 @@ export function initTypescript(monaco: Monaco, settings: Settings) {
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
+  const regexTestId = /testID=(?:"(\d{4}:\d{3})"|{(props\.testID)})/;
+  const regexComponentName = /\/([^\/]+)\.[^.]+$/;
   return monaco.editor.registerEditorOpener({
-    openCodeEditor(_source, resource, _selectionOrPosition) {
+    openCodeEditor(source, resource) {
+      let nodeId: string | undefined;
       const base = `${resource.scheme}://${resource.authority}/`;
       if (base === F2RN_EDITOR_NS) {
-        const name = resource.path.match(/\/([^\/]+)\.[^.]+$/)?.[1];
-        const link = links?.[name];
-        console.debug('[open file]', resource, name, links, link);
-        if (link) {
-          emit<EventFocusNode>('FOCUS', link);
+        // Search for component name in links
+        nodeId = links?.[resource.path.match(regexComponentName)?.[1]];
+        // Search for test ids if no component name found
+        if (!nodeId) {
+          const sel = source.getSelection();
+          const model = source.getModel();
+          for (let i = sel.startLineNumber; i <= sel.endLineNumber; i++) {
+            const line = model.getLineContent(i);
+            const match = line.match(regexTestId);
+            const [_, literal, prop] = match;
+            nodeId = prop
+              ? links?.[model.uri.path.match(regexComponentName)?.[1]]
+              : literal;
+          }
+        }
+        // Search for component name in source
+        if (!nodeId) {
+          const match = source.getValue().match(regexComponentName);
+          nodeId = links?.[match?.[1]];
         }
       }
+      // Focus node in editor
+      // TODO: support multiple nodes
+      if (nodeId) {
+        emit<EventFocusNode>('FOCUS', nodeId);
+      }
+      console.debug('[open file]', {resource, base, nodeId, links, source});
       return false;
     }
   }).dispose;

@@ -76,6 +76,7 @@ export async function generateBundle(
   }
 
   // Component links
+  links[createIdentifierPascal(masterNode.name)] = masterNode.id;
   Object.entries(data.meta.components).forEach((c: any) => {
     links[createIdentifierPascal(c[1][0].name)] = c[0];
   });
