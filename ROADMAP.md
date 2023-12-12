@@ -8,16 +8,16 @@
 - `Previewer` Fix extraneous builds
 - `Previewer` Pass bundler error text to interface
 - `Previewer` Render selected variant (don't recompile, update tag)
-- `Monaco` Hover over icon name for preview
+- `Monaco` Type theme file (update on theme update)
 - `Monaco` Improve intellisense startup time
-- `Monaco` Add color provider for theme tokens
 - `Monaco` Auto-collapse classes, colors, and stylesheet
+- `Monaco` Add color provider for theme tokens
+- `Monaco` Hover over icon name for preview
 
 ## V47 — User Edits
 - `Compiler` MVP app ui package (runnable w/ storybook)
 - `Compiler` Compare user changes to last build
 - `Interface` Show modified state in list + component views
-- `Monaco` Type theme file (update on theme update)
 - `Monaco` Show modified lines in gutter (like git)
 - `Monaco` Show selected node in gutter
 
