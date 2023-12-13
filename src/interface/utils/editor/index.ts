@@ -33,18 +33,20 @@ export function initTypescript(monaco: Monaco, settings: Settings) {
     }
   });
 
-  const libs = Object.keys(types);
-  libs.forEach((key) => {
-    monaco.editor.createModel(
-      types[key],
-      'typescript',
-      monaco.Uri.parse(key),
-    );
-  });
-  ts?.setExtraLibs(libs.map((key) => ({
-    filePath: key,
-    content: types[key],
-  })));
+  try {
+    const libs = Object.keys(types);
+    libs.forEach((key) => {
+      const uri = types[key];
+      const existing = monaco.editor.getModel(uri);
+      if (existing) {
+        existing.dispose();
+      } else {
+        monaco.editor.createModel(uri, 'typescript', monaco.Uri.parse(key));
+      }
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
