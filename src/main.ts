@@ -21,8 +21,8 @@ let _page: AppPages = 'code';
 if (figma.mode !== 'codegen') {
   // @ts-ignore
   const width = F2RN_UI_WIDTH_MIN;
-  const height = Math.round(figma.viewport.bounds.height);
-  const x = Math.round(figma.viewport.bounds.x) - 999999;
+  const height = 999999;
+  const x = Math.round(figma.viewport.bounds.x);
   const y = Math.round(figma.viewport.bounds.y) - 20;
   showUI({width, height, position: {x, y}});
 }

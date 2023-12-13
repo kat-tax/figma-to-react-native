@@ -26,7 +26,7 @@ export interface ProjectConfig {
   packageVersion: string,
   enableAutoTranslations: boolean,
   enableAssetOptimizations: boolean,
-  includeFrames: boolean,
+  includeAssets: boolean,
 }
 
 export type ProjectExportScope = 'document' | 'page' | 'selected';

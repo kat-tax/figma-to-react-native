@@ -71,7 +71,7 @@ export interface DropComponentHandler extends EventHandler {
 
 export interface EventProjectBuild extends EventHandler {
   name: 'PROJECT_BUILD';
-  handler: (project: ProjectBuild, config: ProjectConfig, user: User) => void;
+  handler: (project: ProjectBuild | null, config: ProjectConfig, user: User) => void;
 }
 
 export interface EventProjectTheme extends EventHandler {

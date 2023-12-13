@@ -82,6 +82,7 @@ export function build(projectConfig: ProjectConfig) {
       emit<EventProjectBuild>('PROJECT_BUILD', build, projectConfig, user);
     }, 500);
   } else {
+    emit<EventProjectBuild>('PROJECT_BUILD', null, projectConfig, user);
     figma.notify('No components found to export', {error: true});
   }
 }

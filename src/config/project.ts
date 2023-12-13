@@ -8,7 +8,7 @@ const config: ProjectConfig = {
   isPackage: false,
   packageName: '',
   packageVersion: '',
-  includeFrames: false,
+  includeAssets: true,
   enableAssetOptimizations: false,
   enableAutoTranslations: false,
 };

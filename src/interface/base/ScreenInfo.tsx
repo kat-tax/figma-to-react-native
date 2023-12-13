@@ -11,7 +11,7 @@ export function ScreenInfo(props: ScreenInfoProps) {
     <Container
       space="small"
       className="center fill"
-      style={{flexDirection: 'column', gap: '20px'}}>
+      style={{flexDirection: 'column', gap: '10px'}}>
       <div style={{marginLeft: '-10px', display: 'flex', alignItems: 'center'}}>
         <IconNotice32 color="secondary"/>
         <Muted>{props.message}</Muted>

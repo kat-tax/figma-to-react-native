@@ -44,9 +44,9 @@ const tips = {
 
   • The version of the package to be created`,
 
-  includeFrames: `Include Frames:
+  includeAssets: `Include Assets:
 
-  • Enable this if your components are wrapped in frames`,
+  • Enable this to include assets used in your components`,
 
   autoTranslate: `Auto Translate:
 
@@ -89,7 +89,7 @@ export function ProjectExport(props: ProjectExportProps) {
   const isReleasing = Boolean(form.formState.method === 'release');
   const isPackaging = Boolean(isReleasing && form.formState.isPackage);
 
-  const showSuccess = () => {
+  const resetOnSucccess = () => {
     setExporting(false);
     setHasSuccess(true);
     setTimeout(() => {
@@ -97,21 +97,28 @@ export function ProjectExport(props: ProjectExportProps) {
       setExportCount(0);
     }, 5000);
   };
+  const resetOnFail = () => {
+    setTimeout(() => {
+      setExporting(false);
+      setHasSuccess(false);
+      setExportCount(0);
+    }, 500);
+  };
 
-  useProjectBuild(showSuccess, setExportCount);
+  useProjectBuild(resetOnSucccess, resetOnFail, setExportCount);
 
   return (
     <Fragment>
       {hasSuccess &&
         <F.Banner icon={<F.IconComponent32/>} variant="success">
-          {`Successfully exported ${exportCount} components${exportCount === 1 ? 's' : ''}!`}
+          {`Successfully exported ${exportCount} component${exportCount === 1 ? '' : 's'}!`}
         </F.Banner>
       }
       {isExporting &&
         <F.Banner icon={<F.IconCheckCircle32/>}>
           {isReleasing 
-            ? `Publishing components, please wait...`
-            : `Exporting components, please wait...`
+            ? `Publishing, please wait...`
+            : `Exporting ${form.formState.scope}, please wait...`
           }
         </F.Banner>
       }
@@ -142,6 +149,7 @@ export function ProjectExport(props: ProjectExportProps) {
             aria-label={tips.export}
             value={form.formState.method}
             onValueChange={form.setFormState}
+            disabled={isExporting}
             options={[
               {children: 'Download', value: 'download'},
               {children: 'Preview', value: 'preview', disabled: true},
@@ -159,6 +167,7 @@ export function ProjectExport(props: ProjectExportProps) {
               aria-label={tips.scope}
               value={form.formState.scope}
               onValueChange={form.setFormState}
+              disabled={isExporting}
               options={[
                 {children: 'Document', value: 'document'},
                 {children: 'Page', value: 'page'},
@@ -175,6 +184,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.Textbox
               name="packageName"
               placeholder="@acme/ui"
+              disabled={isExporting}
               value={form.formState.packageName}
               onValueInput={form.setFormState}
               aria-label={tips.packageName}
@@ -189,6 +199,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.VerticalSpace space="small"/>
             <F.Textbox
               name="packageVersion"
+              disabled={isExporting}
               value={form.formState.packageVersion}
               onValueInput={form.setFormState}
               aria-label={tips.packageVersion}
@@ -209,6 +220,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.VerticalSpace space="small"/>
             <F.Textbox
               name="apiKey"
+              disabled={isExporting}
               aria-label={tips.apiKey}
               value={form.formState.apiKey}
               onValueInput={form.setFormState}
@@ -226,6 +238,7 @@ export function ProjectExport(props: ProjectExportProps) {
               {false && <F.Checkbox
                 name="isPackage"
                 title={tips.package}
+                disabled={isExporting}
                 value={form.formState.isPackage}
                 onValueChange={form.setFormState}>
                 <F.Text>Export as Package</F.Text>
@@ -234,6 +247,7 @@ export function ProjectExport(props: ProjectExportProps) {
               <F.Checkbox
                 name="enableAutoTranslations"
                 title={tips.optimizeAssets}
+                disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
                 onValueChange={form.setFormState}>
                 <F.Text>Optimize assets</F.Text>
@@ -242,6 +256,7 @@ export function ProjectExport(props: ProjectExportProps) {
               <F.Checkbox
                 name="enableAutoTranslations"
                 title={tips.autoTranslate}
+                disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
                 onValueChange={form.setFormState}>
                 <F.Text>Auto translate</F.Text>
@@ -251,11 +266,12 @@ export function ProjectExport(props: ProjectExportProps) {
           }
           <Fragment>
             <F.Checkbox
-              name="includeFrames"
-              title={tips.includeFrames}
-              value={form.formState.includeFrames}
+              name="includeAssets"
+              title={tips.includeAssets}
+              disabled={isExporting}
+              value={form.formState.includeAssets}
               onValueChange={form.setFormState}>
-              <F.Text>Include frames</F.Text>
+              <F.Text>Include assets</F.Text>
             </F.Checkbox>
             <F.VerticalSpace space="small"/>
           </Fragment>
@@ -264,6 +280,7 @@ export function ProjectExport(props: ProjectExportProps) {
           <F.VerticalSpace space="large"/>
           <F.Button
             fullWidth
+            secondary
             title={tips.submit}
             loading={isExporting}
             disabled={isExporting || (!isDownloading && !hasProjectKey)}

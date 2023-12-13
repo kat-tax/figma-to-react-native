@@ -1,9 +1,9 @@
 import {downloadZip} from 'client-zip';
 import {UNISTYLES_LIB} from 'config/env';
 
-import type {ProjectBuild} from 'types/project';
+import type {ProjectBuild, ProjectConfig} from 'types/project';
 
-export async function zip(project: ProjectBuild) {
+export async function zip(project: ProjectBuild, config: ProjectConfig) {
   const lastModified = new Date();
   const payload: Array<{
     name: string,
@@ -18,14 +18,16 @@ export async function zip(project: ProjectBuild) {
     payload.push({name: `components/${name}/${name}.tsx`, lastModified, input: code});
     payload.push({name: `components/${name}/${name}.stories.tsx`, lastModified, input: story});
   });
-  project.assets.forEach(([name, isVector, bytes]) => {
-    const folder = isVector ? 'vectors' : 'images';
-    const extension = isVector ? 'svg' : 'png';
-    payload.push({
-      name: `assets/${folder}/${name}.${extension}`,
-      input: bytes,
-      lastModified,
+  if (config.includeAssets) {
+    project.assets.forEach(([name, isVector, bytes]) => {
+      const folder = isVector ? 'vectors' : 'images';
+      const extension = isVector ? 'svg' : 'png';
+      payload.push({
+        name: `assets/${folder}/${name}.${extension}`,
+        input: bytes,
+        lastModified,
+      });
     });
-  });
+  }
   return await downloadZip(payload).blob();
 }

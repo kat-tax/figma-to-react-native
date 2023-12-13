@@ -70,7 +70,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
             secondary
             loading={importing}
             onClick={() => importIcons('ph', 'Phosphor')}>
-            Import Icons
+            Import from Iconify
           </F.Button>
         }
       />

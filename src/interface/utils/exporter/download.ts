@@ -1,9 +1,9 @@
 import {zip} from './zip';
 
-import type {ProjectBuild} from 'types/project';
+import type {ProjectBuild, ProjectConfig} from 'types/project';
 
-export async function download(project: ProjectBuild) {
-  const blob = await zip(project);
+export async function download(project: ProjectBuild, config: ProjectConfig) {
+  const blob = await zip(project, config);
   const link = document.createElement('a');
   const src = URL.createObjectURL(blob);
   link.href = src;

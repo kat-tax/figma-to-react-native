@@ -8,7 +8,6 @@ export function importNode(event: DropEvent) {
     if (master.type === 'COMPONENT') {
       const instance = master.createInstance();
       target.appendChild(instance);
-      figma.commitUndo();
       instance.x = event.absoluteX;
       instance.y = event.absoluteY;
       figma.currentPage.selection = [instance];

@@ -7,13 +7,21 @@ import {download} from 'interface/utils/exporter/download';
 import type {StateUpdater} from 'preact/hooks';
 import type {EventProjectBuild} from 'types/events';
 
-export function useProjectBuild(showSuccess: () => void, setExportCount: StateUpdater<number>): void {
+export function useProjectBuild(
+  onSuccess: () => void,
+  onError: () => void,
+  setExportCount: StateUpdater<number>,
+): void {
   useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, config, user) => {
+    if (project === null) {
+      onError();
+      return;
+    }
     const assets = project.assets.length;
     const components = project.components.length;
     switch (config.method) {
       case 'download':
-        download(project);
+        download(project, config);
         break;
       case 'release':
         upload(project, config);
@@ -23,7 +31,7 @@ export function useProjectBuild(showSuccess: () => void, setExportCount: StateUp
         open(`${url}/#/${project.id}`);
         break;
     }
-    showSuccess();
+    onSuccess();
     setExportCount(components);
     log(`export_${config.method}_complete`, {components, assets});
   }), []);

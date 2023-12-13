@@ -33,7 +33,7 @@ export async function upload(
     uploader.addFile({
       name: path,
       type: 'application/zip',
-      data: await zip(project),
+      data: await zip(project, config),
     });
   });
 }

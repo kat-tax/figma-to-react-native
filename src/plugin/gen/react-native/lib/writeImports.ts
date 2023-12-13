@@ -92,7 +92,7 @@ export function writeImports(
 
   // Types
   if (flags.reactNativeTypes) {
-    writer.blankLine();
+    writer.blankLineIfLastNot();
     writeImport('react-native', flags.reactNativeTypes, true);
   }
 
