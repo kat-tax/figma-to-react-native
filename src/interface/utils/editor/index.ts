@@ -35,14 +35,8 @@ export function initTypescript(monaco: Monaco, settings: Settings) {
 
   try {
     const libs = Object.keys(types);
-    libs.forEach((key) => {
-      const uri = types[key];
-      const existing = monaco.editor.getModel(uri);
-      if (existing) {
-        existing.dispose();
-      } else {
-        monaco.editor.createModel(uri, 'typescript', monaco.Uri.parse(key));
-      }
+    libs.forEach(key => {
+      monaco.editor.createModel(types[key], 'typescript', monaco.Uri.parse(key));
     });
   } catch (e) {
     console.error(e);

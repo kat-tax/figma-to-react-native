@@ -1,9 +1,9 @@
 export const F2RN_UI_WIDTH_MIN = 249;
 
 export const F2RN_EDITOR_NS = 'figma://preview/';
-export const F2RN_CONFIG_NS = 'f2rn:config:v1';
-export const F2RN_PROJECT_NS = 'f2rn:project:v1';
-export const F2RN_NAVIGATE_NS = 'f2rn:navigate:v1';
+export const F2RN_CONFIG_NS = 'f2rn:config:v3';
+export const F2RN_PROJECT_NS = 'f2rn:project:v3';
+export const F2RN_NAVIGATE_NS = 'f2rn:navigate:v3';
 export const F2RN_STYLEGEN_API = 'https://f2rn.deno.dev';
 
 export const SUPABASE_PROJECT_URL = 'http://localhost:54321'; // 'https://ndfwacmspvrwdiqqeecz.supabase.co';

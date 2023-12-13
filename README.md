@@ -42,17 +42,23 @@
 - `Previewer` Profile extraneous builds
 - `Previewer` Pass bundler error text to interface
 - `Previewer` Render selected variant (don't recompile, update tag)
+- `Previewer` Goto code and highlight JSX tag when inspect clicked
+- `Monaco` Highlight JSX tag when node focused
 - `Monaco` Type unistyles file (update on theme update)
 - `Monaco` Improve intellisense startup time
 - `Monaco` Auto-collapse classes, colors, and stylesheet
 - `Monaco` Add color provider for theme tokens
 - `Monaco` Hover over icon name for preview
+- `Icons` When importing, add browsing icon sets and prefixes
+- `Theme` If no colors found, offer shadcn themes
+  - Try to generate dark/light if variables available
+  - Fallback to local styles with just light theme
 
-#### V47 — Improve Asset & Icon Gallerys
+#### V47 — Asset Gallery
+- `Assets` Enable new assets page
 - `Assets` Add bounding box + title + hover
 - `Assets` Add lightbox (yet-another-react-lightbox)
 - `Assets` Add drag and drop to figma / others
-- `Icons` Add choosing icon sets and prefixes
 
 #### V48 — Saved User Edits
 - `Compiler` Compare user changes to last build

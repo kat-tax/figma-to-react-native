@@ -7,7 +7,7 @@ import type {EventConfigLoad} from 'types/events';
 
 export let state = defaultConfig;
 
-export async function load(isHeadless: boolean) {
+export async function load(isHeadless?: boolean) {
   const config: Settings = await figma.clientStorage.getAsync(F2RN_CONFIG_NS);
   if (config) {
     update(config, true);

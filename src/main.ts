@@ -41,7 +41,7 @@ export default async function() {
   // Wait for interface to be ready
   once<T.EventAppReady>('APP_READY', async () => {
     // Load config from storage
-    await config.load(true);
+    await config.load();
 
     // Load current page from storage
     _page = await app.loadCurrentPage() || 'code';
