@@ -8,9 +8,14 @@ interface ScreenInfoProps {
 
 export function ScreenInfo(props: ScreenInfoProps) {
   return (
-    <Container space="small" className="center fill">
-      <IconNotice32 color="secondary"/>
-      <Muted>{props.message}</Muted>
+    <Container
+      space="small"
+      className="center fill"
+      style={{flexDirection: 'column', gap: '20px'}}>
+      <div style={{marginLeft: '-10px', display: 'flex', alignItems: 'center'}}>
+        <IconNotice32 color="secondary"/>
+        <Muted>{props.message}</Muted>
+      </div>
       {props.action}
     </Container>
   );

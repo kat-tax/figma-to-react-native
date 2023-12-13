@@ -4,6 +4,23 @@ import type {Settings} from 'types/settings';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 import type {ComponentData, ComponentBuild} from 'types/component';
 
+/* General */
+
+export interface EventOpenLink extends EventHandler {
+  name: 'OPEN_LINK';
+  handler: (url: string) => void;
+}
+
+export interface EventFocusNode extends EventHandler {
+  name: 'FOCUS';
+  handler: (nodeId: string | null) => void;
+}
+
+export interface EventNotify extends EventHandler {
+  name: 'NOTIFY';
+  handler: (message: string, error?: boolean) => void;
+}
+
 /* App */
 
 export interface EventAppReady extends EventHandler {
@@ -74,22 +91,8 @@ export interface EventProjectConfigLoad extends EventHandler {
 
 export interface EventProjectImportIcons extends EventHandler {
   name: 'PROJECT_IMPORT_ICONS';
-  handler: (set: string, svgs: Record<string, string>) => void;
-}
-
-/* General */
-
-export interface EventOpenLink extends EventHandler {
-  name: 'OPEN_LINK';
-  handler: (url: string) => void;
-}
-
-export interface EventFocusNode extends EventHandler {
-  name: 'FOCUS';
-  handler: (nodeId: string | null) => void;
-}
-
-export interface EventNotify extends EventHandler {
-  name: 'NOTIFY';
-  handler: (message: string, error?: boolean) => void;
+  handler: (
+    name: string,
+    svgs: Record<string, string>,
+  ) => void;
 }

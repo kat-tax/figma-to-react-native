@@ -94,8 +94,8 @@ export default async function() {
     });
 
     // Handle importing icons
-    on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (set, svgs) => {
-      icons.importSet(set, svgs);
+    on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (name, svgs) => {
+      icons.importSet(name, svgs);
     });
 
     // Focus component in Figma

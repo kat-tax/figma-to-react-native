@@ -5,6 +5,7 @@ import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useState, useEffect, useMemo} from 'preact/hooks';
 import {Icon, listIcons, getIcon} from '@iconify/react';
 import {ProgressBar} from 'interface/base/ProgressBar';
+import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {loadIconSet} from 'interface/utils/importer/icons';
 import {emit} from '@create-figma-plugin/utilities';
 
@@ -41,14 +42,14 @@ export function ProjectIcons(props: ProjectIconsProps) {
     })
   , [props.build, loadedIcons]);
 
-  const importIcons = async (setName: string) => {
-    const choice = confirm('Importing icons will overwrite the "Icon" page if it exists.\n\nContinue?');
+  const importIcons = async (prefix: string, name: string) => {
+    const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it already exists.\n\nContinue?');
     if (!choice) return;
     setImporting(true);
-    const icons = await loadIconSet(setName, setLoadProgress);
+    setIconSet(prefix);
+    const icons = await loadIconSet(prefix, setLoadProgress);
     const data = Object.fromEntries(icons.map(i => [i, getIcon(i).body]));
-    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', setName, data);
-    setIconSet(setName);
+    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', name, data);
     setImporting(false);
   };
   
@@ -62,17 +63,17 @@ export function ProjectIcons(props: ProjectIconsProps) {
 
   if (!iconSet) {
     return (
-      <F.Container space="small" className="center fill">
-        <F.Button
-          secondary
-          loading={importing}
-          style={{border: importing ? 'none' : undefined}}
-          onClick={() => {
-            importIcons('ph');
-          }}>
-          Import Icons
-        </F.Button>
-      </F.Container>
+      <ScreenInfo
+        message="No icons found"
+        action={
+          <F.Button
+            secondary
+            loading={importing}
+            onClick={() => importIcons('ph', 'Phosphor')}>
+            Import Icons
+          </F.Button>
+        }
+      />
     );
   }
 
@@ -82,7 +83,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
     );
   }
 
-  return (
+  return icons.length ? (
     <Fragment>
       {/* @ts-ignore Preact Issue*/}
       <VirtuosoGrid
@@ -97,7 +98,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
         )}
       />
     </Fragment>
-  );
+  ) : <ScreenInfo message="No icons found"/>;
 }
 
 interface IconListItemProps {

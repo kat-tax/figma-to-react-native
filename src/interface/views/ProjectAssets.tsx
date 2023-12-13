@@ -1,5 +1,6 @@
 import {h} from 'preact';
 import {useState, useEffect} from 'preact/hooks';
+import {ScreenInfo} from 'interface/base/ScreenInfo';
 import PhotoAlbum from 'react-photo-album';
 
 import type {Photo} from 'react-photo-album';
@@ -25,7 +26,7 @@ export function ProjectAssets(props: ProjectAssetsProps) {
     setList(list);
   }, [props.build]);
 
-  return (
+  return list.length ? (
     <PhotoAlbum
       layout="rows"
       targetRowHeight={150}
@@ -40,5 +41,5 @@ export function ProjectAssets(props: ProjectAssetsProps) {
         /> as any
       )}
     />
-  );
+  ) : <ScreenInfo message="No assets found"/>;
 }

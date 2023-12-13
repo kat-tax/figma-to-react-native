@@ -3,6 +3,7 @@ import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'preact/hooks';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
+import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from '@create-figma-plugin/ui';
@@ -28,7 +29,7 @@ type ProjectComponentEntry = {
 
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [list, setList] = useState<ProjectComponentIndex>({});
-  const hasComponents = Boolean(props?.build && props.build.roster);
+  const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   const fzfSearch = useMemo(() => {
     const entries = hasComponents ? Object.values(props.build?.roster) : [];
     return new Fzf(entries, {
@@ -57,7 +58,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     setList(newList);
   }, [props.build, props.searchQuery]);
 
-  return (
+  return hasComponents ? (
     <F.Container
       className="components"
       space="small"
@@ -80,7 +81,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         component={<ProjectAssets {...props}/>}
       />
     </F.Container>
-  );
+  ) : <ScreenInfo message="No components found"/>;
 }
 
 interface ProjectPageGroupProps {
