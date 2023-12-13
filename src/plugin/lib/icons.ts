@@ -58,18 +58,21 @@ export async function createIcons(frame: FrameNode, icons: Record<string, string
     // Create icon frame
     const icon = figma.createNodeFromSvg(`<svg ${svgProps}>${svg}</svg>`);
     icon.name = 'Frame';
-    icon.layoutMode = 'VERTICAL';
-    icon.layoutPositioning = 'AUTO';
-    icon.primaryAxisAlignItems = 'CENTER';
-    icon.counterAxisAlignItems = 'CENTER';
-    icon.layoutSizingVertical = 'FIXED';
-    icon.layoutSizingHorizontal = 'FIXED';
   
     // Create icon component
     const component = figma.createComponent();
     component.name = name;
+    component.layoutMode = 'VERTICAL';
+    component.layoutPositioning = 'AUTO';
+    component.primaryAxisAlignItems = 'CENTER';
+    component.counterAxisAlignItems = 'CENTER';
+    component.layoutSizingVertical = 'FIXED';
+    component.layoutSizingHorizontal = 'FIXED';
+
+    // Resize icon frame, add to component, and ungroup
     component.resize(svgSize, svgSize);
     component.appendChild(icon);
+    figma.ungroup(icon);
 
     // Add component to icons frame
     frame.appendChild(component);
