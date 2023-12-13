@@ -10,9 +10,8 @@ export function getSelectedComponent(): ComponentNode {
 export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentNode> {
   const components = new Set<ComponentNode>();
   for (const node of nodes) {
-    if (node.name.startsWith('ph:')) continue;
     const component = getComponentTarget(node);
-    if (component) {
+    if (component && getPage(component)?.name !== 'Icons') {
       components.add(component);
     }
   }

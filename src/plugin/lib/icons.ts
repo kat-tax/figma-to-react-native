@@ -1,6 +1,7 @@
 // TODO: assign "background" to frame and "foreground" colors to icons
 
 import {wait} from 'common/delay';
+import {focusNode} from 'plugin/fig/lib';
 
 const svgSize = 16;
 const svgProps = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${svgSize}" height="${svgSize}" viewBox="0 0 256 256"`;
@@ -41,6 +42,9 @@ export async function importSet(setName: string, icons: Record<string, string>) 
 
   // Add frame to page
   page.appendChild(frame);
+
+  // Focus frame
+  focusNode(frame.id);
 
   // Create icons
   await createIcons(frame, icons);

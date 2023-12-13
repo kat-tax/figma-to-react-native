@@ -155,7 +155,6 @@ export async function compile(
   let _cached = false;
 
   for await (const component of components) {
-    if (component.name.startsWith('ph:')) continue;
     const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
     const masterNode = (isVariant ? component?.parent : component);
     const imageExport = false; // TODO: await (masterNode as ComponentNode).exportAsync({format: 'PNG'});
@@ -179,7 +178,6 @@ export async function compile(
 
   for await (const component of targets) {
     wait(1); // Prevent UI from freezing
-    if (component.name.startsWith('ph:')) continue;
     try {
       // Compile component
       const {bundle, cached} = await generateBundle(component, config.state, skipCache);
