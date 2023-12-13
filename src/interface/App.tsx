@@ -35,7 +35,7 @@ const tabs: AppTabs = {
   main: [
     'components',
     'icons',
-    'assets',
+    // 'assets',
     'theme',
     'settings',
     'export',
