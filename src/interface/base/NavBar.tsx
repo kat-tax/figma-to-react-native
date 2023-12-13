@@ -31,6 +31,7 @@ export function NavBar(props: NavBarProps) {
   const hasTarget = Boolean(props.nav.component);
   const hasChanges = false;
   const hasDropModMenu = !hasTarget;
+  const isTargetInRoster = hasTarget && props.build.roster[props.nav.component];
   const hasDropModTargetUnsaved = hasTarget && hasChanges;
   const classMenu = hasDropModMenu
     ? 'drop-mod-menu'
@@ -147,7 +148,7 @@ export function NavBar(props: NavBarProps) {
         <F.Dropdown
           options={menuComponent}
           placeholder="Select a component"
-          value={props.nav.component}
+          value={isTargetInRoster ? props.nav.component : null}
           icon={<F.IconLayerComponent16 color="component"/>}
           onChange={(e) => props.nav.setComponent(e.currentTarget.value)}
         />
