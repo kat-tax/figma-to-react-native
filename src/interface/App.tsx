@@ -1,5 +1,5 @@
 import {h} from 'preact';
-import {useState} from 'preact/hooks';
+import {useState, useEffect} from 'preact/hooks';
 import {Tabs, Tab} from 'interface/base/Tabs';
 import {NavBar} from 'interface/base/NavBar';
 
@@ -53,7 +53,7 @@ export function App(props: AppProps) {
   const {isDevMode, isVSCode} = props;
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const build = useBuild();
   const theme = useProjectTheme();
   const icons = useProjectIcons();
@@ -61,16 +61,23 @@ export function App(props: AppProps) {
   const settings = useUserSettings();
   const monaco = useEditor(settings.config, build.links);
   const nav = useNavigation(build);
+  const isDark = useDarkMode();
 
   const isReadOnly = isDevMode || isVSCode;
   const isReady = Boolean(props.startPage && project && monaco);
-  const isDark = useDarkMode();
-  const target = nav.component;
+  const target = build.roster[nav.component] ? nav.component: null;
   const options = {
     ...settings.config.monaco.general,
     tabSize: settings.config.writer.indentNumberOfSpaces,
     theme: isDark ? 'vs-dark' : 'vs',
   };
+
+  // Go to overview when viewing a component that doesn't exist
+  useEffect(() => {
+    if (!target && nav.component) {
+      nav.gotoOverview();
+    }
+  }, [target, nav]);
 
   return isReady ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
