@@ -19,10 +19,9 @@
 | ✨ | Realtime code and preview rendering
 | 📦 | Batch exporting of components and assets
 | 🎨 | Theme generation from local styles and variables
-| ⭐️ | AutoLayout to Flexbox translation
+| 🏞 | Images, vectors, and icons support
 | 🎲 | Variants and properties support
 | 🧱 | Nested components support
-| 🏞 | Images and vectors support
 | 🧩 | Figma variables support
 | 🎮 | Pressables generation
 | 🎭 | Conditional rendering

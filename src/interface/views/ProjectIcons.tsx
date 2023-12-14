@@ -28,6 +28,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [_copiedText, copyToClipboard] = useCopyToClipboard();
 
+  // Rebuild list when icons or build or loadedIcons change
   const icons = useMemo(() => listIcons()
     .map(icon => ({
       icon,
@@ -44,6 +45,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
     })
   , [props.icons, props.build, loadedIcons]);
 
+  // Import icons from Iconify into Figma
   const importIcons = async (prefix: string, name: string) => {
     const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it already exists.\n\nContinue?');
     if (!choice) return;
@@ -52,18 +54,27 @@ export function ProjectIcons(props: ProjectIconsProps) {
     const icons = await loadIconSet(prefix, setLoadProgress);
     const data = Object.fromEntries(icons.map(i => [i, getIcon(i).body]));
     emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', name, data);
-    setImporting(false);
   };
   
+  // Load icon set when selected
   useEffect(() => {
     if (!iconSet || importing) return;
     loadIconSet(iconSet, setLoadProgress).then(list => {
-      setImporting(false);
       setLoadedIcons(list);
     });
   }, [iconSet, props.build]);
 
-  if (!iconSet || props.icons?.list?.length === 0) {
+  // Update icon set when new icons are imported
+  useEffect(() => {
+    const set = props.icons?.sets?.[0];
+    if (set) {
+      setIconSet(props.icons?.sets?.[0]);
+      setImporting(false);
+    }
+  }, [props.icons]);
+
+  // Show no icons message
+  if (!iconSet || !props.icons.sets?.length) {
     return (
       <ScreenInfo
         message="No icons found"
@@ -79,13 +90,15 @@ export function ProjectIcons(props: ProjectIconsProps) {
     );
   }
 
+  // Showing loading bar
   if (loadProgress < 100) {
     return (
       <ProgressBar percent={`${loadProgress}%`}/>
     );
   }
 
-  return icons.length ? (
+  // Grid of icon buttons
+  return (
     <Fragment>
       {/* @ts-ignore Preact Issue*/}
       <VirtuosoGrid
@@ -100,7 +113,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
         )}
       />
     </Fragment>
-  ) : <ScreenInfo message="No icons found"/>;
+  );
 }
 
 interface IconListItemProps {

@@ -107,7 +107,7 @@ export async function loadComponents(targetComponent: () => void) {
 
 export async function watchComponents() {
   figma.on('documentchange', async (e) => {
-    console.log('[change]', e.documentChanges);
+    // console.log('[change]', e.documentChanges);
     // We need to get all components for the roster
     const all = getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
     // No components, do nothing
@@ -143,7 +143,7 @@ export async function watchComponents() {
     // Get updated targets and compile
     const update = getComponentTargets(updates);
     await compile(all, true, update);
-    console.log('[update]', Array.from(update));
+    // console.log('[update]', Array.from(update));
   });
 }
 
