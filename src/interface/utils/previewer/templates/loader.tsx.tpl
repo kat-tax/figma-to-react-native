@@ -9,6 +9,7 @@ import {Inspector} from 'react-dev-inspector';
 export default function Loader() {
   return (
     <TransformWrapper
+      smooth={false}
       initialPositionX={window.innerWidth / 2}
       initialPositionY={window.innerHeight * 2}
       doubleClick={{mode: 'reset'}}>

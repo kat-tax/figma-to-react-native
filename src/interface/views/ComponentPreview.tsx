@@ -61,11 +61,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Render the app when the component or settings change
   useEffect(initApp, [component, settings]);
 
-  // Update the preview size when it changes
+  // Update the preview dimensions when screen or component change
   useEffect(() => {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'resize', width: screen.width, height: screen.height});
-  }, [iframe, screen]);
+  }, [iframe, screen, component]);
 
   // Update the preview theme when it changes
   useEffect(() => {
