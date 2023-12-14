@@ -12,6 +12,7 @@ const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 
 export function App() {
   const [theme, setTheme] = React.useState('__CURRENT_THEME__');
+  const [variant, setVariant] = React.useState(__COMPONENT_REF__);
 
   React.useEffect(() => {
     const updateProps = (e: JSON) => {
@@ -19,7 +20,8 @@ export function App() {
         case 'theme':
           return setTheme(e.data.theme);
         case 'variant':
-          return console.log('variant', e.data.variant);
+          const newRoot = React.cloneElement(variant, e.data.variant.props);
+          return setVariant(newRoot);
       }
     };
     addEventListener('message', updateProps);
@@ -33,7 +35,7 @@ export function App() {
       </pre>
     }>
       <UnistylesTheme theme={themes[theme] || defaultTheme}>
-        __COMPONENT_REF__
+        {variant}
       </UnistylesTheme>
     </ErrorBoundary>
   )

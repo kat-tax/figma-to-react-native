@@ -60,11 +60,12 @@ export default async function() {
     // TODO: reload project config on root document update
     project.loadConfig();
       
-    // Start codegen
+    // Start generator
     gen.loadComponents(app.targetSelectedComponent);
     gen.watchTheme(config.state);
     gen.watchIcons();
     gen.watchComponents();
+    gen.watchVariantSelect();
 
     // Update code on selection change
     figma.on('selectionchange', () => {

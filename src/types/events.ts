@@ -62,6 +62,11 @@ export interface EventSelectComponent extends EventHandler {
   handler: (name: string) => void;
 }
 
+export interface EventSelectVariant extends EventHandler {
+  name: 'SELECT_VARIANT';
+  handler: (name: string, props: {[property: string]: string}) => void;
+}
+
 export interface DropComponentHandler extends EventHandler {
   name: 'DROP_COMPONENT'
   handler: (component: ComponentData) => void

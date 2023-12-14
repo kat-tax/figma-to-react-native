@@ -1,14 +1,16 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
-import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/lib';
 import {getAllIconComponents} from 'plugin/lib/icons';
-import {config} from 'plugin';
+import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/lib';
+import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
+import {areMapsEqual, areSetsEqual} from 'common/assert';
 import {wait} from 'common/delay';
+import {config} from 'plugin';
+
 import {generateIndex} from './common/generateIndex';
 import * as reactNative from './react-native';
 
 import type {Settings} from 'types/settings';
-import type {EventComponentBuild, EventProjectTheme, EventProjectIcons} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectIcons, EventSelectVariant} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
 
 export {generateIndex} from './common/generateIndex';
@@ -80,29 +82,49 @@ export function watchTheme(settings: Settings) {
 }
 
 export function watchIcons() {
+  let _sets = new Set<string>();
+  let _list = new Set<string>();
+  let _map = new Map<string, string>();
+
   const updateIcons = () => {
     const icons = getAllIconComponents();
-    const sets = Array.from(new Set(icons?.map((i) => i.name.split(':')[0])));
-    const list = Array.from(new Set(icons?.map((i) => i.name)));
-    const map = Object.fromEntries(new Map(icons?.map((i) => [i.name, i.id])));
-    emit<EventProjectIcons>('PROJECT_ICONS', sets, list, map);
+    const sets = new Set(icons?.map((i) => i.name.split(':')[0]));
+    const list = new Set(icons?.map((i) => i.name));
+    const map = new Map(icons?.map((i) => [i.name, i.id]));
+
+    if (areMapsEqual(map, _map)
+      && areSetsEqual(sets, _sets)
+      && areSetsEqual(list, _list))
+      return;
+
+    _sets = sets;
+    _list = list;
+    _map = map;
+
+    emit<EventProjectIcons>(
+      'PROJECT_ICONS',
+      Array.from(sets),
+      Array.from(list),
+      Object.fromEntries(map),
+    );
   };
-  setInterval(updateIcons, 1000);
+  setInterval(updateIcons, 500);
   updateIcons();
 }
 
-// Compile all components in background
-export async function loadComponents(targetComponent: () => void) {
-  const all = getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
-  if (all.size > 0) {
-    const cached = await compile(all);
-    if (cached) {
-      // Select targeted component since it's available now
-      targetComponent();
-      // Refresh component cache
-      await compile(all, true);
-    }
-  }
+export async function watchVariantSelect() {
+  figma.on('selectionchange', () => {
+    if (!figma.currentPage.selection.length) return;
+    const selection = figma.currentPage.selection[0];
+    let target = selection;
+    while (target.type !== 'COMPONENT' && target.parent.type !== 'PAGE')
+      target = target.parent as SceneNode;
+    if (target?.type !== 'COMPONENT') return;
+    const name = target.parent.name;
+    const variantProperties = (target as SceneNode & VariantMixin)?.variantProperties;
+    emit<EventSelectVariant>('SELECT_VARIANT', name, variantProperties);
+    return;
+  });
 }
 
 export async function watchComponents() {
@@ -145,6 +167,20 @@ export async function watchComponents() {
     await compile(all, true, update);
     // console.log('[update]', Array.from(update));
   });
+}
+
+// Compile all components in background
+export async function loadComponents(targetComponent: () => void) {
+  const all = getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
+  if (all.size > 0) {
+    const cached = await compile(all);
+    if (cached) {
+      // Select targeted component since it's available now
+      targetComponent();
+      // Refresh component cache
+      await compile(all, true);
+    }
+  }
 }
 
 export async function compile(

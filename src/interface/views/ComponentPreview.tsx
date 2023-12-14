@@ -1,7 +1,8 @@
 import {h, Fragment} from 'preact';
-import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
-import {useWindowSize} from '@uidotdev/usehooks';
 import {emit} from '@create-figma-plugin/utilities';
+import {useWindowSize} from '@uidotdev/usehooks';
+import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
+import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {init, preview} from 'interface/utils/previewer';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
@@ -23,6 +24,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
   const screen = useWindowSize();
+  const variant = useSelectedVariant();
   const component = $.components.get(target);
 
   // Inits the loader that renders component apps
@@ -72,6 +74,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'theme', theme});
   }, [iframe, theme]);
+
+  // Update the preview variant when it changes
+  useEffect(() => {
+    const ctx = iframe.current?.contentWindow;
+    ctx?.postMessage({type: 'variant', variant});
+  }, [variant]);
 
   // Handle focus events from inspect mode
   useEffect(() => {
