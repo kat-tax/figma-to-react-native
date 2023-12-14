@@ -22,6 +22,7 @@ export function Preview() {
   const [name, setName] = useState();
   const {zoomToElement} = useControls();
   const [hasInspect, setInspect] = useState(false);
+  const [isMouseInComponent, setMouseInComponent] = useState(false);
 
   useEffect(() => {
     const load = (e: JSON) => {
@@ -38,6 +39,8 @@ export function Preview() {
           component.style.display = 'flex';
           component.style.width = e.data.width ? e.data.width + 'px' : 'auto';
           component.style.height = e.data.height ? e.data.height + 'px' : 'auto';
+          component.onmouseenter = () => setMouseInComponent(true);
+          component.onmouseleave = () => setMouseInComponent(false);
           // Update script
           const prev = document.getElementById('target');
           const next = document.createElement('script');
@@ -69,7 +72,7 @@ export function Preview() {
     <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
       <div id="component"></div>
       <Inspector
-        active={hasInspect}
+        active={hasInspect && isMouseInComponent}
         onHoverElement={(e) => console.debug('[inspect]', e)}
         onInspectElement={(e) => {
           const id = e?.fiber?.memoizedProps?.testID;
