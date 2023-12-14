@@ -19,12 +19,14 @@ init();
 function Main() {
   const [page, setPage] = useState<AppPages>(null);
   const [vscode, setVSCode] = useState<boolean>(null);
+  const [devMode, setDevMode] = useState<boolean>(null);
 
   // Receive start data from the plugin
-  useEffect(() => on<EventAppStart>('APP_START', (_page, _user, _vscode) => {
+  useEffect(() => on<EventAppStart>('APP_START', (_page, _user, _vscode, _devmode) => {
     auth(_user);
     setPage(_page);
     setVSCode(_vscode);
+    setDevMode(_devmode);
     $.provider.awareness.setLocalState({
       page: _page,
       user: _user,
@@ -46,7 +48,11 @@ function Main() {
   return (
     <div style={{width: '100%'}}>
       <ErrorBoundary>
-        <App startPage={page} isVSCode={vscode}/>
+        <App
+          startPage={page}
+          isDevMode={devMode}
+          isVSCode={vscode}
+        />
       </ErrorBoundary>
     </div>
   );

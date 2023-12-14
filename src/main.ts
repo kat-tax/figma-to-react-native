@@ -53,6 +53,7 @@ export default async function() {
       figma.currentUser,
       // @ts-ignore
       Boolean(figma.vscode),
+      figma.mode === 'inspect'
     );
   
     // Load project config from storage

@@ -30,7 +30,7 @@ export interface EventAppReady extends EventHandler {
 
 export interface EventAppStart extends EventHandler {
   name: 'APP_START';
-  handler: (page: AppPages, user: User, vscode: boolean) => void;
+  handler: (page: AppPages, user: User, vscode: boolean, readonly: boolean) => void;
 }
 
 export interface EventAppNavigate extends EventHandler {

@@ -29,6 +29,7 @@ import type {AppPages, AppTabs} from 'types/app';
 
 interface AppProps {
   startPage: AppPages | null,
+  isDevMode: boolean,
   isVSCode: boolean,
 }
 
@@ -49,6 +50,7 @@ const tabs: AppTabs = {
 };
 
 export function App(props: AppProps) {
+  const {isDevMode, isVSCode} = props;
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -60,7 +62,7 @@ export function App(props: AppProps) {
   const monaco = useEditor(settings.config, build.links);
   const nav = useNavigation(build);
 
-  const isVSCode = props.isVSCode;
+  const isReadOnly = isDevMode || isVSCode;
   const isReady = Boolean(props.startPage && project && monaco);
   const isDark = useDarkMode();
   const target = nav.component;
@@ -89,7 +91,7 @@ export function App(props: AppProps) {
         <ProjectTheme {...{options, monaco}}/>
       </Tab>
       <Tab value="icons">
-        <ProjectIcons {...{icons, build, searchMode, searchQuery}}/>
+        <ProjectIcons {...{icons, build, isReadOnly, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>

@@ -19,6 +19,7 @@ import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/e
 interface ProjectIconsProps {
   icons: ProjectIcons,
   build: ComponentBuild,
+  isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
 }
@@ -106,13 +107,14 @@ export function ProjectIcons(props: ProjectIconsProps) {
     return (
       <ScreenInfo
         message="No icons found"
-        action={
-          <F.Button
-            secondary
-            loading={importing}
-            onClick={() => importIcons('ph', 'Phosphor')}>
-            Import from Iconify
-          </F.Button>
+        action={!props.isReadOnly
+          ? <F.Button
+              secondary
+              loading={importing}
+              onClick={() => importIcons('ph', 'Phosphor')}>
+              Import from Iconify
+            </F.Button>
+          : null
         }
       />
     );
