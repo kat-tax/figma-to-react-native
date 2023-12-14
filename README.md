@@ -39,7 +39,6 @@
 - `Compiler` On component/icon/asset delete keep record
 - `Compiler` MVP app ui package (runnable w/ storybook)
 - `Previewer` Profile extraneous builds
-- `Previewer` Render selected variant (don't recompile, update tag)
 - `Previewer` Goto code and highlight JSX tag when inspect clicked
 - `Previewer` Pass bundler error text to interface
 - `Editor` Improve intellisense startup time
