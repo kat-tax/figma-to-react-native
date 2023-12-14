@@ -99,7 +99,6 @@ export function ProjectIcons(props: ProjectIconsProps) {
   useEffect(() => {
     const entries = index.find(props.searchQuery);
     setList(Object.values(entries));
-    console.log('entries', entries);
   }, [props.build, props.icons, props.searchQuery]);
 
   // Show no icons message

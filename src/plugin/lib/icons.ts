@@ -20,11 +20,14 @@ export async function importSet(setName: string, icons: Record<string, string>) 
   } else {
     page.children.forEach(c => c.remove());
   }
+
+  // Create styles
+  const {background, foreground} = createTheme();
   
   // Create set frame
   const frame = figma.createFrame();
   frame.name = `${setName}, Normal, ${svgSize}`;
-  // frame.fills = [{type: 'SOLID', color: {r: 0, g: 0, b: 0}}];
+  frame.fillStyleId = background?.id;
   frame.cornerRadius = 3;
   frame.itemSpacing = 5;
   frame.counterAxisSpacing = 5;
@@ -47,10 +50,14 @@ export async function importSet(setName: string, icons: Record<string, string>) 
   focusNode(frame.id);
 
   // Create icons
-  await createIcons(frame, icons);
+  await createIcons(frame, icons, foreground);
 }
 
-export async function createIcons(frame: FrameNode, icons: Record<string, string>) {
+export async function createIcons(
+  root: FrameNode,
+  icons: Record<string, string>,
+  fill: PaintStyle,
+) {
   const batch = 5;
   const delay = 5;
   let i = 0;
@@ -60,8 +67,8 @@ export async function createIcons(frame: FrameNode, icons: Record<string, string
       await wait(delay);
 
     // Create icon frame
-    const icon = figma.createNodeFromSvg(`<svg ${svgProps}>${svg}</svg>`);
-    icon.name = 'Frame';
+    const frame = figma.createNodeFromSvg(`<svg ${svgProps}>${svg}</svg>`);
+    frame.name = 'Frame';
   
     // Create icon component
     const component = figma.createComponent();
@@ -73,14 +80,41 @@ export async function createIcons(frame: FrameNode, icons: Record<string, string
     component.layoutSizingVertical = 'FIXED';
     component.layoutSizingHorizontal = 'FIXED';
 
-    // Resize icon frame, add to component, and ungroup
-    component.resize(svgSize, svgSize);
-    component.appendChild(icon);
-    figma.ungroup(icon);
+    // Add fill to all children
+    frame.findAllWithCriteria({types: ['VECTOR']}).forEach(c => {
+      console.log(c, fill);;
+      c.fillStyleId = fill?.id;
+    });
 
-    // Add component to icons frame
-    frame.appendChild(component);
+    // Resize icon component, add to component, and ungroup
+    component.resize(svgSize, svgSize);
+    component.appendChild(frame);
+    figma.ungroup(frame);
+
+    // Add component to root
+    root.appendChild(component);
   }
+}
+
+export function createTheme() {
+  return createLocalStylesTheme();
+}
+
+export function createLocalStylesTheme() {
+  const background = figma.createPaintStyle();
+  background.name = 'background';
+  background.paints = [{type: 'SOLID', color: {r: 0, g: 0, b: 0}}];
+  const foreground = figma.createPaintStyle();
+  foreground.name = 'foreground';
+  foreground.paints = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}}];
+  return {background, foreground};
+}
+
+export function createVariableTheme() {
+  const theme = figma.variables.createVariableCollection('Theme');
+  //figma.createVariable({name: 'background', type: 'color', value: {r: 0, g: 0, b: 0}, collection: theme});
+  theme.addMode('Light');
+  theme.addMode('Dark');
 }
 
 export function getAllIconComponents() {
