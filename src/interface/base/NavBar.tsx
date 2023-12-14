@@ -113,7 +113,6 @@ export function NavBar(props: NavBarProps) {
               searchQuery={props.searchQuery}
               setSearchQuery={props.setSearchQuery}
               setSearchMode={props.setSearchMode}
-              gotoOverview={props.nav.gotoOverview}
             />
           : <div className="tab-bar-nav">
               <div

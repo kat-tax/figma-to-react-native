@@ -212,7 +212,6 @@ function HighlightChars(props: HighlightCharsProps) {
   );
 };
 
-
 interface CollabDotsProps {
   target: string,
 }

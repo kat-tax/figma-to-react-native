@@ -19,9 +19,24 @@ import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/e
 interface ProjectIconsProps {
   icons: ProjectIcons,
   build: ComponentBuild,
+  searchMode: boolean,
+  searchQuery: string,
+}
+
+type ProjectIconsEntry = {
+  item: ProjectIcon,
+  positions: Set<number>,
+}
+
+type ProjectIcon = {
+  icon: string,
+  nodeId: string,
+  missing: boolean,
+  used: boolean,
 }
 
 export function ProjectIcons(props: ProjectIconsProps) {
+  const [list, setList] = useState<ProjectIconsEntry[]>([]);
   const [iconSet, setIconSet] = useState(props.icons?.sets?.[0]);
   const [importing, setImporting] = useState(false);
   const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
@@ -29,7 +44,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [_copiedText, copyToClipboard] = useCopyToClipboard();
 
   // Rebuild list when icons or build or loadedIcons change
-  const icons = useMemo(() => listIcons()
+  const icons: ProjectIcon[] = useMemo(() => listIcons()
     .map(icon => ({
       icon,
       nodeId: props.icons?.map?.[icon],
@@ -44,6 +59,13 @@ export function ProjectIcons(props: ProjectIconsProps) {
       return 0;
     })
   , [props.icons, props.build, loadedIcons]);
+
+  // Rebuild index when icons change
+  const index = useMemo(() => new Fzf(icons, {
+    selector: (item) => item.icon,
+    tiebreakers: [byLengthAsc],
+    forward: false,
+  }), [icons]);
 
   // Import icons from Iconify into Figma
   const importIcons = async (prefix: string, name: string) => {
@@ -72,6 +94,13 @@ export function ProjectIcons(props: ProjectIconsProps) {
       setImporting(false);
     }
   }, [props.icons]);
+
+  // Update list when search query changes
+  useEffect(() => {
+    const entries = index.find(props.searchQuery);
+    setList(Object.values(entries));
+    console.log('entries', entries);
+  }, [props.build, props.icons, props.searchQuery]);
 
   // Show no icons message
   if (!iconSet || !props.icons.sets?.length) {
@@ -104,11 +133,11 @@ export function ProjectIcons(props: ProjectIconsProps) {
       <VirtuosoGrid
         overscan={200}
         style={{height: '100%'}}       
-        totalCount={icons.length}
+        totalCount={list.length}
         itemContent={i => (
           <Fragment>
             {/* @ts-ignore Preact Issue*/}
-            <IconListItem {...icons[i]} copy={copyToClipboard}/>
+            <IconListItem {...list[i].item} copy={copyToClipboard}/>
           </Fragment> as ReactNode
         )}
       />

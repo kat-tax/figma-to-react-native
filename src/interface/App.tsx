@@ -89,7 +89,7 @@ export function App(props: AppProps) {
         <ProjectTheme {...{options, monaco}}/>
       </Tab>
       <Tab value="icons">
-        <ProjectIcons {...{icons, build}}/>
+        <ProjectIcons {...{icons, build, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>
