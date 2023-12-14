@@ -23,6 +23,7 @@ export function getPropsJSX(
     .join(' ');
 }
 
+// TODO: nodeRef is empty sometimes, not able to map button instance
 export function propValueToJSX(
   [key, prop],
   allProps: ComponentPropertyDefinitions | ComponentProperties,
@@ -44,6 +45,7 @@ export function propValueToJSX(
   } else if (type === 'VARIANT') {
     return `${k}="${string.createIdentifier(v)}"`;
   // Instance swap
+  // TODO: this is getting complicated and is prone to error, refactor
   } else if (type === 'INSTANCE_SWAP') {
     const id = defaultValue || value;
     const node = figma.getNodeById(id) as ComponentNode;
@@ -76,9 +78,11 @@ export function propValueToJSX(
     const propsInstance = !!variantNode
       ? getPropsJSX((variantNode as InstanceNode).componentProperties, colorsheet, nodeRef)
       : node.type === 'COMPONENT'
-        ? getPropsJSX(node.componentPropertyDefinitions, colorsheet, nodeRef)
+        ? isVariant
+          ? getPropsJSX(((node?.parent as ComponentSetNode))?.componentPropertyDefinitions, colorsheet, nodeRef)
+          : getPropsJSX(node?.componentPropertyDefinitions, colorsheet, nodeRef)
         : '';
-  
+        
     // Name of this instance swap tag
     const tagName = !isIconNode
       ? string.createIdentifierPascal(masterNode?.name)
