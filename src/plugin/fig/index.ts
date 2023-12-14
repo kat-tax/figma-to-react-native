@@ -1,5 +1,5 @@
 import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'plugin/fig/lib';
-import {getAssets, getStyleSheet, getAllIconComponents, getColorSheet, validate} from './lib';
+import {getAssets, getStyleSheet, getColorSheet, validate} from './lib';
 import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
@@ -42,10 +42,6 @@ function crawl(node: ComponentNode) {
   const frame = getFrame(node);
   const children = getChildren(dict);
   const variants = getVariants(node, children);
-  const icons = getAllIconComponents();
-
-  meta.iconsList = new Set(icons?.map((i) => i.name));
-  meta.iconsMap = new Map(icons?.map((i) => [i.name, i.id]));
 
   root && meta.styleNodes.add(root.node.id);
   frame && meta.styleNodes.add(frame.node.id);
@@ -74,10 +70,7 @@ function crawlChildren(
   meta = meta || {
     assetNodes: new Set(),
     styleNodes: new Set(),
-    iconsSets: new Set(),
-    iconsList: new Set(),
     iconsUsed: new Set(),
-    iconsMap: new Map(),
     components: {},
     includes: {},
   };

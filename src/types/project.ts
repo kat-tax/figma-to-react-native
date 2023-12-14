@@ -8,6 +8,12 @@ export interface ProjectBuild {
   package?: ProjectBuildPackage,
 }
 
+export interface ProjectIcons {
+  sets: string[],
+  list: string[],
+  map: Record<string, string>,
+}
+
 export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;
 export type ProjectBuildComponents = Array<[string, string, string, string]>;
 export type ProjectBuildPackage = {

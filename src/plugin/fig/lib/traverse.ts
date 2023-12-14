@@ -80,13 +80,6 @@ export function getComponentParent(node: SceneNode): ComponentNode {
   return null;
 }
 
-export function getAllIconComponents() {
-  const iconPage = figma.root?.children?.find(p => p.name === 'Icons');
-  const components = iconPage?.findAllWithCriteria({types: ['COMPONENT']});
-  const icons = components?.filter(c => c.name.includes(':'));
-  return icons;
-}
-
 export function getCollectionModes(collectionName: string) {
   const component = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']})?.pop();
   if (!component) return null;

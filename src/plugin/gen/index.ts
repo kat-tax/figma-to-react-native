@@ -1,13 +1,14 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/lib';
+import {getAllIconComponents} from 'plugin/lib/icons';
 import {config} from 'plugin';
 import {wait} from 'common/delay';
 import {generateIndex} from './common/generateIndex';
 import * as reactNative from './react-native';
 
 import type {Settings} from 'types/settings';
-import type {EventComponentBuild, EventProjectTheme} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectIcons} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
 
 export {generateIndex} from './common/generateIndex';
@@ -78,17 +79,28 @@ export function watchTheme(settings: Settings) {
   updateTheme();
 }
 
+export function watchIcons() {
+  const updateIcons = () => {
+    const icons = getAllIconComponents();
+    const sets = Array.from(new Set(icons?.map((i) => i.name.split(':')[0])));
+    const list = Array.from(new Set(icons?.map((i) => i.name)));
+    const map = Object.fromEntries(new Map(icons?.map((i) => [i.name, i.id])));
+    emit<EventProjectIcons>('PROJECT_ICONS', sets, list, map);
+  };
+  setInterval(updateIcons, 1000);
+  updateIcons();
+}
+
 // Compile all components in background
 export async function loadComponents(targetComponent: () => void) {
-  const all = figma.root.findAllWithCriteria({types: ['COMPONENT']});
-  const init = getComponentTargets(all);
-  if (init.size > 0) {
-    const cached = await compile(init);
+  const all = getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
+  if (all.size > 0) {
+    const cached = await compile(all);
     if (cached) {
       // Select targeted component since it's available now
       targetComponent();
       // Refresh component cache
-      await compile(init, true);
+      await compile(all, true);
     }
   }
 }
@@ -97,10 +109,9 @@ export async function watchComponents() {
   figma.on('documentchange', async (e) => {
     console.log('[change]', e.documentChanges);
     // We need to get all components for the roster
-    const all = figma.root.findAllWithCriteria({types: ['COMPONENT']});
-    const init = getComponentTargets(all);
+    const all = getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
     // No components, do nothing
-    if (init.size === 0) return;
+    if (all.size === 0) return;
     // Get all components that were updated
     const updates: SceneNode[] = [];
     e.documentChanges.forEach(change => {
@@ -131,7 +142,7 @@ export async function watchComponents() {
 
     // Get updated targets and compile
     const update = getComponentTargets(updates);
-    await compile(init, true, update);
+    await compile(all, true, update);
     console.log('[update]', Array.from(update));
   });
 }
@@ -142,10 +153,7 @@ export async function compile(
   updated?: Set<ComponentNode>,
 ) {
   const _names = new Set<string>();
-  const _iconsSets = new Set<string>();
-  const _iconsUsed = new Set<string>();
-  const _iconsList = new Set<string>();
-  const _iconsMap = new Map<string, string>();
+  const _icons = new Set<string>();
   const _assets: Record<string, ComponentAsset> = {};
   const _roster: ComponentRoster = {};
   let _links: ComponentLinks = {};
@@ -200,19 +208,8 @@ export async function compile(
       };
 
       // Aggregate assets and icons
-      Object.entries(icons?.map)?.map(([icon, nodeId]) => {
-        _iconsMap.set(icon, nodeId);
-      });
-      icons?.list?.forEach(icon => {
-        _iconsList.add(icon);
-        _iconsSets.add(icon.split(':')[0]);
-      });
-      icons?.used?.forEach(icon => {
-        _iconsUsed.add(icon);
-      });
-      assets?.forEach(asset => {
-        _assets[asset.hash] = asset;
-      });
+      icons?.forEach(icon => {_icons.add(icon)});
+      assets?.forEach(asset => {_assets[asset.hash] = asset});
       
       // Cache compilation to disk
       component.setSharedPluginData('f2rn', 'data', JSON.stringify(bundle));
@@ -226,13 +223,8 @@ export async function compile(
         loaded: _loaded,
         roster: _roster,
         assets: _assets,
+        icons: Array.from(_icons),
         assetMap: {},
-        icons: {
-          sets: Array.from(_iconsSets),
-          used: Array.from(_iconsUsed),
-          list: Array.from(_iconsList),
-          map: Object.fromEntries(_iconsMap),
-        },
       }, bundle);
 
       // console.log('[compile]', name, bundle);

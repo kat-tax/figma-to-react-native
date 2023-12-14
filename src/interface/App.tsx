@@ -20,6 +20,7 @@ import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useNavigation} from 'interface/hooks/useNavigation';
 import {useUserSettings} from 'interface/hooks/useUserSettings';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
+import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 
 import * as F from '@create-figma-plugin/ui';
@@ -53,6 +54,7 @@ export function App(props: AppProps) {
   
   const build = useBuild();
   const theme = useProjectTheme();
+  const icons = useProjectIcons();
   const project = useProjectConfig();
   const settings = useUserSettings();
   const monaco = useEditor(settings.config, build.links);
@@ -87,7 +89,7 @@ export function App(props: AppProps) {
         <ProjectTheme {...{options, monaco}}/>
       </Tab>
       <Tab value="icons">
-        <ProjectIcons {...{build}}/>
+        <ProjectIcons {...{icons, build}}/>
       </Tab>
       <Tab value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>

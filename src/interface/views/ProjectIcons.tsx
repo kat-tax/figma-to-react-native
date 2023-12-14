@@ -12,15 +12,17 @@ import {emit} from '@create-figma-plugin/utilities';
 import * as F from '@create-figma-plugin/ui';
 
 import type {ReactNode} from 'react';
+import type {ProjectIcons} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/events';
 
 interface ProjectIconsProps {
+  icons: ProjectIcons,
   build: ComponentBuild,
 }
 
 export function ProjectIcons(props: ProjectIconsProps) {
-  const [iconSet, setIconSet] = useState(props.build.icons.sets[0]);
+  const [iconSet, setIconSet] = useState(props.icons?.sets?.[0]);
   const [importing, setImporting] = useState(false);
   const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
   const [loadProgress, setLoadProgress] = useState(0);
@@ -29,9 +31,9 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const icons = useMemo(() => listIcons()
     .map(icon => ({
       icon,
-      nodeId: props.build.icons.map[icon],
-      missing: !props.build.icons.list.includes(icon),
-      used: props.build.icons.used.includes(icon),
+      nodeId: props.icons?.map?.[icon],
+      missing: !props.icons?.list?.includes(icon),
+      used: props.build?.icons?.includes(icon),
     }))
     .sort((a, b) => {
       if (a.used && !b.used) return -1;
@@ -40,7 +42,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
       if (!a.missing && b.missing) return -1;
       return 0;
     })
-  , [props.build, loadedIcons]);
+  , [props.icons, props.build, loadedIcons]);
 
   const importIcons = async (prefix: string, name: string) => {
     const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it already exists.\n\nContinue?');
@@ -61,7 +63,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
     });
   }, [iconSet, props.build]);
 
-  if (!iconSet) {
+  if (!iconSet || props.icons?.list?.length === 0) {
     return (
       <ScreenInfo
         message="No icons found"

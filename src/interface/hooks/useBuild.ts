@@ -14,12 +14,7 @@ const initial: ComponentBuild = {
   roster: {},
   assets: {},
   assetMap: {},
-  icons: {
-    sets: [],
-    list: [],
-    used: [],
-    map: {},
-  },
+  icons: [],
 };
 
 export function useBuild(): ComponentBuild {
@@ -27,6 +22,7 @@ export function useBuild(): ComponentBuild {
   
   useEffect(() => on<EventComponentBuild>('COMPONENT_BUILD', (newBuild, component) => {
     setBuild(newBuild);
+    console.log('[build]', component.name, newBuild);
     $.doc.transact(() => {
       $.setProjectIndex(newBuild.index);
       $.setProjectFiles(Object.keys(newBuild.roster));

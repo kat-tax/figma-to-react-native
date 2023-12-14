@@ -61,8 +61,9 @@ export default async function() {
       
     // Start codegen
     gen.loadComponents(app.targetSelectedComponent);
-    gen.watchComponents();
     gen.watchTheme(config.state);
+    gen.watchIcons();
+    gen.watchComponents();
 
     // Update code on selection change
     figma.on('selectionchange', () => {

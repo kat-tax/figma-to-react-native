@@ -82,3 +82,10 @@ export async function createIcons(frame: FrameNode, icons: Record<string, string
     frame.appendChild(component);
   }
 }
+
+export function getAllIconComponents() {
+  const iconPage = figma.root?.children?.find(p => p.name === 'Icons');
+  const components = iconPage?.findAllWithCriteria({types: ['COMPONENT']});
+  const icons = components?.filter(c => c.name.includes(':'));
+  return icons;
+}

@@ -32,6 +32,5 @@ export {
   getComponentParent,
   getCollectionModes,
   getCollectionByName,
-  getAllIconComponents,
   getPage,
 } from './traverse';

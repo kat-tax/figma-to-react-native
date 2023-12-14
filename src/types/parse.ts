@@ -52,10 +52,7 @@ export type ParseAssetData = Record<string, {
 export type ParseMetaData = {
   assetNodes: Set<string>,
   styleNodes: Set<string>,
-  iconsSets: Set<string>,
   iconsUsed: Set<string>,
-  iconsList: Set<string>,
-  iconsMap: Map<string, string>,
   components: Record<string, [BaseNode, BaseNode]>,
   includes: Record<string, [BaseNode, BaseNode]>,
 };

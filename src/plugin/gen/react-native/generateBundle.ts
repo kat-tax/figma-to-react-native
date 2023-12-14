@@ -22,12 +22,7 @@ const emptyBundle: ComponentData = {
   height: 0,
   links: {},
   assets: null,
-  icons: {
-    sets: [],
-    list: [],
-    used: [],
-    map: {},
-  },
+  icons: [],
 };
 
 export async function generateBundle(
@@ -96,12 +91,7 @@ export async function generateBundle(
   const index = generateIndex(new Set<string>().add(name), settings);
   const story = generateStory(target, isVariant, propDefs, settings);
   const assets = Object.values(data.assetData);
-  const icons = {
-    sets: Array.from(data.meta.iconsSets),
-    list: Array.from(data.meta.iconsList),
-    used: Array.from(data.meta.iconsUsed),
-    map: Object.fromEntries(data.meta.iconsMap),
-  };
+  const icons = Array.from(data.meta.iconsUsed);
 
   // Return bundle
   return {
