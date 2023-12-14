@@ -1,5 +1,3 @@
-// TODO: assign "background" to frame and "foreground" colors to icons
-
 import {wait} from 'common/delay';
 import {focusNode} from 'plugin/fig/lib';
 
