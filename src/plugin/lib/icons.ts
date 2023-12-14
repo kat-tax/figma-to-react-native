@@ -181,8 +181,10 @@ export function createVariableTheme(): {
   // Try to add dark mode
   // this is currently a Figma pay-walled feature
   try {
-    theme.addMode('Dark');
-    theme.renameMode(theme.defaultModeId, 'Light');
+    if (theme.modes.length === 1) {
+      theme.addMode('Dark');
+      theme.renameMode(theme.defaultModeId, 'Light');
+    }
   } catch (e) {
     console.log('Could not add dark mode', e);
   }
