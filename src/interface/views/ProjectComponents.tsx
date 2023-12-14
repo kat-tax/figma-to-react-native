@@ -30,7 +30,8 @@ type ProjectComponentEntry = {
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [list, setList] = useState<ProjectComponentIndex>({});
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
-  const fzfSearch = useMemo(() => {
+  
+  const index = useMemo(() => {
     const entries = hasComponents ? Object.values(props.build?.roster) : [];
     return new Fzf(entries, {
       selector: (item) => `${item.page}/${item.name}`,
@@ -44,7 +45,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   };
 
   useEffect(() => {
-    const entries = fzfSearch.find(props.searchQuery);
+    const entries = index.find(props.searchQuery);
     const newList: ProjectComponentIndex = hasComponents
       ? Object.values(entries).reduce((group, entry) => {
         const {item, positions} = entry;

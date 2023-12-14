@@ -29,13 +29,13 @@ export async function preview(options: PreviewOptions) {
   const files: Map<string, string | Uint8Array> = new Map();
 
   // Add components to filesystem
-  for (const component of Object.keys(build.roster)) {
+  for (const [key, component] of Object.entries(build.roster)) {
     try {
-      const contents = $.getComponentCode(component);
-      const path = `/components/${component}`;
+      const contents = $.getComponentCode(key);
+      const path = `/components/${component.name}`;
       const code = contents.toString();
       files.set(path, code);
-      if (name === component) {
+      if (name === component.name) {
         console.debug('[preview]', tag);
       }
     } catch (e) {

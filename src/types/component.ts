@@ -14,6 +14,7 @@ export type ComponentRoster = Record<string, ComponentEntry>
 
 export type ComponentEntry = {
   id: string,
+  key: string,
   name: string,
   page: string,
   loading: boolean,
@@ -22,6 +23,7 @@ export type ComponentEntry = {
 
 export type ComponentData = {
   id: string,
+  key: string,
   page: string,
   name: string,
   props: string,

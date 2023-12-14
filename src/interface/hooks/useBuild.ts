@@ -25,19 +25,13 @@ export function useBuild(): ComponentBuild {
     $.doc.transact(() => {
       $.setProjectIndex(newBuild.index);
       $.setProjectFiles(Object.keys(newBuild.roster));
-      $.setComponentCode(component.name, component.code);
-      $.setComponentIndex(component.name, component.index);
-      $.setComponentStory(component.name, component.story);
+      $.setComponentCode(component.key, component.code);
+      $.setComponentIndex(component.key, component.index);
+      $.setComponentStory(component.key, component.story);
       Object.values(build.assets).forEach(asset =>
         $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes));
-      $.components.set(component.name, {
-        id: component.id,
-        page: component.page,
-        name: component.name,
-        props: component.props,
-        width: component.width,
-        height: component.height,
-      });
+      const {id, key, name, page, props, width, height} = component;
+      $.components.set(component.key, {id, key, name, page, props, width, height});
     });
     // console.log('[build]', component.name, newBuild);
   }), []);

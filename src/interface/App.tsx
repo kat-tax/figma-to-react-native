@@ -63,21 +63,21 @@ export function App(props: AppProps) {
   const nav = useNavigation(build);
   const isDark = useDarkMode();
 
-  const isReadOnly = isDevMode || isVSCode;
   const isReady = Boolean(props.startPage && project && monaco);
-  const target = build.roster[nav.component] ? nav.component: null;
+  const isReadOnly = isDevMode || isVSCode;
+  const componentKey = build.roster[nav.component] ? nav.component: null;
   const options = {
     ...settings.config.monaco.general,
     tabSize: settings.config.writer.indentNumberOfSpaces,
     theme: isDark ? 'vs-dark' : 'vs',
   };
-
+  
   // Go to overview when viewing a component that doesn't exist
   useEffect(() => {
-    if (!target && nav.component) {
+    if (!componentKey && nav.component) {
       nav.gotoOverview();
     }
-  }, [target, nav]);
+  }, [componentKey, nav]);
 
   return isReady ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
@@ -110,13 +110,13 @@ export function App(props: AppProps) {
         <ProjectSettings {...{options, monaco, settings}}/>
       </Tab>
       <Tab value="code">
-        <ComponentCode {...{target, build, options, monaco}}/>
+        <ComponentCode {...{componentKey, build, options, monaco}}/>
       </Tab>
       <Tab value="preview">
-        <ComponentPreview {...{target, build, theme, settings: settings.config}}/>
+        <ComponentPreview {...{componentKey, build, theme, settings: settings.config}}/>
       </Tab>
       <Tab value="story">
-        <ComponentStory {...{target, options, monaco}}/>
+        <ComponentStory {...{componentKey, options, monaco}}/>
       </Tab>
     </Tabs>
   ) : (

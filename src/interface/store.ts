@@ -12,8 +12,9 @@ export const assets = doc.getMap<Uint8Array>('assets');
 
 export const components = doc.getMap<{
   id: string,
-  page: string,
+  key: string,
   name: string,
+  page: string,
   props: string,
   width: number,
   height: number,
@@ -58,34 +59,34 @@ export function setProjectIndex(index: string) {
   text.insert(0, index);
 }
 
-export function getComponentCode(name: string) {
-  return doc.getText(`code::${name}`);
+export function getComponentCode(key: string) {
+  return doc.getText(`code::${key}`);
 }
 
-export function setComponentCode(name: string, code: string) {
-  const text = doc.getText(`code::${name}`);
+export function setComponentCode(key: string, code: string) {
+  const text = doc.getText(`code::${key}`);
   text.delete(0, text.length);
   text.insert(0, code);
 }
 
-export function getComponentIndex(name: string) {
-  const text = doc.getText(`index::${name}`);
+export function getComponentIndex(key: string) {
+  const text = doc.getText(`index::${key}`);
   return text.toString();
 }
 
-export function setComponentIndex(name: string, code: string) {
-  const text = doc.getText(`index::${name}`);
+export function setComponentIndex(key: string, code: string) {
+  const text = doc.getText(`index::${key}`);
   text.delete(0, text.length)
   text.insert(0, code);
 }
 
-export function setComponentStory(name: string, code: string) {
-  const text = doc.getText(`story::${name}`);
+export function setComponentStory(key: string, code: string) {
+  const text = doc.getText(`story::${key}`);
   text.delete(0, text.length)
   text.insert(0, code);
 }
 
-export function getComponentStory(name: string) {
-  const text = doc.getText(`story::${name}`);
+export function getComponentStory(key: string) {
+  const text = doc.getText(`story::${key}`);
   return text.toString();
 }

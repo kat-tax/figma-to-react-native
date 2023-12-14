@@ -141,7 +141,7 @@ export async function watchComponents() {
       if (change.type !== 'CREATE'
         && change.type !== 'PROPERTY_CHANGE')
           return;
-      // Ignore events only effecting pluginData
+      // Ignore events only effecting pluginData (our cache)
       if (change.type === 'PROPERTY_CHANGE'
         && change.properties.includes('pluginData'))
           return;
@@ -205,11 +205,13 @@ export async function compile(
     const preview = imageExport ? `data:image/png;base64,${figma.base64Encode(imageExport)}` : '';
     const name = createIdentifierPascal(masterNode.name);
     const page = getPage(masterNode).name;
+    const key = (masterNode as ComponentNode).key;
     const id = masterNode.id;
     _total++;
     _names.add(name);
-    _roster[name] = {
+    _roster[key] = {
       id,
+      key,
       name,
       page,
       preview,
@@ -227,7 +229,7 @@ export async function compile(
       const {bundle, cached} = await generateBundle(component, config.state, skipCache);
 
       // Derive data
-      const {id, page, name, links, icons, assets} = bundle;
+      const {id, key, page, name, links, icons, assets} = bundle;
       const pages = figma.root.children?.map(p => p.name);
 
       // Aggregate data
@@ -235,7 +237,7 @@ export async function compile(
       _cached = cached;
       _links = {..._links, ...links};
       _cache[component.id] = bundle;
-      _roster[name] = {
+      _roster[key] = {
         ..._roster[name],
         id,
         name,

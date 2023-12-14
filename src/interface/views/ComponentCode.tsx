@@ -13,7 +13,7 @@ import type {ComponentBuild} from 'types/component';
 import type {Settings} from 'types/settings';
 
 interface ComponentCodeProps {
-  target: string,
+  componentKey: string,
   build: ComponentBuild,
   options: Settings['monaco']['general'],
   monaco: Monaco,
@@ -24,8 +24,8 @@ export function ComponentCode(props: ComponentCodeProps) {
   const constraint = useRef<any>(null);
   const editor = useRef<Editor>(null);
 
-  const $componentInfo = $.components.get(props.target);
-  const $componentCode = $.getComponentCode(props.target);
+  const $componentInfo = $.components.get(props.componentKey);
+  const $componentCode = $.getComponentCode(props.componentKey);
 
   // GPT triggered by user
   const handleGPT = useCallback(async () => {
@@ -36,7 +36,7 @@ export function ComponentCode(props: ComponentCodeProps) {
       },
       body: JSON.stringify({
         code: $componentCode.toString(),
-        image: props.build.roster[props.target].preview,
+        image: props.build.roster[props.componentKey].preview,
       }),
     });
     const output = await response.text();
@@ -46,9 +46,9 @@ export function ComponentCode(props: ComponentCodeProps) {
   // Update component dependencies on new build
   useEffect(() => {
     if (props.build) {
-      Object.keys(props.build.roster).forEach(name => {
-        const code = $.getComponentCode(name);
-        const uri = `${F2RN_EDITOR_NS}${name}.tsx`;
+      Object.entries(props.build.roster).forEach(([key, component]) => {
+        const code = $.getComponentCode(key);
+        const uri = `${F2RN_EDITOR_NS}${component.name}.tsx`;
         const path = props.monaco.Uri.parse(uri);
         const model = props.monaco.editor.getModel(path);
         if (!model) {

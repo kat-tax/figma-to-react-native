@@ -9,13 +9,13 @@ import * as $ from 'interface/store';
 import type {Settings} from 'types/settings';
 
 interface ComponentStoryProps {
-  target: string;
+  componentKey: string;
   options: Settings['monaco']['general'];
 }
 
 export function ComponentStory(props: ComponentStoryProps) {
-  const component = $.components.get(props.target);
-  const story = $.getComponentStory(props.target);
+  const component = $.components.get(props.componentKey);
+  const story = $.getComponentStory(props.componentKey);
   return (
     <Fragment>
       {!story &&

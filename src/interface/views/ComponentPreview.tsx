@@ -12,20 +12,20 @@ import type {EventFocusNode} from 'types/events';
 import type {Settings} from 'types/settings';
 
 interface ComponentPreviewProps {
-  target: string,
+  componentKey: string,
   theme: string,
   build: ComponentBuild,
   settings: Settings,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {target, theme, build, settings} = props;
+  const {componentKey, theme, build, settings} = props;
   const [src, setSrc] = useState('');
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
   const screen = useWindowSize();
   const variant = useSelectedVariant();
-  const component = $.components.get(target);
+  const component = $.components.get(componentKey);
 
   // Inits the loader that renders component apps
   const initLoader = useCallback(() => {

@@ -12,6 +12,7 @@ import type {Settings} from 'types/settings';
 
 const emptyBundle: ComponentData = {
   id: '',
+  key: '',
   page: '',
   name: '',
   props: '',
@@ -82,6 +83,7 @@ export async function generateBundle(
 
   // Bundle data
   const id = masterNode.id;
+  const key = (masterNode as ComponentNode).key;
   const width = data.frame ? data.frame.node.width : data.root.node.width;
   const height = data.frame ? data.frame.node.height : data.root.node.height;
   const name = createIdentifierPascal(masterNode.name);
@@ -96,6 +98,7 @@ export async function generateBundle(
   // Return bundle
   return {
     id,
+    key,
     name,
     page,
     props,

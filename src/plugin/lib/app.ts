@@ -26,6 +26,6 @@ export function targetSelectedComponent() {
   const component = getSelectedComponent();
   if (!component) return;
   const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
-  const masterNode = (isVariant ? component?.parent : component);
-  emit<EventSelectComponent>('SELECT_COMPONENT', createIdentifierPascal(masterNode.name));
+  const masterNode = (isVariant ? component?.parent : component) as ComponentNode;
+  emit<EventSelectComponent>('SELECT_COMPONENT', masterNode.key);
 }

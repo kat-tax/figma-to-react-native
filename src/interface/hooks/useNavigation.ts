@@ -36,9 +36,9 @@ export function useNavigation(build: ComponentBuild) {
     emit<EventAppNavigate>('APP_NAVIGATE', value);
   };
 
-  useEffect(() => on<EventSelectComponent>('SELECT_COMPONENT', (name) => {
-    if (build?.roster?.[name] !== undefined) {
-      setComponent(name);
+  useEffect(() => on<EventSelectComponent>('SELECT_COMPONENT', (key) => {
+    if (build?.roster?.[key] !== undefined) {
+      setComponent(key);
       if (!isComponentTab(tab))
         setTab('code');
     }
