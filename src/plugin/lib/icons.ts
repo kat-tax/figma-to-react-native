@@ -211,10 +211,10 @@ export function createVariableTheme(): {
   if (createdBackground || createdForeground) {
     const black: RGB = {r: 0, g: 0, b: 0};
     const white: RGB = {r: 1, g: 1, b: 1};
-    theme.modes.forEach(({name, modeId}) => {
-      const isLight = name === theme.defaultModeId;
-      createdBackground && background.setValueForMode(modeId, isLight ? white : black);
-      createdForeground && foreground.setValueForMode(modeId, isLight ? black : white);
+    theme.modes.forEach(({modeId}) => {
+      const isDefault = modeId === theme.defaultModeId;
+      createdBackground && background.setValueForMode(modeId, isDefault ? white : black);
+      createdForeground && foreground.setValueForMode(modeId, isDefault ? black : white);
     });
   }
 
