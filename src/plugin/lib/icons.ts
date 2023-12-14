@@ -21,13 +21,12 @@ export async function importSet(setName: string, icons: Record<string, string>) 
     page.children.forEach(c => c.remove());
   }
 
-  // Create styles
-  const {background, foreground} = createTheme();
+  // Create theme (or use existing)
+  const theme = createTheme();
   
-  // Create set frame
+  // Create icon set frame
   const frame = figma.createFrame();
   frame.name = `${setName}, Normal, ${svgSize}`;
-  frame.fillStyleId = background?.id;
   frame.cornerRadius = 3;
   frame.itemSpacing = 5;
   frame.counterAxisSpacing = 5;
@@ -43,20 +42,39 @@ export async function importSet(setName: string, icons: Record<string, string>) 
     + frame.horizontalPadding * 2
   , 100);
 
+  // Set frame background
+  if (theme.isVariable) {
+    const fills = frame.fills !== figma.mixed ? {...frame.fills} : {};
+    fills[0] = figma.variables.setBoundVariableForPaint(fills[0], 'color', theme.background);
+    frame.fills = [fills[0]];
+  } else {
+    frame.fillStyleId = theme.background?.id;
+  }
+
   // Add frame to page
   page.appendChild(frame);
 
   // Focus frame
   focusNode(frame.id);
 
+  // Get icon style / var
+  let iconStyle: PaintStyle;
+  let iconVariable: Variable;
+  if (theme.isVariable) {
+    iconVariable = theme.foreground
+  } else if (theme.isVariable === false) {
+    iconStyle = theme.foreground;
+  }
+
   // Create icons
-  await createIcons(frame, icons, foreground);
+  await createIcons(frame, icons, iconStyle, iconVariable);
 }
 
 export async function createIcons(
   root: FrameNode,
   icons: Record<string, string>,
-  fill: PaintStyle,
+  style?: PaintStyle,
+  variable?: Variable,
 ) {
   const batch = 5;
   const delay = 5;
@@ -65,10 +83,6 @@ export async function createIcons(
   for await (const [name, svg] of Object.entries(icons)) {
     if (i++ % batch === 0)
       await wait(delay);
-
-    // Create icon frame
-    const frame = figma.createNodeFromSvg(`<svg ${svgProps}>${svg}</svg>`);
-    frame.name = 'Frame';
   
     // Create icon component
     const component = figma.createComponent();
@@ -79,42 +93,134 @@ export async function createIcons(
     component.counterAxisAlignItems = 'CENTER';
     component.layoutSizingVertical = 'FIXED';
     component.layoutSizingHorizontal = 'FIXED';
+    component.resize(svgSize, svgSize);
 
-    // Add fill to all children
+    // Create icon frame
+    const frame = figma.createNodeFromSvg(`<svg ${svgProps}>${svg}</svg>`);
+    frame.name = 'Frame';
     frame.findAllWithCriteria({types: ['VECTOR']}).forEach(c => {
-      console.log(c, fill);;
-      c.fillStyleId = fill?.id;
+      if (style) {
+        c.fillStyleId = style?.id;
+      } else if (variable) {
+        const fills = c.fills !== figma.mixed ? {...c.fills} : {};
+        fills[0] = figma.variables.setBoundVariableForPaint(fills[0], 'color', variable);
+        c.fills = [fills[0]];
+      }
     });
 
-    // Resize icon component, add to component, and ungroup
-    component.resize(svgSize, svgSize);
+    // Add component to root
     component.appendChild(frame);
     figma.ungroup(frame);
-
-    // Add component to root
     root.appendChild(component);
   }
 }
 
 export function createTheme() {
-  return createLocalStylesTheme();
+  try {
+    return createVariableTheme();
+  } catch (e) {
+    return createLocalStylesTheme();
+  }
 }
 
-export function createLocalStylesTheme() {
-  const background = figma.createPaintStyle();
-  background.name = 'background';
-  background.paints = [{type: 'SOLID', color: {r: 0, g: 0, b: 0}}];
-  const foreground = figma.createPaintStyle();
-  foreground.name = 'foreground';
-  foreground.paints = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}}];
-  return {background, foreground};
+export function createLocalStylesTheme(): {
+  background: PaintStyle,
+  foreground: PaintStyle,
+  isVariable: false,
+} {
+  const styles = figma.getLocalPaintStyles();
+  let background = styles.find(s => s.name === 'background');
+  let foreground = styles.find(s => s.name === 'foreground');
+  if (!background) {    
+    background = figma.createPaintStyle();
+    background.name = 'background';
+    background.paints = [{type: 'SOLID', color: {r: 0, g: 0, b: 0}}];
+  }
+  if (!foreground) {    
+    foreground = figma.createPaintStyle();
+    foreground.name = 'foreground';
+    foreground.paints = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}}];
+  }
+  return {background, foreground, isVariable: false};
 }
 
-export function createVariableTheme() {
-  const theme = figma.variables.createVariableCollection('Theme');
-  //figma.createVariable({name: 'background', type: 'color', value: {r: 0, g: 0, b: 0}, collection: theme});
-  theme.addMode('Light');
-  theme.addMode('Dark');
+export function createVariableTheme(): {
+  background: Variable,
+  foreground: Variable,
+  isVariable: true,
+} {
+  let theme: VariableCollection;
+  let background: Variable;
+  let foreground: Variable;
+  let createdBackground = false;
+  let createdForeground = false;
+
+  // Try to find existing collection
+  theme = figma.variables.getLocalVariableCollections()
+    ?.find(c => c.name === 'Theme');
+
+  // Try to create collection if does not exist
+  // this will be a Figma pay-walled feature after public beta
+  if (!theme) {
+    try {
+      theme = figma.variables.createVariableCollection('Theme');
+    } catch (e) {
+      throw new Error(e);
+    }
+  // Collection exists, find variables
+  } else {
+    const variables = theme.variableIds.map(id => figma.variables.getVariableById(id))
+    for (const variable of variables) {
+      if (variable.name === 'background')
+        background = variable;
+      if (variable.name === 'foreground')
+        foreground = variable;
+      if (background && foreground)
+        break;
+    }
+  }
+
+  // Try to add dark mode
+  // this is currently a Figma pay-walled feature
+  try {
+    theme.addMode('Dark');
+    theme.renameMode(theme.defaultModeId, 'Light');
+  } catch (e) {
+    console.log('Could not add dark mode', e);
+  }
+
+  // Background variable does not exist, create it
+  if (!background) {
+    try {
+      background = figma.variables.createVariable('background', theme.id, 'COLOR');
+      createdBackground = true;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  // Foreground variable does not exist, create it
+  if (!foreground) {
+    try {
+      foreground = figma.variables.createVariable('foreground', theme.id, 'COLOR');
+      createdForeground = true;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  // If created any variables, set colors for all modes
+  if (createdBackground || createdForeground) {
+    const black: RGB = {r: 0, g: 0, b: 0};
+    const white: RGB = {r: 1, g: 1, b: 1};
+    theme.modes.forEach(({name, modeId}) => {
+      const isLight = name === theme.defaultModeId;
+      createdBackground && background.setValueForMode(modeId, isLight ? white : black);
+      createdForeground && foreground.setValueForMode(modeId, isLight ? black : white);
+    });
+  }
+
+  return {background, foreground, isVariable: true};
 }
 
 export function getAllIconComponents() {

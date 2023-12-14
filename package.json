@@ -65,7 +65,7 @@
     "@create-figma-plugin/build": "^2.6.1",
     "@create-figma-plugin/tsconfig": "^2.6.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
-    "@figma/plugin-typings": "1.79.0",
+    "@figma/plugin-typings": "1.82.0",
     "@types/lodash.camelcase": "^4.3.9",
     "@types/react": "^18.2.41",
     "esbuild": "^0.17.19",
