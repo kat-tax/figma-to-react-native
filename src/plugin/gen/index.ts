@@ -145,9 +145,6 @@ export async function watchComponents() {
       if (change.type === 'PROPERTY_CHANGE'
         && change.properties.includes('pluginData'))
           return;
-      // TODO: track deletions
-      if (change.node.removed)
-        return;
       // Queue component to update
       if (change.node.type === 'COMPONENT') {
         updates.push(change.node as SceneNode);
