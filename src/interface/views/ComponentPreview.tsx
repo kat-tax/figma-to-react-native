@@ -67,7 +67,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   useEffect(() => {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'resize', width: screen.width, height: screen.height});
-  }, [iframe, screen, component]);
+  }, [iframe, screen]);
 
   // Update the preview theme when it changes
   useEffect(() => {
