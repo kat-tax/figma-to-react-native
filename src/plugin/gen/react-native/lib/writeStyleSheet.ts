@@ -52,49 +52,68 @@ export function writeStyleSheet(
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
   const props = Object.keys(styles);
   if (props.length > 0) {
-    writer.write(`${slug}: {`).indent(() => {
-      props.forEach(prop => {
-        const value = styles[prop];
-        // Expand shorthand props
-        // TODO: shouldn't be done here, can't diff this way
-        if (prop === 'border') {
-          if (Array.isArray(value)) {
-            const [width, style, color] = value;
-            const colorVal = color?.type === 'runtime' && color?.name === 'var'
-              ? `theme.colors.${createIdentifierCamel(color.arguments[0])}`
-              : color;
-            writer.writeLine(`borderWidth: ${width},`);
-            writer.write(`borderStyle: `);
-            writer.quote(style);
-            writer.write(',');
-            writer.writeLine(`borderColor: ${colorVal},`);
-          } else {
-            writer.writeLine(`borderWidth: 'unset',`);
-            writer.writeLine(`borderStyle: 'unset',`);
-            writer.writeLine(`borderColor: 'unset',`);
-          }
-        // Other props (TODO: document this)
-        } else {
-          writer.write(`${prop}: `);
-          if (typeof value === 'undefined') {
-            writer.quote('unset');
-          } else if (typeof value === 'number') {
-            writer.write(Number.isInteger(value)
-              ? value.toString()
-              : parseFloat(value.toFixed(5)).toString()
-            );
-          } else if (typeof value === 'string' && value.startsWith('theme.')) {
-            writer.write(value);
-          } else if (value?.type === 'runtime' && value?.name === 'var') {
-            writer.write('theme.colors.' + createIdentifierCamel(value.arguments[0]));
-          } else {
-            writer.quote(value);
-          }
-          writer.write(',');
-          writer.newLine();
-        }
-      });
+    writeProps(props, writer, slug, styles);
+  }
+}
+
+export function writeProps(props: string[], writer: CodeBlockWriter, slug: string, styles: any) {
+  writer.write(`${slug}: {`).indent(() => {
+    props.forEach(prop => {
+      writeProp(prop, styles[prop], writer);
     });
-    writer.writeLine('},');
+  });
+  writer.writeLine('},');
+}
+
+export function writeProp(
+  prop: string,
+  value: any,
+  writer: CodeBlockWriter
+) {
+  // Expand shorthand props
+  // TODO: shouldn't be done here, can't diff this way
+  if (prop === 'border') {
+    if (Array.isArray(value)) {
+      const [width, style, color] = value;
+      const colorVal = color?.type === 'runtime' && color?.name === 'var'
+        ? `theme.colors.${createIdentifierCamel(color.arguments[0])}`
+        : color;
+      writer.writeLine(`borderWidth: ${width},`);
+      writer.write(`borderStyle: `);
+      writer.quote(style);
+      writer.write(',');
+      writer.writeLine(`borderColor: ${colorVal},`);
+    } else {
+      writer.writeLine(`borderWidth: 'unset',`);
+      writer.writeLine(`borderStyle: 'unset',`);
+      writer.writeLine(`borderColor: 'unset',`);
+    }
+  // Other props
+  } else {
+    writer.write(`${prop}: `);
+    // Undefined values
+    if (typeof value === 'undefined') {
+      writer.quote('unset');
+    // Number values
+    } else if (typeof value === 'number') {
+      writer.write(Number.isInteger(value)
+        ? value.toString()
+        : parseFloat(value.toFixed(5)).toString()
+      );
+    // Theme values (local styles)
+    } else if (typeof value === 'string' && value.startsWith('theme.')) {
+      writer.write(value);
+    // Runtime values (variables)
+    } else if (value?.type === 'runtime' && value?.name === 'var') {
+      writer.write('theme.colors.' + createIdentifierCamel(value.arguments[0]));
+    // String values
+    } else if (typeof value === 'string') {
+      writer.quote(value);
+    // Object values
+    } else {
+      writer.write(JSON.stringify(value));
+    }
+    writer.write(',');
+    writer.newLine();
   }
 }
