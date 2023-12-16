@@ -2,7 +2,7 @@
   "json.schemas": [
     {
       "fileMatch": [
-        "source/figma-to-react-native/package.json"
+        "packages/figma-to-react-native/package.json"
       ],
       "url": "https://yuanqing.github.io/create-figma-plugin/figma-plugin.json"
     }
