@@ -34,8 +34,7 @@
 
 #### V46 - Polishing & Bug Fixes
 - `Interface` Keep Figma component order in list
-- `Compiler` Stylegen improvements
-- `Compiler` Add remaining EXO primitives
+- `Compiler` Add remaining EXO primitives + Iconify
 - `Compiler` Fix default color missing for dynamic colors (variants)
 - `Compiler` On component/icon/asset delete keep record
 - `Compiler` MVP app ui package (runnable w/ storybook)
