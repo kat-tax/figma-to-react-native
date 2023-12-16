@@ -18,8 +18,12 @@ export default (opts: PluginOptions): Plugin => ({
             path: '/' + args.path,
           };
         case 'import-statement':
+          if (args.path === '@lingui/macro') {
+            return {
+              path: '/lingui-macro',
+            }
           // Package import
-          if (opts.importMap && opts.importMap[args.path]) {
+          } else if (opts.importMap && opts.importMap[args.path]) {
             return {
               path: args.path,
               external: true,
@@ -37,16 +41,19 @@ export default (opts: PluginOptions): Plugin => ({
   
     build.onLoad({filter}, async (args) => {
       const isReactInject = args.path === '/import-react';
+      const isLinguiMacro = args.path === '/lingui-macro';
       const isComponent = args.path.startsWith('/components/');
       const isStyles = args.path.startsWith('/styles');
       const isTheme = args.path.startsWith('/theme');
       return {
         contents: isReactInject
           ? `export * as React from 'react'`
-          : await Promise.resolve(opts.resolver.resolve(args.path)),
+          : isLinguiMacro
+            ? `export const Trans = ({children}) => (<span>{children}</span>)`
+            : await Promise.resolve(opts.resolver.resolve(args.path)),
         loader: isReactInject
           ? 'js'
-          : isComponent
+          : isComponent || isLinguiMacro
             ? 'tsx'
             : isStyles || isTheme
               ? 'ts'
