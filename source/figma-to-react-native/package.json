@@ -3,7 +3,7 @@
   "name": "figma-plugin",
   "license": "GPL-3.0",
   "scripts": {
-    "dev": "build-figma-plugin --typecheck --watch",
+    "dev": "build-figma-plugin --watch",
     "build": "build-figma-plugin --typecheck --minify",
     "schema": "typescript-json-schema tsconfig.json Settings --out ./src/interface/utils/editor/schemas/settings.json"
   },

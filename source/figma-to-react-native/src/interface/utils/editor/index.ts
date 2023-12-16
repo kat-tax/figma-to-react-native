@@ -5,7 +5,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {F2RN_EDITOR_NS} from 'config/env';
 
 import schema from './schemas/settings.json';
-import types from './types';
+import templates from './templates';
 
 import type * as monaco from 'monaco-editor';
 import type {Settings} from 'types/settings';
@@ -34,9 +34,9 @@ export function initTypescript(monaco: Monaco, settings: Settings) {
   });
 
   try {
-    const libs = Object.keys(types);
+    const libs = Object.keys(templates);
     libs.forEach(key => {
-      monaco.editor.createModel(types[key], 'typescript', monaco.Uri.parse(key));
+      monaco.editor.createModel(templates[key], 'typescript', monaco.Uri.parse(key));
     });
   } catch (e) {
     console.error(e);

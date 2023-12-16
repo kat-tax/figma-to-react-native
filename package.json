@@ -1,6 +1,6 @@
 {
   "name": "exo",
-  "version": "0.1.0",
+  "version": "0.45.0",
   "license": "GPL-3.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
