@@ -1,15 +1,10 @@
 # Project
 manifest.json
-build/
-.ref/
-.old/
-settings-schema.json
 TODO.md
+build/
 
 # OSX
 .DS_Store
 
 # Node
 node_modules/
-npm-debug.log
-yarn-error.log

@@ -1,0 +1,315 @@
+@font-face {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: normal;
+  src: url(https://rsms.me/inter/font-files/Inter-Regular.woff2?v=3.7) format("woff2"), url(https://rsms.me/inter/font-files/Inter-Regular.woff?v=3.7) format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 500;
+  font-style: normal;
+  src: url(https://rsms.me/inter/font-files/Inter-Medium.woff2?v=3.7) format("woff2"), url(https://rsms.me/inter/font-files/Inter-Medium.woff2?v=3.7) format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 600;
+  font-style: normal;
+  src: url(https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7) format("woff2"), url(https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7) format("woff");
+}
+
+:root {
+  /* Colors */
+  --blue: #18a0fb;
+  --purple: #7b61ff;
+  --hot-pink: #ff00ff;
+  --green: #1bc47d;
+  --red: #f24822;
+  --yellow: #ffeb00;
+  --black: #000000;
+  --black8: rgba(0, 0, 0, .8);
+  --black8-opaque: #333333;
+  --black3: rgba(0, 0, 0, .3);
+  --black3-opaque: #B3B3B3;
+  --white: #ffffff;
+  --white2: rgba(255, 255, 255, .2);
+  --white8: rgba(255, 255, 255, .8);
+  --white4: rgba(255, 255, 255, .4);
+  --grey: #f0f0f0;
+  --silver: #e5e5e5;
+  --hud: #222222;
+  --toolbar: #2c2c2c;
+  --black1: rgba(0, 0, 0, .1);
+  --blue3: rgba(24, 145, 251, .3);
+  --purple4: rgba(123, 97, 255, .4);
+  --hover-fill: rgba(0, 0, 0, .06);
+  --selection-a: #daebf7;
+  --selection-b: #edf5fa;
+  /* Borders */
+  --border-radius-small: 2px;
+  --border-radius-med: 5px;
+  --border-radius-large: 6px;
+  --shadow-hud: 0 5px 17px rgba(0, 0, 0, .2), 0 2px 7px rgba(0, 0, 0, .15);
+  --shadow-floating-window: 0 2px 14px rgba(0, 0, 0, .15);
+  /* Sizes */
+  --size-xxxsmall: 4px;
+  --size-xxsmall: 8px;
+  --size-xsmall: 16px;
+  --size-small: 24px;
+  --size-medium: 32px;
+  --size-large: 40px;
+  --size-xlarge: 48px;
+  --size-xxlarge: 64px;
+  --size-xxxlarge: 80px;
+  /* Typography */
+  --font-stack: "Inter", sans-serif;
+  --font-size-xsmall: 11px;
+  --font-size-small: 12px;
+  --font-size-large: 13px;
+  --font-size-xlarge: 14px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+  --font-line-height: 16px;
+  --font-line-height-large: 24px;
+  --font-letter-spacing-pos-xsmall: .005em;
+  --font-letter-spacing-neg-xsmall: .01em;
+  --font-letter-spacing-pos-small: 0;
+  --font-letter-spacing-neg-small: .005em;
+  --font-letter-spacing-pos-large: -.0025em;
+  --font-letter-spacing-neg-large: .0025em;
+  --font-letter-spacing-pos-xlarge: -.001em;
+  --font-letter-spacing-neg-xlarge: -.001em;
+}
+
+html, body {
+  margin: 0;
+  background-color: var(--figma-color-bg);
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  color: var(--figma-color-text);
+}
+
+iframe {
+  border: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#create-figma-plugin {
+  display: flex;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Radix Tab Figma Styling */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.tab-menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--figma-color-bg);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+.tab-bar {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-direction: row;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
+.tab-bar > div {
+  width: 100%;
+}
+
+.tab-bar-nav {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  overflow: auto;
+  padding: 4px;
+  padding-right: 0;
+}
+
+.tab-bar-nav .tab[title="Project Components"] {
+  padding-left: 2px;
+}
+
+.tab-bar-nav .tab[title="Component Code"] {
+  padding-left: 6px;
+}
+
+.tab-bar-nav .tab[title="Component Story"] {
+  margin-right: 6px;
+}
+
+.tab {
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--font-line-height);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+  font-weight: 500;
+  background: none;
+  color: #b3b3b3;
+  padding: 0 8px;
+  height: 32;
+  border: 0;
+  border-radius: 2px;
+}
+
+.tab.icon {
+  width: 32;
+  padding: 0;
+  opacity: 0.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tab[data-state="active"] {
+  font-weight: 600;
+  color: var(--figma-color-text);
+}
+
+.tab.icon[data-state="active"] {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
+.tab-btn {
+  width: 32;
+  height: 32;
+  padding: 0;
+  border: 0;
+  opacity: 0.6;
+  border-radius: 2px;
+  display: flex;
+  background: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.tab-btn:hover {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
+.tab-view {
+  flex: 1;
+  overflow: auto;
+}
+
+/* Status Bar */
+
+.status-bar {
+  width: 100%;
+  height: 27px;
+  padding-right: 10px;
+  z-index: 99999;
+  gap: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg);
+}
+
+.status-actions {
+  display: flex;
+  padding-left: 10px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Component */
+
+.components {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0px;
+}
+
+/* Disclosure override */
+.components > div {
+  padding: 0;
+  width: 100%;
+}
+
+.component {
+  background-color: #000000;
+  border-radius: 4px;
+  height: 120px;
+  width: 200px;
+}
+
+.components label {
+  width: 100%;
+}
+
+.components .highlight {
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+/* Dropdowns */
+
+/* Positioning menu dropdown */
+.drop-mod-menu [class*="_dropdown_"] {
+  width: 32px;
+  margin-right: 5px;
+  align-self: center;
+}
+
+/* Positioning target dropdown */
+.drop-mod-target [class*="_dropdown_"],
+.drop-mod-target-unsaved [class*="_dropdown_"] {
+  width: auto;
+  margin-right: 8px;
+  align-self: center;
+}
+
+/* Status icon padding removed for unsaved target */
+.drop-mod-target-unsaved [class*="_optionValue_"] {
+  padding: 4px var(--space-medium);
+}
+
+/* Text changed for target */
+.drop-mod-target [class*="_dropdown_"] {
+  color: var(--figma-color-text-component);
+}
+
+/* Text changed for unsaved target */
+.drop-mod-target-unsaved [class*="_dropdown_"] {
+  color: var(--figma-color-icon-warning);
+}
+
+/* Placeholder text changed for unsaved target */
+.drop-mod-target-unsaved [class*="_placeholder_"] {
+  color: var(--figma-color-icon-warning);
+}
+
+/* Status chevron icon removed for menu */
+.drop-mod-menu [class*="_chevronIcon_"] {
+  display: none;
+}
+
+/* Virtual List */
+.virtuoso-grid-list {
+  display: flex;
+  flex-flow: wrap;
+}
