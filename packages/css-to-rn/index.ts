@@ -26,7 +26,7 @@ export {default as init} from 'lightningcss-wasm';
  * @param options - (Optional) Options for the conversion process
  * @returns An object containing the extracted style declarations and animations
  */
-export function cssToRN(
+export function cssToReactNative(
   code: string,
   options: CssToReactNativeOptions = {},
 ): StyleSheetRegisterOptions {

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "figma-plugin",
+  "name": "plugin-figma",
   "license": "GPL-3.0",
   "scripts": {
     "dev": "build-figma-plugin --watch",
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "css-to-rn": "workspace:*",
+    "web-bundler": "workspace:*",
     "@create-figma-plugin/ui": "^2.6.1",
     "@create-figma-plugin/utilities": "^2.6.1",
     "@iconify/react": "^4.1.1",
@@ -49,7 +50,6 @@
     "code-block-writer": "^12.0.0",
     "constrained-editor-plugin": "^1.3.0",
     "deep-object-diff": "^1.1.9",
-    "esbuild-wasm": "^0.17.19",
     "fzf": "^0.5.2",
     "lib0": "^0.2.88",
     "lodash.camelcase": "^4.3.0",

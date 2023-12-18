@@ -3,7 +3,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
-import {init, preview} from 'interface/utils/previewer';
+import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 

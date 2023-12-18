@@ -1,7 +1,7 @@
-import * as $ from 'interface/store';
-import {bundle} from 'interface/utils/bundler';
+import {bundle} from 'web-bundler';
 import {notify} from 'interface/telemetry';
 import {UNISTYLES_LIB} from 'config/env';
+import * as $ from 'interface/store';
 
 import importMap from './importMap.json';
 import iframe from './templates/iframe.html.tpl';

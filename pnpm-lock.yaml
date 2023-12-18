@@ -14,7 +14,7 @@ importers:
         specifier: ^0.72.8
         version: 0.72.8(react-native@0.73.0)
 
-  packages/figma-to-react-native:
+  packages/plugin-figma:
     dependencies:
       '@create-figma-plugin/ui':
         specifier: ^2.6.1
@@ -67,9 +67,6 @@ importers:
       deep-object-diff:
         specifier: ^1.1.9
         version: 1.1.9
-      esbuild-wasm:
-        specifier: ^0.17.19
-        version: 0.17.19
       fzf:
         specifier: ^0.5.2
         version: 0.5.2
@@ -97,6 +94,9 @@ importers:
       reserved:
         specifier: ^0.1.2
         version: 0.1.2
+      web-bundler:
+        specifier: workspace:*
+        version: link:../web-bundler
       y-protocols:
         specifier: ^1.0.6
         version: 1.0.6(yjs@13.6.10)
@@ -137,6 +137,12 @@ importers:
       typescript-json-schema:
         specifier: ^0.62.0
         version: 0.62.0
+
+  packages/web-bundler:
+    dependencies:
+      esbuild-wasm:
+        specifier: ^0.17.19
+        version: 0.17.19
 
 packages:
 
@@ -4888,6 +4894,8 @@ packages:
   /lightningcss-wasm@1.22.1:
     resolution: {integrity: sha512-GzY3oTNtkPhDVt1AY0H0ZEWdcAjTOD1Y72nJlEO1JSRgA4UTUDhrklzdMhSLTyVHTpVAEfCxnD6fULBIbwgT/A==}
     engines: {node: '>= 12.0.0'}
+    dependencies:
+      napi-wasm: 1.1.0
     dev: false
     bundledDependencies:
       - napi-wasm
@@ -5395,6 +5403,10 @@ packages:
     resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
     engines: {node: ^14 || ^16 || >=18}
     hasBin: true
+    dev: false
+
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
     dev: false
 
   /natural-compare-lite@1.4.0:

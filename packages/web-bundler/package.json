@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "name": "web-bundler",
+  "main": "index.ts",
+  "dependencies": {
+    "esbuild-wasm": "^0.17.19"
+  }
+}

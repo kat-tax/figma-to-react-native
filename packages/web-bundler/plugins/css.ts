@@ -1,4 +1,4 @@
-import type {Plugin} from 'esbuild';
+import type {Plugin} from 'esbuild-wasm';
 import type {Resolver} from '../lib/resolver';
 
 interface PluginOptions {
@@ -7,9 +7,9 @@ interface PluginOptions {
 }
 
 export default (opts: PluginOptions): Plugin => ({
-  name: 'svg',
+  name: 'css',
   setup: (build) => {
-    const filter = /\.svg$/;
+    const filter = /\.css$/;
   
     build.onResolve({filter}, (args) => {
       switch (args.kind) {
@@ -24,13 +24,10 @@ export default (opts: PluginOptions): Plugin => ({
     });
   
     build.onLoad({filter}, async (args) => {
-      const data = await Promise.resolve(opts.resolver.resolve(args.path));
-      const svg = (data instanceof Uint8Array)
-        ? new TextDecoder('utf-8').decode(data)
-        : data;
+      const contents = await Promise.resolve(opts.resolver.resolve(args.path));
       return {
-        contents: `export default () => ${svg}`,
-        loader: 'tsx',
+        contents,
+        loader: 'css',
       };
     });
   },

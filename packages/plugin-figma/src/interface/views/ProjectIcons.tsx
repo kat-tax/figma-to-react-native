@@ -6,7 +6,7 @@ import {useState, useEffect, useMemo} from 'preact/hooks';
 import {Icon, listIcons, getIcon} from '@iconify/react';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {loadIconSet} from 'interface/utils/importer/icons';
+import {loadIconSet} from 'interface/utils/icons';
 import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from '@create-figma-plugin/ui';

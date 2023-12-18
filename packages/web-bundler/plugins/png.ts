@@ -1,4 +1,4 @@
-import type {Plugin} from 'esbuild';
+import type {Plugin} from 'esbuild-wasm';
 import type {Resolver} from '../lib/resolver';
 
 interface PluginOptions {

@@ -8,6 +8,8 @@ import svg from './plugins/svg';
 
 import type {BuildOptions} from 'esbuild-wasm';
 
+export type {BuildOptions};
+
 export async function bundle(
   entry: string,
   files: Map<string, string | Uint8Array>,

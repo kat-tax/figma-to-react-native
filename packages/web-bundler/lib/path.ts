@@ -133,7 +133,7 @@ export namespace Path {
         break;
       }
     }
-    let outputParts = [];
+    let outputParts: string[] = [];
     for (let i = samePartsLength; i < fromParts.length; i++) {
       outputParts.push('..');
     }
@@ -173,7 +173,7 @@ export namespace Path {
   // Resolves '.' and '..' elements in a path array with directory names there must be no slashes or device names
   // (c:\) in the array (so also no leading and trailing slashes - it does not distinguish relative and absolute paths)
   function normalizeArray(parts: string[], allowAboveRoot: boolean): string[] {
-    const res = [];
+    const res: string[] = [];
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i];
       if (!p || p === '.') {
