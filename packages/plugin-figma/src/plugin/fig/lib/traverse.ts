@@ -23,11 +23,13 @@ export function getComponentTarget(node: SceneNode): ComponentNode {
   // Find the component in the parent chain
   let target: SceneNode = node;
 
+  if (!target) return null;
+
   // First, check if the target is a frame
   // if so, look directly below for a component
   if (target.type === 'FRAME'
-    && target.children.length > 0
-    && target.children[0].type === 'COMPONENT') {
+    && target.children?.length > 0
+    && target.children[0]?.type === 'COMPONENT') {
     return target.children[0];
   }
 

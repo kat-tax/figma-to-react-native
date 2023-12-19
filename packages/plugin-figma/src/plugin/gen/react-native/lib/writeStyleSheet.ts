@@ -50,7 +50,7 @@ export function writeStyleSheet(
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
-  const props = Object.keys(styles);
+  const props = styles && Object.keys(styles);
   if (props.length > 0) {
     writeProps(props, writer, slug, styles);
   }
