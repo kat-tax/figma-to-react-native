@@ -1,5 +1,5 @@
 import {wait} from 'common/delay';
-import {focusNode} from 'plugin/fig/lib';
+import {focusNode, isNodeIcon} from 'plugin/fig/lib';
 import {getIconComponentMap} from 'plugin/lib/icons';
 
 type ExoComponents = Record<string, {
@@ -119,8 +119,8 @@ export async function createComponents(
       const local = origin.clone();
       local.x = x;
       local.y = y;
-      swapComponentIcons(local, iconSet, icons);
-      swapBoundVariables(local, variables);
+      replaceComponentSwaps(local, iconSet, icons);
+      replaceBoundVariables(local, variables);
       section.appendChild(local);
     }
     // Add section to page
@@ -128,25 +128,39 @@ export async function createComponents(
   }
 }
 
-function swapComponentIcons(
+function replaceComponentSwaps(
   component: ComponentNode | ComponentSetNode,
   iconSet: string,
   icons: Record<string, string>,
 ) {
   for (const [prop, value] of Object.entries(component.componentPropertyDefinitions)) {
-    if (value.type === 'INSTANCE_SWAP') {
-      // TODO: Find replacement icon
-      const iconName = `${iconSet}:placeholder`;
-      const iconNode = figma.getNodeById(icons[iconName]) as ComponentNode;
-      // Replace all instances of this swap
-      const instances = component.findAllWithCriteria({types: ['INSTANCE']})
-      const iconInstances = instances.filter(i => i.componentPropertyReferences.mainComponent === prop)
-      iconInstances.forEach(i => i.swapComponent(iconNode));
-    }
+    // Not a swap
+    if (value.type !== 'INSTANCE_SWAP')
+      continue;
+    // No node id
+    if (typeof value.defaultValue !== 'string')
+      continue;
+    // Not an icon swap
+    const originNode = figma.getNodeById(value.defaultValue);
+    if (isNodeIcon(originNode))
+      continue;
+    // Find icon in local set first, fallback to global set
+    const [originSet, originName] = originNode.name.split(':');
+    const uriOrigin = `${originSet}:${originName}`;
+    const uriLocal = `${iconSet}:${originName}`;
+    const iconLocal = figma.getNodeById(icons[uriLocal]) as ComponentNode;
+    const iconNode = iconLocal || figma.getNodeById(icons[uriOrigin]) as ComponentNode;
+    // No icon node found
+    if (!iconNode) continue;
+    // Replace all instances of this icon swap
+    const instances = component.findAllWithCriteria({types: ['INSTANCE']});
+    const iconInstances = instances.filter(i => i.componentPropertyReferences.mainComponent === prop);
+    iconInstances.forEach(i => i.swapComponent(iconNode));
+    console.log(icons[uriLocal], icons[uriOrigin], iconLocal, iconNode);
   }
 }
 
-function swapBoundVariables(
+function replaceBoundVariables(
   component: ComponentNode | ComponentSetNode,
   variables: Variable[],
 ) {
