@@ -156,7 +156,6 @@ function replaceComponentSwaps(
     const instances = component.findAllWithCriteria({types: ['INSTANCE']});
     const iconInstances = instances.filter(i => i.componentPropertyReferences.mainComponent === prop);
     iconInstances.forEach(i => i.swapComponent(iconNode));
-    console.log(icons[uriLocal], icons[uriOrigin], iconLocal, iconNode);
   }
 }
 
