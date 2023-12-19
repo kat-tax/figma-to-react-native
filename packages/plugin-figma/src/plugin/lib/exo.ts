@@ -1,6 +1,7 @@
 import {wait} from 'common/delay';
 import {focusNode} from 'plugin/fig/lib';
 import {getIconComponentMap} from 'plugin/lib/icons';
+import {EXO_COMPONENTS, EXO_PRIMITIVES} from 'config/env';
 
 export async function importComponents(iconSet: string) {
   // Create "Common" page
@@ -34,21 +35,17 @@ export async function importComponents(iconSet: string) {
     }
   });
 
+  // TODO: create sections
+
   // Get relevant data
   const icons = getIconComponentMap();
   const variables = figma.variables.getLocalVariables();
 
   // Create primitive components
-  await createComponents(primitives, iconSet, icons, variables, {
-    Slider: ['35f02e59aa82623edd3e65a47ae53d0d8c93b190', false],
-  });
+  await createComponents(primitives, iconSet, icons, variables, EXO_PRIMITIVES);
 
   // Create common components
-  await createComponents(common, iconSet, icons, variables, {
-    Button: ['e4b4b352052ba71c847b20b49d9e88a0093d4449', true],
-  });
-
-  // TODO: create sections
+  await createComponents(common, iconSet, icons, variables, EXO_COMPONENTS);
 }
 
 export async function createComponents(
