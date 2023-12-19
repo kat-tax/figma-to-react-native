@@ -108,7 +108,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   useEffect(() => {
     const entries = index.find(props.searchQuery);
     setList(Object.values(entries));
-  }, [props.build, props.icons, props.searchQuery]);
+  }, [index, props.searchQuery]);
 
   // Show no icons message
   if (!iconSet || !props.icons.sets?.length) {
