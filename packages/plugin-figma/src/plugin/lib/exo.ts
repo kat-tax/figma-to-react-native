@@ -1,7 +1,43 @@
 import {wait} from 'common/delay';
 import {focusNode} from 'plugin/fig/lib';
 import {getIconComponentMap} from 'plugin/lib/icons';
-import {EXO_COMPONENTS, EXO_PRIMITIVES} from 'config/env';
+
+type ExoComponents = Record<string, {
+  list: Record<string, [string, boolean, number, number]>,
+  rect: {x: number, y: number, width: number, height: number}, 
+}>
+
+export const EXO_COMPONENTS: ExoComponents = {
+  Controls: {
+    rect: {x: -2110, y: -783, width: 745, height: 414},
+    list: {
+      Button: ['e4b4b352052ba71c847b20b49d9e88a0093d4449', true, 100, 100],
+    },
+  },
+  Popovers: {
+    rect: {x: -1325, y: -783, width: 562, height:670},
+    list: {
+      Prompt: ['9261d5fed575a841eefc0de81b039814ef81b3ae', false, 100, 100],
+      HoverCard: ['172abba0061738f4b1c69e85ef956603b4cdd5c4', false, 100, 400],
+    },
+  },
+  Layout: {
+    rect: {x: -723, y: -783, width:558, height: 400},
+    list: {
+      Placeholder: ['5863ef713ca50d36c7f32f8d1f33335d7f9eb552', false, 100, 100],
+    },
+  },
+};
+
+export const EXO_PRIMITIVES: ExoComponents = {
+  Controls: {
+    rect: {x: -2460, y: -777, width: 673, height: 624},
+    list: {
+      Slider: ['35f02e59aa82623edd3e65a47ae53d0d8c93b190', false, 100, 100],
+    },
+  },
+};
+
 
 export async function importComponents(iconSet: string) {
   // Create "Common" page
@@ -53,28 +89,42 @@ export async function createComponents(
   iconSet: string,
   icons: Record<string, string>,
   variables: Variable[],
-  components: Record<string, [string, boolean]>,
+  exoComponents: ExoComponents,
 ) {
   const batch = 5;
   const delay = 5;
   let i = 0;
-  for await (const [key, isComponentSet] of Object.values(components)) {
-    if (i++ % batch === 0)
-      await wait(delay);
-    if (isComponentSet) {
-      const origin = await figma.importComponentSetByKeyAsync(key);
-      const local = origin.clone();
-      swapComponentIcons(local, iconSet, icons);
-      swapBoundVariables(local, variables);
-      root.appendChild(local);
-    } else {
-      const origin = await figma.importComponentByKeyAsync(key);
-      const local = origin.clone();
-      swapComponentIcons(local, iconSet, icons);
-      swapBoundVariables(local, variables);
-      root.appendChild(local);
-      // TODO: create frame
+
+  for await (const [sectionName, components] of Object.entries(exoComponents)) {
+    // Create section
+    const background = variables.find(v => v.name === 'background');
+    const section = figma.createSection();
+    section.name = sectionName;
+    section.x = components.rect.x;
+    section.y = components.rect.y;
+    section.resizeWithoutConstraints(components.rect.width, components.rect.height);
+    try {section.devStatus = {type: 'READY_FOR_DEV'}} catch (err) {}
+    if (background) {
+      const fills = section.fills !== figma.mixed ? {...section.fills} : {};
+      fills[0] = figma.variables.setBoundVariableForPaint(fills[0], 'color', background);
+      section.fills = [fills[0]];
     }
+    // Create components in section
+    for await (const [key, isComponentSet, x, y] of Object.values(components.list)) {
+      if (i++ % batch === 0)
+        await wait(delay);
+      const origin = isComponentSet
+        ? await figma.importComponentSetByKeyAsync(key)
+        : await figma.importComponentByKeyAsync(key);
+      const local = origin.clone();
+      local.x = x;
+      local.y = y;
+      swapComponentIcons(local, iconSet, icons);
+      swapBoundVariables(local, variables);
+      section.appendChild(local);
+    }
+    // Add section to page
+    root.appendChild(section);
   }
 }
 
