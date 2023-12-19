@@ -60,7 +60,7 @@ export async function importComponents(iconSet: string) {
   } else {
     primitives.children.forEach(c => c.remove());
   }
-  
+
   // Focus frame
   figma.notify(`Importing EXO components...`, {
     timeout: 3000,
