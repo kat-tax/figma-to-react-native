@@ -67,6 +67,8 @@ export function App(props: AppProps) {
   const isReady = Boolean(props.startPage && project && monaco);
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
+  const hasIcons = Boolean(icons?.list?.length);
+  const iconSet = icons.sets[0];
   const componentKey = build.roster[nav.component] ? nav.component: null;
   const options = {
     ...settings.config.monaco.general,
@@ -97,7 +99,7 @@ export function App(props: AppProps) {
         setSearchQuery,
       }}/>
       <Tab value="components">
-        <ProjectComponents {...{build, searchMode, searchQuery}}/>
+        <ProjectComponents {...{build, nav, iconSet, isReadOnly, hasIcons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="theme">
         <ProjectTheme {...{options, monaco, hasStyles}}/>

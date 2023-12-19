@@ -1,5 +1,6 @@
 export * as fig from 'plugin/fig';
 export * as gen from 'plugin/gen';
+export * as exo from 'plugin/lib/exo';
 export * as app from 'plugin/lib/app';
 export * as drop from 'plugin/lib/drop';
 export * as icons from 'plugin/lib/icons';

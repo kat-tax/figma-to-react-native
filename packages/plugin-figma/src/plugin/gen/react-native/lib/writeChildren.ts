@@ -85,9 +85,10 @@ function writeChild(
   if (isIcon) {
     const iconVector = instance.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
     const iconColor = getFillToken(iconVector);
-    const hasVariant = data.variants && !!Object.values(data.variants.fills[slug]);
+    const variantFills = data.variants?.fills?.[slug];
+    const hasVariant = data.variants && variantFills && !!Object.values(variantFills);
     const fillToken = hasVariant ? `colors.${slug}` : iconColor;
-    const dynamic = isRootPressable ? '(e)' : '';
+    const dynamic = isRootPressable && hasVariant ? '(e)' : '';
     const style = `{color: ${fillToken}${dynamic}}`;
     // Swap icon, override props for this instance
     if (isSwap) {

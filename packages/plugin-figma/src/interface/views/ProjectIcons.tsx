@@ -78,7 +78,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
       return;
     }
-    const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it already exists.\n\nContinue?');
+    const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it exists.\n\nContinue?');
     if (!choice) return;
     setImporting(true);
     setIconSet(prefix);

@@ -4,15 +4,21 @@ import {useState, useMemo, useEffect} from 'preact/hooks';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {emit} from '@create-figma-plugin/utilities';
+import {emit, once} from '@create-figma-plugin/utilities';
 
 import * as F from '@create-figma-plugin/ui';
 
+import type {Navigation} from 'interface/hooks/useNavigation';
 import type {ComponentBuild, ComponentEntry} from 'types/component';
-import type {EventFocusNode} from 'types/events';
+import type {EventNotify, EventFocusNode, EventProjectImportComponents} from 'types/events';
 
 interface ProjectComponentsProps {
   build: ComponentBuild,
+  nav: Navigation,
+  iconSet: string,
+  hasIcons: boolean,
+  hasStyles: boolean,
+  isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
 }
@@ -28,6 +34,7 @@ type ProjectComponentEntry = {
 }
 
 export function ProjectComponents(props: ProjectComponentsProps) {
+  const [importing, setImporting] = useState(false);
   const [list, setList] = useState<ProjectComponentIndex>({});
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   
@@ -39,6 +46,25 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       forward: false,
     });
   }, [props?.build]);
+
+  // Import EXO components
+  const importComponents = async () => {
+    if (!props.hasStyles) {
+      props.nav.gotoTab('theme');
+      emit<EventNotify>('NOTIFY', 'Generate a theme before importing EXO');
+      return;
+    }
+    if (!props.hasIcons) {
+      props.nav.gotoTab('icons');
+      emit<EventNotify>('NOTIFY', 'Generate icons before importing EXO');
+      return;
+    }
+    const choice = confirm('Warning! Importing components will overwrite the "Common" and "Primitives" pages if they exist.\n\nContinue?');
+    if (!choice) return;
+    setImporting(true);
+    emit<EventProjectImportComponents>('PROJECT_IMPORT_COMPONENTS', props.iconSet);
+  };
+  
 
   const select = (id: string) => {
     emit<EventFocusNode>('FOCUS', id);
@@ -59,7 +85,24 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     setList(newList);
   }, [props.build, props.searchQuery]);
 
-  return hasComponents ? (
+  if (!hasComponents) {
+    return (
+      <ScreenInfo
+        message="No components found"
+        action={!props.isReadOnly
+          ? <F.Button
+              secondary
+              loading={importing}
+              onClick={() => importComponents()}>
+              Import from EXO
+            </F.Button>
+          : null
+        }
+      />
+    );
+  }
+
+  return (
     <F.Container
       className="components"
       space="small"
@@ -82,7 +125,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         component={<ProjectAssets {...props}/>}
       />
     </F.Container>
-  ) : <ScreenInfo message="No components found"/>;
+  );
 }
 
 interface ProjectPageGroupProps {

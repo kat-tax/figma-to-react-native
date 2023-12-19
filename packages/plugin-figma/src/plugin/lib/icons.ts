@@ -236,3 +236,11 @@ export function getAllIconComponents() {
   const icons = components?.filter(c => c.name.includes(':'));
   return icons;
 }
+
+export function getIconComponentMap() {
+  const map: Record<string, string> = {};
+  getAllIconComponents().forEach(icon => {
+    map[icon.name] = icon.id;
+  });
+  return map;
+}

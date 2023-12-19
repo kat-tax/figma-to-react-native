@@ -4,6 +4,7 @@ import {focusNode} from 'plugin/fig/lib';
 import {
   gen,
   app,
+  exo,
   drop,
   icons,
   themes,
@@ -95,6 +96,11 @@ export default async function() {
     // Handle exporting project
     on<T.EventProjectExport>('PROJECT_EXPORT', (newConfig) => {
       project.build(newConfig);
+    });
+
+    // Handle importing components
+    on<T.EventProjectImportComponents>('PROJECT_IMPORT_COMPONENTS', (iconSet) => {
+      exo.importComponents(iconSet);
     });
 
     // Handle importing icons
