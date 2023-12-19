@@ -65,6 +65,7 @@ export function getComponentTarget(node: SceneNode): ComponentNode {
 export function getComponentParent(node: SceneNode): ComponentNode {
   // Find the component in the parent chain
   let target: SceneNode = node;
+  if (!target) return null;
   while (target.type !== 'COMPONENT_SET'
     && target.type !== 'COMPONENT'
     && target.parent
