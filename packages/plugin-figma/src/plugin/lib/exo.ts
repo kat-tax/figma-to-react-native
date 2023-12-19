@@ -9,20 +9,20 @@ type ExoComponents = Record<string, {
 
 export const EXO_COMPONENTS: ExoComponents = {
   Controls: {
-    rect: {x: -2110, y: -783, width: 745, height: 414},
+    rect: {x: 0, y: 0, width: 745, height: 414},
     list: {
       Button: ['e4b4b352052ba71c847b20b49d9e88a0093d4449', true, 100, 100],
     },
   },
   Popovers: {
-    rect: {x: -1325, y: -783, width: 562, height:670},
+    rect: {x: 845, y: 0, width: 562, height: 670},
     list: {
       Prompt: ['9261d5fed575a841eefc0de81b039814ef81b3ae', false, 100, 100],
       HoverCard: ['172abba0061738f4b1c69e85ef956603b4cdd5c4', false, 100, 400],
     },
   },
   Layout: {
-    rect: {x: -723, y: -783, width:558, height: 400},
+    rect: {x: 1507, y: 0, width: 558, height: 400},
     list: {
       Placeholder: ['5863ef713ca50d36c7f32f8d1f33335d7f9eb552', false, 100, 100],
     },
@@ -31,13 +31,12 @@ export const EXO_COMPONENTS: ExoComponents = {
 
 export const EXO_PRIMITIVES: ExoComponents = {
   Controls: {
-    rect: {x: -2460, y: -777, width: 673, height: 624},
+    rect: {x: 0, y: 0, width: 673, height: 624},
     list: {
       Slider: ['35f02e59aa82623edd3e65a47ae53d0d8c93b190', false, 100, 100],
     },
   },
 };
-
 
 export async function importComponents(iconSet: string) {
   // Create "Common" page
@@ -70,8 +69,6 @@ export async function importComponents(iconSet: string) {
       action: () => focusNode(common.id),
     }
   });
-
-  // TODO: create sections
 
   // Get relevant data
   const icons = getIconComponentMap();
