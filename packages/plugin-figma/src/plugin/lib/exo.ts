@@ -148,7 +148,8 @@ function replaceComponentSwaps(
     const iconLocal = figma.getNodeById(icons[uriLocal]) as ComponentNode;
     const iconNode = iconLocal || figma.getNodeById(icons[uriOrigin]) as ComponentNode;
     // No icon node found
-    if (!iconNode) continue;
+    if (!iconNode)
+      continue;
     // Replace all instances of this icon swap
     const instances = component.findAllWithCriteria({types: ['INSTANCE']});
     const iconInstances = instances.filter(i => i.componentPropertyReferences.mainComponent === prop);
