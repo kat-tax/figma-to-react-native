@@ -1,4 +1,3 @@
-import {wait} from 'common/delay';
 import {focusNode, isNodeIcon} from 'plugin/fig/lib';
 import {getIconComponentMap} from 'plugin/lib/icons';
 
@@ -88,10 +87,6 @@ export async function createComponents(
   variables: Variable[],
   exoComponents: ExoComponents,
 ) {
-  const batch = 5;
-  const delay = 5;
-  let i = 0;
-
   for await (const [sectionName, components] of Object.entries(exoComponents)) {
     // Create section
     const background = variables.find(v => v.name === 'background');
@@ -108,8 +103,6 @@ export async function createComponents(
     }
     // Create components in section
     for await (const [key, isComponentSet, x, y] of Object.values(components.list)) {
-      if (i++ % batch === 0)
-        await wait(delay);
       const origin = isComponentSet
         ? await figma.importComponentSetByKeyAsync(key)
         : await figma.importComponentByKeyAsync(key);
