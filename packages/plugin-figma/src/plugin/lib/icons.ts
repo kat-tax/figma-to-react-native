@@ -20,8 +20,11 @@ export async function importIcons(setName: string, icons: Record<string, string>
     page.children.forEach(c => c.remove());
   }
 
-  // Create theme (or use existing)
-  const theme = createTheme();
+  // Get theme
+  const theme = getThemeTokens();
+  if (!theme.background || !theme.foreground) {
+    return;
+  }
   
   // Create icon set frame
   const frame = figma.createFrame();
@@ -120,60 +123,34 @@ export async function createIcons(
   }
 }
 
-export function createTheme() {
+export function getThemeTokens() {
   try {
-    return createVariableTheme();
+    return getVariables();
   } catch (e) {
-    return createLocalStylesTheme();
+    return getLocalStyles();
   }
 }
 
-export function createLocalStylesTheme(): {
+export function getLocalStyles(): {
   background: PaintStyle,
   foreground: PaintStyle,
   isVariable: false,
 } {
   const styles = figma.getLocalPaintStyles();
-  let background = styles.find(s => s.name === 'background');
-  let foreground = styles.find(s => s.name === 'foreground');
-  if (!background) {    
-    background = figma.createPaintStyle();
-    background.name = 'background';
-    background.paints = [{type: 'SOLID', color: {r: 0, g: 0, b: 0}}];
-  }
-  if (!foreground) {    
-    foreground = figma.createPaintStyle();
-    foreground.name = 'foreground';
-    foreground.paints = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}}];
-  }
+  const background = styles.find(s => s.name === 'background');
+  const foreground = styles.find(s => s.name === 'foreground');
   return {background, foreground, isVariable: false};
 }
 
-export function createVariableTheme(): {
+export function getVariables(): {
   background: Variable,
   foreground: Variable,
   isVariable: true,
 } {
-  let theme: VariableCollection;
   let background: Variable;
   let foreground: Variable;
-  let createdBackground = false;
-  let createdForeground = false;
-
-  // Try to find existing collection
-  theme = figma.variables.getLocalVariableCollections()
-    ?.find(c => c.name === 'Theme');
-
-  // Try to create collection if does not exist
-  // this will be a Figma pay-walled feature after public beta
-  if (!theme) {
-    try {
-      theme = figma.variables.createVariableCollection('Theme');
-    } catch (e) {
-      throw new Error(e);
-    }
-  // Collection exists, find variables
-  } else {
+  const theme = figma.variables.getLocalVariableCollections()?.find(c => c.name === 'Theme');
+  if (theme) {
     const variables = theme.variableIds.map(id => figma.variables.getVariableById(id))
     for (const variable of variables) {
       if (variable.name === 'background')
@@ -184,49 +161,6 @@ export function createVariableTheme(): {
         break;
     }
   }
-
-  // Try to add dark mode
-  // this is currently a Figma pay-walled feature
-  try {
-    if (theme.modes.length === 1) {
-      theme.addMode('Dark');
-      theme.renameMode(theme.defaultModeId, 'Light');
-    }
-  } catch (e) {
-    console.log('Could not add dark mode', e);
-  }
-
-  // Background variable does not exist, create it
-  if (!background) {
-    try {
-      background = figma.variables.createVariable('background', theme.id, 'COLOR');
-      createdBackground = true;
-    } catch (e) {
-      throw new Error(e);
-    }
-  }
-
-  // Foreground variable does not exist, create it
-  if (!foreground) {
-    try {
-      foreground = figma.variables.createVariable('foreground', theme.id, 'COLOR');
-      createdForeground = true;
-    } catch (e) {
-      throw new Error(e);
-    }
-  }
-
-  // If created any variables, set colors for all modes
-  if (createdBackground || createdForeground) {
-    const black: RGB = {r: 0, g: 0, b: 0};
-    const white: RGB = {r: 1, g: 1, b: 1};
-    theme.modes.forEach(({modeId}) => {
-      const isDefault = modeId === theme.defaultModeId;
-      createdBackground && background.setValueForMode(modeId, isDefault ? white : black);
-      createdForeground && foreground.setValueForMode(modeId, isDefault ? black : white);
-    });
-  }
-
   return {background, foreground, isVariable: true};
 }
 
