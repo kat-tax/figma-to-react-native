@@ -71,11 +71,11 @@ export function generateTheme(settings: Settings) {
 
 export function watchTheme(settings: Settings) {
   const updateTheme = () => {
-    const {code, theme} = generateTheme(settings);
-    const currentTheme = theme
+    const {code, theme, hasStyles} = generateTheme(settings);
+    const currentTheme = theme?.current
       ? `${createIdentifierCamel(theme.current.name)}Theme`
       : 'defaultTheme';
-    emit<EventProjectTheme>('PROJECT_THEME', code, currentTheme);
+    emit<EventProjectTheme>('PROJECT_THEME', code, currentTheme, hasStyles);
   };
   setInterval(updateTheme, 300);
   updateTheme();

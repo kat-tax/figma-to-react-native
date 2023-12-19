@@ -139,8 +139,8 @@ export function ProjectExport(props: ProjectExportProps) {
           </a>
         </F.Banner>
       }
-      <F.Container space="medium" style={{maxWidth: 380}}>
-        <F.VerticalSpace space="small"/>
+      <F.Container space="medium" style={{maxWidth: 340, margin: '0 auto'}}>
+        <F.VerticalSpace space="large"/>
         <div title={tips.export}>
           <F.Bold>Method</F.Bold>
           <F.VerticalSpace space="small"/>

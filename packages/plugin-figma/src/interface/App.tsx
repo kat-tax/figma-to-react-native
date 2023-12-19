@@ -40,8 +40,8 @@ const tabs: AppTabs = {
     'icons',
     // 'assets',
     'theme',
-    'settings',
     'export',
+    'settings',
   ],
   component: [
     'code',
@@ -66,6 +66,7 @@ export function App(props: AppProps) {
 
   const isReady = Boolean(props.startPage && project && monaco);
   const isReadOnly = isDevMode || isVSCode;
+  const hasStyles = Boolean(theme);
   const componentKey = build.roster[nav.component] ? nav.component: null;
   const options = {
     ...settings.config.monaco.general,
@@ -96,13 +97,13 @@ export function App(props: AppProps) {
         setSearchQuery,
       }}/>
       <Tab value="components">
-        <ProjectComponents {...{nav, build, searchMode, searchQuery}}/>
+        <ProjectComponents {...{build, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="theme">
-        <ProjectTheme {...{options, monaco}}/>
+        <ProjectTheme {...{options, monaco, hasStyles}}/>
       </Tab>
       <Tab value="icons">
-        <ProjectIcons {...{icons, build, isReadOnly, searchMode, searchQuery}}/>
+        <ProjectIcons {...{icons, nav, build, isReadOnly, hasStyles, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>

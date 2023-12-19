@@ -12,6 +12,39 @@ export function generateTheme(settings: Settings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const theme = getCollectionModes('Theme');
 
+  let hasStyles = false;
+
+  // Found theme variable collection, convert modes to themes
+  if (theme) {
+    theme.modes.forEach(mode => {
+      writer.write(`export const ${createIdentifierCamel(mode.name)}Theme = `).inlineBlock(() => {
+        hasStyles = writeThemeTokens(writer, getAllThemeTokens(mode.modeId));
+      });
+      writer.write(';');
+      writer.blankLine();
+    });
+    const themeName = createIdentifierCamel(theme.default.name);
+    writer.writeLine(`export default ${themeName}Theme;`);
+
+  // No theme variable collection found, local styles only
+  } else {
+    writer.write(`export const defaultTheme = `).inlineBlock(() => {
+      hasStyles = writeThemeTokens(writer, getThemeTokenLocalStyles());
+    });
+    writer.write(';');
+    writer.blankLine();
+    writer.writeLine(`export default defaultTheme;`);
+  }
+
+  writer.blankLine();
+
+  // Write color tokens
+  writer.write('export const colors = ').inlineBlock(() => {
+    writeColorTokens(writer, getColorTokenVariables());
+  });
+
+  writer.blankLine();
+
   // Write breakpoints
   // TODO: support custom breakpoints
   writer.write('export const breakpoints = ').inlineBlock(() => {
@@ -21,53 +54,28 @@ export function generateTheme(settings: Settings) {
     writer.writeLine('lg: 992,');
     writer.writeLine('xl: 1200,');
   });
-  writer.blankLine();
 
-  // Found theme variable collection, convert modes to themes
-  if (theme) {
-    theme.modes.forEach(mode => {
-      writer.write(`export const ${createIdentifierCamel(mode.name)}Theme = `).inlineBlock(() => {
-        writeColors(writer, getAllColors(mode.modeId));
-      });
-      writer.write(';');
-      writer.blankLine();
-    });
-    const themeName = createIdentifierCamel(theme.default.name);
-    writer.writeLine(`export default ${themeName}Theme;`);
-  // No theme variable collection found, local styles only
-  } else {
-    writer.write(`export const defaultTheme = `).inlineBlock(() => {
-      writeColors(writer, getLocalStylesColors());
-    });
-    writer.write(';');
-    writer.blankLine();
-    writer.writeLine(`export default defaultTheme;`);
-  }
-
-  return {code: writer.toString(), theme};
+  writer.newLine();
+    
+  return {code: writer.toString(), theme, hasStyles};
 }
 
-function writeColors(writer: CodeBlockWriter, colors: ThemeColors) {
-  // Write theme colors (if any)
+function writeColorTokens(writer: CodeBlockWriter, colors: ThemeColors) {
+  // Write color scales (if any)
   if (Object.keys(colors).length > 0) {
-    writer.write('colors: ').inlineBlock(() => {
-      Object.keys(colors).forEach(group => {
-        const groupId = createIdentifierCamel(group);
-        const groupItem = colors[group] as ThemeColor;
-        writeColor(writer, groupId, groupItem);
-        writer.newLine();
-      });
+    Object.keys(colors).forEach(group => {
+      const groupId = createIdentifierCamel(group);
+      const groupItem = colors[group] as ThemeColor;
+      writeColorToken(writer, groupId, groupItem);
+      writer.newLine();
     });
-    writer.write(',');
-    writer.newLine();
-
   // No colors found, write empty object
   } else {
-    writer.write('// No local color styles or color variables found');
+    writer.write('// No color variables found');
   }
 }
 
-function writeColor(writer: CodeBlockWriter, name: string, color: ThemeColor) {
+function writeColorToken(writer: CodeBlockWriter, name: string, color: ThemeColor) {
   const needsPrefix = /^[0-9]/.test(name);
   const id = needsPrefix ? `$${name}` : name;
   if (color.comment)
@@ -77,38 +85,93 @@ function writeColor(writer: CodeBlockWriter, name: string, color: ThemeColor) {
   writer.write(`,`);
 }
 
-function getAllColors(themeId: string): ThemeColors {
+function writeThemeTokens(writer: CodeBlockWriter, colors: ThemeColors) {
+  // Write theme colors (if any)
+  if (Object.keys(colors).length > 0) {
+    writer.write('colors: ').inlineBlock(() => {
+      Object.keys(colors).forEach(group => {
+        const groupId = createIdentifierCamel(group);
+        const groupItem = colors[group] as ThemeColor;
+        writeThemeToken(writer, groupId, groupItem);
+        writer.newLine();
+      });
+    });
+    writer.write(',');
+    writer.newLine();
+    return true;
+  // No colors found, write empty object
+  } else {
+    writer.write('// No local color styles or color variables found');
+    return false;
+  }
+}
+
+function writeThemeToken(writer: CodeBlockWriter, name: string, color: ThemeColor) {
+  const needsPrefix = /^[0-9]/.test(name);
+  const id = needsPrefix ? `$${name}` : name;
+  if (color.comment)
+    writer.writeLine(`/** ${color.comment} */`);
+  writer.write(`${id}: `);
+  if (color.value.startsWith('colors.')) {
+    writer.write(color.value);
+  } else {
+    writer.quote(color.value);
+  }
+  writer.write(`,`);
+}
+
+function getAllThemeTokens(themeId: string): ThemeColors {
   return {
-    ...getVariableColors(themeId),
-    ...getLocalStylesColors(),
+    ...getThemeTokenVariables(themeId),
+    ...getThemeTokenLocalStyles(),
   };
 }
 
-function getVariableColors(themeId: string): ThemeColors {
+function getThemeTokenLocalStyles(): ThemeColors {
   const colors: ThemeColors = {};
-  figma.variables
-    .getLocalVariables()
-    .filter(v => v.resolvedType === 'COLOR')
-    .forEach(v => {
-      colors[v.name] = {
-        value: getColor(v.valuesByMode[themeId] as RGBA),
-        comment: v.description,
-      }
-    });
-
+  const styles = figma.getLocalPaintStyles();
+  styles?.forEach(paint => {
+    colors[paint.name] = {
+      // @ts-ignore (TODO: expect only solid paints to fix this)
+      value: getColor(paint.paints[0]?.color || {r: 0, g: 0, b: 0}),
+      comment: paint.description,
+    }
+  });
   return colors;
 }
 
-function getLocalStylesColors(): ThemeColors {
+function getThemeTokenVariables(themeId: string): ThemeColors {
   const colors: ThemeColors = {};
-  figma.getLocalPaintStyles()
-    .forEach(paint => {
-      colors[paint.name] = {
-        // @ts-ignore (TODO: expect only solid paints to fix this)
-        value: getColor(paint.paints[0].color),
-        comment: paint.description,
+  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === 'Theme');
+  if (!collection) return colors;
+  collection.variableIds
+    .map(id => figma.variables.getVariableById(id))
+    .filter(v => v.resolvedType === 'COLOR')
+    .forEach(v => {
+      const value = v.valuesByMode[themeId] as VariableAlias;
+      if (!value && !value.id) return;
+      const color = figma.variables.getVariableById(value.id);
+      if (!color) return;
+      colors[v.name] = {
+        value: `colors.${createIdentifierCamel(color.name)}`,
+        comment: v.description,
       }
     });
+  return colors;
+}
 
+function getColorTokenVariables(): ThemeColors {
+  const colors: ThemeColors = {};
+  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === 'Colors');
+  if (!collection) return colors;
+  collection.variableIds
+    .map(id => figma.variables.getVariableById(id))
+    .filter(v => v.resolvedType === 'COLOR')
+    .forEach(v => {
+      colors[v.name] = {
+        value: getColor(v.valuesByMode[collection.defaultModeId] as RGBA),
+        comment: v.description,
+      }
+    });
   return colors;
 }

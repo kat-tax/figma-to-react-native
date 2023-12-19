@@ -1,10 +1,11 @@
 import {wait} from 'common/delay';
+import {titleCase} from 'common/string';
 import {focusNode} from 'plugin/fig/lib';
 
 const svgSize = 16;
 const svgProps = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${svgSize}" height="${svgSize}" viewBox="0 0 256 256"`;
 
-export async function importSet(setName: string, icons: Record<string, string>) {
+export async function importIcons(setName: string, icons: Record<string, string>) {
   // Number of icon columns
   const columns = 15;
 
@@ -53,7 +54,13 @@ export async function importSet(setName: string, icons: Record<string, string>) 
   page.appendChild(frame);
 
   // Focus frame
-  focusNode(frame.id);
+  figma.notify(`Importing ${titleCase(setName)} Icons...`, {
+    timeout: 3000,
+    button: {
+      text: 'View',
+      action: () => focusNode(frame.id),
+    }
+  });
 
   // Get icon style / var
   let iconStyle: PaintStyle;

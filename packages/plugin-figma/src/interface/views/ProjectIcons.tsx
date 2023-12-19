@@ -13,12 +13,15 @@ import * as F from '@create-figma-plugin/ui';
 
 import type {ReactNode} from 'react';
 import type {ProjectIcons} from 'types/project';
-import type {ComponentBuild} from 'types/component';
 import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/events';
+import type {ComponentBuild} from 'types/component';
+import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ProjectIconsProps {
   icons: ProjectIcons,
+  nav: Navigation,
   build: ComponentBuild,
+  hasStyles: boolean,
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
@@ -70,6 +73,11 @@ export function ProjectIcons(props: ProjectIconsProps) {
 
   // Import icons from Iconify into Figma
   const importIcons = async (prefix: string, name: string) => {
+    if (!props.hasStyles) {
+      props.nav.gotoTab('theme');
+      emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
+      return;
+    }
     const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it already exists.\n\nContinue?');
     if (!choice) return;
     setImporting(true);

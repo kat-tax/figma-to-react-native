@@ -81,14 +81,12 @@ export function getComponentParent(node: SceneNode): ComponentNode {
 }
 
 export function getCollectionModes(collectionName: string) {
-  const component = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']})?.pop();
-  if (!component) return null;
   // Find the "Theme" variable collection
-  const collection = getCollectionByName(collectionName);
-  if (!collection) return null;
-  // Find the current and default mode
-  const current = component.resolvedVariableModes[collection.id];
-  const theme = figma.variables.getVariableCollectionById(collection.id);
+  const theme = getCollectionByName(collectionName);
+  if (!theme) return null;
+  // Find the current mode
+  const component = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']})?.pop();
+  const current = component?.resolvedVariableModes?.[theme.id];
   return {
     current: theme.modes.find(m => m.modeId === current),
     default: theme.modes.find(m => m.modeId === theme.defaultModeId),

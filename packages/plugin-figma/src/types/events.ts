@@ -1,6 +1,7 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {Settings} from 'types/settings';
+import type {ThemeColor, ThemeRadius} from 'types/themes';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 import type {ComponentData, ComponentBuild} from 'types/component';
 
@@ -81,7 +82,7 @@ export interface EventProjectBuild extends EventHandler {
 
 export interface EventProjectTheme extends EventHandler {
   name: 'PROJECT_THEME';
-  handler: (theme: string, current: string) => void;
+  handler: (theme: string, current: string, hasStyles: boolean) => void;
 }
 
 export interface EventProjectIcons extends EventHandler {
@@ -101,10 +102,12 @@ export interface EventProjectConfigLoad extends EventHandler {
 
 export interface EventProjectImportIcons extends EventHandler {
   name: 'PROJECT_IMPORT_ICONS';
-  handler: (
-    name: string,
-    svgs: Record<string, string>,
-  ) => void;
+  handler: (name: string, svgs: Record<string, string>) => void;
+}
+
+export interface EventProjectImportTheme extends EventHandler {
+  name: 'PROJECT_IMPORT_THEME';
+  handler: (color: ThemeColor, radius: ThemeRadius) => void;
 }
 
 /* Style Gen */
@@ -118,4 +121,3 @@ export interface EventStyleGenRes extends EventHandler {
   name: 'STYLE_GEN_RES';
   handler: (stylesheet: Record<string, any>) => void;
 }
-

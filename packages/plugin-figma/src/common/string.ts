@@ -27,7 +27,7 @@ export function createIdentifier(input: string): string {
   // Strip invalid characters
   identifier = identifier.replace(/[^a-zA-Z0-9_$]/g, '_');
   // Prepend $ if identifier starts with a number or is a reserved word
-  if (/^[0-9]/.test(identifier) || _reserved.includes(identifier))
+  if (/^[0-9]/.test(identifier) || _reserved === identifier)
     identifier = '$' + identifier;
   // If identifier is falsy, return a timestamp variable
   if (!identifier) identifier = `$${Date.now()}`;

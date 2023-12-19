@@ -6,6 +6,7 @@ import {
   app,
   drop,
   icons,
+  themes,
   config,
   codegen,
   project,
@@ -98,7 +99,12 @@ export default async function() {
 
     // Handle importing icons
     on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (name, svgs) => {
-      icons.importSet(name, svgs);
+      icons.importIcons(name, svgs);
+    });
+
+    // Handle importing themes
+    on<T.EventProjectImportTheme>('PROJECT_IMPORT_THEME', (color, radius) => {
+      themes.importTheme(color, radius);
     });
 
     // Focus component in Figma
