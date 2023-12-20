@@ -1,39 +1,38 @@
 import {fs} from '@zip.js/zip.js';
 import {F2RN_EXPORT_TPL} from 'config/env';
 
+import type {ZipDirectoryEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 
 export async function zip(project: ProjectBuild, config: ProjectConfig) {
   // Import template
   const zip = new fs.FS();
   const src = 'https://corsproxy.io/?' + encodeURIComponent(F2RN_EXPORT_TPL + '?_c=' + Math.random());
-  const tpl = (await zip.importHttpContent(src))[0];
+  const tpl = (await zip.importHttpContent(src))[0] as ZipDirectoryEntry;
 
   // Project info
-  const [org, pkg] = config.packageName?.split('/') || ['@f2rn', 'ui'];
+  const [org, pkg] = config.packageName?.split('/') || ['@f2rn', 'project'];
 
-  // Reorganize
-  zip.move(tpl, zip.addDirectory('packages'));
-  tpl.rename(pkg);
-
+  // Organize
+  tpl.rename(project.name);
+  zip.remove(tpl.getChildByName('package.json'));
+  
   // Add root files
-  zip.addText('.gitignore', `# OSX\n.DS_Store\n\n# Node\nnode_modules/\n`);
-  zip.addText('pnpm-workspace.yaml', `packages:\n  - 'packages/*'\n  - '!**/test/**'`);
-  zip.addText('package.json', JSON.stringify({
-    name: `${org}/monorepo`,
-    private: true,
-    version: config.packageVersion || '0.0.0',
-    workspaces: ['packages/*'],
+  tpl.addText('README.txt', 'Thank you for using Figma -> React Native\n\nhttps://figma-to-react-native.com');
+  tpl.addText('package.json', JSON.stringify({
+    'name':  config.packageName || `${org}/${pkg}`,
+    'version': config.packageVersion || '0.0.0',
+    'private': true,
   }, null, 2));
 
   // Add project files
-  const cwd = `${tpl.getFullname()}/src`;
-  zip.addText(`${cwd}/index.ts`, project.index);
-  zip.addText(`${cwd}/theme.ts`, project.theme);
+  const cwd = `packages/ui`;
+  tpl.addText(`${cwd}/index.ts`, project.index);
+  tpl.addText(`${cwd}/theme.ts`, project.theme);
 
   // Add component files
   project.components.forEach(([name, index, code, story]) => {
-    const dir = zip.addDirectory(`${cwd}/components/${name}`);
+    const dir = tpl.addDirectory(`${cwd}/components/${name}`);
     dir.addText('index.ts', index);
     dir.addText(`${name}.tsx`, code);
     dir.addText(`${name}.stories.tsx`, story);
@@ -46,7 +45,7 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
       const type = isVector ? 'image/svg+xml' : 'image/png';
       const folder = isVector ? 'vectors' : 'images';
       const blob = new Blob([bytes], {type});
-      zip.addBlob(`${cwd}/assets/${folder}/${name}.${ext}`, blob);
+      tpl.addBlob(`${cwd}/assets/${folder}/${name}.${ext}`, blob);
     });
   }
 
