@@ -112,7 +112,7 @@ function writeThemeToken(writer: CodeBlockWriter, name: string, color: ThemeColo
   if (color.comment)
     writer.writeLine(`/** ${color.comment} */`);
   writer.write(`${id}: `);
-  if (color.value.startsWith('colors.')) {
+  if (color.value.startsWith('pallete.')) {
     writer.write(color.value);
   } else {
     writer.quote(color.value);
