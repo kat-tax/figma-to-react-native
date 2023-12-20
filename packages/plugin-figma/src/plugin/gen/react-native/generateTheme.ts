@@ -14,6 +14,25 @@ export function generateTheme(settings: Settings) {
 
   let hasStyles = false;
 
+  // Write color tokens
+  writer.write('export const pallete = ').inlineBlock(() => {
+    writeColorTokens(writer, getColorTokenVariables());
+  });
+
+  writer.blankLine();
+
+  // Write breakpoints
+  // TODO: support custom breakpoints
+  writer.write('export const breakpoints = ').inlineBlock(() => {
+    writer.writeLine('xs: 0,');
+    writer.writeLine('sm: 576,');
+    writer.writeLine('md: 768,');
+    writer.writeLine('lg: 992,');
+    writer.writeLine('xl: 1200,');
+  });
+
+  writer.blankLine();
+
   // Found theme variable collection, convert modes to themes
   if (theme) {
     theme.modes.forEach(mode => {
@@ -35,27 +54,6 @@ export function generateTheme(settings: Settings) {
     writer.blankLine();
     writer.writeLine(`export default defaultTheme;`);
   }
-
-  writer.blankLine();
-
-  // Write color tokens
-  writer.write('export const pallete = ').inlineBlock(() => {
-    writeColorTokens(writer, getColorTokenVariables());
-  });
-
-  writer.blankLine();
-
-  // Write breakpoints
-  // TODO: support custom breakpoints
-  writer.write('export const breakpoints = ').inlineBlock(() => {
-    writer.writeLine('xs: 0,');
-    writer.writeLine('sm: 576,');
-    writer.writeLine('md: 768,');
-    writer.writeLine('lg: 992,');
-    writer.writeLine('xl: 1200,');
-  });
-
-  writer.newLine();
     
   return {code: writer.toString(), theme, hasStyles};
 }
