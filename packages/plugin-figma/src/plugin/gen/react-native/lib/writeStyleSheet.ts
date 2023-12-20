@@ -68,7 +68,7 @@ export function writeProps(props: string[], writer: CodeBlockWriter, slug: strin
 export function writeProp(
   prop: string,
   value: any,
-  writer: CodeBlockWriter
+  writer: CodeBlockWriter,
 ) {
   // Expand shorthand props
   // TODO: shouldn't be done here, can't diff this way
@@ -84,16 +84,17 @@ export function writeProp(
       writer.write(',');
       writer.writeLine(`borderColor: ${colorVal},`);
     } else {
-      writer.writeLine(`borderWidth: 'unset',`);
-      writer.writeLine(`borderStyle: 'unset',`);
-      writer.writeLine(`borderColor: 'unset',`);
+      writer.writeLine(`borderWidth: 'unset' as any,`);
+      writer.writeLine(`borderStyle: 'unset' as any,`);
+      writer.writeLine(`borderColor: 'unset' as any,`);
     }
   // Other props
   } else {
     writer.write(`${prop}: `);
     // Undefined values
-    if (typeof value === 'undefined') {
-      writer.quote('unset');
+    if (typeof value === 'undefined' || value === 'unset') {
+      writer.quote('unset')
+      writer.write(' as any');
     // Number values
     } else if (typeof value === 'number') {
       writer.write(Number.isInteger(value)
