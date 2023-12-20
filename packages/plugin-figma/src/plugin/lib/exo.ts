@@ -109,11 +109,27 @@ export async function createComponents(
         ? await figma.importComponentSetByKeyAsync(key)
         : await figma.importComponentByKeyAsync(key);
       const local = origin.clone();
-      local.x = x;
-      local.y = y;
       replaceComponentSwaps(local, iconSet, icons);
       replaceBoundVariables(local, variables);
-      section.appendChild(local);
+      // Append sets to section directly
+      if (isComponentSet) {
+        local.x = x;
+        local.y = y;
+        section.appendChild(local);
+      // Wrap in frame
+      } else {
+        const frame = figma.createFrame();
+        frame.x = x;
+        frame.y = y;
+        frame.name = `[${local.name}]`;
+        frame.layoutMode = 'HORIZONTAL';
+        frame.layoutPositioning = 'AUTO';
+        frame.layoutSizingVertical = 'FIXED';
+        frame.layoutSizingHorizontal = 'FIXED';
+        frame.resize(local.width, local.height);
+        frame.appendChild(local);
+        section.appendChild(frame);
+      }
     }
     // Add section to page
     root.appendChild(section);
