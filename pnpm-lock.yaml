@@ -49,12 +49,12 @@ importers:
       '@y-sweet/react':
         specifier: ^0.1.0
         version: 0.1.0(react@18.2.0)(yjs@13.6.10)
+      '@zip.js/zip.js':
+        specifier: ^2.7.32
+        version: 2.7.32
       blakejs:
         specifier: ^1.2.1
         version: 1.2.1
-      client-zip:
-        specifier: ^2.4.4
-        version: 2.4.4
       code-block-writer:
         specifier: ^12.0.0
         version: 12.0.0
@@ -3149,6 +3149,11 @@ packages:
       '@types/node': 20.10.4
     dev: false
 
+  /@zip.js/zip.js@2.7.32:
+    resolution: {integrity: sha512-9Ox1meDIvIKE23LLA7Fxd/ewJpKjj2KryH92doHRqx2406LmIzorsiMawL0qIK7dvwN9K+mfk47lauoIE0o1zQ==}
+    engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=16.5.0'}
+    dev: false
+
   /abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
     engines: {node: '>=6.5'}
@@ -3576,10 +3581,6 @@ packages:
     resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
     engines: {node: '>=6'}
     dev: true
-
-  /client-zip@2.4.4:
-    resolution: {integrity: sha512-Ixk40BUI7VvNDxW7SCze20GbCuC+gjP4tGkXUpo6/W96bOf96HSed6cOQVeUOIe74SJAG/dIrBr7AtR4xBVnsA==}
-    dev: false
 
   /cliui@6.0.0:
     resolution: {integrity: sha512-t6wbgtoCXvAzst7QgXxJYqPt0usEfbgQdftEPbLL/cvv6HPE5VgvqCuAIDR0NgU52ds6rFwqrgakNLrHEjCbrQ==}

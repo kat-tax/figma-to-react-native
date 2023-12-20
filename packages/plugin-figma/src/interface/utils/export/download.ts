@@ -6,9 +6,9 @@ export async function download(project: ProjectBuild, config: ProjectConfig) {
   const blob = await zip(project, config);
   const link = document.createElement('a');
   const src = URL.createObjectURL(blob);
-  link.href = src;
   link.download = `${project.name}.zip`;
+  link.href = src;
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(src), 1000);
+  setTimeout(() => URL.revokeObjectURL(src), 3000);
 }
