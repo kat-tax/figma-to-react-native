@@ -1,5 +1,5 @@
 import {fs} from '@zip.js/zip.js';
-import {F2RN_EXPORT_TPL} from 'config/env';
+import {F2RN_EXPORT_TPL, F2RN_EXPORT_MSG} from 'config/env';
 
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
@@ -18,12 +18,14 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
   zip.remove(tpl.getChildByName('package.json'));
   
   // Add root files
-  tpl.addText('README.txt', 'Thank you for using Figma -> React Native\n\nhttps://figma-to-react-native.com');
   tpl.addText('package.json', JSON.stringify({
     'name':  config.packageName || `${org}/${pkg}`,
     'version': config.packageVersion || '0.0.0',
     'private': true,
   }, null, 2));
+
+  // Add project docs
+  tpl.addText('docs/Getting Started.mdx', `# ${project.name}\n\n${F2RN_EXPORT_MSG}\n`);
 
   // Add project files
   const cwd = `packages/ui`;
