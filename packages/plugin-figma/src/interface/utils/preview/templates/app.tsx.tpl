@@ -1,24 +1,33 @@
 // @ts-nocheck
 
-import {UnistylesTheme} from 'react-native-unistyles';
+import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
 import {Logtail} from '@logtail/browser';
 import {Icon} from 'react-native-exo';
-import defaultTheme, * as themes from 'theme';
+
+import {themes, breakpoints} from 'theme';
+
+const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
+const initialTheme = '__CURRENT_THEME__';
+
+type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
+type AppBreakpoints = typeof breakpoints;
+
+declare module 'react-native-unistyles' {
+  export interface UnistylesBreakpoints extends AppBreakpoints {}
+  export interface UnistylesThemes extends AppThemes {}
+}
 
 __COMPONENT_DEF__
 
-const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
-
 export function App() {
-  const [theme, setTheme] = React.useState('__CURRENT_THEME__');
   const [variant, setVariant] = React.useState(__COMPONENT_REF__);
 
   React.useEffect(() => {
     const updateProps = (e: JSON) => {
       switch (e.data?.type) {
         case 'theme':
-          return setTheme(e.data.theme);
+          return UnistylesRuntime.setTheme(e.data.theme);
         case 'variant':
           const newRoot = React.cloneElement(variant, e.data.variant.props);
           return setVariant(newRoot);
@@ -34,12 +43,15 @@ export function App() {
         Component error. Check devtools console.
       </pre>
     }>
-      <UnistylesTheme theme={themes[theme] || defaultTheme}>
-        {variant}
-      </UnistylesTheme>
+      {variant}
     </ErrorBoundary>
   )
 }
+
+UnistylesRegistry
+  .addBreakpoints(breakpoints)
+  .addThemes(themes)
+  .addConfig({initialTheme});
 
 AppRegistry.registerComponent('app', () => App);
 AppRegistry.runApplication('app', {

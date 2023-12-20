@@ -2,7 +2,7 @@
 import {constrainedEditor} from 'constrained-editor-plugin';
 import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings/custom-editor';
 import {emit} from '@create-figma-plugin/utilities';
-import {F2RN_EDITOR_NS, UNISTYLES_FILE} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/env';
 import * as $ from 'interface/store';
 
 import schema from './schemas/settings.json';
@@ -35,38 +35,25 @@ export function initTypescript(monaco: Monaco, settings: Settings) {
     }
   });
 
-  // Add extra libs
-  try {
-    console.log('[monaco]', 'updating libs');
-
-    // Add theme file
-    const theme = $.getProjectTheme().toString();
-    if (theme) {
-      const uri = monaco.Uri.parse(`${F2RN_EDITOR_NS}theme.ts`);
-      const model = monaco.editor.getModel(uri);
-      if (!model) {
-        monaco.editor.createModel(theme, 'typescript', uri);
-      } else {
-        model.setValue(theme);
-      }
+  // Add theme file
+  const theme = $.getProjectTheme().toString();
+  if (theme) {
+    const uri = monaco.Uri.parse(`${F2RN_EDITOR_NS}theme.ts`);
+    const model = monaco.editor.getModel(uri);
+    if (!model) {
+      monaco.editor.createModel(theme, 'typescript', uri);
+    } else {
+      model.setValue(theme);
     }
-
-    // Add styles file
-    const styles =  monaco.Uri.parse(`${F2RN_EDITOR_NS}styles.ts`);
-    if (!monaco.editor.getModel(styles)) {
-      monaco.editor.createModel(UNISTYLES_FILE, 'typescript', styles);
-    }
-
-    // Add library files
-    Object.keys(templates).forEach(key => {
-      const uri = monaco.Uri.parse(key);
-      if (!monaco.editor.getModel(uri)) {
-        monaco.editor.createModel(templates[key], 'typescript', uri);
-      }
-    });
-  } catch (e) {
-    console.error(e);
   }
+
+  // Add library files
+  Object.keys(templates).forEach(key => {
+    const uri = monaco.Uri.parse(key);
+    if (!monaco.editor.getModel(uri)) {
+      monaco.editor.createModel(templates[key], 'typescript', uri);
+    }
+  });
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
