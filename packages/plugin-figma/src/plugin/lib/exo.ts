@@ -45,6 +45,7 @@ export async function importComponents(iconSet: string) {
     common.name = 'Common';
     figma.root.appendChild(common);
   // Page exists, clear it
+  // TODO: only clear preset components
   } else {
     common.children.forEach(c => c.remove());
   }
@@ -56,6 +57,7 @@ export async function importComponents(iconSet: string) {
     primitives.name = 'Primitives';
     figma.root.appendChild(primitives);
   // Page exists, clear it
+  // TODO: only clear preset primitives
   } else {
     primitives.children.forEach(c => c.remove());
   }
@@ -146,7 +148,9 @@ function replaceComponentSwaps(
     // Replace all instances of this icon swap
     const instances = component.findAllWithCriteria({types: ['INSTANCE']});
     const iconInstances = instances.filter(i => i.componentPropertyReferences.mainComponent === prop);
-    iconInstances.forEach(i => i.swapComponent(iconNode));
+    iconInstances.forEach(instance => {
+      instance.swapComponent(iconNode);
+    });
   }
 }
 
@@ -154,10 +158,12 @@ function replaceBoundVariables(
   component: ComponentNode | ComponentSetNode,
   variables: Variable[],
 ) {
-  const nodes = component.findAll() as (SceneNode & MinimalFillsMixin & MinimalStrokesMixin)[];
-  if (!nodes.length) return;
+  const children = component.findAll() as (SceneNode & MinimalFillsMixin & MinimalStrokesMixin)[];
+  const nodes = [component, ...children];
   for (const node of nodes) {
-    for (const [key, value] of Object.entries(node.boundVariables)) {
+    const vars = node.boundVariables || node.inferredVariables;
+    if (!vars) continue;
+    for (const [key, value] of Object.entries(vars)) {
       if (value instanceof Array) {
         for (const v of value) {
           if (v.type === 'VARIABLE_ALIAS') {
@@ -165,13 +171,15 @@ function replaceBoundVariables(
             const local = variables.find(v => v.name === origin.name);
             if (local) {
               if (key === 'fills') {
-                const fills = node.fills !== figma.mixed ? {...node.fills} : {};
-                fills[0] = figma.variables.setBoundVariableForPaint(fills[0], 'color', local);
-                node.fills = [fills[0]];
+                const fills = (node.fills !== figma.mixed ? [...node.fills] : []) as SolidPaint[];
+                const last = fills.length - 1;
+                fills[last] = figma.variables.setBoundVariableForPaint(fills[last], 'color', local);
+                node.fills = [fills[last]];
               } else if (key === 'strokes') {
-                const strokes = node.strokes ? {...node.strokes} : {};
-                strokes[0] = figma.variables.setBoundVariableForPaint(strokes[0], 'color', local);
-                node.strokes = [strokes[0]];
+                const strokes = (node.strokes ? [...node.strokes] : []) as SolidPaint[];
+                const last = strokes.length - 1;
+                strokes[last] = figma.variables.setBoundVariableForPaint(strokes[last], 'color', local);
+                node.strokes = [strokes[last]];
               } else {
                 node.setBoundVariable(key as VariableBindableNodeField, local.id);
               }

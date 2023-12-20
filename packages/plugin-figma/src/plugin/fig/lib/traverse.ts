@@ -105,6 +105,7 @@ export function getCollectionByName(collectionName: string) {
 
 // Get the page of a node
 export function getPage(node: BaseNode): PageNode {
+  if (!node) return null;
   while (node.type !== 'PAGE') {
     node = node.parent;
     if (!node) return null;
