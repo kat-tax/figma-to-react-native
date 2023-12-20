@@ -1,5 +1,5 @@
 import {fs} from '@zip.js/zip.js';
-import {UNISTYLES_LIB, F2RN_EXPORT_TPL} from 'config/env';
+import {F2RN_EXPORT_TPL} from 'config/env';
 
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 
@@ -9,16 +9,19 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
   const src = 'https://corsproxy.io/?' + encodeURIComponent(F2RN_EXPORT_TPL + '?_c=' + Math.random());
   const tpl = (await zip.importHttpContent(src))[0];
 
+  // Project info
+  const [org, pkg] = config.packageName?.split('/') || ['@f2rn', 'ui'];
+
   // Reorganize
-  const pkg = zip.addDirectory('packages');
-  zip.move(tpl, pkg);
-  tpl.rename('ui');
+  zip.move(tpl, zip.addDirectory('packages'));
+  tpl.rename(pkg);
 
   // Add root files
   zip.addText('.gitignore', `# OSX\n.DS_Store\n\n# Node\nnode_modules/\n`);
   zip.addText('pnpm-workspace.yaml', `packages:\n  - 'packages/*'\n  - '!**/test/**'`);
   zip.addText('package.json', JSON.stringify({
-    name: config.packageName || 'f2rn',
+    name: `${org}/monorepo`,
+    private: true,
     version: config.packageVersion || '0.0.0',
     workspaces: ['packages/*'],
   }, null, 2));
@@ -27,7 +30,6 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
   const cwd = `${tpl.getFullname()}/src`;
   zip.addText(`${cwd}/index.ts`, project.index);
   zip.addText(`${cwd}/theme.ts`, project.theme);
-  zip.addText(`${cwd}/styles.ts`, UNISTYLES_LIB);
 
   // Add component files
   project.components.forEach(([name, index, code, story]) => {

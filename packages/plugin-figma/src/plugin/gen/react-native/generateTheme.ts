@@ -14,13 +14,6 @@ export function generateTheme(settings: Settings) {
 
   let hasStyles = false;
 
-  // Write color tokens
-  writer.write('export const pallete = ').inlineBlock(() => {
-    writeColorTokens(writer, getColorTokenVariables());
-  });
-
-  writer.blankLine();
-
   // Write breakpoints
   // TODO: support custom breakpoints
   writer.write('export const breakpoints = ').inlineBlock(() => {
@@ -33,26 +26,42 @@ export function generateTheme(settings: Settings) {
 
   writer.blankLine();
 
-  // Found theme variable collection, convert modes to themes
-  if (theme) {
-    theme.modes.forEach(mode => {
-      writer.write(`export const ${createIdentifierCamel(mode.name)}Theme = `).inlineBlock(() => {
-        hasStyles = writeThemeTokens(writer, getAllThemeTokens(mode.modeId));
-      });
-      writer.write(';');
-      writer.blankLine();
-    });
-    const themeName = createIdentifierCamel(theme.default.name);
-    writer.writeLine(`export default ${themeName}Theme;`);
+  // Write color tokens
+  writer.write('export const pallete = ').inlineBlock(() => {
+    writeColorTokens(writer, getColorTokenVariables());
+  });
 
-  // No theme variable collection found, local styles only
+  writer.blankLine();
+
+  // Write themes
+  writer.write('export const themes = ').inlineBlock(() => {
+    // Theme variable collection found, write modes to themes
+    if (theme) {
+      theme.modes.forEach(mode => {
+        writer.write(`${createIdentifierCamel(mode.name)}: `).inlineBlock(() => {
+          hasStyles = writeThemeTokens(writer, getAllThemeTokens(mode.modeId));
+        });
+        writer.write(',');
+        writer.newLine();
+      });
+    // No theme variable collection found, local styles only
+    } else {
+      writer.write(`main: `).inlineBlock(() => {
+        hasStyles = writeThemeTokens(writer, getThemeTokenLocalStyles());
+      });
+      writer.write(',');
+      writer.newLine();
+    }
+  });
+
+  writer.blankLine();
+
+  // Write default export
+  if (theme) {
+    const initialTheme = createIdentifierCamel(theme.default.name);
+    writer.writeLine(`export default '${initialTheme}'`);
   } else {
-    writer.write(`export const defaultTheme = `).inlineBlock(() => {
-      hasStyles = writeThemeTokens(writer, getThemeTokenLocalStyles());
-    });
-    writer.write(';');
-    writer.blankLine();
-    writer.writeLine(`export default defaultTheme;`);
+    writer.writeLine(`export default 'main'`);
   }
     
   return {code: writer.toString(), theme, hasStyles};

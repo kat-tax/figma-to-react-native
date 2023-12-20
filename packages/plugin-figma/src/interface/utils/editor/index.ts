@@ -2,7 +2,8 @@
 import {constrainedEditor} from 'constrained-editor-plugin';
 import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings/custom-editor';
 import {emit} from '@create-figma-plugin/utilities';
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS, UNISTYLES_FILE} from 'config/env';
+import * as $ from 'interface/store';
 
 import schema from './schemas/settings.json';
 import templates from './templates';
@@ -30,13 +31,38 @@ export function initTypescript(monaco: Monaco, settings: Settings) {
     noEmit: true,
     paths: {
       ['components/*']: [`${F2RN_EDITOR_NS}*`],
+      ['theme']: [`${F2RN_EDITOR_NS}theme.ts`],
     }
   });
 
+  // Add extra libs
   try {
-    const libs = Object.keys(templates);
-    libs.forEach(key => {
-      monaco.editor.createModel(templates[key], 'typescript', monaco.Uri.parse(key));
+    console.log('[monaco]', 'updating libs');
+
+    // Add theme file
+    const theme = $.getProjectTheme().toString();
+    if (theme) {
+      const uri = monaco.Uri.parse(`${F2RN_EDITOR_NS}theme.ts`);
+      const model = monaco.editor.getModel(uri);
+      if (!model) {
+        monaco.editor.createModel(theme, 'typescript', uri);
+      } else {
+        model.setValue(theme);
+      }
+    }
+
+    // Add styles file
+    const styles =  monaco.Uri.parse(`${F2RN_EDITOR_NS}styles.ts`);
+    if (!monaco.editor.getModel(styles)) {
+      monaco.editor.createModel(UNISTYLES_FILE, 'typescript', styles);
+    }
+
+    // Add library files
+    Object.keys(templates).forEach(key => {
+      const uri = monaco.Uri.parse(key);
+      if (!monaco.editor.getModel(uri)) {
+        monaco.editor.createModel(templates[key], 'typescript', uri);
+      }
     });
   } catch (e) {
     console.error(e);
@@ -107,6 +133,7 @@ export function initComponentEditor(
     versions: {
       '@types/react': '17.0.2',
       '@types/react-native': '0.72.6',
+      'react-native-unistyles': '2.0.0-rc.2',
       'react-native-svg': '13.14.0',
     },
   });

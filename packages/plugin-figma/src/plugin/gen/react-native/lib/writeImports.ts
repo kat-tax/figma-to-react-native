@@ -48,7 +48,7 @@ export function writeImports(
 
   // Header
   writeImport('react', flags.react);
-  writeImport('styles', flags.unistyles);
+  writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-native', flags.reactNative);
   writeImport('react-native-exo', flags.exo);
   writeImport('@lingui/macro', flags.lingui);

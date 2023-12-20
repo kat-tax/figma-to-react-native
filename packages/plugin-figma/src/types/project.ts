@@ -27,7 +27,6 @@ export interface ProjectConfig {
   scope: ProjectExportScope,
   apiKey: string,
   docKey: string,
-  isPackage: boolean,
   packageName: string,
   packageVersion: string,
   enableAutoTranslations: boolean,

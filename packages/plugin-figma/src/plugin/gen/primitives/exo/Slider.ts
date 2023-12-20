@@ -9,7 +9,7 @@ export function Slider(component: ComponentNode) {
     fillRange: getFillToken(nodeRange),
     fillTrack: getFillToken(nodeTrack),
     fillThumb: getFillToken(nodeThumb),
-    importStyles: `import {useStyles} from 'styles';\n`,
+    importStyles: `import {useStyles} from 'react-native-unistyles';\n`,
   }).slice(1);
 }
 

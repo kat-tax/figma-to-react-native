@@ -1,6 +1,6 @@
 import {bundle} from 'web-bundler';
 import {notify} from 'interface/telemetry';
-import {UNISTYLES_LIB} from 'config/env';
+import {UNISTYLES_FILE} from 'config/env';
 import * as $ from 'interface/store';
 
 import importMap from './importMap.json';
@@ -60,7 +60,7 @@ export async function preview(options: PreviewOptions) {
   // Build preview app
   const previewApp = atob(app.toString());
   try {
-    files.set('/styles', UNISTYLES_LIB);
+    files.set('/styles', UNISTYLES_FILE);
     files.set('/theme', $.getProjectTheme().toString());
     files.set(ENTRY_POINT, previewApp
       .replace('__CURRENT_THEME__', theme)

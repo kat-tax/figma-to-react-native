@@ -18,7 +18,7 @@ export function generateStory(
   // Import Component
   writer.write(`import {${componentName} as Component} from`);
   writer.space();
-  writer.quote(`./${componentName}`);
+  writer.quote(`components/${componentName}`);
   writer.write(';');
   writer.newLine();
     
@@ -38,7 +38,7 @@ export function generateStory(
       const name = createIdentifierPascal(component.name);
       writer.write(`import {${name}} from`);
       writer.space();
-      writer.quote(`./${name}`);
+      writer.quote(`components/${name}`);
       writer.write(';');
       writer.newLine();
     });

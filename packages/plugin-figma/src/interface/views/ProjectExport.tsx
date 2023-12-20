@@ -31,11 +31,6 @@ const tips = {
 
   • https://figma-to-react-native.com/dashboard`,
 
-  package: `Export as Package
-
-  • Enabled: Create a component library
-  • Disabled: Create a raw folder structure`,
-
   packageName: `Package Name:
 
   • The name of the package to be created`,
@@ -87,7 +82,7 @@ export function ProjectExport(props: ProjectExportProps) {
   const hasProjectKey = Boolean(form.formState.apiKey);
   const isDownloading = Boolean(form.formState.method === 'download');
   const isReleasing = Boolean(form.formState.method === 'release');
-  const isPackaging = Boolean(isReleasing && form.formState.isPackage);
+  const isPreviewing = Boolean(form.formState.method === 'preview');
 
   const resetOnSucccess = () => {
     setExporting(false);
@@ -177,7 +172,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.VerticalSpace space="large"/>
           </div>
         }
-        {isPackaging &&
+        {!isPreviewing &&
           <div title={tips.packageName}>
             <F.Bold>Package Name</F.Bold>
             <F.VerticalSpace space="small"/>
@@ -193,7 +188,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.VerticalSpace space="large"/>
           </div>
         }
-        {isPackaging &&
+        {!isPreviewing &&
           <div title={tips.packageVersion}>
             <F.Bold>Package Version</F.Bold>
             <F.VerticalSpace space="small"/>
@@ -235,14 +230,6 @@ export function ProjectExport(props: ProjectExportProps) {
           <F.VerticalSpace space="medium"/>
           {isReleasing &&
             <Fragment>
-              {false && <F.Checkbox
-                name="isPackage"
-                title={tips.package}
-                disabled={isExporting}
-                value={form.formState.isPackage}
-                onValueChange={form.setFormState}>
-                <F.Text>Export as Package</F.Text>
-              </F.Checkbox>}
               {false && <F.VerticalSpace space="small"/>}
               <F.Checkbox
                 name="enableAutoTranslations"

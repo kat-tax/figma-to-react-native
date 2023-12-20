@@ -73,8 +73,8 @@ export function watchTheme(settings: Settings) {
   const updateTheme = () => {
     const {code, theme, hasStyles} = generateTheme(settings);
     const currentTheme = theme?.current
-      ? `${createIdentifierCamel(theme.current.name)}Theme`
-      : 'defaultTheme';
+      ? `${createIdentifierCamel(theme.current.name)}`
+      : 'main';
     emit<EventProjectTheme>('PROJECT_THEME', code, currentTheme, hasStyles);
   };
   setInterval(updateTheme, 300);

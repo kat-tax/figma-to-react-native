@@ -101,7 +101,7 @@ export function createVariableTheme(preset: ThemePreset): {
       theme.renameMode(theme.defaultModeId, 'Light');
     }
   } catch (e) {
-    theme.renameMode(theme.defaultModeId, 'Default');
+    theme.renameMode(theme.defaultModeId, 'Main');
     console.log('Could not add dark mode', e);
   }
 

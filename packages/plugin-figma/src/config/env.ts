@@ -13,11 +13,23 @@ export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const LOGTAIL_TOKEN = '3hRzjtVJTBk6BDFt3pSjjKam';
 
-export const UNISTYLES_LIB = `import {createUnistyles} from 'react-native-unistyles';
-import theme, {breakpoints} from 'theme';
+export const UNISTYLES_FILE = `import {UnistylesRegistry} from 'react-native-unistyles';
+export {createStyleSheet, useStyles} from 'react-native-unistyles';
+import initialTheme, {themes, breakpoints} from 'theme';
 
-export const {createStyleSheet, useStyles} = createUnistyles<
-  typeof breakpoints,
-  typeof theme
->(breakpoints);
+type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
+type AppBreakpoints = typeof breakpoints;
+
+declare module 'react-native-unistyles' {
+  export interface UnistylesBreakpoints extends AppBreakpoints {}
+  export interface UnistylesThemes extends AppThemes {}
+}
+
+UnistylesRegistry
+  .addBreakpoints(breakpoints)
+  .addThemes(themes)
+  .addConfig({
+    initialTheme,
+    adaptiveThemes: true,
+  });
 `;
