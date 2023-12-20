@@ -36,6 +36,8 @@ type ProjectComponentEntry = {
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [importing, setImporting] = useState(false);
   const [list, setList] = useState<ProjectComponentIndex>({});
+
+  const hasImport = !props.isReadOnly && false;
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   
   const index = useMemo(() => {
@@ -89,7 +91,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     return (
       <ScreenInfo
         message="No components found"
-        action={!props.isReadOnly
+        action={hasImport
           ? <F.Button
               secondary
               loading={importing}
