@@ -39,7 +39,7 @@ export function generateTheme(settings: Settings) {
   writer.blankLine();
 
   // Write color tokens
-  writer.write('export const colors = ').inlineBlock(() => {
+  writer.write('export const pallete = ').inlineBlock(() => {
     writeColorTokens(writer, getColorTokenVariables());
   });
 
@@ -153,7 +153,7 @@ function getThemeTokenVariables(themeId: string): ThemeColors {
       const color = figma.variables.getVariableById(value.id);
       if (!color) return;
       colors[v.name] = {
-        value: `colors.${createIdentifierCamel(color.name)}`,
+        value: `pallete.${createIdentifierCamel(color.name)}`,
         comment: v.description,
       }
     });
