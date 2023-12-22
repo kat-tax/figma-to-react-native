@@ -82,7 +82,6 @@ export function ProjectExport(props: ProjectExportProps) {
   const hasProjectKey = Boolean(form.formState.apiKey);
   const isDownloading = Boolean(form.formState.method === 'download');
   const isReleasing = Boolean(form.formState.method === 'release');
-  const isPreviewing = Boolean(form.formState.method === 'preview');
 
   const resetOnSucccess = () => {
     setExporting(false);
@@ -172,7 +171,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.VerticalSpace space="large"/>
           </div>
         }
-        {!isPreviewing &&
+        {isReleasing &&
           <div title={tips.packageName}>
             <F.Bold>Package Name</F.Bold>
             <F.VerticalSpace space="small"/>
@@ -188,7 +187,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.VerticalSpace space="large"/>
           </div>
         }
-        {!isPreviewing &&
+        {isReleasing &&
           <div title={tips.packageVersion}>
             <F.Bold>Package Version</F.Bold>
             <F.VerticalSpace space="small"/>

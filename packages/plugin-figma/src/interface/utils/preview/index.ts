@@ -47,7 +47,7 @@ export async function preview(options: PreviewOptions) {
   for (const asset of Object.values(build.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
-      const folder = asset.isVector ? 'vectors' : 'images';
+      const folder = asset.isVector ? 'svgs' : 'images';
       const path = `/assets/${folder}/${asset.name}.${ext}`;
       files.set(path, asset.bytes);
     } catch (e) {

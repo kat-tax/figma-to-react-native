@@ -1,31 +1,32 @@
 import {fs} from '@zip.js/zip.js';
-import {F2RN_EXPORT_TPL, F2RN_EXPORT_MSG} from 'config/env';
+import {F2RN_EXO_REPO_ZIP} from 'config/env';
 
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectConfig} from 'types/project';
 
 export async function zip(project: ProjectBuild, config: ProjectConfig) {
-  // Import template
+  // Import exo repo
   const zip = new fs.FS();
-  const src = 'https://corsproxy.io/?' + encodeURIComponent(F2RN_EXPORT_TPL + '?_c=' + Math.random());
+  const src = 'https://corsproxy.io/?' + encodeURIComponent(F2RN_EXO_REPO_ZIP + '?_c=' + Math.random());
   const tpl = (await zip.importHttpContent(src))[0] as ZipDirectoryEntry;
 
-  // Project info
-  const [org, pkg] = config.packageName?.split('/') || ['@f2rn', 'project'];
-
-  // Organize
+  // Organize contents
   tpl.rename(project.name);
   zip.remove(tpl.getChildByName('package.json'));
   
   // Add root files
   tpl.addText('package.json', JSON.stringify({
-    'name':  config.packageName || `${org}/${pkg}`,
-    'version': config.packageVersion || '0.0.0',
+    'name': config.method !== 'download' && config.packageName || `@kat.tax/exo`,
+    'version': config.packageVersion || '0.0.1',
     'private': true,
+    'scripts': {
+      'dev': 'pnpm --filter ./apps/client run dev',
+      'build': 'pnpm --filter ./apps/client run build',
+      'storybook': 'pnpm --filter ./apps/storybook run dev',
+      'storybook-build': 'pnpm --filter ./apps/storybook run build',
+      'publish-ui': 'pnpm --filter ./packages/ui publish'
+    }
   }, null, 2));
-
-  // Add project docs
-  tpl.addText('docs/Getting Started.mdx', `# ${project.name}\n\n${F2RN_EXPORT_MSG}\n`);
 
   // Add project files
   const cwd = `packages/ui`;
@@ -45,7 +46,7 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
     project.assets.forEach(([name, isVector, bytes]) => {
       const ext = isVector ? 'svg' : 'png';
       const type = isVector ? 'image/svg+xml' : 'image/png';
-      const folder = isVector ? 'vectors' : 'images';
+      const folder = isVector ? 'svgs' : 'images';
       const blob = new Blob([bytes], {type});
       tpl.addBlob(`${cwd}/assets/${folder}/${name}.${ext}`, blob);
     });
