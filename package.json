@@ -3,9 +3,9 @@
   "version": "0.46.0",
   "license": "GPL-3.0",
   "scripts": {
-    "figma": "pnpm --filter ./packages/plugin-figma run dev",
-    "vscode": "pnpm --filter ./packages/plugin-vscode run dev",
-    "build:figma": "pnpm --filter ./packages/plugin-figma run build",
-    "build:vscode": "pnpm --filter ./packages/plugin-vscode run build"
+    "figma": "pnpm --filter ./plugins/figma run dev",
+    "vscode": "pnpm --filter ./plugins/vscode run dev",
+    "build:figma": "pnpm --filter ./plugins/figma run build",
+    "build:vscode": "pnpm --filter ./plugins/vscode run build"
   }
 }

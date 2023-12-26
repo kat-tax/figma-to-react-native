@@ -20,10 +20,10 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
     'version': config.packageVersion || '0.0.1',
     'private': true,
     'scripts': {
-      'dev': 'pnpm --filter ./apps/client run dev',
-      'build': 'pnpm --filter ./apps/client run build',
-      'storybook': 'pnpm --filter ./apps/storybook run dev',
-      'storybook-build': 'pnpm --filter ./apps/storybook run build',
+      "figma": "pnpm --filter ./plugins/figma run dev",
+      "vscode": "pnpm --filter ./plugins/vscode run dev",
+      "build:figma": "pnpm --filter ./plugins/figma run build",
+      "build:vscode": "pnpm --filter ./plugins/vscode run build",
       'publish-ui': 'pnpm --filter ./packages/ui publish'
     }
   }, null, 2));
