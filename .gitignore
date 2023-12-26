@@ -1,6 +1,6 @@
 # Project
 manifest.json
-plugin-vscode/
+plugins/vscode/
 TODO.md
 build/
 
