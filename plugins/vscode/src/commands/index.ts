@@ -11,12 +11,12 @@ import {ShowPreviewToSide} from './ShowPreviewToSide';
 const processManager = new PreviewProcessManager();
 
 export function registerCommands(
-	commandManager: CommandManager,
-	context: vscode.ExtensionContext,
+  commandManager: CommandManager,
+  context: vscode.ExtensionContext,
 ): vscode.Disposable {
-	commandManager.register(new CreateNewProject());
-	commandManager.register(new UpdatePreviewer(context));
-	commandManager.register(new ShowPreviewToSide(context, processManager));
-	commandManager.register(new PreviewerProcess(context, processManager));
-	return commandManager;
+  commandManager.register(new CreateNewProject());
+  commandManager.register(new UpdatePreviewer(context));
+  commandManager.register(new ShowPreviewToSide(context, processManager));
+  commandManager.register(new PreviewerProcess(context, processManager));
+  return commandManager;
 }

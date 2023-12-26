@@ -7,26 +7,26 @@ import {PanelPreviewer} from '../interface/PanelPreviewer';
 import type {Command} from '../library/CommandManager';
 
 export class UpdatePreviewer implements Command {
-	constructor(private readonly _context: vscode.ExtensionContext) {}
-	public readonly id = util.AppConstants.updatePreviewer;
+  constructor(private readonly _context: vscode.ExtensionContext) {}
+  public readonly id = util.AppConstants.updatePreviewer;
 
-	public async execute(mainUri?: vscode.Uri, _allUris?: vscode.Uri[]) {
-		if (!mainUri) {
-			return;
-		}
+  public async execute(mainUri?: vscode.Uri, _allUris?: vscode.Uri[]) {
+    if (!mainUri) {
+      return;
+    }
 
-		const fileData = util.getFileDetails(mainUri.fsPath, this._context);
-		if (!fileData) {
-			return;
-		}
+    const fileData = util.getFileDetails(mainUri.fsPath, this._context);
+    if (!fileData) {
+      return;
+    }
 
-		const xamlText = await this.getTextFromUri(mainUri);
-		PreviewServer.getInstanceByAssemblyName(fileData.targetPath)?.updateXaml(fileData, xamlText);
-		PanelPreviewer.updateTitle(mainUri);
-	}
+    const tsxText = await this.getTextFromUri(mainUri);
+    PreviewServer.getInstanceByFilePath(fileData.targetPath)?.updateTSX(fileData, tsxText);
+    PanelPreviewer.updateTitle(mainUri);
+  }
 
-	async getTextFromUri(uri: vscode.Uri): Promise<string> {
-		const buffer = await vscode.workspace.fs.readFile(uri);
-		return buffer.toString();
-	}
+  async getTextFromUri(uri: vscode.Uri): Promise<string> {
+    const buffer = await vscode.workspace.fs.readFile(uri);
+    return buffer.toString();
+  }
 }
