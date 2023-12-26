@@ -1,0 +1,107 @@
+{
+  "name": "@kat.tax/vscode-plugin",
+  "version": "0.0.1",
+  "displayName": "Figma to React Native",
+  "description": "Sync your Figma to React Native conversions to VSCode in real-time.",
+  "publisher": "KATTAX",
+  "license": "GPL-3.0",
+  "preview": true,
+  "qna": false,
+  "icon": "./media/icon.png",
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "figma",
+    "exo",
+    "exo-ui",
+    "react",
+    "react-native",
+    "unistyles",
+    "native",
+    "nocode",
+    "lowcode"
+  ],
+  "galleryBanner": {
+    "color": "#161C2D",
+    "theme": "dark"
+  },
+  "scripts": {
+    "install:all": "pnpm install",
+    "vscode:prepublish": "pnpm run build",
+    "dev": "tsc -watch -p ./",
+    "build": "tsc -p ./"
+  },
+  "engines": {
+    "vscode": "^1.79.0"
+  },
+  "bugs": {
+    "url": "https://github.com/kat-tax/figma-to-react-native/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kat-tax/figma-to-react-native"
+  },
+  "activationEvents": [
+    "onLanguage:typescriptreact"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsWelcome": [
+      {
+        "view": "explorer",
+        "contents": "[Open a folder](command:vscode.openFolder) containing an EXO project, or create a new one.\n[Create EXO Project](command:exo.newProject)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "exo.createPreviewerAssets",
+        "title": "Create previwer assets",
+        "category": "EXO"
+      },
+      {
+        "command": "exo.showPreviewToSide",
+        "title": "Show preview",
+        "category": "EXO",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "exo.newProject",
+        "title": "Create a new Project",
+        "category": "EXO"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "editorLangId == typescriptreact",
+          "command": "exo.showPreviewToSide",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "exo.showPreviewToSide",
+          "when": "resourceLangId == typescriptreact",
+          "group": "EXO"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.35",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "bson": "^6.2.0",
+    "fs-extra": "^11.2.0",
+    "portfinder": "^1.0.32",
+    "strongly-typed-events": "^3.0.11",
+    "tree-kill": "^1.2.2"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "20.10.5",
+    "@types/vscode": "^1.85.0",
+    "@types/vscode-webview": "^1.57.4",
+    "typescript": "^5.3.3"
+  }
+}
