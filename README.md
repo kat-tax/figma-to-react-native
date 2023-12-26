@@ -17,7 +17,7 @@
 
 |   |   |
 | - | - | 
-| ✨ | Realtime code and preview rendering
+| ✨ | Real-time code and preview rendering
 | 📦 | Batch exporting of components and assets
 | 🎨 | Theme generation from local styles and variables
 | 🏞 | Images, vectors, and icons support
@@ -29,3 +29,14 @@
 | 📚 | Storybook syncing
 | 📖 | JSDoc generation
 | 💡 | Dark/light mode
+
+## Goals
+- Only support [React Native](https://reactnative.dev) [+[Web](https://necolas.github.io/react-native-web)] as the framework
+- Only support [Unistyles](https://reactnativeunistyles.vercel.app) as the style library
+- Always support real-time conversions *(for free)*
+- Always support exporting the entire document *(for free)*
+- Always support free Figma users *(via graceful degradation)*
+
+---
+
+This project is work in progress. Join the [Discord Channel](https://discord.com/invite/TzhDRyj) or follow [@TheUltDev](https://x.com/theultdev) to track project development.
