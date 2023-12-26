@@ -55,20 +55,15 @@
     ],
     "commands": [
       {
-        "command": "exo.createPreviewerAssets",
-        "title": "Create previwer assets",
-        "category": "EXO"
-      },
-      {
-        "command": "exo.showPreviewToSide",
         "title": "Show preview",
         "category": "EXO",
+        "command": "exo.showPreviewToSide",
         "icon": "$(open-preview)"
       },
       {
-        "command": "exo.newProject",
         "title": "Create a new Project",
-        "category": "EXO"
+        "category": "EXO",
+        "command": "exo.newProject"
       }
     ],
     "menus": {

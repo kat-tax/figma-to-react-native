@@ -16,7 +16,7 @@ export class PanelPreviewer {
 		fileUri: vscode.Uri,
 		extensionUri: vscode.Uri,
 		processManager?: PreviewProcessManager,
-		previewColumn: vscode.ViewColumn = vscode.ViewColumn.Active
+		previewColumn: vscode.ViewColumn = vscode.ViewColumn.Active,
 	) {
 		// Already have panel, show it
 		const column = previewColumn || vscode.window.activeTextEditor?.viewColumn;

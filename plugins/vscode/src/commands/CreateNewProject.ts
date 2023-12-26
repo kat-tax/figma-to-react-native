@@ -16,7 +16,7 @@ export class CreateNewProject implements Command {
 
 		const projectName = await vscode.window.showInputBox({
 			prompt: 'Enter project name',
-			placeHolder: 'Exo App',
+			placeHolder: 'MyApp',
 		});
 
 		let projectPath = await vscode.window.withProgress<string>(
@@ -33,7 +33,7 @@ export class CreateNewProject implements Command {
 
 		if (projectPath.trim() === '') {
 			vscode.window.showErrorMessage(
-				'Failed to create project. Make sure you have EXO Project Templates installed. [Learn More](https://exo-ui.com)'
+				'Failed to create project. Create it manually using [ULT](https://ult.dev)'
 			);
 			return;
 		}
@@ -67,7 +67,7 @@ export class CreateNewProject implements Command {
 		const projectPath = path.join(folder, projectName);
 
 		return new Promise((resolve, reject) => {
-			const dotnet = child.spawn('dotnet', ['new', template, '-n', projectName, '-o', projectPath]);
+			const dotnet = child.spawn('npx', ['ult', projectName, '--template', template, '-o', projectPath]);
 			dotnet.stderr.on('data', (data) => {
 				util.logger.error(data.toString());
 			});

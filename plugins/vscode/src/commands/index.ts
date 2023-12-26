@@ -4,7 +4,6 @@ import {CommandManager} from '../library/CommandManager';
 import {PreviewProcessManager} from '../library/PreviewProcessManager';
 
 import {CreateNewProject} from './CreateNewProject';
-import {CreatePreviewerAssets} from './CreatePreviewerAssets';
 import {PreviewerProcess} from './PreviewerProcess';
 import {UpdatePreviewer} from './UpdatePreviewer';
 import {ShowPreviewToSide} from './ShowPreviewToSide';
@@ -16,7 +15,6 @@ export function registerCommands(
 	context: vscode.ExtensionContext,
 ): vscode.Disposable {
 	commandManager.register(new CreateNewProject());
-	commandManager.register(new CreatePreviewerAssets(context));
 	commandManager.register(new UpdatePreviewer(context));
 	commandManager.register(new ShowPreviewToSide(context, processManager));
 	commandManager.register(new PreviewerProcess(context, processManager));

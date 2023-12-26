@@ -11,7 +11,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
   if (!vscode.workspace.workspaceFolders) return;
 
   // Update on change tab
-  vscode.window.onDidChangeActiveTextEditor((editor) => {
+  vscode.window.onDidChangeActiveTextEditor(editor => {
     if (editor && util.isExoFile(editor.document)) {
       const tab = vscode.window.tabGroups.all
         .flatMap((tabGroup) => tabGroup.tabs)
@@ -35,22 +35,6 @@ export async function activate(ctx: vscode.ExtensionContext) {
     }
   });
 
-  const cmd = vscode.commands.registerTextEditorCommand(
-    util.AppConstants.insertPropertyCommandId,
-    (
-      textEditor: vscode.TextEditor,
-      edit: vscode.TextEditorEdit,
-      prop: {repositionCaret: boolean} | undefined
-    ) => {
-      if (prop?.repositionCaret) {
-        const pos = textEditor.selection.active;
-        const newPos = pos.with(pos.line, pos.character - 1);
-        textEditor.selection = new vscode.Selection(newPos, newPos);
-      }
-      vscode.commands.executeCommand('editor.action.triggerSuggest');
-    }
-  );
-  ctx.subscriptions.push(cmd);
   util.logger.appendLine('activated');
 }
 

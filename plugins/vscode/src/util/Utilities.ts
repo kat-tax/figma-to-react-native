@@ -5,7 +5,7 @@ import type * as sm from '../types/project';
 
 export const exoLanguageId = 'typescriptreact';
 export const exoFileExtension = 'tsx';
-export const logger = vscode.window.createOutputChannel('EXO Client', { log: true });
+export const logger = vscode.window.createOutputChannel('F2RN', {log: true});
 
 /**
  * Checks if the given document is an EXO file.
@@ -26,17 +26,6 @@ export function getFileName(filePath: string): string {
 }
 
 /**
- * Returns executable project from solution model
- * @param solution solution model
- * @returns executable project
- */
-export function getExecutableProject(solution: sm.Solution): sm.Project | undefined {
-	const projs = solution.projects.filter((p) => p.outputType === 'WinExe');
-	const proj = projs.length > 0 ? projs[0] : undefined;
-
-	return proj;
-}
-/**
  * Returns the file details from solution model
  * @param file file path
  * @param context vscode extension context
@@ -55,6 +44,7 @@ declare global {
 		putInQuotes(): string;
 	}
 }
+
 Array.prototype.getValue = function (this: string[], property: string): string {
 	const value = this.find((line) => line.includes(property));
 	return value ? value.split('=')[1].trim() : '';
@@ -68,7 +58,6 @@ String.prototype.putInQuotes = function (this: string): string {
  * Various app constants
  */
 export class AppConstants {
-	static readonly insertPropertyCommandId = 'exo.InsertProperty';
 	static readonly previewerParamState = 'previewerParams';
 	static readonly previewProcessCommandId = 'exo.previewProcess';
 	static readonly localhost = '127.0.0.1';
@@ -76,20 +65,11 @@ export class AppConstants {
 
 	static webSocketAddress = (port: number) => `ws://${AppConstants.localhost}:${port}/ws`;
 
-	static readonly updateAssetsMessages: 'updateAssetsMessage';
-	static readonly showPreivewMessage: 'showPreviewMessage';
-
 	static readonly showPreviewToSideCommand = 'exo.showPreviewToSide';
 	static readonly previewerAssetsCommand = 'exo.createPreviewerAssets';
 
-	static readonly previewerPanelViewType = 'exoPreviewer';
-	static readonly winExe = 'WinExe';
-
-	static readonly solutionData = 'exo.solutionData';
-
 	static readonly updatePreviewer = 'exo.updatePreviewer';
-
-	static readonly extensionId = 'kattax.exo';
-
 	static readonly newProjectCommandId = 'exo.newProject';
+
+	static readonly previewerPanelViewType = 'exoPreviewer';
 }

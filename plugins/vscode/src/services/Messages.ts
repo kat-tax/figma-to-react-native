@@ -1,7 +1,6 @@
 import {BSON} from 'bson';
 
 export class Messages {
-	public static startDesignerSessionMessageId = '854887CF26944EB6B4997461B6FB96C7';
 	public static clientRenderInfoMessageId = '7A3C25D33652438D8EF186E942CC96C0';
 	public static clientSupportedPixelFormats = '63481025701643FEBADCF2FD0F88609E';
 	public static updateXamlId = '9AEC9A2E63154066B4BAE9A9EFD0F8CC';

@@ -10,7 +10,7 @@ export class UpdatePreviewer implements Command {
 	constructor(private readonly _context: vscode.ExtensionContext) {}
 	public readonly id = util.AppConstants.updatePreviewer;
 
-	public async execute(mainUri?: vscode.Uri, allUris?: vscode.Uri[]) {
+	public async execute(mainUri?: vscode.Uri, _allUris?: vscode.Uri[]) {
 		if (!mainUri) {
 			return;
 		}

@@ -38,15 +38,6 @@ export class PreviewServer implements IPreviewServer {
 			this._onMessage.dispatch(this, data);
 			const msg = Messages.parseIncomingMessage(data);
 			logger.appendLine(JSON.stringify(msg.message));
-			if (msg.type === Messages.startDesignerSessionMessageId) {
-				logger.appendLine("Start designer session message received.");
-				const pixelFormat = Messages.clientSupportedPixelFormatsMessage();
-				socket.write(pixelFormat);
-
-				// TODO: Investigate this oddity
-				// const renderInfo = Messages.clientRenderInfoMessage();
-				// socket.write(renderInfo);
-			}
 		});
 
 		socket.on("close", () => {
