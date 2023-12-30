@@ -1,4 +1,4 @@
-import {h, Fragment} from 'preact';
+import {h} from 'preact';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'preact/hooks';
 import {getComponentCode} from 'interface/store';
@@ -6,7 +6,7 @@ import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {emit, once} from '@create-figma-plugin/utilities';
+import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from '@create-figma-plugin/ui';
 

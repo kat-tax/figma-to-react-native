@@ -1,5 +1,6 @@
 # Project
 manifest.json
+*.tsbuildinfo
 TODO.md
 build/
 

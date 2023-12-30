@@ -1,0 +1,15 @@
+.extraSmall > .child:not(:first-child) {
+  margin-top: var(--space-extra-small);
+}
+.small > .child:not(:first-child) {
+  margin-top: var(--space-small);
+}
+.medium > .child:not(:first-child) {
+  margin-top: var(--space-medium);
+}
+.large > .child:not(:first-child) {
+  margin-top: var(--space-large);
+}
+.extraLarge > .child:not(:first-child) {
+  margin-top: var(--space-extra-large);
+}
