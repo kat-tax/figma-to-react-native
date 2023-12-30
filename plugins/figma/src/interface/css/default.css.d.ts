@@ -13,6 +13,10 @@ declare const styles: {
   readonly "components": string;
   readonly "component": string;
   readonly "highlight": string;
+  readonly "documents": string;
+  readonly "list": string;
+  readonly "tip": string;
+  readonly "editor": string;
   readonly "drop-mod-menu": string;
   readonly "drop-mod-target": string;
   readonly "drop-mod-target-unsaved": string;

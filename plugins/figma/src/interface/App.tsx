@@ -7,12 +7,13 @@ import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentStory} from 'interface/views/ComponentStory';
 import {ComponentPreview} from 'interface/views/ComponentPreview';
 
-import {ProjectTheme} from 'interface/views/ProjectTheme';
-import {ProjectIcons} from 'interface/views/ProjectIcons';
+import {ProjectComponents} from 'interface/views/ProjectComponents';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
+import {ProjectIcons} from 'interface/views/ProjectIcons';
+import {ProjectTheme} from 'interface/views/ProjectTheme';
+import {ProjectDocs} from 'interface/views/ProjectDocs';
 import {ProjectExport} from 'interface/views/ProjectExport';
 import {ProjectSettings} from 'interface/views/ProjectSettings';
-import {ProjectComponents} from 'interface/views/ProjectComponents';
 
 import {useBuild} from 'interface/hooks/useBuild';
 import {useEditor} from 'interface/hooks/useEditor';
@@ -38,8 +39,11 @@ const tabs: AppTabs = {
   main: [
     'components',
     'icons',
-    // 'assets',
+    //'assets',
     'theme',
+    //'fonts',
+    //'locales',
+    'docs',
     'export',
     'settings',
   ],
@@ -88,16 +92,7 @@ export function App(props: AppProps) {
 
   return isReady ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
-      <NavBar {...{
-        nav,
-        tabs,
-        build,
-        isVSCode,
-        searchMode,
-        searchQuery,
-        setSearchMode,
-        setSearchQuery,
-      }}/>
+      <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
       <Tab value="components">
         <ProjectComponents {...{build, nav, iconSet, isReadOnly, hasIcons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
@@ -109,6 +104,9 @@ export function App(props: AppProps) {
       </Tab>
       <Tab value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>
+      </Tab>
+      <Tab value="docs">
+        <ProjectDocs {...{build, nav, isReadOnly, searchQuery}}/>
       </Tab>
       <Tab value="export">
         <ProjectExport {...{project, build}}/>

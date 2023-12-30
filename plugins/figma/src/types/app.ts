@@ -4,15 +4,20 @@ export type AppTabs = {
 }
 
 export type AppPages =
+  // Project
   | 'components'
-  | 'code'
-  | 'preview'
-  | 'story'
-  | 'theme'
   | 'icons'
   | 'assets'
+  | 'theme'
+  | 'fonts'
+  | 'locales'
+  | 'docs'
   | 'export'
-  | 'settings';
+  | 'settings'
+  // Component
+  | 'code'
+  | 'preview'
+  | 'story';
 
 export type AppPagesMain = Omit<AppPages,
   | 'code'
@@ -22,9 +27,12 @@ export type AppPagesMain = Omit<AppPages,
 
 export type AppPagesComponent = Omit<AppPages,
   | 'components'
-  | 'export'
-  | 'theme'
   | 'icons'
   | 'assets'
+  | 'theme'
+  | 'fonts'
+  | 'locales'
+  | 'docs'
+  | 'export'
   | 'settings'
 >;

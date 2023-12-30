@@ -31,6 +31,8 @@
     "ui": "src/ui.tsx"
   },
   "dependencies": {
+    "@blocknote/core": "^0.10.1",
+    "@blocknote/react": "^0.10.1",
     "@create-figma-plugin/ui": "^2.6.1",
     "@create-figma-plugin/utilities": "^2.6.1",
     "@iconify/react": "^4.1.1",

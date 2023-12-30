@@ -3,6 +3,8 @@ import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'preact/hooks';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
+import {TextCollabDots} from 'interface/base/TextCollabDots';
+import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {emit, once} from '@create-figma-plugin/utilities';
 
@@ -221,63 +223,12 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
           ? <F.IconWarning16 color="danger"/>
           : <F.IconLayerComponent16 color="component"/>
         }>
-        <HighlightChars
+        <TextUnderline
           str={`${page}/${name}`}
           indices={props.entry.positions}
         />
-        <CollabDots target={name}/>
+        <TextCollabDots target={name}/>
       </F.Layer>
     </F.Stack>
-  );
-}
-
-interface HighlightCharsProps {
-  str: string,
-  indices: Set<number>,
-}
-
-function HighlightChars(props: HighlightCharsProps) {
-  const parts = props.str.split('/');
-  const group = parts.shift();
-  const chars = parts.pop().split('');
-  const nodes = chars.map((char, i) => {
-    if (props.indices.has((group.length + 1) + i)) {
-      return (
-        <F.Bold key={i} className="highlight">
-          {char}
-        </F.Bold>
-      );
-    } else {
-      return char;
-    }
-  });
-  return (
-    <Fragment>
-      {nodes}
-    </Fragment>
-  );
-};
-
-interface CollabDotsProps {
-  target: string,
-}
-
-function CollabDots(props: CollabDotsProps) {
-  const users = [{
-    id: '1',
-    color: 'green',
-  }, {
-    id: '2',
-    color: 'blue',
-  }];
-  return null;
-  return (
-    <span style={{marginLeft: 4}}>
-      {users.map(({id, color}) =>
-        <span key={id} style={{color}}>
-          •
-        </span>
-      )}
-    </span>
   );
 }
