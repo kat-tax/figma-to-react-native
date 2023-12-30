@@ -5,6 +5,7 @@ import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
+// import {NodeToolbar} from 'interface/base/NodeToolbar';
 import * as $ from 'interface/store';
 
 import type {ComponentBuild} from 'types/component';
@@ -20,7 +21,10 @@ interface ComponentPreviewProps {
 
 export function ComponentPreview(props: ComponentPreviewProps) {
   const {componentKey, theme, build, settings} = props;
+
   const [src, setSrc] = useState('');
+  const [node, setNode] = useState<string | null>(null);
+
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
   const screen = useWindowSize();
@@ -83,9 +87,9 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   // Handle focus events from inspect mode
   useEffect(() => {
-    const onFocus = (e) => {
-      if (e.data?.type === 'focus' && e.data.id) {
-        emit<EventFocusNode>('FOCUS', e.data.id);
+    const onFocus = (e: any) => {
+      if (e.data?.type === 'focus') {
+        setNode(e.data.id || null);
       }
     };
     addEventListener('message', onFocus);
@@ -116,6 +120,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       {!component &&
         <ScreenWarning message="Component not found"/>
       }
+      {/*<NodeToolbar id={component.id}/>*/}
       <iframe
         ref={iframe}
         srcDoc={src}
