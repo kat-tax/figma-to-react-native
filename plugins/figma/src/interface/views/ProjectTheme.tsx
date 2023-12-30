@@ -1,5 +1,5 @@
 import {h, Fragment} from 'preact';
-import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {LoadingIndicator} from 'figma-ui';
 import MonacoReact from '@monaco-editor/react';
 import {MonacoBinding} from 'interface/utils/editor/lib/yjs';
 import {ThemePicker} from 'interface/base/ThemePicker';

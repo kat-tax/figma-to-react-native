@@ -9,7 +9,7 @@ import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {loadIconSet} from 'interface/utils/icons';
 import {emit} from '@create-figma-plugin/utilities';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {ReactNode} from 'react';
 import type {ProjectIcons} from 'types/project';

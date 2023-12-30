@@ -4,7 +4,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {titleCase} from 'common/string';
 import {useProjectBuild} from 'interface/hooks/useProjectBuild';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {ProjectConfig} from 'types/project';
 import type {EventProjectExport} from 'types/events';

@@ -6,7 +6,7 @@ import {SearchBar} from 'interface/base/SearchBar';
 import {patch, actions} from 'interface/utils/editor/lib/patch';
 import {titleCase} from 'common/string';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {StateUpdater} from 'preact/hooks';
 import type {ComponentBuild} from 'types/component';

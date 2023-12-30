@@ -1,6 +1,6 @@
 import {h, Fragment} from 'preact';
 import {useMemo} from 'preact/hooks';
-import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {LoadingIndicator} from 'figma-ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {debounce} from 'common/delay';
 import MonacoReact from '@monaco-editor/react';

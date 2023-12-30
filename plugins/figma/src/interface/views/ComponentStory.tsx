@@ -1,5 +1,5 @@
 import {h, Fragment} from 'preact';
-import {LoadingIndicator} from '@create-figma-plugin/ui';
+import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {F2RN_EDITOR_NS} from 'config/env';
 import MonacoReact from '@monaco-editor/react';

@@ -1,5 +1,5 @@
 import {h} from 'preact';
-import {Container, Muted, IconWarning32} from '@create-figma-plugin/ui';
+import {Container, Muted, IconWarning32} from 'figma-ui';
 
 interface ScreenWarningProps {
   message: string,

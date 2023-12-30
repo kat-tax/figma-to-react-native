@@ -1,5 +1,5 @@
 import {h} from 'preact';
-import {Container} from '@create-figma-plugin/ui';
+import {Container} from 'figma-ui';
 
 interface ProgressBarProps {
   percent: string,

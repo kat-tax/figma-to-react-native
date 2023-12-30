@@ -25,7 +25,7 @@ import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {AppPages, AppTabs} from 'types/app';
 

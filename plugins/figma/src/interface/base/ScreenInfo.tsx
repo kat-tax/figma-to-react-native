@@ -1,5 +1,5 @@
 import {h, Fragment} from 'preact';
-import {Container, Muted, IconNotice32} from '@create-figma-plugin/ui';
+import {Container, Muted, IconNotice32} from 'figma-ui';
 
 interface ScreenInfoProps {
   message?: string,

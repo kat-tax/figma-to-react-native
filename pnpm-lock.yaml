@@ -70,7 +70,7 @@ importers:
       '@blocknote/react':
         specifier: ^0.10.1
         version: 0.10.1(@tiptap/pm@2.1.13)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
-      '@create-figma-plugin/ui':
+      'figma-ui':
         specifier: ^3.1.0
         version: 3.1.0(preact@10.18.1)
       '@create-figma-plugin/utilities':

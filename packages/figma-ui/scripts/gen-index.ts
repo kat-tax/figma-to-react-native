@@ -78,9 +78,9 @@ async function generateIndexTs(
       .replace(/^(?:\.\/)?src\//, './')
       .replace(/\.tsx?/, '.js');
 
-    const exportDeclaration = `export { ${exportNames
+    const exportDeclaration = `export {${exportNames
       .sort()
-      .join(', ')} } from '${normalizedFilePath}'`;
+      .join(', ')}} from '${normalizedFilePath}'`;
 
     result.push(exportDeclaration);
   }

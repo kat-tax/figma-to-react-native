@@ -8,7 +8,7 @@ import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {emit} from '@create-figma-plugin/utilities';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {ComponentBuild, ComponentEntry} from 'types/component';
