@@ -2,9 +2,16 @@
   "extends": "@create-figma-plugin/tsconfig",
   "include": ["./src/**/*.ts", "./src/**/*.tsx"],
   "compilerOptions": {
-    "typeRoots": ["node_modules/@figma", "node_modules/@types"],
-    "resolveJsonModule": true,
+    "paths": {
+      "react": ["./node_modules/preact/compat"],
+      "react-dom": ["./node_modules/preact/compat"]
+    },
+    "typeRoots": [
+      "node_modules/@figma",
+      "node_modules/@types",
+    ],
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "target": "ES2020",
     "baseUrl": "./src",
     "strict": false,

@@ -5,7 +5,6 @@ const config: ProjectConfig = {
   scope: 'document',
   docKey: '',
   apiKey: '',
-  isPackage: false,
   packageName: '',
   packageVersion: '',
   includeAssets: true,

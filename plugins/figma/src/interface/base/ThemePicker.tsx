@@ -15,7 +15,7 @@ export function ThemePicker() {
 
   const initialForm: ThemePickerForm = {
     color: 'zinc',
-    radius: 0.5,
+    radius: '0.5',
   };
 
   const form = F.useForm<ThemePickerForm>(initialForm, {
@@ -39,7 +39,7 @@ export function ThemePicker() {
           <F.RadioButtons
             name="color"
             value={form.formState.color}
-            onValueChange={form.setFormState}
+            //onValueChange={form.setFormState}
             disabled={isGenerating}
             options={[
               {value: 'zinc', children: <F.Text>Zinc</F.Text>},
@@ -65,14 +65,14 @@ export function ThemePicker() {
         <F.SegmentedControl
           name="radius"
           value={form.formState.radius}
-          onValueChange={form.setFormState}
+          //onValueChange={form.setFormState}
           disabled={isGenerating}
           options={[
-            {value: 0, children: '0'},
-            {value: 0.3, children: '0.3'},
-            {value: 0.5, children: '0.5'},
-            {value: 0.75, children: '0.75'},
-            {value: 1, children: '1.0'},
+            {value: '0', children: '0'},
+            {value: '0.3', children: '0.3'},
+            {value: '0.5', children: '0.5'},
+            {value: '0.75', children: '0.75'},
+            {value: '1', children: '1.0'},
           ]}
         />
         <F.VerticalSpace space="extraLarge"/>

@@ -142,7 +142,7 @@ export function ProjectExport(props: ProjectExportProps) {
             name="method"
             aria-label={tips.export}
             value={form.formState.method}
-            onValueChange={form.setFormState}
+            //onValueChange={form.setFormState}
             disabled={isExporting}
             options={[
               {children: 'Download', value: 'download'},
@@ -160,7 +160,7 @@ export function ProjectExport(props: ProjectExportProps) {
               name="scope"
               aria-label={tips.scope}
               value={form.formState.scope}
-              onValueChange={form.setFormState}
+              //onValueChange={form.setFormState}
               disabled={isExporting}
               options={[
                 {children: 'Document', value: 'document'},
@@ -180,7 +180,7 @@ export function ProjectExport(props: ProjectExportProps) {
               placeholder="@acme/ui"
               disabled={isExporting}
               value={form.formState.packageName}
-              onValueInput={form.setFormState}
+              //onValueInput={form.setFormState}
               aria-label={tips.packageName}
               variant="border"
             />
@@ -195,7 +195,7 @@ export function ProjectExport(props: ProjectExportProps) {
               name="packageVersion"
               disabled={isExporting}
               value={form.formState.packageVersion}
-              onValueInput={form.setFormState}
+              //onValueInput={form.setFormState}
               aria-label={tips.packageVersion}
               placeholder="1.0.0"
               variant="border"
@@ -217,7 +217,7 @@ export function ProjectExport(props: ProjectExportProps) {
               disabled={isExporting}
               aria-label={tips.apiKey}
               value={form.formState.apiKey}
-              onValueInput={form.setFormState}
+              //onValueInput={form.setFormState}
               placeholder="Your Figma -> React Native Project Key"
               variant="border"
             />
@@ -235,7 +235,8 @@ export function ProjectExport(props: ProjectExportProps) {
                 title={tips.optimizeAssets}
                 disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
-                onValueChange={form.setFormState}>
+                //onValueChange={form.setFormState}
+                >
                 <F.Text>Optimize assets</F.Text>
               </F.Checkbox>
               <F.VerticalSpace space="small"/>
@@ -244,7 +245,8 @@ export function ProjectExport(props: ProjectExportProps) {
                 title={tips.autoTranslate}
                 disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
-                onValueChange={form.setFormState}>
+                //onValueChange={form.setFormState}
+                >
                 <F.Text>Auto translate</F.Text>
               </F.Checkbox>
               <F.VerticalSpace space="small"/>
@@ -256,7 +258,8 @@ export function ProjectExport(props: ProjectExportProps) {
               title={tips.includeAssets}
               disabled={isExporting}
               value={form.formState.includeAssets}
-              onValueChange={form.setFormState}>
+              //onValueChange={form.setFormState}
+              >
               <F.Text>Include assets</F.Text>
             </F.Checkbox>
             <F.VerticalSpace space="small"/>
