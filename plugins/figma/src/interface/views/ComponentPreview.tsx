@@ -1,5 +1,4 @@
 import {h, Fragment} from 'preact';
-import {emit} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
 import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
@@ -9,7 +8,6 @@ import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 
 import type {ComponentBuild} from 'types/component';
-import type {EventFocusNode} from 'types/events';
 import type {Settings} from 'types/settings';
 
 interface ComponentPreviewProps {
@@ -120,7 +118,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       {!component &&
         <ScreenWarning message="Component not found"/>
       }
-      {/*<NodeToolbar id={component.id}/>*/}
+      {/*!!node && <NodeToolbar id={node}/>*/}
       <iframe
         ref={iframe}
         srcDoc={src}

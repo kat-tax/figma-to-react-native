@@ -1,6 +1,7 @@
 import {h, Fragment} from 'preact';
-import {emit} from '@create-figma-plugin/utilities';
+import {useState} from 'preact/hooks';
 import {Toolbar, ToolbarButton} from '@blocknote/react';
+import {emit} from '@create-figma-plugin/utilities';
 
 import type {EventFocusNode} from 'types/events';
 
@@ -8,39 +9,61 @@ interface NodeToolbarProps {
   id: string,
 }
 
-type NodeToolbarActions =
-  | 'inspect'
-  | 'motions'
-  | 'breakpoints'
-  | 'interactions'
+enum NodeToolbarActions {
+  Focus,
+  Motions,
+  Breakpoints,
+  Interactions,
+};
 
 export function NodeToolbar(props: NodeToolbarProps) {
-  const select = (action: NodeToolbarActions) => {
-    console.log(props.id, action);
+  const [active, setActive] = useState<NodeToolbarActions | null>(null);
+
+  const getTitle = (action: NodeToolbarActions) => {
     switch (action) {
-      case 'inspect':
+      case NodeToolbarActions.Focus:
+        return 'Focus in Figma';
+      case NodeToolbarActions.Motions:
+        return 'Manage Animations';
+      case NodeToolbarActions.Breakpoints:
+        return 'Manage Breakpoints';
+      case NodeToolbarActions.Interactions:
+        return 'Manage Interactions';
+    }
+  };
+
+  const getTrigger = (action: NodeToolbarActions) => {
+    console.log(props.id, action);
+    setActive(action);
+    switch (action) {
+      case NodeToolbarActions.Focus:
         emit<EventFocusNode>('FOCUS', props.id);
         break;
-      case 'motions':
+      case NodeToolbarActions.Motions:
         break;
-      case 'breakpoints':
+      case NodeToolbarActions.Breakpoints:
         break;
-      case 'interactions':
+      case NodeToolbarActions.Interactions:
         break;
     }
-  }
+  };
 
   return (
     <Fragment>
       {/* @ts-ignore Preact issue */}
       <Toolbar>
         {/* @ts-ignore Preact issue */}
-        <ToolbarButton
-          mainTooltip={"Inspect in Figma"}
-          isSelected={false}
-          onClick={() => select('inspect')}>
-          Inspect
-        </ToolbarButton>
+        {Object.entries(NodeToolbarActions)
+        .map(([name, action]: [string, NodeToolbarActions]) => {
+          {/* @ts-ignore Preact issue */}
+          return <ToolbarButton
+            key={action}
+            isSelected={active === action}
+            mainTooltip={getTitle(action)}
+            onClick={() => getTrigger(action)}>
+            {name}
+          </ToolbarButton>;
+        })}
       </Toolbar>
     </Fragment>
   );
