@@ -36,7 +36,6 @@ export function ThemePicker() {
         <div className="theme-picker-colors">
           <F.VerticalSpace space="small"/>
           <F.RadioButtons
-            name="color"
             value={form.formState.color}
             //onValueChange={form.setFormState}
             disabled={isGenerating}
@@ -62,7 +61,6 @@ export function ThemePicker() {
         <F.Bold>Radius</F.Bold>
         <F.VerticalSpace space="small"/>
         <F.SegmentedControl
-          name="radius"
           value={form.formState.radius}
           //onValueChange={form.setFormState}
           disabled={isGenerating}

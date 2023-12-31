@@ -4,13 +4,12 @@ import {log} from 'interface/telemetry';
 import {upload} from 'interface/utils/export/upload';
 import {download} from 'interface/utils/export/download';
 
-import type {StateUpdater} from 'react';
 import type {EventProjectBuild} from 'types/events';
 
 export function useProjectBuild(
   onSuccess: () => void,
   onError: () => void,
-  setExportCount: StateUpdater<number>,
+  setExportCount: React.Dispatch<number>,
 ): void {
   useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, config, user) => {
     if (project === null) {

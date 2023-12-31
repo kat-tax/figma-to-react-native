@@ -178,10 +178,9 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
     <F.Stack
       space="extraLarge"
       style={{width: '100%'}}
-      draggable
+      draggable={!loading}
       onDragEnd={(e) => {
         setDragging(null);
-        if (e.view.length === 0) return;
         window.parent.postMessage({
           pluginDrop: {
             clientX: e.clientX,
@@ -203,7 +202,6 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         e.dataTransfer.setData('text/plain', code);
       }}>
       <F.Layer
-        disabled={loading}
         component={!hasError}
         value={name === dragging}
         onChange={() => id

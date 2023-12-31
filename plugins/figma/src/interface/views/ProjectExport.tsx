@@ -138,7 +138,6 @@ export function ProjectExport(props: ProjectExportProps) {
           <F.Bold>Method</F.Bold>
           <F.VerticalSpace space="small"/>
           <F.SegmentedControl
-            name="method"
             aria-label={tips.export}
             value={form.formState.method}
             //onValueChange={form.setFormState}
@@ -156,7 +155,6 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.Bold>Scope</F.Bold>
             <F.VerticalSpace space="small"/>
             <F.SegmentedControl
-              name="scope"
               aria-label={tips.scope}
               value={form.formState.scope}
               //onValueChange={form.setFormState}
@@ -175,7 +173,6 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.Bold>Package Name</F.Bold>
             <F.VerticalSpace space="small"/>
             <F.Textbox
-              name="packageName"
               placeholder="@acme/ui"
               disabled={isExporting}
               value={form.formState.packageName}
@@ -191,7 +188,6 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.Bold>Package Version</F.Bold>
             <F.VerticalSpace space="small"/>
             <F.Textbox
-              name="packageVersion"
               disabled={isExporting}
               value={form.formState.packageVersion}
               //onValueInput={form.setFormState}
@@ -212,7 +208,6 @@ export function ProjectExport(props: ProjectExportProps) {
             </F.Inline>
             <F.VerticalSpace space="small"/>
             <F.Textbox
-              name="apiKey"
               disabled={isExporting}
               aria-label={tips.apiKey}
               value={form.formState.apiKey}
@@ -230,7 +225,6 @@ export function ProjectExport(props: ProjectExportProps) {
             <Fragment>
               {false && <F.VerticalSpace space="small"/>}
               <F.Checkbox
-                name="enableAutoTranslations"
                 title={tips.optimizeAssets}
                 disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
@@ -240,7 +234,6 @@ export function ProjectExport(props: ProjectExportProps) {
               </F.Checkbox>
               <F.VerticalSpace space="small"/>
               <F.Checkbox
-                name="enableAutoTranslations"
                 title={tips.autoTranslate}
                 disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
@@ -253,7 +246,6 @@ export function ProjectExport(props: ProjectExportProps) {
           }
           <Fragment>
             <F.Checkbox
-              name="includeAssets"
               title={tips.includeAssets}
               disabled={isExporting}
               value={form.formState.includeAssets}

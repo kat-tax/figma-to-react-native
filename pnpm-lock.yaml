@@ -170,9 +170,6 @@ importers:
       '@create-figma-plugin/build':
         specifier: ^3.1.0
         version: 3.1.0(@figma/plugin-typings@1.82.0)(typescript@5.3.3)
-      '@create-figma-plugin/tsconfig':
-        specifier: ^3.1.0
-        version: 3.1.0
       '@esbuild-plugins/node-modules-polyfill':
         specifier: ^0.2.2
         version: 0.2.2(esbuild@0.19.11)
@@ -1788,10 +1785,6 @@ packages:
       '@sindresorhus/slugify': 2.2.1
       kleur: 4.1.5
       path-exists: 5.0.0
-    dev: true
-
-  /@create-figma-plugin/tsconfig@3.1.0:
-    resolution: {integrity: sha512-DrKUi7hlTbPA80cZ4o4WtMGCpe23V+HL6vrjvjaXG8i7XplFGTV0XYB77T2K6R7Mi7BuF2fZRYTVDYnqgSk+6A==}
     dev: true
 
   /@create-figma-plugin/utilities@3.1.0:

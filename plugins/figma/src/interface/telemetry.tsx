@@ -46,6 +46,7 @@ export class ErrorBoundary extends Component {
     if (this.state.error) {
       return <p>Error: {this.state.error}</p>
     }
+    // @ts-ignore
     return this.props.children;
   }
 }

@@ -7,7 +7,6 @@ import {titleCase} from 'common/string';
 
 import * as F from 'figma-ui';
 
-import type {StateUpdater} from 'react';
 import type {ComponentBuild} from 'types/component';
 import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -17,10 +16,10 @@ interface NavBarProps {
   tabs: AppTabs,
   build: ComponentBuild,
   isVSCode: boolean,
-  setSearchQuery: StateUpdater<string>,
-  setSearchMode: StateUpdater<boolean>,
   searchQuery: string,
   searchMode: boolean,
+  setSearchQuery: React.Dispatch<string>,
+  setSearchMode: React.Dispatch<boolean>,
 }
 
 export function NavBar(props: NavBarProps) {
@@ -97,7 +96,7 @@ export function NavBar(props: NavBarProps) {
             </div>
             {props.tabs.component
               .map(page => (
-                <Fragment key={page}>
+                <Fragment key={page.toString()}>
                   <Link
                     title={`Component ${titleCase(page.toString())}`}
                     value={page.toString()}>
@@ -121,7 +120,7 @@ export function NavBar(props: NavBarProps) {
                 <F.IconSearch32/>
               </div>
               {mainTabs.map(page => (
-                <Fragment key={page}>
+                <Fragment key={page.toString()}>
                   <Link
                     title={`Project ${titleCase(page.toString())}`}
                     value={page.toString()}>

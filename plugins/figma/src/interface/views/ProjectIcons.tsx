@@ -166,14 +166,13 @@ function IconListItem(props: IconListItemProps) {
       title={props.icon}
       disabled={props.missing}
       draggable={!props.missing}
-      onDblClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
+      onDoubleClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
       onClick={() => {
         props.copy(tag);
         emit<EventNotify>('NOTIFY', 'Copied icon to clipboard');
       }}
       onDragStart={(e) => {e.dataTransfer.setData('text/plain', tag)}}
       onDragEnd={(e) => {
-        if (e.view.length === 0) return;
         window.parent.postMessage({
           pluginDrop: {
             clientX: e.clientX,

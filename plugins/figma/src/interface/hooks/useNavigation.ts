@@ -1,7 +1,6 @@
 import {emit, on} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'react';
 
-import type {StateUpdater} from 'react';
 import type {ComponentBuild} from 'types/component';
 import type {EventAppNavigate, EventFocusNode, EventSelectComponent} from 'types/events';
 import type {AppPages} from 'types/app';
@@ -9,7 +8,7 @@ import type {AppPages} from 'types/app';
 export interface Navigation {
   tab: AppPages,
   component: string,
-  setComponent: StateUpdater<string>,
+  setComponent: React.Dispatch<string>,
   gotoOverview: () => void,
   gotoTab: (value: AppPages) => void,
 }

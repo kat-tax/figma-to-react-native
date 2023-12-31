@@ -1,5 +1,4 @@
 {
-  "extends": "@create-figma-plugin/tsconfig",
   "include": ["./src/**/*.ts", "./src/**/*.tsx"],
   "compilerOptions": {
     "baseUrl": "./src",
@@ -13,7 +12,9 @@
     "module": "es2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": false
   }
 }
