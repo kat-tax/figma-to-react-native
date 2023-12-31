@@ -3,9 +3,10 @@ import textboxNumericStyles from './textbox-numeric.module.css';
 
 import {createClassName} from '../../../utilities/create-class-name.js';
 import {createComponent} from '../../../utilities/create-component.js';
-import {RawTextboxNumeric, RawTextboxNumericProps} from './private/raw-textbox-numeric.js';
+import {RawTextboxNumeric} from './private/raw-textbox-numeric.js';
 
 import type {ReactNode} from 'react';
+import type {RawTextboxNumericProps} from './private/raw-textbox-numeric.js';
 
 export type TextboxNumericProps = RawTextboxNumericProps & {
   icon?: ReactNode,

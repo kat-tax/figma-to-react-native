@@ -1,6 +1,6 @@
 import styles from './columns.module.css';
 
-import {toChildArray} from 'preact';
+import {Children} from 'react';
 import {createClassName} from '../../utilities/create-class-name';
 import {createComponent} from '../../utilities/create-component';
 
@@ -22,7 +22,7 @@ export const Columns = createComponent<HTMLDivElement, ColumnsProps>(({children,
 
   return (
     <div {...rest} ref={ref} className={createClassName(classes)}>
-      {toChildArray(children).map((element: ReactNode, index: number) => (
+      {Children.toArray(children).map((element: ReactNode, index: number) => (
         <div key={index} className={styles.child}>
           {element}
         </div>

@@ -8,7 +8,7 @@ import {createComponent} from '../../utilities/create-component.js';
 import {getCurrentFromRef} from '../../utilities/get-current-from-ref.js';
 import {noop} from '../../utilities/no-op.js';
 
-import type {RefObject} from 'react';
+import type {MutableRefObject} from 'react';
 import type {Event, EventHandler} from '../../types/event-handler.js';
 import type {FocusableComponentProps} from '../../types/focusable-component-props.js';
 
@@ -40,7 +40,7 @@ export const SearchTextbox = createComponent<HTMLInputElement, SearchTextboxProp
   ...rest
 }, ref) => {
 
-  const inputElementRef: RefObject<HTMLInputElement> = useRef(null);
+  const inputElementRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
   const handleClearButtonClick = useCallback(() => {
     const inputEvent = new window.Event('input', {bubbles: true, cancelable: true});
     const inputElement = getCurrentFromRef(inputElementRef);

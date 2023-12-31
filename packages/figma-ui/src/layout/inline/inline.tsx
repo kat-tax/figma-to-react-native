@@ -1,6 +1,6 @@
 import styles from './inline.module.css';
 
-import {toChildArray} from 'preact';
+import {Children} from 'react';
 import {createComponent} from '../../utilities/create-component.js';
 
 import type {ReactNode} from 'react';
@@ -19,7 +19,7 @@ export const Inline = createComponent<HTMLDivElement, InlineProps>(({
   ...rest
 }, ref) => (
   <div {...rest} ref={ref} className={typeof space === 'undefined' ? undefined : styles[space]}>
-    {toChildArray(children).map((child: ReactNode, i: number) => (
+    {Children.toArray(children).map((child: ReactNode, i: number) => (
       <div key={i} className={styles.child}>
         {child}
       </div>

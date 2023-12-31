@@ -202,7 +202,6 @@ interface ProjectDocEditorProps {
 }
 
 function ProjectDocEditor(props: ProjectDocEditorProps) {
-  // TODO: BlockNote does not work with Preact, port UI
   // const editor: BlockNoteEditor = useBlockNote();
   return (
     <F.Stack className="editor" space="extraLarge">

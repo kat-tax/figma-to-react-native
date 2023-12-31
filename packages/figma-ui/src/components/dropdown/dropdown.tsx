@@ -1,6 +1,7 @@
 import dropdownStyles from './dropdown.module.css';
 import menuStyles from '../../css/menu.module.css';
 
+import {createPortal} from 'react-dom';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {useScrollableMenu} from '../../hooks/use-scrollable-menu.js';
 import {useMouseDownOutside} from '../../hooks/use-mouse-down-outside.js';
@@ -13,7 +14,7 @@ import {createClassName} from '../../utilities/create-class-name.js';
 import {createComponent} from '../../utilities/create-component.js';
 import {noop} from '../../utilities/no-op.js';
 
-import type {ReactNode, RefObject} from 'react';
+import type {ReactNode, MutableRefObject} from 'react';
 import type {Event, EventHandler} from '../../types/event-handler.js'
 import type {Id} from './private/types.js';
 
@@ -67,8 +68,8 @@ export const Dropdown = createComponent<HTMLDivElement, DropdownProps>(({
     throw new Error(`String \`icon\` must be a single character: "${icon}"`)
   }
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const rootElementRef: RefObject<HTMLDivElement> = useRef(null);
-  const menuElementRef: RefObject<HTMLDivElement> = useRef(null);
+  const rootElementRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const menuElementRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
 
   const index = findOptionIndexByValue(options, value);
   if (value !== null && index === -1) {

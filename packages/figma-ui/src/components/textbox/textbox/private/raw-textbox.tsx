@@ -5,7 +5,7 @@ import {createComponent} from '../../../../utilities/create-component.js';
 import {MIXED_STRING} from '../../../../utilities/mixed-values.js';
 import {noop} from '../../../../utilities/no-op.js';
 
-import type {RefObject} from 'react';
+import type {MutableRefObject} from 'react';
 import type {Event, EventHandler} from '../../../../types/event-handler.js';
 import type {FocusableComponentProps} from '../../../../types/focusable-component-props.js';
 
@@ -45,7 +45,7 @@ export const RawTextbox = createComponent<HTMLInputElement, RawTextboxProps>(({
 }, ref) => {
   // Value of the textbox when it was initially focused
   const [originalValue, setOriginalValue] = useState(EMPTY_STRING);
-  const inputElementRef: RefObject<HTMLInputElement> = useRef(null);
+  const inputElementRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
   const setTextboxValue = useCallback((value: string) => {
     const inputElement = getCurrentFromRef(inputElementRef);
     inputElement.value = value;

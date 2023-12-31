@@ -1,6 +1,6 @@
 import styles from './stack.module.css';
 
-import {toChildArray} from 'preact';
+import {Children} from 'react';
 import {createComponent} from '../../utilities/create-component.js';
 
 import type {ReactNode} from 'react';
@@ -19,7 +19,7 @@ export const Stack = createComponent<HTMLDivElement, StackProps>(({
   ...rest
 }, ref) => (
   <div {...rest} ref={ref} className={styles[space]}>
-    {toChildArray(children).map((element: ReactNode, i: number) => (
+    {Children.toArray(children).map((element: ReactNode, i: number) => (
       <div key={i} className={styles.child}>
         {element}
       </div>

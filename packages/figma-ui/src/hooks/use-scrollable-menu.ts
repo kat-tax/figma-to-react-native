@@ -1,7 +1,7 @@
 import {useCallback} from 'react';
 import {getCurrentFromRef} from '../utilities/get-current-from-ref';
 
-import type {JSX, RefObject} from 'react';
+import type {RefObject} from 'react';
 import type {Event} from '../types/event-handler';
 
 export function useScrollableMenu(options: {
@@ -71,8 +71,8 @@ export function useScrollableMenu(options: {
   )
 
   const handleScrollableMenuKeyDown = useCallback(
-    function (event: JSX.TargetedKeyboardEvent<HTMLElement>): void {
-      const key = event.key
+    function (event: React.KeyboardEvent<HTMLElement>): void {
+      const key = event.key;
       if (key === 'ArrowDown' || key === 'ArrowUp') {
         const itemElements = getItemElements()
         const index = findIndexByItemId(selectedId)
@@ -103,7 +103,7 @@ export function useScrollableMenu(options: {
   )
 
   const handleScrollableMenuItemMouseMove = useCallback(
-    function (event: JSX.TargetedMouseEvent<HTMLElement>): void {
+    function (event: React.MouseEvent<HTMLElement>): void {
       const id = event.currentTarget.getAttribute(
         itemIdDataAttributeName
       ) as string

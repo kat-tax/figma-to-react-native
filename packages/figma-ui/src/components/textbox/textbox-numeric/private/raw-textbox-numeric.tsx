@@ -9,7 +9,7 @@ import {getCurrentFromRef} from '../../../../utilities/get-current-from-ref.js';
 import {createComponent} from '../../../../utilities/create-component.js';
 import {noop} from '../../../../utilities/no-op.js';
 
-import type {RefObject} from 'react';
+import type {MutableRefObject} from 'react';
 import type {Event, EventHandler} from '../../../../types/event-handler.js';
 import type {FocusableComponentProps} from '../../../../types/focusable-component-props.js';
 
@@ -70,8 +70,8 @@ export const RawTextboxNumeric = createComponent<HTMLInputElement, RawTextboxNum
   const [originalValue, setOriginalValue] = useState(EMPTY_STRING);
 
   // Set to `true` when the `Escape` key is pressed; used to bail out of `handleBlur`
-  const revertOnEscapeKeyDownRef: RefObject<boolean> = useRef(false);
-  const inputElementRef: RefObject<HTMLInputElement> = useRef(null);
+  const revertOnEscapeKeyDownRef: MutableRefObject<boolean> = useRef(false);
+  const inputElementRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
 
   const setInputElementValue = useCallback((value: string) => {
     const inputElement = getCurrentFromRef(inputElementRef);

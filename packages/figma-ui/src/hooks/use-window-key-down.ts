@@ -2,25 +2,21 @@ import {useCallback, useEffect} from 'react';
 
 export function useWindowKeyDown(
   key: KeyboardEvent['key'],
-  onKeyDown: (event: KeyboardEvent) => void
+  onKeyDown: (e: KeyboardEvent) => void
 ): void {
   const handleKeyDown = useCallback(
-    function (event: KeyboardEvent): void {
-      if (event.key !== key) {
-        return
-      }
-      onKeyDown(event)
+    function (e: KeyboardEvent): void {
+      if (e.key !== key)
+        return;
+      onKeyDown(e);
     },
     [key, onKeyDown]
-  )
+  );
 
-  useEffect(
-    function (): () => void {
-      window.addEventListener('keydown', handleKeyDown)
-      return function (): void {
-        window.removeEventListener('keydown', handleKeyDown)
-      }
-    },
-    [handleKeyDown]
-  )
+  useEffect(function (): () => void {
+    window.addEventListener('keydown', handleKeyDown);
+    return function (): void {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [handleKeyDown]);
 }
