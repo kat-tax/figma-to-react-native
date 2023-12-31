@@ -1,41 +1,38 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+import type {DOMAttributes} from 'react';
 
-import type {JSXInternal} from 'preact/src/jsx';
-
-type First<T extends never[]> = T[0]
-
+type First<T extends never[]> = T[0];
 type FirstArgument<EventHandler extends ((...args: any) => any) | undefined> =
   First<Parameters<NonNullable<EventHandler>>>
 
 export namespace EventHandler {
   export type onBlur<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onBlur']
+    DOMAttributes<Target>['onBlur']
   export type onChange<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onChange']
+    DOMAttributes<Target>['onChange']
   export type onClick<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onClick']
+    DOMAttributes<Target>['onClick']
   export type onDragEnd<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onDragEnd']
+    DOMAttributes<Target>['onDragEnd']
   export type onDragEnter<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onDragEnter']
+    DOMAttributes<Target>['onDragEnter']
   export type onDragOver<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onDragOver']
+    DOMAttributes<Target>['onDragOver']
   export type onDrop<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onDrop']
+    DOMAttributes<Target>['onDrop']
   export type onFocus<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onFocus']
+    DOMAttributes<Target>['onFocus']
   export type onInput<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onInput']
+    DOMAttributes<Target>['onInput']
   export type onKeyDown<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onKeyDown']
+    DOMAttributes<Target>['onKeyDown']
   export type onMouseDown<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onMouseDown']
+    DOMAttributes<Target>['onMouseDown']
   export type onMouseMove<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onMouseMove']
+    DOMAttributes<Target>['onMouseMove']
   export type onMouseUp<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onMouseUp']
+    DOMAttributes<Target>['onMouseUp']
   export type onPaste<Target extends EventTarget> =
-    JSXInternal.DOMAttributes<Target>['onPaste']
+    DOMAttributes<Target>['onPaste']
   export type onSelectedFiles = (files: Array<File>) => void
   export type onValueChange<Value> = (value: Value) => void
 }
@@ -43,7 +40,7 @@ export namespace EventHandler {
 export namespace Event {
   export type onBlur<Target extends EventTarget> = FirstArgument<
     EventHandler.onBlur<Target>
-  >
+>
   export type onChange<Target extends EventTarget> = FirstArgument<
     EventHandler.onChange<Target>
   >

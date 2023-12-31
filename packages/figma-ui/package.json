@@ -12,31 +12,33 @@
   "main": "./lib/index.js",
   "scripts": {
     "prebuild": "pnpm run clean",
-    "build": "concurrently pnpm:build:gen-colors-types pnpm:build:gen-icons && pnpm run build:gen-index && pnpm run build:js && pnpm run build:copy-non-ts-files",
+    "build": "concurrently pnpm:build:gen-colors-types pnpm:build:gen-icons && pnpm run build:gen-index && pnpm run build:js && pnpm run build:copy-misc",
     "build:gen-colors-types": "tsx scripts/gen-colors-types.ts",
     "build:gen-icons": "tsx scripts/gen-icons.ts",
     "build:gen-index": "rimraf src/index.ts && tsx scripts/gen-index.ts -- 'src/**/*.{ts,tsx}' '!src/**/private/**/*'",
-    "build:copy-non-ts-files": "tsx scripts/copy-non-ts-files.ts",
+    "build:copy-misc": "tsx scripts/copy-misc.ts",
     "build:js": "tsc --build",
     "clean": "rimraf --glob '*.log' lib 'src/**/*.css.d.ts' tsconfig.tsbuildinfo"
   },
   "devDependencies": {
     "@sindresorhus/slugify": "^2.2.1",
-    "@types/node": "^20.8.6",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
     "camelcase": "^8.0.0",
-    "concurrently": "^8.2.1",
-    "globby": "^13.2.2",
+    "concurrently": "^8.2.2",
+    "globby": "^14.0.0",
     "path-exists": "^5.0.0",
-    "preact": "^10.5.13",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
-    "svgo": "^3.0.2",
-    "tsx": "^3.13.0",
+    "svgo": "^3.1.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "react": ">=18"
+    "react": ">=18",
+    "react-dom": ">=18"
   },
   "sideEffects": false
 }

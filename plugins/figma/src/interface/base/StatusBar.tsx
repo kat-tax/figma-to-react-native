@@ -1,4 +1,3 @@
-import {h} from 'preact';
 import * as F from 'figma-ui';
 
 import type {ProjectConfig} from 'types/project';

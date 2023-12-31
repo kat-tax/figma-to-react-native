@@ -1,17 +1,15 @@
-import {h} from 'preact';
-import {createComponent} from '../../utilities/create-component';
 import styles from './muted.module.css';
-
-import type {ComponentChildren} from 'preact';
+import {createComponent} from '../../utilities/create-component';
+import type {ReactNode} from 'react';
 
 export type MutedProps = {
-  children: ComponentChildren,
+  children: ReactNode,
 }
 
-export const Muted = createComponent<HTMLSpanElement, MutedProps>(({children, ...rest}, ref) => {
-  return (
-    <span {...rest} ref={ref} class={styles.muted}>
+export const Muted = createComponent<HTMLSpanElement, MutedProps>(
+  ({children, ...rest}, ref) => (
+    <span {...rest} ref={ref} className={styles.muted}>
       {children}
     </span>
-  );
-});
+  )
+);

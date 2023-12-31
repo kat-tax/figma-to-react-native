@@ -9,12 +9,15 @@
 .iconButton:not(:disabled) {
   color: var(--figma-color-icon);
 }
+
 .iconButton:not(:disabled):hover {
   background-color: var(--figma-color-bg-hover);
 }
+
 .iconButton:not(:disabled):focus {
   border-color: var(--figma-color-border-brand-strong);
 }
+
 .iconButton:disabled {
   color: var(--figma-color-icon-disabled);
   cursor: not-allowed;

@@ -1,8 +1,7 @@
-import type {RefObject} from 'preact';
+import type {RefObject} from 'react';
 
 export function getCurrentFromRef<R>(ref: RefObject<R>): R {
-  if (ref.current === null) {
+  if (ref.current === null)
     throw new Error('`ref.current` is `undefined`');
-  }
   return ref.current;
 }

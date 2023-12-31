@@ -1,7 +1,7 @@
 .segmentedControl {
   position: relative;
-  z-index: var(--z-index-1);
   display: inline-block;
+  z-index: var(--z-index-1);
   border-radius: var(--border-radius-2);
 }
 
@@ -25,34 +25,40 @@
   width: 100%;
   height: 100%;
 }
+
 .input:disabled {
   cursor: not-allowed;
 }
 
 .children {
+  cursor: not-allowed;
   display: flex;
-  min-width: 24px;
-  height: 24px;
   align-items: center;
   justify-content: center;
+  min-width: 24px;
+  height: 24px;
   color: var(--figma-color-text);
-  cursor: not-allowed;
 }
+
 .input:checked ~ .children {
   border-radius: var(--border-radius-2);
   background-color: var(--figma-color-bg-tertiary);
 }
+
 .input:disabled ~ .children {
   color: var(--figma-color-text-disabled);
 }
+
 .input:checked:disabled ~ .children {
   background-color: var(--figma-color-bg-disabled);
   color: var(--figma-color-text-ondisabled);
 }
+
 .segmentedControl:not(.disabled):hover .input:checked ~ .children,
 .segmentedControl:not(.disabled):focus-within .input:checked ~ .children {
   border-radius: 0;
 }
+
 .segmentedControl:not(.disabled):hover
   .label:first-child
   .input:checked
@@ -60,6 +66,7 @@
   border-bottom-left-radius: var(--border-radius-2);
   border-top-left-radius: var(--border-radius-2);
 }
+
 .segmentedControl:not(.disabled):hover
   .label:last-child
   .input:checked
@@ -81,9 +88,11 @@
   border-radius: var(--border-radius-2);
   pointer-events: none;
 }
+
 .segmentedControl:not(.disabled):hover .border {
   border: 1px solid var(--figma-color-border);
 }
+
 .segmentedControl:not(.disabled):focus-within .border {
   top: -1px;
   bottom: -1px;

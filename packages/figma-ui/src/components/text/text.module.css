@@ -1,15 +1,16 @@
 .text {
+  transform: translateY(4px);
+  pointer-events: none;
   padding-top: 1px;
   color: var(--figma-color-text);
-  pointer-events: none;
-  transform: translateY(4px);
 }
+
 .text:before {
+  pointer-events: none;
   display: block;
   height: 0;
   margin-top: -9px;
   content: '';
-  pointer-events: none;
 }
 
 .numeric {
@@ -19,9 +20,11 @@
 .left {
   text-align: left;
 }
+
 .center {
   text-align: center;
 }
+
 .right {
   text-align: right;
 }

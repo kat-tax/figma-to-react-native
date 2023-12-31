@@ -1,6 +1,5 @@
-import {h, Fragment} from 'preact';
 import {useWindowSize} from '@uidotdev/usehooks';
-import {useState, useCallback, useEffect, useRef} from 'preact/hooks';
+import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
 import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';

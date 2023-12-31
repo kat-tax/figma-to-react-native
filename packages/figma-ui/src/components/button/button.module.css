@@ -33,9 +33,11 @@
   color: var(--figma-color-text-onbrand);
   line-height: 28px;
 }
+
 .initial:not(.disabled) button:focus {
   border-color: var(--figma-color-border-brand-strong);
 }
+
 .initial.disabled button {
   background-color: var(--figma-color-bg-disabled);
   color: var(--figma-color-text-ondisabled);
@@ -45,9 +47,11 @@
   background-color: var(--figma-color-bg-danger);
   color: var(--figma-color-text-ondanger);
 }
+
 .initial.danger:not(.disabled) button:focus {
   border-color: var(--figma-color-border-danger-strong);
 }
+
 .initial.danger.disabled button {
   background-color: var(--figma-color-bg-disabled);
   color: var(--figma-color-text-ondisabled);
@@ -60,12 +64,14 @@
   color: var(--figma-color-text);
   line-height: 30px;
 }
+
 .secondary:not(.disabled) button:focus {
   padding: 0 14px;
   border-width: 2px;
   border-color: var(--figma-color-border-brand-strong);
   line-height: 28px;
 }
+
 .secondary.disabled button {
   border-color: var(--figma-color-border-disabled-strong);
   color: var(--figma-color-text-disabled);
@@ -75,9 +81,11 @@
   border-color: var(--figma-color-border-danger-strong);
   color: var(--figma-color-text-danger);
 }
+
 .secondary.danger:not(.disabled) button:focus {
   border-color: var(--figma-color-border-danger-strong);
 }
+
 .secondary.danger.disabled button {
   border-color: var(--figma-color-border-disabled-strong);
   color: var(--figma-color-text-disabled);
@@ -94,6 +102,7 @@
 .initial .loadingIndicator {
   color: var(--figma-color-icon-onbrand);
 }
+
 .initial.disabled .loadingIndicator {
   color: var(--figma-color-icon-ondisabled);
 }
@@ -101,6 +110,7 @@
 .initial.danger .loadingIndicator {
   color: var(--figma-color-icon-ondanger);
 }
+
 .initial.danger.disabled .loadingIndicator {
   color: var(--figma-color-icon-ondisabled);
 }
@@ -108,6 +118,7 @@
 .secondary .loadingIndicator {
   color: var(--figma-color-text);
 }
+
 .secondary.disabled .loadingIndicator {
   color: var(--figma-color-text-disabled);
 }
@@ -115,6 +126,7 @@
 .secondary.danger .loadingIndicator {
   color: var(--figma-color-text-danger);
 }
+
 .secondary.danger.disabled .loadingIndicator {
   color: var(--figma-color-text-disabled);
 }
@@ -122,6 +134,7 @@
 .children {
   display: inline;
 }
+
 .loading .children {
   visibility: hidden;
 }

@@ -1,9 +1,10 @@
 import '!../css/base.css';
-import {h, render as preactRender} from 'preact';
-import type {FunctionComponent, JSX} from 'preact';
+import {createRoot} from 'react-dom/client';
+import type {FunctionComponent, JSX} from 'react';
 
 export function render<P>(Plugin: FunctionComponent<P>) {
-  return function (rootNode: HTMLElement, props: P & JSX.IntrinsicAttributes) {
-    preactRender(<Plugin {...props} />, rootNode);
+  return (rootNode: HTMLElement, props: P & JSX.IntrinsicAttributes) => {
+    const root = createRoot(rootNode);
+    root.render(<Plugin {...props}/>);
   }
 }

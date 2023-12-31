@@ -1,32 +1,29 @@
-import { ComponentChildren, h } from 'preact'
-
-import { createClassName } from '../../utilities/create-class-name.js'
-import { createComponent } from '../../utilities/create-component.js'
-import styles from './text.module.css'
+import styles from './text.module.css';
+import {createClassName} from '../../utilities/create-class-name.js';
+import {createComponent} from '../../utilities/create-component.js';
+import type {ReactNode} from 'react';
 
 export type TextProps = {
-  align?: TextAlignment
-  children: ComponentChildren
-  numeric?: boolean
+  children: ReactNode,
+  numeric?: boolean,
+  align?: TextAlignment,
 }
-export type TextAlignment = 'left' | 'center' | 'right'
 
-export const Text = createComponent<HTMLDivElement, TextProps>(function ({
-  align = 'left',
+export type TextAlignment = 'left' | 'center' | 'right';
+
+export const Text = createComponent<HTMLDivElement, TextProps>(({
   children,
+  align = 'left',
   numeric = false,
   ...rest
-}) {
-  return (
-    <div
-      {...rest}
-      class={createClassName([
-        styles.text,
-        styles[align],
-        numeric === true ? styles.numeric : null
-      ])}
-    >
-      {children}
-    </div>
-  )
-})
+}) => (
+  <div
+    {...rest}
+    className={createClassName([
+      styles.text,
+      styles[align],
+      numeric ? styles.numeric : null
+    ])}>
+    {children}
+  </div>
+));

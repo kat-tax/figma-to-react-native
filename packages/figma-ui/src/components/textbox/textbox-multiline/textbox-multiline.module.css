@@ -26,18 +26,22 @@
   color: var(--figma-color-text);
   resize: none;
 }
+
 .textarea::placeholder {
   color: var(--figma-color-text-tertiary);
 }
+
 .disabled .textarea {
   color: var(--figma-color-text-disabled);
   cursor: not-allowed;
 }
+
 .grow .textarea {
   overflow: hidden;
 }
 
 .border {
+  pointer-events: none;
   position: absolute;
   top: 0;
   right: 0;
@@ -45,12 +49,13 @@
   left: 0;
   border: 1px solid transparent;
   border-radius: var(--border-radius-2);
-  pointer-events: none;
 }
+
 .hasBorder .border,
 .textboxMultiline:not(.disabled):hover .border {
   border-color: var(--figma-color-border);
 }
+
 .textboxMultiline:not(.disabled) .textarea:focus ~ .border {
   top: -1px;
   bottom: -1px;
@@ -59,12 +64,13 @@
 
 .underline {
   position: absolute;
+  height: 1px;
   right: var(--space-extra-small);
   bottom: 0;
   left: var(--space-extra-small);
-  height: 1px;
   background-color: var(--figma-color-border);
 }
+
 .textboxMultiline:not(.disabled) .textarea:focus ~ .underline,
 .textboxMultiline:not(.disabled):hover .underline {
   background-color: transparent;

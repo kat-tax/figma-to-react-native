@@ -4,17 +4,16 @@
 }
 
 .input {
+  display: block;
   position: absolute;
-  z-index: var(
-    --z-index-1
-  ); /* stack `.input` over all other elements within `.checkbox` */
+  z-index: var(--z-index-1); /* stack `.input` over all other elements within `.checkbox` */
   top: -8px;
   right: -16px;
   bottom: -8px;
   left: -16px;
-  display: block;
   width: calc(100% + 32px);
 }
+
 .disabled .input {
   cursor: not-allowed;
 }
@@ -32,20 +31,25 @@
 .border {
   border: 1px solid var(--figma-color-border-strong);
 }
+
 .checkbox:not(.disabled) .input:focus ~ .border {
   border-color: var(--figma-color-border-brand-strong);
   box-shadow: 0 0 0 1px var(--figma-color-border-brand-strong);
 }
+
 .checkbox:not(.disabled) .input:checked ~ .border {
   border: 0;
 }
+
 .checkbox:not(.disabled) .input:checked:focus ~ .border {
   box-shadow: 0 0 0 1px var(--figma-color-bg),
     0 0 0 2px var(--figma-color-border-brand-strong);
 }
+
 .disabled .input ~ .border {
   border-color: var(--figma-color-border-disabled-strong);
 }
+
 .disabled .input:checked ~ .border {
   border: 0;
 }
@@ -53,6 +57,7 @@
 .checkbox:not(.disabled) .input:checked ~ .fill {
   background-color: var(--figma-color-bg-brand);
 }
+
 .disabled .input:checked ~ .fill {
   background-color: var(--figma-color-bg-disabled);
 }
@@ -60,6 +65,7 @@
 .checkIcon {
   color: var(--figma-color-icon-onbrand);
 }
+
 .disabled .checkIcon {
   color: var(--figma-color-icon-ondisabled);
 }
@@ -69,6 +75,7 @@
   padding: 2px 0 0 20px;
   color: var(--figma-color-text);
 }
+
 .disabled .children {
   opacity: var(--opacity-30);
 }

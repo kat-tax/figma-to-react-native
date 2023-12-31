@@ -1,12 +1,11 @@
-import {h, Fragment} from 'preact';
-import {VirtuosoGrid} from 'react-virtuoso';
-import {Fzf, byLengthAsc} from 'fzf';
-import {useCopyToClipboard} from '@uidotdev/usehooks';
-import {useState, useEffect, useMemo} from 'preact/hooks';
+import {useState, useEffect, useMemo, Fragment} from 'react';
 import {Icon, listIcons, getIcon} from '@iconify/react';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
+import {Fzf, byLengthAsc} from 'fzf';
+import {VirtuosoGrid} from 'react-virtuoso';
+import {loadIconSet} from 'interface/utils/icons';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {loadIconSet} from 'interface/utils/icons';
 import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from 'figma-ui';
@@ -138,14 +137,12 @@ export function ProjectIcons(props: ProjectIconsProps) {
   // Grid of icon buttons
   return (
     <Fragment>
-      {/* @ts-ignore Preact Issue*/}
       <VirtuosoGrid
         overscan={200}
         style={{height: '100%'}}       
         totalCount={list.length}
         itemContent={i => (
           <Fragment>
-            {/* @ts-ignore Preact Issue*/}
             <IconListItem {...list[i].item} copy={copyToClipboard}/>
           </Fragment> as ReactNode
         )}
@@ -188,7 +185,6 @@ function IconListItem(props: IconListItemProps) {
           }
         }, '*');
       }}>
-      {/* @ts-ignore Preact Issue*/}
       <Icon
         icon={props.icon}
         width={16}

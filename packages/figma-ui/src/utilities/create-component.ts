@@ -1,21 +1,10 @@
-import {forwardRef} from 'preact/compat';
+import {forwardRef} from 'react';
+import type {ForwardedRef, ForwardRefExoticComponent, HTMLAttributes, ReactNode} from 'react';
 
-import type {FunctionalComponent, JSX, Ref, RenderableProps} from 'preact';
-import type {ForwardFn} from 'preact/compat';
+type MixinHTMLElementAttributes<T extends EventTarget, P = Record<string, never>> = Omit<HTMLAttributes<T>, keyof P> & P;
 
-export type MixinHTMLElementAttributes<
-  Target extends EventTarget,
-  ComponentProps = Record<string, never>
-> = RenderableProps<
-  Omit<JSX.HTMLAttributes<Target>, keyof ComponentProps> & ComponentProps
->
-
-export function createComponent<
-  Target extends EventTarget,
-  ComponentProps,
-  Props = MixinHTMLElementAttributes<Target, ComponentProps>
->(
-  fn: ForwardFn<Props, Target>
-): FunctionalComponent<Omit<Props, 'ref'> & { ref?: Ref<Target> }> {
-  return forwardRef<Target, Props>(fn)
+export function createComponent<T extends EventTarget, P, Props = MixinHTMLElementAttributes<T, P>>(
+  fn: (props: Props, ref: ForwardedRef<T>) => ReactNode
+): ForwardRefExoticComponent<Omit<Props, 'ref'> & { ref?: ForwardedRef<T> }> {
+  return forwardRef<T, Props>((props, ref) => fn(props, ref)) as any;
 }

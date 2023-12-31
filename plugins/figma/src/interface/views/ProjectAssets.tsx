@@ -1,5 +1,4 @@
-import {h} from 'preact';
-import {useState, useEffect} from 'preact/hooks';
+import {useState, useEffect} from 'react';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import PhotoAlbum from 'react-photo-album';
 

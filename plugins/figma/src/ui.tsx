@@ -3,9 +3,8 @@ import '!./interface/css/default.css';
 import '!./interface/css/plugin.css';
 import '!./interface/css/editor.css';
 
-import {h} from 'preact';
 import {on, emit} from '@create-figma-plugin/utilities';
-import {useState, useEffect} from 'preact/hooks';
+import {useState, useEffect} from 'react';
 import {useWindowResize, render} from 'figma-ui';
 import {init, auth, ErrorBoundary} from 'interface/telemetry';
 import {F2RN_UI_WIDTH_MIN} from 'config/env';

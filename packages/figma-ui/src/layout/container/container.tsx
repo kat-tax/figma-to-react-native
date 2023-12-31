@@ -1,21 +1,17 @@
-import {h} from 'preact';
-import {createComponent} from '../../utilities/create-component';
 import styles from './container.module.css';
-
-import type {ComponentChildren} from 'preact';
+import {createComponent} from '../../utilities/create-component';
+import type {ReactNode} from 'react';
 import type {Space} from '../../types/space';
 
 export type ContainerProps = {
-  children: ComponentChildren,
+  children: ReactNode,
   space: ContainerSpace,
 }
 
 export type ContainerSpace = Space;
 
 export const Container = createComponent<HTMLDivElement, ContainerProps>(
-  function ({space, ...rest}, ref) {
-    return (
-      <div {...rest} ref={ref} class={styles[space]}/>
-    );
-  }
-)
+  ({space, ...rest}, ref) => (
+    <div {...rest} ref={ref} className={styles[space]}/>
+  )
+);

@@ -1,5 +1,4 @@
-import {h, Fragment} from 'preact';
-import {useMemo} from 'preact/hooks';
+import {useMemo, Fragment} from 'react';
 import {LoadingIndicator} from 'figma-ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {debounce} from 'common/delay';
@@ -21,7 +20,6 @@ export function ProjectSettings(props: ProjectSettingsProps) {
     debounce(props.settings.update, 750), [props.settings.update]);
   return (
     <Fragment>
-      {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="json"
         path={_path}

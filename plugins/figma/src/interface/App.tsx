@@ -1,5 +1,4 @@
-import {h} from 'preact';
-import {useState, useEffect} from 'preact/hooks';
+import {useState, useEffect} from 'react';
 import {Tabs, Tab} from 'interface/base/Tabs';
 import {NavBar} from 'interface/base/NavBar';
 

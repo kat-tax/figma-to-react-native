@@ -1,86 +1,78 @@
-import { ComponentChildren, h } from 'preact'
-import { useCallback } from 'preact/hooks'
+import styles from './layer.module.css';
 
-import { Event, EventHandler } from '../../types/event-handler.js'
-import { FocusableComponentProps } from '../../types/focusable-component-props.js'
-import { createClassName } from '../../utilities/create-class-name.js'
-import { createComponent } from '../../utilities/create-component.js'
-import { noop } from '../../utilities/no-op.js'
-import styles from './layer.module.css'
+import {useCallback} from 'react';
+import {createClassName} from '../../utilities/create-class-name.js';
+import {createComponent} from '../../utilities/create-component.js';
+import {noop} from '../../utilities/no-op.js';
+
+import type {ReactNode} from 'react';
+import type {Event, EventHandler} from '../../types/event-handler.js';
+import type {FocusableComponentProps} from '../../types/focusable-component-props.js';
 
 export interface LayerProps extends FocusableComponentProps<HTMLInputElement> {
-  bold?: boolean
-  children: ComponentChildren
-  component?: boolean
-  description?: string
-  icon: ComponentChildren
-  onChange?: EventHandler.onChange<HTMLInputElement>
-  onValueChange?: EventHandler.onValueChange<boolean>
-  value: boolean
+  value: boolean,
+  icon: ReactNode,
+  children: ReactNode,
+  description?: string,
+  component?: boolean,
+  bold?: boolean,
+  onChange?: EventHandler.onChange<HTMLInputElement>,
+  onValueChange?: EventHandler.onValueChange<boolean>,
 }
 
-export const Layer = createComponent<HTMLInputElement, LayerProps>(function (
-  {
-    bold = false,
-    children,
-    component = false,
-    description,
-    icon,
-    onChange = noop,
-    onKeyDown = noop,
-    onValueChange = noop,
-    propagateEscapeKeyDown = true,
-    value,
-    ...rest
-  },
-  ref
-) {
-  const handleChange = useCallback(
-    function (event: Event.onChange<HTMLInputElement>) {
-      onChange(event)
-      const newValue = event.currentTarget.checked === true
-      onValueChange(newValue)
-    },
-    [onChange, onValueChange]
-  )
+export const Layer = createComponent<HTMLInputElement, LayerProps>(({
+  value,
+  icon,
+  children,
+  description,
+  bold = false,
+  component = false,
+  onChange = noop,
+  onKeyDown = noop,
+  onValueChange = noop,
+  propagateEscapeKeyDown = true,
+  ...rest
+}, ref) => {
 
-  const handleKeyDown = useCallback(
-    function (event: Event.onKeyDown<HTMLInputElement>) {
-      onKeyDown(event)
-      if (event.key === 'Escape') {
-        if (propagateEscapeKeyDown === false) {
-          event.stopPropagation()
-        }
-        event.currentTarget.blur()
-      }
-    },
-    [onKeyDown, propagateEscapeKeyDown]
-  )
+  const handleChange = useCallback((e: Event.onChange<HTMLInputElement>) => {
+    onChange(e);
+    const newValue = e.currentTarget.checked;
+    onValueChange(newValue);
+  }, [onChange, onValueChange])
+
+  const handleKeyDown = useCallback((e: Event.onKeyDown<HTMLInputElement>) => {
+    onKeyDown(e);
+    if (e.key === 'Escape') {
+      if (propagateEscapeKeyDown === false)
+        e.stopPropagation();
+      e.currentTarget.blur();
+    }
+  }, [onKeyDown, propagateEscapeKeyDown]);
 
   return (
     <label
-      class={createClassName([
+      className={createClassName([
         styles.layer,
-        bold === true ? styles.bold : null,
-        component === true ? styles.component : null
-      ])}
-    >
+        bold ? styles.bold : null,
+        component ? styles.component : null
+      ])}>
       <input
         {...rest}
         ref={ref}
-        checked={value === true}
-        class={styles.input}
+        type="checkbox"
+        checked={value}
+        className={styles.input}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         tabIndex={0}
-        type="checkbox"
       />
-      <div class={styles.box} />
-      <div class={styles.icon}>{icon}</div>
-      <div class={styles.children}>{children}</div>
-      {typeof description === 'undefined' ? null : (
-        <div class={styles.description}>{description}</div>
-      )}
+      <div className={styles.box}/>
+      <div className={styles.icon}>{icon}</div>
+      <div className={styles.children}>{children}</div>
+      {typeof description === 'undefined'
+        ? null
+        : <div className={styles.description}>{description}</div>
+      }
     </label>
-  )
-})
+  );
+});

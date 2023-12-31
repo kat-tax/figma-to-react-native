@@ -1,4 +1,4 @@
-import {useEffect} from 'preact/hooks';
+import {useEffect} from 'react';
 import {on, emit} from '@create-figma-plugin/utilities';
 import {init, cssToReactNative, buildCSS} from 'css-to-rn';
 

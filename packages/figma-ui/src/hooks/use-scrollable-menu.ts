@@ -1,7 +1,7 @@
-import {useCallback} from 'preact/hooks';
+import {useCallback} from 'react';
 import {getCurrentFromRef} from '../utilities/get-current-from-ref';
 
-import type {JSX, RefObject} from 'preact';
+import type {JSX, RefObject} from 'react';
 import type {Event} from '../types/event-handler';
 
 export function useScrollableMenu(options: {

@@ -1,4 +1,3 @@
-import {h} from 'preact';
 import {Container} from 'figma-ui';
 
 interface ProgressBarProps {

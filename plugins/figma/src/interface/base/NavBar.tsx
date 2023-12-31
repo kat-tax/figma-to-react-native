@@ -1,5 +1,4 @@
-import {h, Fragment} from 'preact';
-import {useEffect, useState} from 'preact/hooks';
+import {useEffect, useState, Fragment} from 'react';
 import {useWindowSize} from "@uidotdev/usehooks";
 import {Bar, Link} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
@@ -8,7 +7,7 @@ import {titleCase} from 'common/string';
 
 import * as F from 'figma-ui';
 
-import type {StateUpdater} from 'preact/hooks';
+import type {StateUpdater} from 'react';
 import type {ComponentBuild} from 'types/component';
 import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {Navigation} from 'interface/hooks/useNavigation';

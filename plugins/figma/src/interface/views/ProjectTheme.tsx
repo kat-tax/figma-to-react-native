@@ -1,6 +1,6 @@
-import {h, Fragment} from 'preact';
-import {LoadingIndicator} from 'figma-ui';
 import MonacoReact from '@monaco-editor/react';
+import {Fragment} from 'react';
+import {LoadingIndicator} from 'figma-ui';
 import {MonacoBinding} from 'interface/utils/editor/lib/yjs';
 import {ThemePicker} from 'interface/base/ThemePicker';
 import {F2RN_EDITOR_NS} from 'config/env';
@@ -17,7 +17,6 @@ interface ProjectThemeProps {
 export function ProjectTheme(props: ProjectThemeProps) {
   return props.hasStyles
     ? <Fragment>
-        {/* @ts-ignore Preact issue */}
         <MonacoReact
           language="typescript"
           path={`${F2RN_EDITOR_NS}theme.ts`}

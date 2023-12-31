@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'preact/hooks';
+import {useState, useEffect} from 'react';
 import {on} from '@create-figma-plugin/utilities';
 
 import type {EventProjectIcons} from 'types/events';

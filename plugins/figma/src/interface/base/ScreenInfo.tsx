@@ -1,4 +1,4 @@
-import {h, Fragment} from 'preact';
+import {Fragment} from 'react';
 import {Container, Muted, IconNotice32} from 'figma-ui';
 
 interface ScreenInfoProps {

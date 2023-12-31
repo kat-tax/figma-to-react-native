@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'preact/hooks';
+import {useCallback, useState} from 'react';
 import {useWindowKeyDown} from './use-window-key-down';
 import {useInitialFocus} from './use-initial-focus';
 import {useFocusTrap} from './use-focus-trap';
@@ -16,68 +16,52 @@ export function useForm<State>(
 ): {
   disabled: boolean,
   formState: State,
-  handleSubmit: () => void,
   initialFocus: InitialFocus,
+  handleSubmit: () => void,
   setFormState: <Name extends keyof State>(
     state: State[Name],
     name: undefined | Name,
   ) => void,
 } {
+
   const {close, submit, transform, validate} = options;
   const [formState, setState] = useState(initialState);
+  const setFormState = useCallback(<Name extends keyof State>(value: State[Name], name?: Name) => {
+    if (typeof name === 'undefined')
+      throw new Error('`name` is `undefined`');
+    setState(function (previousState: State): State {
+      const newState = {...previousState, ...{[name]: value}};
+      return typeof transform === 'undefined'
+        ? newState
+        : transform(newState);
+    })
+  }, [transform]);
 
-  const setFormState = useCallback(
-    function <Name extends keyof State>(value: State[Name], name?: Name) {
-      if (typeof name === 'undefined') {
-        throw new Error('`name` is `undefined`');
-      }
-      setState(function (previousState: State): State {
-        const newState = {
-          ...previousState,
-          ...{[name]: value},
-        };
-        return typeof transform === 'undefined'
-          ? newState
-          : transform(newState);
-      })
-    },
-    [transform]
-  );
-
-  const handleSubmit = useCallback(
-    function (): void {
-      if (typeof validate !== 'undefined' && validate(formState) === false) {
-        return;
-      }
-      submit(formState);
-    },
-    [formState, submit, validate]
-  );
+  const handleSubmit = useCallback((): void => {
+    if (typeof validate !== 'undefined' && validate(formState) === false)
+      return;
+    submit(formState);
+  }, [formState, submit, validate]);
 
   useWindowKeyDown('Enter', handleSubmit);
 
-  const handleClose = useCallback(
-    function (): void {
-      close(formState)
-    },
-    [close, formState]
-  );
+  const handleClose = useCallback((): void => {
+    close(formState);
+  }, [close, formState]);
 
   useWindowKeyDown('Escape', handleClose);
-
   useFocusTrap();
 
+  const initialFocus = useInitialFocus();
   const disabled = typeof validate !== 'undefined'
     ? validate(formState) === false
     : false;
 
-  const initialFocus = useInitialFocus();
-
   return {
     disabled,
     formState,
-    handleSubmit,
     initialFocus,
+    handleSubmit,
     setFormState,
   };
 }

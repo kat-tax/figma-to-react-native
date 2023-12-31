@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'preact/hooks';
+import {useState, useEffect} from 'react';
 
 function isFigmaDark() {
   return document.body.parentElement?.classList.contains('figma-dark') ?? false;

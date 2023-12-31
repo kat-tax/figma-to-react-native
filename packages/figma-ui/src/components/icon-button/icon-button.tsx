@@ -1,56 +1,47 @@
-import { ComponentChildren, h } from 'preact'
-import { useCallback } from 'preact/hooks'
+import styles from './icon-button.module.css';
 
-import { Event, EventHandler } from '../../types/event-handler.js'
-import { FocusableComponentProps } from '../../types/focusable-component-props.js'
-import { createComponent } from '../../utilities/create-component.js'
-import { noop } from '../../utilities/no-op.js'
-import styles from './icon-button.module.css'
+import {useCallback} from 'react';
+import {createComponent} from '../../utilities/create-component.js';
+import {noop} from '../../utilities/no-op.js';
 
-export interface IconButtonProps
-  extends FocusableComponentProps<HTMLButtonElement> {
-  children: ComponentChildren
-  disabled?: boolean
-  onClick?: EventHandler.onClick<HTMLButtonElement>
+import type {ReactNode} from 'react';
+import type {Event, EventHandler} from '../../types/event-handler.js';
+import type {FocusableComponentProps} from '../../types/focusable-component-props.js';
+
+export interface IconButtonProps extends FocusableComponentProps<HTMLButtonElement> {
+  children: ReactNode,
+  disabled?: boolean,
+  onClick?: EventHandler.onClick<HTMLButtonElement>,
 }
 
-export const IconButton = createComponent<HTMLButtonElement, IconButtonProps>(
-  function (
-    {
-      children,
-      disabled = false,
-      onClick,
-      onKeyDown = noop,
-      propagateEscapeKeyDown = true,
-      ...rest
-    },
-    ref
-  ) {
-    const handleKeyDown = useCallback(
-      function (event: Event.onKeyDown<HTMLButtonElement>) {
-        onKeyDown(event)
-        if (event.key === 'Escape') {
-          if (propagateEscapeKeyDown === false) {
-            event.stopPropagation()
-          }
-          event.currentTarget.blur()
-        }
-      },
-      [onKeyDown, propagateEscapeKeyDown]
-    )
+export const IconButton = createComponent<HTMLButtonElement, IconButtonProps>(({
+  children,
+  onClick,
+  onKeyDown = noop,
+  disabled = false,
+  propagateEscapeKeyDown = true,
+  ...rest
+}, ref) => {
 
-    return (
-      <button
-        {...rest}
-        ref={ref}
-        class={styles.iconButton}
-        disabled={disabled === true}
-        onClick={onClick}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-      >
-        <div class={styles.icon}>{children}</div>
-      </button>
-    )
-  }
-)
+  const handleKeyDown = useCallback((e: Event.onKeyDown<HTMLButtonElement>) => {
+    onKeyDown(e)
+    if (e.key === 'Escape') {
+      if (propagateEscapeKeyDown === false)
+        e.stopPropagation();
+      e.currentTarget.blur();
+    }
+  }, [onKeyDown, propagateEscapeKeyDown]);
+
+  return (
+    <button
+      {...rest}
+      ref={ref}
+      className={styles.iconButton}
+      disabled={disabled}
+      onKeyDown={handleKeyDown}
+      onClick={onClick}
+      tabIndex={0}>
+      <div className={styles.icon}>{children}</div>
+    </button>
+  );
+});

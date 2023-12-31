@@ -27,6 +27,7 @@
 .input:checked ~ .box {
   background-color: var(--figma-color-bg-selected);
 }
+
 .input:not(:checked):hover ~ .box,
 .input:focus ~ .box {
   border: 1px solid var(--figma-color-border-brand-strong);
@@ -35,6 +36,7 @@
 .component .input:checked ~ .box {
   background-color: var(--figma-color-bg-component-tertiary);
 }
+
 .component .input:not(:checked):hover ~ .box,
 .component .input:focus ~ .box {
   border-color: var(--figma-color-border-component-strong);
@@ -57,9 +59,11 @@
   padding-left: var(--space-extra-small);
   color: var(--figma-color-text);
 }
+
 .component .children {
   color: var(--figma-color-text-component);
 }
+
 .bold .children {
   font-weight: var(--font-weight-bold);
 }
@@ -69,9 +73,11 @@
   flex: 0 0 16px;
   color: var(--figma-color-icon-secondary);
 }
+
 .input:checked ~ .icon {
   color: var(--figma-color-icon);
 }
+
 .component .icon,
 .component .input:checked ~ .icon {
   color: var(--figma-color-icon-component);

@@ -1,4 +1,4 @@
-import {useRef, useState, useCallback, useEffect, MutableRef} from 'preact/hooks';
+import {useRef, useState, useCallback, useEffect, MutableRef} from 'react';
 import {on, emit} from '@create-figma-plugin/utilities';
 import defaultConfig from 'config/user';
 

@@ -1,4 +1,4 @@
-import {h, Fragment} from 'preact';
+import {Fragment} from 'react';
 import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {F2RN_EDITOR_NS} from 'config/env';
@@ -21,7 +21,6 @@ export function ComponentStory(props: ComponentStoryProps) {
       {!story &&
         <ScreenWarning message="Component not found"/>
       }
-      {/* @ts-ignore Preact issue */}
       <MonacoReact
         language="typescript"
         path={`${F2RN_EDITOR_NS}${component?.name}.story.ts`}

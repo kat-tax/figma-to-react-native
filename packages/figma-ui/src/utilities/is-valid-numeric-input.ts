@@ -14,21 +14,21 @@ export function isValidNumericInput(
   value: string,
   options: {integersOnly: boolean} = {integersOnly: false}
 ): boolean {
-  const split = (value[0] === '-' ? value.substring(1) : value).split(
-    operatorRegex
-  )
-  let i = -1
+  let i = -1;
+  const split = (value[0] === '-'
+    ? value.substring(1)
+    : value).split(operatorRegex);
   while (++i < split.length) {
-    const operand = split[i]
+    const operand = split[i];
     if (
       (operand === '' && i !== split.length - 1) ||
-      (options.integersOnly === true
+      (options.integersOnly
         ? integerOperandRegex
         : floatOperandRegex
       ).test(operand) === false
     ) {
-      return false
+      return false;
     }
   }
-  return true
+  return true;
 }

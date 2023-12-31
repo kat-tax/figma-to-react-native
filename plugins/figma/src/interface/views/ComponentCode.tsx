@@ -1,10 +1,9 @@
-import {h, Fragment} from 'preact';
-import {LoadingIndicator} from 'figma-ui';
-import {useRef, useState, useEffect, useCallback} from 'preact/hooks';
+import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
+import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {initComponentEditor} from 'interface/utils/editor';
 import {MonacoBinding} from 'interface/utils/editor/lib/yjs';
+import {initComponentEditor} from 'interface/utils/editor';
 import {F2RN_EDITOR_NS} from 'config/env';
 import * as $ from 'interface/store';
 
@@ -80,7 +79,6 @@ export function ComponentCode(props: ComponentCodeProps) {
       {!$componentInfo && 
         <ScreenWarning message="Component not found"/>
       }
-      {/* @ts-ignore Preact issue */}
       {!patch && <MonacoReact
         language="typescript"
         theme={props.options?.theme}
@@ -98,7 +96,6 @@ export function ComponentCode(props: ComponentCodeProps) {
           );
         }}
       />}
-      {/* @ts-ignore Preact issue */}
       {patch && <DiffEditor
         language="typescript"
         theme={props.options?.theme}

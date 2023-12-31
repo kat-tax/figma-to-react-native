@@ -1,86 +1,75 @@
-import { ComponentChildren, h } from 'preact'
-import { useCallback } from 'preact/hooks'
+import styles from './checkbox.module.css';
 
-import { IconControlCheckboxChecked12 } from '../../icons/icon-12/icon-control-checkbox-checked-12.js'
-import { Event, EventHandler } from '../../types/event-handler.js'
-import { FocusableComponentProps } from '../../types/focusable-component-props.js'
-import { createClassName } from '../../utilities/create-class-name.js'
-import { createComponent } from '../../utilities/create-component.js'
-import { noop } from '../../utilities/no-op.js'
-import styles from './checkbox.module.css'
+import {useCallback} from 'react';
+import {IconControlCheckboxChecked12} from '../../icons/icon-12/icon-control-checkbox-checked-12.js';
+import {createClassName} from '../../utilities/create-class-name.js';
+import {createComponent} from '../../utilities/create-component.js';
+import {noop} from '../../utilities/no-op.js';
 
-export interface CheckboxProps
-  extends FocusableComponentProps<HTMLInputElement> {
-  children: ComponentChildren
-  disabled?: boolean
-  onChange?: EventHandler.onChange<HTMLInputElement>
-  onValueChange?: EventHandler.onValueChange<boolean>
-  value: boolean
+import type {ReactNode} from 'react';
+import type {Event, EventHandler} from '../../types/event-handler.js';
+import type {FocusableComponentProps} from '../../types/focusable-component-props.js';
+
+export interface CheckboxProps extends FocusableComponentProps<HTMLInputElement> {
+  value: boolean,
+  children: ReactNode,
+  disabled?: boolean,
+  onChange?: EventHandler.onChange<HTMLInputElement>,
+  onValueChange?: EventHandler.onValueChange<boolean>,
 }
 
-export const Checkbox = createComponent<HTMLInputElement, CheckboxProps>(
-  function (
-    {
-      children,
-      disabled = false,
-      onChange = noop,
-      onKeyDown = noop,
-      onValueChange = noop,
-      propagateEscapeKeyDown = true,
-      value,
-      ...rest
-    },
-    ref
-  ) {
-    const handleChange = useCallback(
-      function (event: Event.onChange<HTMLInputElement>) {
-        onChange(event)
-        const newValue = event.currentTarget.checked === true
-        onValueChange(newValue)
-      },
-      [onChange, onValueChange]
-    )
+export const Checkbox = createComponent<HTMLInputElement, CheckboxProps>(({
+  value,
+  children,
+  disabled = false,
+  onChange = noop,
+  onKeyDown = noop,
+  onValueChange = noop,
+  propagateEscapeKeyDown = true,
+  ...rest
+}, ref) => {
 
-    const handleKeyDown = useCallback(
-      function (event: Event.onKeyDown<HTMLInputElement>) {
-        onKeyDown(event)
-        if (event.key === 'Escape') {
-          if (propagateEscapeKeyDown === false) {
-            event.stopPropagation()
-          }
-          event.currentTarget.blur()
-        }
-      },
-      [onKeyDown, propagateEscapeKeyDown]
-    )
+    const handleChange = useCallback((e: Event.onChange<HTMLInputElement>) => {
+      onChange(e);
+      onValueChange(e.currentTarget.checked);
+    }, [onChange, onValueChange]);
+
+    const handleKeyDown = useCallback((e: Event.onKeyDown<HTMLInputElement>) => {
+      onKeyDown(e);
+      if (e.key === 'Escape') {
+        if (propagateEscapeKeyDown === false)
+          e.stopPropagation();
+        e.currentTarget.blur();
+      }
+    }, [onKeyDown, propagateEscapeKeyDown]);
 
     return (
       <label
-        class={createClassName([
+        className={createClassName([
           styles.checkbox,
-          disabled === true ? styles.disabled : null
-        ])}
-      >
+          disabled ? styles.disabled : null
+        ])}>
         <input
           {...rest}
           ref={ref}
-          checked={value === true}
-          class={styles.input}
-          disabled={disabled === true}
+          type="checkbox"
+          checked={value}
+          disabled={disabled}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
+          className={styles.input}
           tabIndex={0}
-          type="checkbox"
         />
-        <div class={styles.fill}>
-          {value === true ? (
-            <div class={styles.checkIcon}>
-              <IconControlCheckboxChecked12 />
-            </div>
-          ) : null}
+        <div className={styles.fill}>
+          {value
+            ? <div className={styles.checkIcon}>
+                <IconControlCheckboxChecked12/>
+              </div>
+            : null
+          }
         </div>
-        <div class={styles.border} />
-        <div class={styles.children}>{children}</div>
+        <div className={styles.border}/>
+        <div className={styles.children}>{children}</div>
       </label>
     )
   }

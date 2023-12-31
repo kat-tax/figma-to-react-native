@@ -2,6 +2,7 @@
   position: relative;
   z-index: var(--z-index-1);
 }
+
 .textbox:focus-within {
   z-index: var(--z-index-2); /* Stack `.textbox` over its sibling elements */
 }
@@ -14,10 +15,12 @@
   background-color: transparent;
   color: var(--figma-color-text);
 }
+
 .disabled .input {
   color: var(--figma-color-text-disabled);
   cursor: not-allowed;
 }
+
 .hasIcon .input {
   padding-left: 32px;
 }
@@ -35,9 +38,11 @@
   text-align: center;
   transform: translate(-50%, -50%);
 }
+
 .textbox:not(.disabled) .input:focus ~ .icon {
   color: var(--figma-color-icon-brand);
 }
+
 .disabled .icon {
   color: var(--figma-color-icon-disabled);
 }
@@ -56,10 +61,12 @@
   border-radius: var(--border-radius-2);
   pointer-events: none;
 }
+
 .hasBorder .border,
 .textbox:not(.disabled):hover .border {
   border-color: var(--figma-color-border);
 }
+
 .textbox:not(.disabled) .input:focus ~ .border {
   top: -1px;
   bottom: -1px;
@@ -75,6 +82,7 @@
   height: 1px;
   background-color: var(--figma-color-border);
 }
+
 .textbox:not(.disabled) .input:focus ~ .underline,
 .textbox:not(.disabled):hover .underline {
   background-color: transparent;

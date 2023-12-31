@@ -1,73 +1,66 @@
-import { ComponentChildren, h } from 'preact'
-import { useCallback } from 'preact/hooks'
+import styles from './toggle.module.css';
 
-import { Event, EventHandler } from '../../types/event-handler.js'
-import { FocusableComponentProps } from '../../types/focusable-component-props.js'
-import { createClassName } from '../../utilities/create-class-name.js'
-import { createComponent } from '../../utilities/create-component.js'
-import { noop } from '../../utilities/no-op.js'
-import styles from './toggle.module.css'
+import {useCallback} from 'react';
+import {createClassName} from '../../utilities/create-class-name.js';
+import {createComponent} from '../../utilities/create-component.js';
+import {noop} from '../../utilities/no-op.js';
+
+import type {ReactNode} from 'react';
+import type {Event, EventHandler} from '../../types/event-handler.js';
+import type {FocusableComponentProps} from '../../types/focusable-component-props.js';
 
 export interface ToggleProps extends FocusableComponentProps<HTMLInputElement> {
-  children: ComponentChildren
-  disabled?: boolean
-  onChange?: EventHandler.onChange<HTMLInputElement>
-  onValueChange?: EventHandler.onValueChange<boolean>
-  value: boolean
+  value: boolean,
+  children: ReactNode,
+  disabled?: boolean,
+  onChange?: EventHandler.onChange<HTMLInputElement>,
+  onValueChange?: EventHandler.onValueChange<boolean>,
 }
 
-export const Toggle = createComponent<HTMLInputElement, ToggleProps>(function ({
+export const Toggle = createComponent<HTMLInputElement, ToggleProps>(({
   children,
+  value = false,
   disabled = false,
   onChange = noop,
   onKeyDown = noop,
   onValueChange = noop,
   propagateEscapeKeyDown = true,
-  value = false,
   ...rest
-}) {
-  const handleChange = useCallback(
-    function (event: Event.onChange<HTMLInputElement>) {
-      onChange(event)
-      const newValue = event.currentTarget.checked === true
-      onValueChange(newValue)
-    },
-    [onChange, onValueChange]
-  )
+}) => {
 
-  const handleKeyDown = useCallback(
-    function (event: Event.onKeyDown<HTMLInputElement>) {
-      onKeyDown(event)
-      if (event.key === 'Escape') {
-        if (propagateEscapeKeyDown === false) {
-          event.stopPropagation()
-        }
-        event.currentTarget.blur()
-      }
-    },
-    [propagateEscapeKeyDown, onKeyDown]
-  )
+  const handleChange = useCallback((e: Event.onChange<HTMLInputElement>) => {
+    onChange(e);
+    onValueChange(e.currentTarget.checked);
+  }, [onChange, onValueChange])
+
+  const handleKeyDown = useCallback((e: Event.onKeyDown<HTMLInputElement>) => {
+    onKeyDown(e)
+    if (e.key === 'Escape') {
+      if (propagateEscapeKeyDown === false)
+        e.stopPropagation();
+      e.currentTarget.blur();
+    }
+  }, [propagateEscapeKeyDown, onKeyDown]);
 
   return (
     <label
-      class={createClassName([
+      className={createClassName([
         styles.toggle,
-        disabled === true ? styles.disabled : null
-      ])}
-    >
+        disabled ? styles.disabled : null
+      ])}>
       <input
         {...rest}
-        checked={value === true}
-        class={styles.input}
-        disabled={disabled === true}
+        type="checkbox"
+        checked={value}
+        disabled={disabled}
+        className={styles.input}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         tabIndex={0}
-        type="checkbox"
       />
-      <div class={styles.box} />
-      <div class={styles.track} />
-      <div class={styles.children}>{children}</div>
+      <div className={styles.box}/>
+      <div className={styles.track}/>
+      <div className={styles.children}>{children}</div>
     </label>
-  )
-})
+  );
+});

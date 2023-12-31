@@ -11,9 +11,11 @@
   font-size: var(--font-size-12);
   overflow-y: auto;
 }
+
 .menu::-webkit-scrollbar {
   display: none;
 }
+
 .menu:empty {
   display: none;
 }
@@ -47,9 +49,11 @@
 .optionValue {
   position: relative;
 }
+
 .optionValueSelected {
   background-color: var(--figma-color-bg-brand);
 }
+
 .optionValueDisabled {
   color: rgba(255, 255, 255, 0.4); /* FIXME */
 }

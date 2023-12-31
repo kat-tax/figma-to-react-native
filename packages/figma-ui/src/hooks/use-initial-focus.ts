@@ -1,4 +1,4 @@
-import {useEffect} from 'preact/hooks';
+import {useEffect} from 'react';
 
 const INITIAL_FOCUS_DATA_ATTRIBUTE_NAME = 'data-initial-focus';
 
@@ -19,7 +19,7 @@ export function useInitialFocus(): InitialFocus {
       .call(focusableElements)
       .find(function (focusableElement: HTMLElement) {
         const inputElement = focusableElement as HTMLInputElement;
-        return inputElement.type === 'radio' && inputElement.checked === true;
+        return inputElement.type === 'radio' && inputElement.checked;
       });
     if (typeof checkedRadioButtonInputElement !== 'undefined') {
       checkedRadioButtonInputElement.focus();

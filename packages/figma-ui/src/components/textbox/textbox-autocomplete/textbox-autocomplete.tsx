@@ -1,5 +1,5 @@
 import { ComponentChildren, h, RefObject } from 'preact'
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import menuStyles from '../../../css/menu.module.css'
 import { useMouseDownOutside } from '../../../hooks/use-mouse-down-outside.js'
@@ -106,7 +106,7 @@ export const TextboxAutocomplete = createComponent<
   const [selectedId, setSelectedId] = useState<Id>(INVALID_ID)
 
   const options =
-    filter === true
+    filter
       ? filterOptions(createOptions(rest.options), value, editedValue)
       : createOptions(rest.options)
 
@@ -195,10 +195,10 @@ export const TextboxAutocomplete = createComponent<
       const newValue = event.currentTarget.value
       updateSelectedId(newValue)
       onValueInput(newValue)
-      if (isMenuVisible === true) {
+      if (isMenuVisible) {
         return
       }
-      if (revertOnEscapeKeyDownRef.current === true) {
+      if (revertOnEscapeKeyDownRef.current) {
         revertOnEscapeKeyDownRef.current = false
         return
       }
@@ -250,12 +250,12 @@ export const TextboxAutocomplete = createComponent<
         if (propagateEscapeKeyDown === false) {
           event.stopPropagation()
         }
-        if (revertOnEscapeKeyDown === true) {
+        if (revertOnEscapeKeyDown) {
           revertOnEscapeKeyDownRef.current = true
           updateTextboxValue(originalValue)
         }
         // Hide the menu if it is visible, else blur the textbox
-        if (isMenuVisible === true) {
+        if (isMenuVisible) {
           triggerMenuHide()
           return
         }
@@ -266,7 +266,7 @@ export const TextboxAutocomplete = createComponent<
         event.preventDefault()
         triggerTextboxSelect()
         // Toggle visibility of the menu
-        if (isMenuVisible === true) {
+        if (isMenuVisible) {
           triggerMenuHide()
           return
         }
@@ -280,13 +280,13 @@ export const TextboxAutocomplete = createComponent<
       if (strict === false) {
         return
       }
-      if (event.ctrlKey === true || event.metaKey === true) {
+      if (event.ctrlKey || event.metaKey) {
         return
       }
-      if (isKeyCodeCharacterGenerating(event.keyCode) === true) {
+      if (isKeyCodeCharacterGenerating(event.keyCode)) {
         // Piece together `newValue`, and stop the `keyDown` event if `newValue` is invalid
         const nextValue = computeNextValue(inputElement, event.key)
-        if (isValidValue(options, nextValue) === true) {
+        if (isValidValue(options, nextValue)) {
           return
         }
         event.preventDefault()
@@ -314,7 +314,7 @@ export const TextboxAutocomplete = createComponent<
   const handleTextboxMouseDown = useCallback(
     function (event: Event.onMouseDown<HTMLInputElement>) {
       onMouseDown(event)
-      if (isMenuVisible === true) {
+      if (isMenuVisible) {
         return
       }
       event.preventDefault()
@@ -340,7 +340,7 @@ export const TextboxAutocomplete = createComponent<
         event.currentTarget,
         event.clipboardData.getData('Text')
       )
-      if (isValidValue(options, nextValue) === true) {
+      if (isValidValue(options, nextValue)) {
         return
       }
       event.preventDefault()
@@ -442,7 +442,7 @@ export const TextboxAutocomplete = createComponent<
   return (
     <div
       ref={rootElementRef}
-      class={createClassName([
+      className={createClassName([
         textboxStyles.textbox,
         typeof variant === 'undefined'
           ? null
@@ -450,15 +450,15 @@ export const TextboxAutocomplete = createComponent<
           ? textboxStyles.hasBorder
           : null,
         typeof icon === 'undefined' ? null : textboxStyles.hasIcon,
-        disabled === true ? textboxStyles.disabled : null
+        disabled ? textboxStyles.disabled : null
       ])}
     >
-      <div class={textboxStyles.inner}>
+      <div className={textboxStyles.inner}>
         <input
           {...rest}
           ref={refCallback}
-          class={textboxStyles.input}
-          disabled={disabled === true}
+          className={textboxStyles.input}
+          disabled={disabled}
           onInput={handleTextboxInput}
           onKeyDown={handleTextboxKeyDown}
           onMouseDown={handleTextboxMouseDown}
@@ -470,31 +470,31 @@ export const TextboxAutocomplete = createComponent<
           value={value}
         />
         {typeof icon === 'undefined' ? null : (
-          <div class={textboxStyles.icon}>{icon}</div>
+          <div className={textboxStyles.icon}>{icon}</div>
         )}
-        <div class={textboxStyles.border} />
+        <div className={textboxStyles.border} />
         {variant === 'underline' ? (
-          <div class={textboxStyles.underline} />
+          <div className={textboxStyles.underline} />
         ) : null}
         <div
           ref={menuElementRef}
-          class={createClassName([
+          className={createClassName([
             menuStyles.menu,
-            disabled === true || isMenuVisible === false
+            disabled || isMenuVisible === false
               ? menuStyles.hidden
               : null,
-            top === true
+            top
               ? textboxAutocompleteStyles.top
               : textboxAutocompleteStyles.bottom
           ])}
         >
           {options.map(function (option: Option, index: number) {
             if (typeof option === 'string') {
-              return <hr key={index} class={menuStyles.optionSeparator} />
+              return <hr key={index} className={menuStyles.optionSeparator} />
             }
             if ('header' in option) {
               return (
-                <h1 key={index} class={menuStyles.optionHeader}>
+                <h1 key={index} className={menuStyles.optionHeader}>
                   {option.header}
                 </h1>
               )
@@ -502,9 +502,9 @@ export const TextboxAutocomplete = createComponent<
             return (
               <label
                 key={index}
-                class={createClassName([
+                className={createClassName([
                   menuStyles.optionValue,
-                  option.disabled === true
+                  option.disabled
                     ? menuStyles.optionValueDisabled
                     : null,
                   option.disabled !== true && option.id === selectedId
@@ -514,8 +514,8 @@ export const TextboxAutocomplete = createComponent<
               >
                 <input
                   checked={value === option.value}
-                  class={menuStyles.input}
-                  disabled={option.disabled === true}
+                  className={menuStyles.input}
+                  disabled={option.disabled}
                   // If clicked on an unselected element, set the value
                   onChange={
                     value === option.value ? undefined : handleOptionChange
@@ -529,7 +529,7 @@ export const TextboxAutocomplete = createComponent<
                   {...{ [ITEM_ID_DATA_ATTRIBUTE_NAME]: option.id }}
                 />
                 {option.value === originalValue ? ( // Show check icon if option matches `originalValue`
-                  <div class={menuStyles.checkIcon}>
+                  <div className={menuStyles.checkIcon}>
                     <IconMenuCheckmarkChecked16 />
                   </div>
                 ) : null}
@@ -575,7 +575,7 @@ function filterOptions(
     // `value` does not match any option in `options`
     return options.filter(function (option: Option): boolean {
       if (typeof option !== 'string' && 'value' in option) {
-        return doesStringContainSubstring(option.value, value) === true
+        return doesStringContainSubstring(option.value, value)
       }
       return false
     })
@@ -587,7 +587,7 @@ function filterOptions(
   // Filter `options` by `editedValue`
   return options.filter(function (option: Option): boolean {
     if (typeof option !== 'string' && 'value' in option) {
-      return doesStringContainSubstring(option.value, editedValue) === true
+      return doesStringContainSubstring(option.value, editedValue)
     }
     return false
   })
@@ -743,7 +743,7 @@ function updateMenuElementMaxHeight(
 ) {
   const rootElementTop = rootElement.getBoundingClientRect().top
   const maxHeight =
-    top === true
+    top
       ? rootElementTop - VIEWPORT_MARGIN
       : window.innerHeight -
         rootElementTop -

@@ -1,69 +1,64 @@
-import { ComponentChildren, Fragment, h } from 'preact'
-import { useCallback } from 'preact/hooks'
+import styles from './disclosure.module.css';
 
-import { IconCaretRight16 } from '../../icons/icon-16/icon-caret-right-16.js'
-import { Event, EventHandler } from '../../types/event-handler.js'
-import { FocusableComponentProps } from '../../types/focusable-component-props.js'
-import { createComponent } from '../../utilities/create-component.js'
-import { noop } from '../../utilities/no-op.js'
-import styles from './disclosure.module.css'
+import {Fragment, useCallback} from 'react';
+import {IconCaretRight16} from '../../icons/icon-16/icon-caret-right-16.js';
+import {createComponent} from '../../utilities/create-component.js';
+import {noop} from '../../utilities/no-op.js';
 
-export interface DisclosureProps
-  extends FocusableComponentProps<HTMLInputElement> {
-  children: ComponentChildren
-  onClick?: EventHandler.onClick<HTMLInputElement>
-  open: boolean
-  title: string
+import type {ReactNode} from 'react';
+import type {Event, EventHandler} from '../../types/event-handler.js';
+import type {FocusableComponentProps} from '../../types/focusable-component-props.js';
+
+export interface DisclosureProps extends FocusableComponentProps<HTMLInputElement> {
+  open: boolean,
+  title: string,
+  children: ReactNode,
+  onClick?: EventHandler.onClick<HTMLInputElement>,
 }
 
-export const Disclosure = createComponent<HTMLInputElement, DisclosureProps>(
-  function (
-    {
-      children,
-      onClick = noop,
-      onKeyDown = noop,
-      open,
-      propagateEscapeKeyDown = true,
-      title,
-      ...rest
-    },
-    ref
-  ) {
-    const handleKeyDown = useCallback(
-      function (event: Event.onKeyDown<HTMLInputElement>) {
-        onKeyDown(event)
-        if (event.key === 'Escape') {
-          if (propagateEscapeKeyDown === false) {
-            event.stopPropagation()
-          }
-          event.currentTarget.blur()
-        }
-      },
-      [onKeyDown, propagateEscapeKeyDown]
-    )
+export const Disclosure = createComponent<HTMLInputElement, DisclosureProps>(({
+  open,
+  title,
+  children,
+  onClick = noop,
+  onKeyDown = noop,
+  propagateEscapeKeyDown = true,
+  ...rest
+}, ref) => {
 
-    return (
-      <Fragment>
-        <label class={styles.label}>
-          <input
-            {...rest}
-            ref={ref}
-            checked={open === true}
-            class={styles.input}
-            onClick={onClick}
-            onKeyDown={handleKeyDown}
-            tabIndex={0}
-            type="checkbox"
-          />
-          <div class={styles.title}>
-            <div class={styles.icon}>
-              <IconCaretRight16 />
-            </div>
-            {title}
+  const handleKeyDown = useCallback((e: Event.onKeyDown<HTMLInputElement>) => {
+    onKeyDown(e)
+    if (e.key === 'Escape') {
+      if (propagateEscapeKeyDown === false)
+        e.stopPropagation();
+      e.currentTarget.blur();
+    }
+  }, [onKeyDown, propagateEscapeKeyDown]);
+
+  return (
+    <Fragment>
+      <label className={styles.label}>
+        <input
+          {...rest}
+          ref={ref}
+          type="checkbox"
+          checked={open}
+          className={styles.input}
+          onKeyDown={handleKeyDown}
+          onClick={onClick}
+          tabIndex={0}
+        />
+        <div className={styles.title}>
+          <div className={styles.icon}>
+            <IconCaretRight16/>
           </div>
-        </label>
-        {open === true ? <div class={styles.children}>{children}</div> : null}
-      </Fragment>
-    )
-  }
-)
+          {title}
+        </div>
+      </label>
+      {open
+        ? <div className={styles.children}>{children}</div>
+        : null
+      }
+    </Fragment>
+  );
+});

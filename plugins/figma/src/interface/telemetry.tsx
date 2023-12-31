@@ -1,4 +1,4 @@
-import {h, Component} from 'preact';
+import {Component} from 'react';
 import {Logtail} from '@logtail/browser';
 import {LOGTAIL_TOKEN} from 'config/env';
 

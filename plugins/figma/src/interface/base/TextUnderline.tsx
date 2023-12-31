@@ -1,4 +1,4 @@
-import {h, Fragment} from 'preact';
+import {Fragment} from 'react';
 import {Bold} from 'figma-ui';
 
 interface TextUnderlineProps {

@@ -6,5 +6,5 @@ export function isKeyCodeCharacterGenerating(keyCode: number): boolean {
     (keyCode >= 96 && keyCode <= 105) || // Number pad
     (keyCode >= 186 && keyCode <= 192) || // ;=,-./`
     (keyCode >= 219 && keyCode <= 222) // [\]'
-  )
+  );
 }

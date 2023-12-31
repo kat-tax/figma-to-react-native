@@ -1,6 +1,5 @@
-import {h} from 'preact';
 import {Fzf, byLengthAsc} from 'fzf';
-import {useState, useMemo, useEffect} from 'preact/hooks';
+import {useState, useMemo, useEffect} from 'react';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';

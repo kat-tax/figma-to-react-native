@@ -1,5 +1,4 @@
-import {h, Fragment} from 'preact';
-import {useState} from 'preact/hooks';
+import {useState, Fragment} from 'react';
 import {emit} from '@create-figma-plugin/utilities';
 import * as F from 'figma-ui';
 

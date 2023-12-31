@@ -1,7 +1,7 @@
-import {useEffect} from 'preact/hooks';
+import {useEffect} from 'react';
 import {getCurrentFromRef} from '../utilities/get-current-from-ref';
 
-import type {RefObject} from 'preact';
+import type {RefObject} from 'react';
 
 export function useMouseDownOutside(options: {
   ref: RefObject<HTMLElement>

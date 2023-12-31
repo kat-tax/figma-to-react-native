@@ -1,45 +1,40 @@
-import {h} from 'preact';
-import {useCallback} from 'preact/hooks';
+import styles from './link.module.css';
+
+import {useCallback} from 'react';
 import {createClassName} from '../../utilities/create-class-name';
 import {createComponent} from '../../utilities/create-component';
 import {noop} from '../../utilities/no-op';
-import styles from './link.module.css';
 
-import type {ComponentChildren} from 'preact';
+import type {ReactNode} from 'react';
 import type {FocusableComponentProps} from '../../types/focusable-component-props';
-import type {Event} from '../../types/event-handler'
+import type {Event} from '../../types/event-handler';
 
 export interface LinkProps extends FocusableComponentProps<HTMLAnchorElement> {
-  children: ComponentChildren,
+  children: ReactNode,
   href: string,
   target?: string,
   fullWidth?: boolean,
 }
 
-export const Link = createComponent<HTMLAnchorElement, LinkProps>((
-  {
-    children,
-    fullWidth = false,
-    href,
-    onKeyDown = noop,
-    propagateEscapeKeyDown = true,
-    target,
-    ...rest
-  },
-  ref
-) => {
-  const handleKeyDown = useCallback(
-    function (event: Event.onKeyDown<HTMLAnchorElement>) {
-      onKeyDown(event)
-      if (event.key === 'Escape') {
-        if (propagateEscapeKeyDown === false) {
-          event.stopPropagation();
-        }
-        event.currentTarget.blur();
+export const Link = createComponent<HTMLAnchorElement, LinkProps>(({
+  href,
+  target,
+  children,
+  fullWidth = false,
+  onKeyDown = noop,
+  propagateEscapeKeyDown = true,
+  ...rest
+}, ref) => {
+
+  const handleKeyDown = useCallback((e: Event.onKeyDown<HTMLAnchorElement>) => {
+    onKeyDown(e);
+    if (e.key === 'Escape') {
+      if (propagateEscapeKeyDown === false) {
+        e.stopPropagation();
       }
-    },
-    [propagateEscapeKeyDown, onKeyDown],
-  );
+      e.currentTarget.blur();
+    }
+  }, [propagateEscapeKeyDown, onKeyDown]);
 
   return (
     <a
@@ -47,9 +42,9 @@ export const Link = createComponent<HTMLAnchorElement, LinkProps>((
       ref={ref}
       href={href}
       target={target}
-      tabIndex={0}
-      class={createClassName([styles.link, fullWidth === true ? styles.fullWidth : null])}
-      onKeyDown={handleKeyDown}>
+      onKeyDown={handleKeyDown}
+      className={createClassName([styles.link, fullWidth ? styles.fullWidth : null])}
+      tabIndex={0}>
       {children}
     </a>
   );

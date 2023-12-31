@@ -24,6 +24,7 @@
   z-index: var(--z-index-1); /* stack `.input` on top of everything else */
   display: block;
 }
+
 .disabled .input {
   cursor: not-allowed;
 }
@@ -31,12 +32,15 @@
 .selectableItem:not(.disabled) .input:checked ~ .box {
   background-color: var(--figma-color-bg-selected);
 }
+
 .disabled .input:checked ~ .box {
   background-color: var(--figma-color-bg-disabled);
 }
+
 .selectableItem:not(.disabled) .input:not(:checked):hover ~ .box {
   background-color: var(--figma-color-bg-selected-secondary);
 }
+
 .selectableItem:not(.disabled) .input:focus ~ .box {
   border: 1px solid var(--figma-color-border-brand-strong);
 }
@@ -52,15 +56,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .bold .children {
   font-weight: var(--font-weight-bold);
 }
+
 .selectableItem:not(.disabled) .input ~ .children {
   color: var(--figma-color-text);
 }
+
 .disabled .input:not(:checked) ~ .children {
   color: var(--figma-color-text-disabled);
 }
+
 .disabled .input:checked ~ .children {
   color: var(--figma-color-text-ondisabled);
 }
@@ -71,6 +79,7 @@
   margin-left: var(--space-extra-small);
   color: var(--figma-color-icon-brand);
 }
+
 .disabled .icon {
   color: var(--figma-color-icon-ondisabled);
 }

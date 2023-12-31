@@ -3,9 +3,11 @@
   pointer-events: all;
   text-decoration: none;
 }
+
 .link:hover {
   text-decoration: underline;
 }
+
 .link:focus {
   border-radius: var(--border-radius-2);
   background-color: var(--figma-color-bg-selected);

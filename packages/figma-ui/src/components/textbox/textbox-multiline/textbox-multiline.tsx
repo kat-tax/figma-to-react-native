@@ -1,5 +1,5 @@
 import { h, RefObject } from 'preact'
-import { useCallback, useRef, useState } from 'preact/hooks'
+import { useCallback, useRef, useState } from 'react'
 
 import { Event, EventHandler } from '../../../types/event-handler.js'
 import { FocusableComponentProps } from '../../../types/focusable-component-props.js'
@@ -63,12 +63,9 @@ export const TextboxMultiline = createComponent<
   const [originalValue, setOriginalValue] = useState(EMPTY_STRING) // Value of the textbox when it was initially focused
 
   const setTextAreaElementValue = useCallback(function (value: string) {
-    const textAreaElement = getCurrentFromRef(textAreaElementRef)
-    textAreaElement.value = value
-    const inputEvent = new window.Event('input', {
-      bubbles: true,
-      cancelable: true
-    })
+    const textAreaElement = getCurrentFromRef(textAreaElementRef);
+    textAreaElement.value = value;
+    const inputEvent = new window.Event('input', {bubbles: true, cancelable: true});
     textAreaElement.dispatchEvent(inputEvent)
   }, [])
 
@@ -119,7 +116,7 @@ export const TextboxMultiline = createComponent<
     function (event: Event.onKeyDown<HTMLTextAreaElement>) {
       onKeyDown(event)
       if (event.key === 'Escape') {
-        if (revertOnEscapeKeyDown === true) {
+        if (revertOnEscapeKeyDown) {
           setTextAreaElementValue(originalValue)
           setOriginalValue(EMPTY_STRING)
         }
@@ -177,27 +174,28 @@ export const TextboxMultiline = createComponent<
 
   return (
     <div
-      class={createClassName([
+      className={createClassName([
         styles.textboxMultiline,
         typeof variant === 'undefined'
           ? null
           : variant === 'border'
           ? styles.hasBorder
           : null,
-        grow === true ? styles.grow : null,
-        disabled === true ? styles.disabled : null
+        grow ? styles.grow : null,
+        disabled ? styles.disabled : null
       ])}
     >
-      {grow === true ? (
-        <div class={styles.ghost}>
-          {value === MIXED_STRING ? 'Mixed' : `${value} `}
-        </div>
-      ) : null}
+      {grow
+        ? <div className={styles.ghost}>
+            {value === MIXED_STRING ? 'Mixed' : `${value} `}
+          </div>
+        : null
+      }
       <textarea
         {...rest}
         ref={refCallback}
-        class={styles.textarea}
-        disabled={disabled === true}
+        className={styles.textarea}
+        disabled={disabled}
         onBlur={handleBlur}
         onFocus={handleFocus}
         onInput={handleInput}
@@ -205,12 +203,12 @@ export const TextboxMultiline = createComponent<
         onMouseDown={handleMouseDown}
         placeholder={placeholder}
         rows={rows}
-        spellcheck={spellCheck}
+        spellCheck={spellCheck}
         tabIndex={0}
         value={value === MIXED_STRING ? 'Mixed' : value}
       />
-      <div class={styles.border} />
-      {variant === 'underline' ? <div class={styles.underline} /> : null}
+      <div className={styles.border} />
+      {variant === 'underline' ? <div className={styles.underline} /> : null}
     </div>
   )
 })

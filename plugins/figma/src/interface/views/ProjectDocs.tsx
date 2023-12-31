@@ -1,8 +1,7 @@
-import {h} from 'preact';
 import {Fzf, byLengthAsc} from 'fzf';
 import {BlockNoteEditor} from '@blocknote/core';
 import {useBlockNote, BlockNoteView} from '@blocknote/react';
-import {useState, useMemo, useEffect} from 'preact/hooks';
+import {useState, useMemo, useEffect} from 'react';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';

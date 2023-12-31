@@ -1,17 +1,15 @@
-import {h} from 'preact';
-import {createComponent} from '../../utilities/create-component';
 import styles from './bold.module.css';
-
-import type {ComponentChildren} from 'preact';
+import {createComponent} from '../../utilities/create-component';
+import type {ReactNode} from 'react';
 
 export type BoldProps = {
-  children: ComponentChildren
+  children: ReactNode,
 }
 
 export const Bold = createComponent<HTMLSpanElement, BoldProps>(({children, ...rest}, ref) => {
   return (
-    <strong {...rest} ref={ref} class={styles.bold}>
+    <strong {...rest} ref={ref} className={styles.bold}>
       {children}
     </strong>
-  )
-})
+  );
+});

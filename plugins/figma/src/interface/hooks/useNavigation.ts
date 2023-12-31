@@ -1,7 +1,7 @@
 import {emit, on} from '@create-figma-plugin/utilities';
-import {useState, useEffect} from 'preact/hooks';
+import {useState, useEffect} from 'react';
 
-import type {StateUpdater} from 'preact/hooks';
+import type {StateUpdater} from 'react';
 import type {ComponentBuild} from 'types/component';
 import type {EventAppNavigate, EventFocusNode, EventSelectComponent} from 'types/events';
 import type {AppPages} from 'types/app';
