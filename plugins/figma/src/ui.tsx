@@ -1,4 +1,4 @@
-import '@blocknote/core/dist/style.css';
+import '!@blocknote/core/dist/style.css';
 import '!./interface/css/default.css';
 import '!./interface/css/plugin.css';
 import '!./interface/css/editor.css';

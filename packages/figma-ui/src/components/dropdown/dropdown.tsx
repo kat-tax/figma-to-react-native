@@ -328,7 +328,7 @@ export const Dropdown = createComponent<HTMLDivElement, DropdownProps>(({
                   disabled={option.disabled}
                   className={menuStyles.input}
                   // If clicked on an unselected element, set the value
-                  onChange={value === option.value ? undefined : handleOptionChange}
+                  onChange={value === option.value ? noop : handleOptionChange}
                   // Else hide the menu if clicked on an already-selected element
                   onClick={value === option.value ? handleSelectedOptionClick : undefined}
                   onMouseMove={handleScrollableMenuItemMouseMove}

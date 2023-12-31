@@ -202,13 +202,13 @@ interface ProjectDocEditorProps {
 }
 
 function ProjectDocEditor(props: ProjectDocEditorProps) {
-  // const editor: BlockNoteEditor = useBlockNote();
+  const editor: BlockNoteEditor = useBlockNote();
   return (
     <F.Stack className="editor" space="extraLarge">
-      {''/*<BlockNoteView
+      <BlockNoteView
         editor={editor}
         theme={"dark"}
-      />*/}
+      />
     </F.Stack>
   );
 }

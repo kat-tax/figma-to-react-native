@@ -44,6 +44,7 @@ export const Disclosure = createComponent<HTMLInputElement, DisclosureProps>(({
           type="checkbox"
           checked={open}
           className={styles.input}
+          onChange={noop}
           onKeyDown={handleKeyDown}
           onClick={onClick}
           tabIndex={0}

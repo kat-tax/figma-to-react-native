@@ -152,7 +152,7 @@ function ProjectPageGroup(props: ProjectPageGroupProps) {
       {props?.component}
       {props?.entries?.map(entry =>
         <ProjectPageComponent
-          key={entry.item.name}
+          key={entry.item.key}
           entry={entry}
           page={props.title}
           onSelect={props.onSelect}

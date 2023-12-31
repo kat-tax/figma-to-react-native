@@ -20,6 +20,7 @@ export const Link = createComponent<HTMLAnchorElement, LinkProps>(({
   href,
   target,
   children,
+  className,
   fullWidth = false,
   onKeyDown = noop,
   propagateEscapeKeyDown = true,
@@ -43,7 +44,7 @@ export const Link = createComponent<HTMLAnchorElement, LinkProps>(({
       href={href}
       target={target}
       onKeyDown={handleKeyDown}
-      className={createClassName([styles.link, fullWidth ? styles.fullWidth : null])}
+      className={createClassName([className || null, styles.link, fullWidth ? styles.fullWidth : null])}
       tabIndex={0}>
       {children}
     </a>

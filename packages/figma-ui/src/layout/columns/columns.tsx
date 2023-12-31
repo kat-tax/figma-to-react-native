@@ -14,12 +14,17 @@ export type ColumnsProps = {
 
 export type ColumnsSpace = Space;
 
-export const Columns = createComponent<HTMLDivElement, ColumnsProps>(({children, space, ...rest}, ref) => {
+export const Columns = createComponent<HTMLDivElement, ColumnsProps>(({
+  space,
+  children,
+  className,
+  ...rest
+}, ref) => {
   const classes = [
+    className || null,
     styles.columns,
     typeof space === 'undefined' ? null : styles[space],
   ];
-
   return (
     <div {...rest} ref={ref} className={createClassName(classes)}>
       {Children.toArray(children).map((element: ReactNode, index: number) => (

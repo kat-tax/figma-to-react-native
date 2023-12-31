@@ -1,5 +1,5 @@
 import {useEffect, useState, Fragment} from 'react';
-import {useWindowSize} from "@uidotdev/usehooks";
+import {useWindowSize} from '@uidotdev/usehooks';
 import {Bar, Link} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
 import {patch, actions} from 'interface/utils/editor/lib/patch';
