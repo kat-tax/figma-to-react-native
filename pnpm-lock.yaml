@@ -81,6 +81,9 @@ importers:
       '@create-figma-plugin/utilities':
         specifier: ^3.1.0
         version: 3.1.0
+      '@hocuspocus/provider':
+        specifier: ^2.8.1
+        version: 2.8.1(y-protocols@1.0.6)(yjs@13.6.10)
       '@iconify/react':
         specifier: ^4.1.1
         version: 4.1.1(react@18.2.0)
@@ -2368,6 +2371,29 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: true
 
+  /@hocuspocus/common@2.8.1:
+    resolution: {integrity: sha512-pNXBvmiNmF13X/t/VTNfYMyEnWkLJ9e1gTyc7vFozBTfN9EgX7rexT4INradC288wkQ5Ha1gZb908Q4XBucm9g==}
+    dependencies:
+      lib0: 0.2.88
+    dev: false
+
+  /@hocuspocus/provider@2.8.1(y-protocols@1.0.6)(yjs@13.6.10):
+    resolution: {integrity: sha512-OutRdoUMydPSAIZXcjY9GGkZY8RCSvG6fwAR2lbM8rYdKtFOEs9aKboqtvox4T2peY0yuW2cffTNfwaMhbZ3KQ==}
+    peerDependencies:
+      y-protocols: ^1.0.6
+      yjs: ^13.6.8
+    dependencies:
+      '@hocuspocus/common': 2.8.1
+      '@lifeomic/attempt': 3.0.3
+      lib0: 0.2.88
+      ws: 8.15.1
+      y-protocols: 1.0.6(yjs@13.6.10)
+      yjs: 13.6.10
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
   /@iconify/react@4.1.1(react@18.2.0):
     resolution: {integrity: sha512-jed14EjvKjee8mc0eoscGxlg7mSQRkwQG3iX3cPBCO7UlOjz0DtlvTqxqEcHUJGh+z1VJ31Yhu5B9PxfO0zbdg==}
     peerDependencies:
@@ -2500,6 +2526,10 @@ packages:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
+
+  /@lifeomic/attempt@3.0.3:
+    resolution: {integrity: sha512-GlM2AbzrErd/TmLL3E8hAHmb5Q7VhDJp35vIbyPVA5Rz55LZuRr8pwL3qrwwkVNo05gMX1J44gURKb4MHQZo7w==}
+    dev: false
 
   /@logtail/browser@0.4.18:
     resolution: {integrity: sha512-iiUOpem1kuGJb2XkSLSWdbJ0EOXJOzcfh+wzqnMOmb44R5nKfVeZYYGdAT58ddm/EHFQRieMjG/D39nZ8o4N+g==}
@@ -9607,7 +9637,6 @@ packages:
       utf-8-validate:
         optional: true
     dev: false
-    optional: true
 
   /xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}

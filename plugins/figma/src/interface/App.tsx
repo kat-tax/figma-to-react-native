@@ -42,7 +42,7 @@ const tabs: AppTabs = {
     'theme',
     //'fonts',
     //'locales',
-    'docs',
+    //'docs',
     'export',
     'settings',
   ],

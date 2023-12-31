@@ -7,6 +7,7 @@ import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 
 import * as F from 'figma-ui';
+import * as $ from 'interface/store';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {ComponentBuild} from 'types/component';
@@ -41,6 +42,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
   const [creating, setCreating] = useState(false);
 
   const hasDocs = Boolean(props.build?.roster && Object.keys(props.build.roster).length);  
+  
   const index = useMemo(() => {
     const entries = hasDocs ? Object.values(props.build?.roster) : [];
     return new Fzf(entries, {
@@ -49,6 +51,16 @@ export function ProjectDocs(props: ProjectDocsProps) {
       forward: false,
     });
   }, [props?.build]);
+
+  const rootDoc = {
+    positions: new Set(),
+    item: {
+      id: 'root',
+      group: 'Root',
+      name: 'Getting Started',
+      preview: '',
+    }
+  } as ProjectDocEntry;
 
   // TODO
   const createDoc = async () => {
@@ -94,16 +106,6 @@ export function ProjectDocs(props: ProjectDocsProps) {
     );
   }
 
-  const rootDoc = {
-    positions: new Set(),
-    item: {
-      id: 'root',
-      group: 'Root',
-      name: 'Getting Started',
-      preview: '',
-    }
-  } as ProjectDocEntry;
-
   return (
     <div className="documents">
       <div className="list">
@@ -136,11 +138,11 @@ export function ProjectDocs(props: ProjectDocsProps) {
 }
 
 interface ProjectDocSectionProps {
-  title: string;
-  activeDoc: string | null;
+  title: string,
+  activeDoc: string | null,
   entries?: ProjectDocEntry[],
   component?: JSX.Element,
-  onSelect: (id: string) => void;
+  onSelect: (id: string) => void,
 }
 
 function ProjectDocSection(props: ProjectDocSectionProps) {
@@ -202,7 +204,13 @@ interface ProjectDocEditorProps {
 }
 
 function ProjectDocEditor(props: ProjectDocEditorProps) {
-  const editor: BlockNoteEditor = useBlockNote();
+  const editor: BlockNoteEditor = useBlockNote({
+    collaboration: {
+      provider: $.provider,
+      fragment: $.doc.getXmlFragment(`doc-${props.entry.item.id}`),
+      user: $.provider.awareness.getLocalState()?.user,
+    },
+  });
   return (
     <F.Stack className="editor" space="extraLarge">
       <BlockNoteView

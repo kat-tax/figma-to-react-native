@@ -22,15 +22,12 @@ function Main() {
   const [devMode, setDevMode] = useState<boolean>(null);
 
   // Receive start data from the plugin
-  useEffect(() => on<EventAppStart>('APP_START', (_page, _user, _vscode, _devmode) => {
-    auth(_user);
-    setPage(_page);
-    setVSCode(_vscode);
-    setDevMode(_devmode);
-    $.provider.awareness.setLocalState({
-      page: _page,
-      user: _user,
-    });
+  useEffect(() => on<EventAppStart>('APP_START', (page, user, vscode, devmode) => {
+    auth(user);
+    setPage(page);
+    setVSCode(vscode);
+    setDevMode(devmode);
+    $.provider.awareness.setLocalState({page, user});
   }), []);
 
   // Tell the plugin that the UI is ready
@@ -39,7 +36,7 @@ function Main() {
   }, []);
 
   // Handle window resize
-  useWindowResize(e => emit('RESIZE_WINDOW', e), {
+  useWindowResize((e: any) => emit('RESIZE_WINDOW', e), {
     resizeBehaviorOnDoubleClick: 'minimize',
     minWidth: F2RN_UI_WIDTH_MIN,
     minHeight: 200,
