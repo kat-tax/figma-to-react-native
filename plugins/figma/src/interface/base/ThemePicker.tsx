@@ -3,7 +3,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import * as F from 'figma-ui';
 
 import type {EventProjectImportTheme} from 'types/events';
-import type {ThemePickerForm} from 'types/themes';
+import type {ThemeColor, ThemePickerForm, ThemeRadius} from 'types/themes';
 
 const tips = {
   submit: `Generate the selected theme`,
@@ -37,7 +37,7 @@ export function ThemePicker() {
           <F.VerticalSpace space="small"/>
           <F.RadioButtons
             value={form.formState.color}
-            //onValueChange={form.setFormState}
+            onValueChange={(v: ThemeColor) => form.setFormState(v, 'color')}
             disabled={isGenerating}
             options={[
               {value: 'zinc', children: <F.Text>Zinc</F.Text>},
@@ -62,7 +62,7 @@ export function ThemePicker() {
         <F.VerticalSpace space="small"/>
         <F.SegmentedControl
           value={form.formState.radius}
-          //onValueChange={form.setFormState}
+          onValueChange={(v: ThemeRadius) => form.setFormState(v, 'radius')}
           disabled={isGenerating}
           options={[
             {value: '0', children: '0'},
