@@ -105,7 +105,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
   } as ProjectDocEntry;
 
   return (
-    <F.Container className="documents" space="small">
+    <div className="documents">
       <div className="list">
         <ProjectDocItem
           page="Root"
@@ -131,7 +131,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
             <F.Muted>Select a document</F.Muted>
           </div>
       }
-    </F.Container>
+    </div>
   );
 }
 

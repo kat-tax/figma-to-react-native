@@ -106,9 +106,8 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   }
 
   return (
-    <F.Container
+    <div
       className="components"
-      space="small"
       style={{
         flex: 1,
         flexDirection: 'column',
@@ -127,7 +126,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         onSelect={select}
         component={<ProjectAssets {...props}/>}
       />
-    </F.Container>
+    </div>
   );
 }
 

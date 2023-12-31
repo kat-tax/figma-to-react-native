@@ -1,12 +1,10 @@
-import {Container} from 'figma-ui';
-
 interface ProgressBarProps {
   percent: string,
 }
 
 export function ProgressBar(props: ProgressBarProps) {
   return (
-    <Container space="small" className="center fill">
+    <div className="center fill">
       <div
         style={{
           width: '150px',
@@ -23,6 +21,6 @@ export function ProgressBar(props: ProgressBarProps) {
           }}
         />
       </div>
-    </Container>
+    </div>
   );
 }
