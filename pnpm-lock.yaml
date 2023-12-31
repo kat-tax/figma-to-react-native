@@ -1,5 +1,10 @@
 lockfileVersion: '6.0'
 
+patchedDependencies:
+  '@create-figma-plugin/build@3.1.0':
+    hash: abr4zitcxirmhinbl6yvt7n66a
+    path: patches/@create-figma-plugin__build@3.1.0.patch
+
 importers:
 
   .: {}
@@ -169,7 +174,7 @@ importers:
     devDependencies:
       '@create-figma-plugin/build':
         specifier: ^3.1.0
-        version: 3.1.0(@figma/plugin-typings@1.82.0)(typescript@5.3.3)
+        version: 3.1.0(patch_hash=abr4zitcxirmhinbl6yvt7n66a)(@figma/plugin-typings@1.82.0)(typescript@5.3.3)
       '@esbuild-plugins/node-modules-polyfill':
         specifier: ^0.2.2
         version: 0.2.2(esbuild@0.19.11)
@@ -1750,7 +1755,7 @@ packages:
       - supports-color
     dev: false
 
-  /@create-figma-plugin/build@3.1.0(@figma/plugin-typings@1.82.0)(typescript@5.3.3):
+  /@create-figma-plugin/build@3.1.0(patch_hash=abr4zitcxirmhinbl6yvt7n66a)(@figma/plugin-typings@1.82.0)(typescript@5.3.3):
     resolution: {integrity: sha512-vmMIg/kwn293XJdQSSZEnU8udkONOjUA9MpfU+xnT7L6kbVQ3B+1acYt5wWDTuM36QlwHQ9DZxD1vByFNdsCag==}
     engines: {node: '>=20'}
     hasBin: true
@@ -1777,6 +1782,7 @@ packages:
       typed-css-modules: 0.8.1
       typescript: 5.3.3
     dev: true
+    patched: true
 
   /@create-figma-plugin/common@3.1.0:
     resolution: {integrity: sha512-Y+B0eLXxOlXqg69qRgF3UQxWccTEaeED2bAAXmGoTHTR3lxE1FL5ZZJSaGvN+5xlWTJFcz8ZOaS/mts6XEUpcA==}

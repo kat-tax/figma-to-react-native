@@ -21,7 +21,7 @@ export function createIcon(path: string, options: {width: number; height: number
             ? 'currentColor'
             : `var(--figma-color-icon-${color})`
       }}>
-      <path clip-rule="evenodd" d={path} fillRule="evenodd"/>
+      <path clipRule="evenodd" d={path} fillRule="evenodd"/>
     </svg>
   ));
 }
