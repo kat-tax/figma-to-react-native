@@ -1,4 +1,4 @@
-import {getFillToken} from 'plugin/fig/lib';
+import {getFillToken} from 'backend/parser/lib';
 
 export function Slider(component: ComponentNode) {
   const nodeRange = component.findOne(c => c.name === 'Range' && c.type === 'RECTANGLE') as RectangleNode;

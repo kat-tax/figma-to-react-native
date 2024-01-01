@@ -8,7 +8,7 @@ import {
   getInstanceInfo,
   getCustomReaction,
   // getPressReaction,
-} from 'plugin/fig/lib';
+} from 'backend/parser/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {Settings} from 'types/settings';

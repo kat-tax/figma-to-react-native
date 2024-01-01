@@ -1,21 +1,24 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getAllIconComponents} from 'plugin/lib/icons';
-import {getComponentTargets, getComponentTarget, getPage} from 'plugin/fig/lib';
+import {getAllIconComponents} from 'backend/icons';
+import {getComponentTargets, getComponentTarget, getPage} from 'backend/parser/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
 import {wait} from 'common/delay';
-import {config} from 'plugin';
+import * as config from 'backend/config';
 
-import {generateIndex} from './common/generateIndex';
-import * as reactNative from './react-native';
+import {generateData} from './generateData';
+import {generateCode} from './generateCode';
+import {generateIndex} from './generateIndex';
+import {generateStory} from './generateStory';
+import {generateTheme} from './generateTheme';
 
 import type {Settings} from 'types/settings';
 import type {EventComponentBuild, EventProjectTheme, EventProjectIcons, EventSelectVariant} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
 
-export {generateIndex} from './common/generateIndex';
-
 const _cache: Record<string, ComponentData> = {};
+
+export {generateCode, generateIndex, generateStory, generateTheme};
 
 export async function generateBundle(
   node: ComponentNode,
@@ -49,24 +52,10 @@ export async function generateBundle(
 
   //console.log('[cache/hit]', node.name);
 
-  let bundle: ComponentData;
-  switch (settings?.react.flavor) {
-    case 'react-native':
-    default:
-      bundle = await reactNative.generateBundle(node, instanceSettings);
-  }
-
+  const bundle: ComponentData = await generateData(node, instanceSettings);
   _cache[node.key] = bundle;
 
   return {bundle, cached: false};
-}
-
-export function generateTheme(settings: Settings) {
-  switch (settings?.react.flavor) {
-    case 'react-native':
-    default:
-      return reactNative.generateTheme(settings);
-  }
 }
 
 export function watchTheme(settings: Settings) {

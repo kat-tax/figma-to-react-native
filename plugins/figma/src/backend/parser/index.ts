@@ -1,4 +1,4 @@
-import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'plugin/fig/lib';
+import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'backend/parser/lib';
 import {getAssets, getStyleSheet, getColorSheet, validate} from './lib';
 import {createIdentifierCamel} from 'common/string';
 

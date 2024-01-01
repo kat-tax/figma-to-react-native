@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {sortProps, getPropName} from 'plugin/fig/lib';
+import {sortProps, getPropName} from 'backend/parser/lib';
 import {createIdentifierPascal} from 'common/string';
 
 import type {Settings} from 'types/settings';

@@ -1,4 +1,4 @@
-import {getComponentTargets} from 'plugin/fig/lib';
+import {getComponentTargets} from 'backend/parser/lib';
 
 import {Slider} from './exo/Slider';
 

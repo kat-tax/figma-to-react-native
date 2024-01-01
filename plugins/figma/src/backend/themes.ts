@@ -1,5 +1,5 @@
 import {titleCase} from 'common/string';
-import {focusNode} from 'plugin/fig/lib';
+import {focusNode} from 'backend/parser/lib';
 
 import type {ThemeColor, ThemeRadius, ThemePreset} from 'types/themes';
 

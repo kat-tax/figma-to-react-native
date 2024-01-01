@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getSelectedComponent} from 'plugin/fig/lib';
+import {getSelectedComponent} from 'backend/parser/lib';
 import {createIdentifierPascal} from 'common/string';
 import {F2RN_NAVIGATE_NS} from 'config/env';
 

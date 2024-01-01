@@ -1,5 +1,5 @@
-import {generateBundle, generateTheme} from 'plugin/gen';
-import {config} from 'plugin';
+import {generateBundle, generateTheme} from 'backend/generator';
+import * as config from 'backend/config';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];

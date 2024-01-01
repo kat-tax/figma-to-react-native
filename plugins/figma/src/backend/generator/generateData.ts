@@ -1,9 +1,9 @@
-import parseFigmaComponent from 'plugin/fig';
-import {getPropsJSX, getPage} from 'plugin/fig/lib';
+import parseFigmaComponent from 'backend/parser';
+import {getPropsJSX, getPage} from 'backend/parser/lib';
 import {createIdentifierPascal} from 'common/string';
-import {generatePrimitives} from '../primitives';
-import {generateIndex} from '../common/generateIndex';
 
+import {generatePrimitives} from './lib/primitives';
+import {generateIndex} from './generateIndex';
 import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
 
@@ -26,7 +26,7 @@ const emptyBundle: ComponentData = {
   icons: [],
 };
 
-export async function generateBundle(
+export async function generateData(
   target: ComponentNode,
   settings: Settings,
 ): Promise<ComponentData> {

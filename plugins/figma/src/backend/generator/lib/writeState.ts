@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {titleCase} from 'common/string';
-import {getCollectionByName, getPage} from 'plugin/fig/lib';
+import {getCollectionByName, getPage} from 'backend/parser/lib';
 
 import type {ParseData} from 'types/parse';
 import type {ImportFlags} from './writeImports';

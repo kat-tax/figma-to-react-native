@@ -1,6 +1,6 @@
 import {wait} from 'common/delay';
 import {titleCase} from 'common/string';
-import {focusNode} from 'plugin/fig/lib';
+import {focusNode} from 'backend/parser/lib';
 
 const svgSize = 16;
 const svgProps = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${svgSize}" height="${svgSize}" viewBox="0 0 256 256"`;

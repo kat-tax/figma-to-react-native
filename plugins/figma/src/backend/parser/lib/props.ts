@@ -1,4 +1,4 @@
-import {isNodeIcon} from 'plugin/fig/lib';
+import {isNodeIcon} from 'backend/parser/lib';
 import * as string from 'common/string';
 
 import type {ParseColorSheet} from 'types/parse';

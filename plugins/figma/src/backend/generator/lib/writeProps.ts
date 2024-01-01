@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {getPropName, sortPropsDef} from 'plugin/fig/lib';
+import {getPropName, sortPropsDef} from 'backend/parser/lib';
 
 import type {ImportFlags} from './writeImports';
 

@@ -1,9 +1,9 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getComponentTargets} from 'plugin/fig/lib';
-import {generateBundle, generateIndex, generateTheme} from 'plugin/gen';
+import {getComponentTargets} from 'backend/parser/lib';
+import {generateBundle, generateIndex, generateTheme} from 'backend/generator';
 import {F2RN_PROJECT_NS} from 'config/env';
 import defaultConfig from 'config/project';
-import {config} from 'plugin';
+import * as config from 'backend/config';
 
 import type {ProjectBuild, ProjectConfig, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
 import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';
