@@ -1,10 +1,18 @@
 import * as Y from 'yjs';
 import {WebrtcProvider} from 'y-webrtc';
 // import {createYjsProvider} from '@y-sweet/client';
+//import {TiptapCollabProvider} from '@hocuspocus/provider';
+//import {TIPTAP_APP_ID} from 'config/env';
 
 export const doc = new Y.Doc();
 
 export const provider = new WebrtcProvider('xxx', doc);
+/*export const provider = new TiptapCollabProvider({
+  appId: TIPTAP_APP_ID,
+  token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDQwNjQxMzksIm5iZiI6MTcwNDA2NDEzOSwiZXhwIjoxNzA0MTUwNTM5LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIweDlsbnZtciJ9.0EHkh0ZWqTgjJUSGh03OMexZcfc3BsnQ9wOiU3_-VkI',
+  name: 'xxx',
+  document: doc,
+});*/
 
 provider.connect();
 

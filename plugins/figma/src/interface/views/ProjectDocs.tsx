@@ -1,13 +1,13 @@
-import {h} from 'preact';
 import {Fzf, byLengthAsc} from 'fzf';
 import {BlockNoteEditor} from '@blocknote/core';
 import {useBlockNote, BlockNoteView} from '@blocknote/react';
-import {useState, useMemo, useEffect} from 'preact/hooks';
+import {useState, useMemo, useEffect} from 'react';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
+import * as $ from 'interface/store';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {ComponentBuild} from 'types/component';
@@ -42,6 +42,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
   const [creating, setCreating] = useState(false);
 
   const hasDocs = Boolean(props.build?.roster && Object.keys(props.build.roster).length);  
+  
   const index = useMemo(() => {
     const entries = hasDocs ? Object.values(props.build?.roster) : [];
     return new Fzf(entries, {
@@ -50,6 +51,16 @@ export function ProjectDocs(props: ProjectDocsProps) {
       forward: false,
     });
   }, [props?.build]);
+
+  const rootDoc = {
+    positions: new Set(),
+    item: {
+      id: 'root',
+      group: 'Root',
+      name: 'Getting Started',
+      preview: '',
+    }
+  } as ProjectDocEntry;
 
   // TODO
   const createDoc = async () => {
@@ -95,18 +106,8 @@ export function ProjectDocs(props: ProjectDocsProps) {
     );
   }
 
-  const rootDoc = {
-    positions: new Set(),
-    item: {
-      id: 'root',
-      group: 'Root',
-      name: 'Getting Started',
-      preview: '',
-    }
-  } as ProjectDocEntry;
-
   return (
-    <F.Container className="documents" space="small">
+    <div className="documents">
       <div className="list">
         <ProjectDocItem
           page="Root"
@@ -132,16 +133,16 @@ export function ProjectDocs(props: ProjectDocsProps) {
             <F.Muted>Select a document</F.Muted>
           </div>
       }
-    </F.Container>
+    </div>
   );
 }
 
 interface ProjectDocSectionProps {
-  title: string;
-  activeDoc: string | null;
+  title: string,
+  activeDoc: string | null,
   entries?: ProjectDocEntry[],
   component?: JSX.Element,
-  onSelect: (id: string) => void;
+  onSelect: (id: string) => void,
 }
 
 function ProjectDocSection(props: ProjectDocSectionProps) {
@@ -203,14 +204,19 @@ interface ProjectDocEditorProps {
 }
 
 function ProjectDocEditor(props: ProjectDocEditorProps) {
-  // TODO: BlockNote does not work with Preact, port UI
-  // const editor: BlockNoteEditor = useBlockNote();
+  const editor: BlockNoteEditor = useBlockNote({
+    collaboration: {
+      provider: $.provider,
+      fragment: $.doc.getXmlFragment(`doc-${props.entry.item.id}`),
+      user: $.provider.awareness.getLocalState()?.user,
+    },
+  });
   return (
     <F.Stack className="editor" space="extraLarge">
-      {''/*<BlockNoteView
+      <BlockNoteView
         editor={editor}
         theme={"dark"}
-      />*/}
+      />
     </F.Stack>
   );
 }

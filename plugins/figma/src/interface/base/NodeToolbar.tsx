@@ -1,5 +1,4 @@
-import {h, Fragment} from 'preact';
-import {useState} from 'preact/hooks';
+import {useState, Fragment} from 'react';
 import {Toolbar, ToolbarButton} from '@blocknote/react';
 import {emit} from '@create-figma-plugin/utilities';
 
@@ -50,12 +49,9 @@ export function NodeToolbar(props: NodeToolbarProps) {
 
   return (
     <Fragment>
-      {/* @ts-ignore Preact issue */}
       <Toolbar>
-        {/* @ts-ignore Preact issue */}
         {Object.entries(NodeToolbarActions)
         .map(([name, action]: [string, NodeToolbarActions]) => {
-          {/* @ts-ignore Preact issue */}
           return <ToolbarButton
             key={action}
             isSelected={active === action}

@@ -1,5 +1,5 @@
-import {h, Fragment} from 'preact';
-import {SearchTextbox, IconButton, IconCross32} from '@create-figma-plugin/ui';
+import {Fragment} from 'react';
+import {SearchTextbox, IconButton, IconCross32} from 'figma-ui';
 
 interface SearchBarProps {
   searchQuery: string,

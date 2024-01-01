@@ -1,6 +1,6 @@
 declare const styles: {
-  readonly "editableArea--single-line": string;
   readonly "editableArea--multi-line": string;
+  readonly "editableArea--single-line": string;
 };
 export = styles;
 

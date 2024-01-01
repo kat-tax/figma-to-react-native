@@ -1,5 +1,4 @@
-import {h} from 'preact';
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {ProjectConfig} from 'types/project';
 import type {ComponentBuild} from 'types/component';

@@ -1,17 +1,16 @@
 import {F2RN_UI_WIDTH_MIN} from 'config/env';
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {focusNode} from 'plugin/fig/lib';
-import {
-  gen,
-  app,
-  exo,
-  drop,
-  icons,
-  themes,
-  config,
-  codegen,
-  project,
-} from 'plugin';
+import {focusNode} from 'backend/parser/lib';
+
+import * as gen from 'backend/generator';
+import * as app from 'backend/app';
+import * as exo from 'backend/exo';
+import * as drop from 'backend/drop';
+import * as icons from 'backend/icons';
+import * as themes from 'backend/themes';
+import * as config from 'backend/config';
+import * as codegen from 'backend/codegen';
+import * as project from 'backend/project';
 
 import type * as T from 'types/events';
 import type {AppPages} from 'types/app';

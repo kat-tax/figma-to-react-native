@@ -1,14 +1,12 @@
-import {h, Fragment} from 'preact';
-import {useEffect, useState} from 'preact/hooks';
-import {useWindowSize} from "@uidotdev/usehooks";
+import {useEffect, useState, Fragment} from 'react';
+import {useWindowSize} from '@uidotdev/usehooks';
 import {Bar, Link} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
 import {patch, actions} from 'interface/utils/editor/lib/patch';
 import {titleCase} from 'common/string';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
-import type {StateUpdater} from 'preact/hooks';
 import type {ComponentBuild} from 'types/component';
 import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -18,10 +16,10 @@ interface NavBarProps {
   tabs: AppTabs,
   build: ComponentBuild,
   isVSCode: boolean,
-  setSearchQuery: StateUpdater<string>,
-  setSearchMode: StateUpdater<boolean>,
   searchQuery: string,
   searchMode: boolean,
+  setSearchQuery: React.Dispatch<string>,
+  setSearchMode: React.Dispatch<boolean>,
 }
 
 export function NavBar(props: NavBarProps) {
@@ -98,7 +96,7 @@ export function NavBar(props: NavBarProps) {
             </div>
             {props.tabs.component
               .map(page => (
-                <Fragment key={page}>
+                <Fragment key={page.toString()}>
                   <Link
                     title={`Component ${titleCase(page.toString())}`}
                     value={page.toString()}>
@@ -122,7 +120,7 @@ export function NavBar(props: NavBarProps) {
                 <F.IconSearch32/>
               </div>
               {mainTabs.map(page => (
-                <Fragment key={page}>
+                <Fragment key={page.toString()}>
                   <Link
                     title={`Project ${titleCase(page.toString())}`}
                     value={page.toString()}>

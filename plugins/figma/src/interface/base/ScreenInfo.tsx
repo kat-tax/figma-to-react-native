@@ -1,5 +1,5 @@
-import {h, Fragment} from 'preact';
-import {Container, Muted, IconNotice32} from '@create-figma-plugin/ui';
+import {Fragment} from 'react';
+import {Muted, IconNotice32} from 'figma-ui';
 
 interface ScreenInfoProps {
   message?: string,
@@ -8,8 +8,7 @@ interface ScreenInfoProps {
 
 export function ScreenInfo(props: ScreenInfoProps) {
   return (
-    <Container
-      space="small"
+    <div
       className="center fill"
       style={{flexDirection: 'column', gap: '10px'}}>
       <Fragment>
@@ -21,6 +20,6 @@ export function ScreenInfo(props: ScreenInfoProps) {
         }
         {props.action}
       </Fragment>
-    </Container>
+    </div>
   );
 }

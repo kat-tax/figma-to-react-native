@@ -3,7 +3,7 @@
     "definitions": {
         "ArrayBuffer": {
             "properties": {
-                "__@toStringTag@283": {
+                "__@toStringTag@422": {
                     "type": "string"
                 },
                 "byteLength": {
@@ -945,8 +945,13 @@
                     "type": "string"
                 },
                 "occurrencesHighlight": {
-                    "description": "Enable semantic occurrences highlight.\nDefaults to true.",
-                    "type": "boolean"
+                    "description": "Enable semantic occurrences highlight.\nDefaults to 'singleFile'.\n'off' disables occurrence highlighting\n'singleFile' triggers occurrence highlighting in the current document\n'multiFile'  triggers occurrence highlighting across valid open documents",
+                    "enum": [
+                        "multiFile",
+                        "off",
+                        "singleFile"
+                    ],
+                    "type": "string"
                 },
                 "overviewRulerBorder": {
                     "description": "Controls if a border should be drawn around the overview ruler.\nDefaults to `true`.",
@@ -1248,7 +1253,13 @@
                 },
                 "wordBasedSuggestions": {
                     "description": "Controls whether completions should be computed based on words in the document.\nDefaults to true.",
-                    "type": "boolean"
+                    "enum": [
+                        "allDocuments",
+                        "currentDocument",
+                        "matchingDocuments",
+                        "off"
+                    ],
+                    "type": "string"
                 },
                 "wordBasedSuggestionsOnlySameLanguage": {
                     "description": "Controls whether word based completions should be included from opened documents of the same language or any language.",
@@ -1421,10 +1432,10 @@
         },
         "SharedArrayBuffer": {
             "properties": {
-                "__@species@263": {
+                "__@species@639": {
                     "$ref": "#/definitions/SharedArrayBuffer"
                 },
-                "__@toStringTag@283": {
+                "__@toStringTag@422": {
                     "const": "SharedArrayBuffer",
                     "type": "string"
                 },
@@ -1449,7 +1460,7 @@
                                 "BYTES_PER_ELEMENT": {
                                     "type": "number"
                                 },
-                                "__@toStringTag@283": {
+                                "__@toStringTag@422": {
                                     "const": "Uint8Array",
                                     "type": "string"
                                 },
@@ -1726,6 +1737,15 @@
                 "enabled": {
                     "description": "Enable the lightbulb code action.\nDefaults to true.",
                     "type": "boolean"
+                },
+                "experimental": {
+                    "properties": {
+                        "showAiIcon": {
+                            "$ref": "#/definitions/editor.ShowAiIconMode",
+                            "description": "Highlight AI code actions with AI icon"
+                        }
+                    },
+                    "type": "object"
                 }
             },
             "type": "object"
@@ -1844,6 +1864,10 @@
                 "horizontalSliderSize": {
                     "description": "Height in pixels for the horizontal slider.\nDefaults to `horizontalScrollbarSize`.\n**NOTE**: This option cannot be updated using `updateOptions()`",
                     "type": "number"
+                },
+                "ignoreHorizontalScrollbarInContentHeight": {
+                    "description": "When set, the horizontal scrollbar will not increase content height.\nDefaults to false.",
+                    "type": "boolean"
                 },
                 "scrollByPage": {
                     "description": "Scroll gutter clicks move by page vs jump to position.\nDefaults to false.",
@@ -2001,6 +2025,7 @@
                 "showToolbar": {
                     "enum": [
                         "always",
+                        "never",
                         "onHover"
                     ],
                     "type": "string"
@@ -2364,6 +2389,14 @@
                     "type": "object"
                 }
             ]
+        },
+        "editor.ShowAiIconMode": {
+            "enum": [
+                "off",
+                "onCode",
+                "on"
+            ],
+            "type": "string"
         },
         "languages.typescript.CompilerOptions": {
             "additionalProperties": {

@@ -7,5 +7,10 @@
     "vscode": "pnpm --filter ./plugins/vscode run dev",
     "build:figma": "pnpm --filter ./plugins/figma run build",
     "build:vscode": "pnpm --filter ./plugins/vscode run build"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@create-figma-plugin/build@3.1.0": "patches/@create-figma-plugin__build@3.1.0.patch"
+    }
   }
 }

@@ -1,4 +1,4 @@
-import {useRef, useState, useEffect} from 'preact/hooks';
+import {useRef, useState, useEffect} from 'react';
 
 export function useDarkMode(): boolean {
   const htmlRef = useRef(document.body.parentElement);

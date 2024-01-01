@@ -1,15 +1,14 @@
-import {h, Fragment} from 'preact';
-import {VirtuosoGrid} from 'react-virtuoso';
-import {Fzf, byLengthAsc} from 'fzf';
-import {useCopyToClipboard} from '@uidotdev/usehooks';
-import {useState, useEffect, useMemo} from 'preact/hooks';
+import {useState, useEffect, useMemo, Fragment} from 'react';
 import {Icon, listIcons, getIcon} from '@iconify/react';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
+import {Fzf, byLengthAsc} from 'fzf';
+import {VirtuosoGrid} from 'react-virtuoso';
+import {loadIconSet} from 'interface/utils/icons';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {loadIconSet} from 'interface/utils/icons';
 import {emit} from '@create-figma-plugin/utilities';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {ReactNode} from 'react';
 import type {ProjectIcons} from 'types/project';
@@ -138,14 +137,12 @@ export function ProjectIcons(props: ProjectIconsProps) {
   // Grid of icon buttons
   return (
     <Fragment>
-      {/* @ts-ignore Preact Issue*/}
       <VirtuosoGrid
         overscan={200}
         style={{height: '100%'}}       
         totalCount={list.length}
         itemContent={i => (
           <Fragment>
-            {/* @ts-ignore Preact Issue*/}
             <IconListItem {...list[i].item} copy={copyToClipboard}/>
           </Fragment> as ReactNode
         )}
@@ -169,14 +166,13 @@ function IconListItem(props: IconListItemProps) {
       title={props.icon}
       disabled={props.missing}
       draggable={!props.missing}
-      onDblClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
+      onDoubleClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
       onClick={() => {
         props.copy(tag);
         emit<EventNotify>('NOTIFY', 'Copied icon to clipboard');
       }}
       onDragStart={(e) => {e.dataTransfer.setData('text/plain', tag)}}
       onDragEnd={(e) => {
-        if (e.view.length === 0) return;
         window.parent.postMessage({
           pluginDrop: {
             clientX: e.clientX,
@@ -188,7 +184,6 @@ function IconListItem(props: IconListItemProps) {
           }
         }, '*');
       }}>
-      {/* @ts-ignore Preact Issue*/}
       <Icon
         icon={props.icon}
         width={16}

@@ -1,4 +1,4 @@
-import {h, Component} from 'preact';
+import {Component} from 'react';
 import {Logtail} from '@logtail/browser';
 import {LOGTAIL_TOKEN} from 'config/env';
 
@@ -46,6 +46,7 @@ export class ErrorBoundary extends Component {
     if (this.state.error) {
       return <p>Error: {this.state.error}</p>
     }
+    // @ts-ignore
     return this.props.children;
   }
 }

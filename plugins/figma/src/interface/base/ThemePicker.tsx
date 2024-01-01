@@ -1,10 +1,9 @@
-import {h, Fragment} from 'preact';
-import {useState} from 'preact/hooks';
+import {useState, Fragment} from 'react';
 import {emit} from '@create-figma-plugin/utilities';
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {EventProjectImportTheme} from 'types/events';
-import type {ThemePickerForm} from 'types/themes';
+import type {ThemeColor, ThemePickerForm, ThemeRadius} from 'types/themes';
 
 const tips = {
   submit: `Generate the selected theme`,
@@ -15,7 +14,7 @@ export function ThemePicker() {
 
   const initialForm: ThemePickerForm = {
     color: 'zinc',
-    radius: 0.5,
+    radius: '0.5',
   };
 
   const form = F.useForm<ThemePickerForm>(initialForm, {
@@ -37,9 +36,8 @@ export function ThemePicker() {
         <div className="theme-picker-colors">
           <F.VerticalSpace space="small"/>
           <F.RadioButtons
-            name="color"
             value={form.formState.color}
-            onValueChange={form.setFormState}
+            onValueChange={(v: ThemeColor) => form.setFormState(v, 'color')}
             disabled={isGenerating}
             options={[
               {value: 'zinc', children: <F.Text>Zinc</F.Text>},
@@ -63,16 +61,15 @@ export function ThemePicker() {
         <F.Bold>Radius</F.Bold>
         <F.VerticalSpace space="small"/>
         <F.SegmentedControl
-          name="radius"
           value={form.formState.radius}
-          onValueChange={form.setFormState}
+          onValueChange={(v: ThemeRadius) => form.setFormState(v, 'radius')}
           disabled={isGenerating}
           options={[
-            {value: 0, children: '0'},
-            {value: 0.3, children: '0.3'},
-            {value: 0.5, children: '0.5'},
-            {value: 0.75, children: '0.75'},
-            {value: 1, children: '1.0'},
+            {value: '0', children: '0'},
+            {value: '0.3', children: '0.3'},
+            {value: '0.5', children: '0.5'},
+            {value: '0.75', children: '0.75'},
+            {value: '1', children: '1.0'},
           ]}
         />
         <F.VerticalSpace space="extraLarge"/>

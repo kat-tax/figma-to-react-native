@@ -1,12 +1,11 @@
-import {h, Fragment} from 'preact';
-import {useState} from 'preact/hooks';
+import {useState, Fragment} from 'react';
 import {emit} from '@create-figma-plugin/utilities';
 import {titleCase} from 'common/string';
 import {useProjectBuild} from 'interface/hooks/useProjectBuild';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
-import type {ProjectConfig} from 'types/project';
+import type {ProjectConfig, ProjectExportMethod, ProjectExportScope} from 'types/project';
 import type {EventProjectExport} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 
@@ -139,10 +138,9 @@ export function ProjectExport(props: ProjectExportProps) {
           <F.Bold>Method</F.Bold>
           <F.VerticalSpace space="small"/>
           <F.SegmentedControl
-            name="method"
             aria-label={tips.export}
             value={form.formState.method}
-            onValueChange={form.setFormState}
+            onValueChange={(v: ProjectExportMethod) => form.setFormState(v, 'method')}
             disabled={isExporting}
             options={[
               {children: 'Download', value: 'download'},
@@ -157,10 +155,9 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.Bold>Scope</F.Bold>
             <F.VerticalSpace space="small"/>
             <F.SegmentedControl
-              name="scope"
               aria-label={tips.scope}
               value={form.formState.scope}
-              onValueChange={form.setFormState}
+              onValueChange={(v: ProjectExportScope) => form.setFormState(v, 'scope')}
               disabled={isExporting}
               options={[
                 {children: 'Document', value: 'document'},
@@ -176,11 +173,10 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.Bold>Package Name</F.Bold>
             <F.VerticalSpace space="small"/>
             <F.Textbox
-              name="packageName"
               placeholder="@acme/ui"
               disabled={isExporting}
               value={form.formState.packageName}
-              onValueInput={form.setFormState}
+              onValueInput={v => form.setFormState(v, 'packageName')}
               aria-label={tips.packageName}
               variant="border"
             />
@@ -192,10 +188,9 @@ export function ProjectExport(props: ProjectExportProps) {
             <F.Bold>Package Version</F.Bold>
             <F.VerticalSpace space="small"/>
             <F.Textbox
-              name="packageVersion"
               disabled={isExporting}
               value={form.formState.packageVersion}
-              onValueInput={form.setFormState}
+              onValueInput={v => form.setFormState(v, 'packageVersion')}
               aria-label={tips.packageVersion}
               placeholder="1.0.0"
               variant="border"
@@ -213,11 +208,10 @@ export function ProjectExport(props: ProjectExportProps) {
             </F.Inline>
             <F.VerticalSpace space="small"/>
             <F.Textbox
-              name="apiKey"
               disabled={isExporting}
               aria-label={tips.apiKey}
               value={form.formState.apiKey}
-              onValueInput={form.setFormState}
+              onValueInput={v => form.setFormState(v, 'apiKey')}
               placeholder="Your Figma -> React Native Project Key"
               variant="border"
             />
@@ -231,20 +225,18 @@ export function ProjectExport(props: ProjectExportProps) {
             <Fragment>
               {false && <F.VerticalSpace space="small"/>}
               <F.Checkbox
-                name="enableAutoTranslations"
                 title={tips.optimizeAssets}
                 disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
-                onValueChange={form.setFormState}>
+                onValueChange={(v) => form.setFormState(v, 'enableAssetOptimizations')}>
                 <F.Text>Optimize assets</F.Text>
               </F.Checkbox>
               <F.VerticalSpace space="small"/>
               <F.Checkbox
-                name="enableAutoTranslations"
                 title={tips.autoTranslate}
                 disabled={isExporting}
                 value={form.formState.enableAutoTranslations}
-                onValueChange={form.setFormState}>
+                onValueChange={(v) => form.setFormState(v, 'enableAutoTranslations')}>
                 <F.Text>Auto translate</F.Text>
               </F.Checkbox>
               <F.VerticalSpace space="small"/>
@@ -252,11 +244,10 @@ export function ProjectExport(props: ProjectExportProps) {
           }
           <Fragment>
             <F.Checkbox
-              name="includeAssets"
               title={tips.includeAssets}
               disabled={isExporting}
               value={form.formState.includeAssets}
-              onValueChange={form.setFormState}>
+              onValueChange={(v) => form.setFormState(v, 'includeAssets')}>
               <F.Text>Include assets</F.Text>
             </F.Checkbox>
             <F.VerticalSpace space="small"/>

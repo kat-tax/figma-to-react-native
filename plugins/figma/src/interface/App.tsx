@@ -1,5 +1,4 @@
-import {h} from 'preact';
-import {useState, useEffect} from 'preact/hooks';
+import {useState, useEffect} from 'react';
 import {Tabs, Tab} from 'interface/base/Tabs';
 import {NavBar} from 'interface/base/NavBar';
 
@@ -25,7 +24,7 @@ import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {AppPages, AppTabs} from 'types/app';
 
@@ -43,7 +42,7 @@ const tabs: AppTabs = {
     'theme',
     //'fonts',
     //'locales',
-    'docs',
+    //'docs',
     'export',
     'settings',
   ],

@@ -1,14 +1,13 @@
-import {h, Fragment} from 'preact';
 import {Fzf, byLengthAsc} from 'fzf';
-import {useState, useMemo, useEffect} from 'preact/hooks';
+import {useState, useMemo, useEffect} from 'react';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {emit, once} from '@create-figma-plugin/utilities';
+import {emit} from '@create-figma-plugin/utilities';
 
-import * as F from '@create-figma-plugin/ui';
+import * as F from 'figma-ui';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {ComponentBuild, ComponentEntry} from 'types/component';
@@ -107,9 +106,8 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   }
 
   return (
-    <F.Container
+    <div
       className="components"
-      space="small"
       style={{
         flex: 1,
         flexDirection: 'column',
@@ -128,7 +126,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         onSelect={select}
         component={<ProjectAssets {...props}/>}
       />
-    </F.Container>
+    </div>
   );
 }
 
@@ -153,7 +151,7 @@ function ProjectPageGroup(props: ProjectPageGroupProps) {
       {props?.component}
       {props?.entries?.map(entry =>
         <ProjectPageComponent
-          key={entry.item.name}
+          key={entry.item.key}
           entry={entry}
           page={props.title}
           onSelect={props.onSelect}
@@ -179,10 +177,9 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
     <F.Stack
       space="extraLarge"
       style={{width: '100%'}}
-      draggable
+      draggable={!loading}
       onDragEnd={(e) => {
         setDragging(null);
-        if (e.view.length === 0) return;
         window.parent.postMessage({
           pluginDrop: {
             clientX: e.clientX,
@@ -204,7 +201,6 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         e.dataTransfer.setData('text/plain', code);
       }}>
       <F.Layer
-        disabled={loading}
         component={!hasError}
         value={name === dragging}
         onChange={() => id

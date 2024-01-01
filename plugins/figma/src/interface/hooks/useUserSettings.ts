@@ -1,9 +1,10 @@
-import {useRef, useState, useCallback, useEffect, MutableRef} from 'preact/hooks';
+import {useRef, useState, useCallback, useEffect} from 'react';
 import {on, emit} from '@create-figma-plugin/utilities';
 import defaultConfig from 'config/user';
 
-import type {Settings} from 'types/settings';
+import type {MutableRefObject} from 'react';
 import type {EventConfigLoad, EventConfigUpdate} from 'types/events';
+import type {Settings} from 'types/settings';
 
 const indent = defaultConfig?.writer?.indentNumberOfSpaces || 2;
 const configRaw = JSON.stringify(defaultConfig, undefined, indent);
@@ -11,7 +12,7 @@ const configRaw = JSON.stringify(defaultConfig, undefined, indent);
 export type ConfigData = {
   config: Settings,
   raw: string,
-  locked: MutableRef<boolean>,
+  locked: MutableRefObject<boolean>,
   update: (payload: string, force?: boolean) => void,
 }
 

@@ -1,4 +1,3 @@
-import {h} from 'preact';
 import {Root, List, Trigger, Content} from '@radix-ui/react-tabs';
 
 import type {
@@ -13,7 +12,6 @@ interface TabsProps extends TabsBaseProps {
 }
 
 export function Tabs(props: TabsProps) {
-  // @ts-ignore Preact issue
   return <Root {...props} className="tabs"/>;
 }
 
@@ -22,7 +20,6 @@ interface BarProps extends TabsListProps {
 }
 
 export function Bar(props: BarProps) {
-  // @ts-ignore Preact issue
   return <List {...props} className="tab-bar"/>;
 }
 
@@ -32,7 +29,6 @@ interface LinkProps extends TabsTriggerProps {
 }
 
 export function Link(props: LinkProps) {
-  // @ts-ignore Preact issue
   return <Trigger {...props} className={props.hasIcon ? 'tab icon' : 'tab'}/>;
 }
 
@@ -41,6 +37,5 @@ interface TabProps extends TabsContentProps {
 }
 
 export function Tab(props: TabProps) {
-  // @ts-ignore Preact issue
   return <Content {...props} className="tab-view"/>;
 }
