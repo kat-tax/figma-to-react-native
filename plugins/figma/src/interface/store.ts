@@ -10,7 +10,7 @@ export const provider = new WebrtcProvider('xxx', doc);
 /*export const provider = new TiptapCollabProvider({
   appId: TIPTAP_APP_ID,
   token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDQwNjQxMzksIm5iZiI6MTcwNDA2NDEzOSwiZXhwIjoxNzA0MTUwNTM5LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiIweDlsbnZtciJ9.0EHkh0ZWqTgjJUSGh03OMexZcfc3BsnQ9wOiU3_-VkI',
-  name: 'xxx',
+  name: figma.fileKey,
   document: doc,
 });*/
 
