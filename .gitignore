@@ -2,7 +2,6 @@
 manifest.json
 *.tsbuildinfo
 TODO.md
-build/
 
 # OSX
 .DS_Store
