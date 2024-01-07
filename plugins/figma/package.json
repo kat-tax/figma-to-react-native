@@ -67,7 +67,7 @@
     "reserved": "^0.1.2",
     "uniforms": "4.0.0-alpha.5",
     "uniforms-bridge-json-schema": "4.0.0-alpha.5",
-    "uniforms-semantic": "4.0.0-alpha.5",
+    "uniforms-unstyled": "4.0.0-alpha.5",
     "web-bundler": "workspace:*",
     "y-protocols": "^1.0.6",
     "y-webrtc": "^10.3.0",

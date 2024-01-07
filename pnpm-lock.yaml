@@ -186,7 +186,7 @@ importers:
       uniforms-bridge-json-schema:
         specifier: 4.0.0-alpha.5
         version: 4.0.0-alpha.5(react@18.2.0)
-      uniforms-semantic:
+      uniforms-unstyled:
         specifier: 4.0.0-alpha.5
         version: 4.0.0-alpha.5(react@18.2.0)
       web-bundler:
@@ -4569,10 +4569,6 @@ packages:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
     dev: true
-
-  /classnames@2.5.1:
-    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
-    dev: false
 
   /cli-cursor@3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
@@ -9371,12 +9367,11 @@ packages:
       - react
     dev: false
 
-  /uniforms-semantic@4.0.0-alpha.5(react@18.2.0):
-    resolution: {integrity: sha512-w9vYEVBAFtMWKdL300IEjsj2O+JGWy+OzPx+NlAPN+rWW8busTOWlIXiKz9IQiEOxMo9kTSiHLp90neV5ka0TQ==}
+  /uniforms-unstyled@4.0.0-alpha.5(react@18.2.0):
+    resolution: {integrity: sha512-xTUq7ZjD2UqvQW9MN7PRDk+IKo3elfdA8MdZF5DludZOwSqd7OOKDka7qe1ed1N0cRVJoq0Td9qQrrHt1/VW4g==}
     peerDependencies:
       react: ^18.0.0 || ^17.0.0 || ^16.8.0
     dependencies:
-      classnames: 2.5.1
       invariant: 2.2.4
       lodash: 4.17.21
       react: 18.2.0
