@@ -40,5 +40,12 @@
     "react": ">=18",
     "react-dom": ">=18"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@types/invariant": "^2.2.37",
+    "@types/lodash": "^4.14.202",
+    "invariant": "^2.2.4",
+    "lodash": "^4.17.21",
+    "uniforms": "4.0.0-alpha.5"
+  }
 }
