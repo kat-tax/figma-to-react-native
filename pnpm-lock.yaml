@@ -132,9 +132,6 @@ importers:
       '@zip.js/zip.js':
         specifier: ^2.7.32
         version: 2.7.32
-      ajv:
-        specifier: ^8.12.0
-        version: 8.12.0
       blakejs:
         specifier: ^1.2.1
         version: 1.2.1
@@ -187,6 +184,9 @@ importers:
         specifier: 4.0.0-alpha.5
         version: 4.0.0-alpha.5(react@18.2.0)
       uniforms-bridge-json-schema:
+        specifier: 4.0.0-alpha.5
+        version: 4.0.0-alpha.5(react@18.2.0)
+      uniforms-semantic:
         specifier: 4.0.0-alpha.5
         version: 4.0.0-alpha.5(react@18.2.0)
       web-bundler:
@@ -4124,6 +4124,7 @@ packages:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js: 4.4.1
+    dev: true
 
   /anser@1.4.10:
     resolution: {integrity: sha512-hCv9AqTQ8ycjpSd3upOJd7vFwW1JaoYQ7tpham03GJ1ca8/65rqn0RpaWpItOAd6ylW9wAw6luXYPJIyPFVOww==}
@@ -4568,6 +4569,10 @@ packages:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
     dev: true
+
+  /classnames@2.5.1:
+    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
+    dev: false
 
   /cli-cursor@3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
@@ -6178,6 +6183,7 @@ packages:
 
   /json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
+    dev: true
 
   /json5@2.2.3:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
@@ -8123,6 +8129,7 @@ packages:
   /punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+    dev: true
 
   /querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
@@ -8496,6 +8503,7 @@ packages:
   /require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /require-main-filename@2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
@@ -9363,6 +9371,19 @@ packages:
       - react
     dev: false
 
+  /uniforms-semantic@4.0.0-alpha.5(react@18.2.0):
+    resolution: {integrity: sha512-w9vYEVBAFtMWKdL300IEjsj2O+JGWy+OzPx+NlAPN+rWW8busTOWlIXiKz9IQiEOxMo9kTSiHLp90neV5ka0TQ==}
+    peerDependencies:
+      react: ^18.0.0 || ^17.0.0 || ^16.8.0
+    dependencies:
+      classnames: 2.5.1
+      invariant: 2.2.4
+      lodash: 4.17.21
+      react: 18.2.0
+      tslib: 2.6.2
+      uniforms: 4.0.0-alpha.5(react@18.2.0)
+    dev: false
+
   /uniforms@4.0.0-alpha.5(react@18.2.0):
     resolution: {integrity: sha512-e4GdyrAFkvgN2VmX8lUsAw96seCYalBzlSpdfSz9dsBqxpXNM++yAueRS63klu+bCAG849K1CJjGdf63XdkG2g==}
     peerDependencies:
@@ -9468,6 +9489,7 @@ packages:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
       punycode: 2.3.1
+    dev: true
 
   /url-parse@1.5.10:
     resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}

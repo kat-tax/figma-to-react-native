@@ -3,7 +3,7 @@ export function wait(time: number) {
 }
 
 export function throttle(func: Function, delay: number) {
-  let timeout: number | null = null;
+  let timeout: NodeJS.Timeout | null = null;
   let lastArgs: any[] = [];
 
   const execute = () => {
