@@ -1,11 +1,11 @@
 import {useState, useEffect} from 'react';
-import {Tabs, Tab} from 'interface/base/Tabs';
+
 import {NavBar} from 'interface/base/NavBar';
+import {Tabs, Tab} from 'interface/base/Tabs';
 
 import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentStory} from 'interface/views/ComponentStory';
 import {ComponentPreview} from 'interface/views/ComponentPreview';
-
 import {ProjectComponents} from 'interface/views/ProjectComponents';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {ProjectIcons} from 'interface/views/ProjectIcons';
@@ -23,6 +23,7 @@ import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
+import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 
 import * as F from 'figma-ui';
 
@@ -63,6 +64,7 @@ export function App(props: AppProps) {
   const icons = useProjectIcons();
   const project = useProjectConfig();
   const settings = useUserSettings();
+  const variant = useSelectedVariant();
   const monaco = useEditor(settings.config, build.links);
   const nav = useNavigation(build);
   const isDark = useDarkMode();
@@ -117,7 +119,7 @@ export function App(props: AppProps) {
         <ComponentCode {...{componentKey, build, options, monaco}}/>
       </Tab>
       <Tab value="preview">
-        <ComponentPreview {...{componentKey, build, theme, settings: settings.config}}/>
+        <ComponentPreview {...{componentKey, variant, build, theme, settings: settings.config}}/>
       </Tab>
       <Tab value="story">
         <ComponentStory {...{componentKey, options, monaco}}/>

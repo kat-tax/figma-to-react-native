@@ -1,22 +1,23 @@
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
-import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 
 import type {ComponentBuild} from 'types/component';
 import type {Settings} from 'types/settings';
+import type {VariantData} from 'interface/hooks/useSelectedVariant';
 
 interface ComponentPreviewProps {
   componentKey: string,
+  variant: VariantData,
   theme: string,
   build: ComponentBuild,
   settings: Settings,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {componentKey, theme, build, settings} = props;
+  const {componentKey, theme, build, variant, settings} = props;
 
   const [src, setSrc] = useState('');
   const [node, setNode] = useState<string | null>(null);
@@ -24,7 +25,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
   const screen = useWindowSize();
-  const variant = useSelectedVariant();
   const component = $.components.get(componentKey);
 
   // Inits the loader that renders component apps

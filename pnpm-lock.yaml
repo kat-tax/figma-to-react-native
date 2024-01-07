@@ -15,10 +15,26 @@ importers:
         version: 1.22.1
     devDependencies:
       '@types/react-native':
-        specifier: ^0.72.8
-        version: 0.72.8(react-native@0.73.0)
+        specifier: ^0.73.0
+        version: 0.73.0(@babel/core@7.23.6)(@babel/preset-env@7.23.6)(react@18.2.0)
 
   packages/figma-ui:
+    dependencies:
+      '@types/invariant':
+        specifier: ^2.2.37
+        version: 2.2.37
+      '@types/lodash':
+        specifier: ^4.14.202
+        version: 4.14.202
+      invariant:
+        specifier: ^2.2.4
+        version: 2.2.4
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      uniforms:
+        specifier: 4.0.0-alpha.5
+        version: 4.0.0-alpha.5(react@18.2.0)
     devDependencies:
       '@sindresorhus/slugify':
         specifier: ^2.2.1
@@ -3434,16 +3450,6 @@ packages:
     resolution: {integrity: sha512-bRBcb2T+I88aG74LMVHaKms2p/T8aQd8+BZ7LuuzXlRfog1bMWWn/C5i0HVuvW4RPtXQYgIlGiXVDy9Ir1So/w==}
     dev: true
 
-  /@react-native/virtualized-lists@0.72.8(react-native@0.73.0):
-    resolution: {integrity: sha512-J3Q4Bkuo99k7mu+jPS9gSUSgq+lLRSI/+ahXNwV92XgJ/8UgOTxu2LPwhJnBk/sQKxq7E8WkZBnBiozukQMqrw==}
-    peerDependencies:
-      react-native: '*'
-    dependencies:
-      invariant: 2.2.4
-      nullthrows: 1.1.1
-      react-native: 0.73.0(@babel/core@7.23.6)(@babel/preset-env@7.23.6)(react@18.2.0)
-    dev: true
-
   /@react-native/virtualized-lists@0.73.4(react-native@0.73.0):
     resolution: {integrity: sha512-HpmLg1FrEiDtrtAbXiwCgXFYyloK/dOIPIuWW3fsqukwJEWAiTzm1nXGJ7xPU5XTHiWZ4sKup5Ebaj8z7iyWog==}
     engines: {node: '>=18'}
@@ -3828,6 +3834,10 @@ packages:
       '@types/unist': 3.0.2
     dev: false
 
+  /@types/invariant@2.2.37:
+    resolution: {integrity: sha512-IwpIMieE55oGWiXkQPSBY1nw1nFs6bsKXTFskNY8sdS17K24vyEBRQZEwlRS7ZmXCWnJcQtbxWzly+cODWGs2A==}
+    dev: false
+
   /@types/istanbul-lib-coverage@2.0.6:
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
     dev: true
@@ -3862,7 +3872,6 @@ packages:
 
   /@types/lodash@4.14.202:
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
-    dev: true
 
   /@types/mdast@3.0.15:
     resolution: {integrity: sha512-LnwD+mUEfxWMa1QpDraczIn6k0Ee3SMicuYSSzS6ZYl2gKS09EClnJYGd8Du6rfc5r/GZEk5o1mRb8TaTj03sQ==}
@@ -3913,13 +3922,19 @@ packages:
     dependencies:
       '@types/react': 18.2.47
 
-  /@types/react-native@0.72.8(react-native@0.73.0):
-    resolution: {integrity: sha512-St6xA7+EoHN5mEYfdWnfYt0e8u6k2FR0P9s2arYgakQGFgU1f9FlPrIEcj0X24pLCF5c5i3WVuLCUdiCYHmOoA==}
+  /@types/react-native@0.73.0(@babel/core@7.23.6)(@babel/preset-env@7.23.6)(react@18.2.0):
+    resolution: {integrity: sha512-6ZRPQrYM72qYKGWidEttRe6M5DZBEV5F+MHMHqd4TTYx0tfkcdrUFGdef6CCxY0jXU7wldvd/zA/b0A/kTeJmA==}
+    deprecated: This is a stub types definition. react-native provides its own type definitions, so you do not need this installed.
     dependencies:
-      '@react-native/virtualized-lists': 0.72.8(react-native@0.73.0)
-      '@types/react': 18.2.46
+      react-native: 0.73.0(@babel/core@7.23.6)(@babel/preset-env@7.23.6)(react@18.2.0)
     transitivePeerDependencies:
-      - react-native
+      - '@babel/core'
+      - '@babel/preset-env'
+      - bufferutil
+      - encoding
+      - react
+      - supports-color
+      - utf-8-validate
     dev: true
 
   /@types/react@18.2.46:
@@ -5838,7 +5853,6 @@ packages:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
     dependencies:
       loose-envify: 1.4.0
-    dev: true
 
   /ip@1.1.8:
     resolution: {integrity: sha512-PuExPYUiu6qMBQb4l06ecm6T6ujzhmh+MeJcW9wa89PoAz5pvd4zPgN5WJV104mb6S2T1AwNIAaB70JNrLQWhg==}
@@ -9312,6 +9326,17 @@ packages:
       is-plain-obj: 4.1.0
       trough: 2.1.0
       vfile: 5.3.7
+    dev: false
+
+  /uniforms@4.0.0-alpha.5(react@18.2.0):
+    resolution: {integrity: sha512-e4GdyrAFkvgN2VmX8lUsAw96seCYalBzlSpdfSz9dsBqxpXNM++yAueRS63klu+bCAG849K1CJjGdf63XdkG2g==}
+    peerDependencies:
+      react: ^18.0.0 || ^17.0.0 || ^16.8.0
+    dependencies:
+      invariant: 2.2.4
+      lodash: 4.17.21
+      react: 18.2.0
+      tslib: 2.6.2
     dev: false
 
   /unique-string@3.0.0:
