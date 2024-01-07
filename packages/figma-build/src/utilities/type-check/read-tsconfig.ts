@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import fs from 'node:fs';
 import {dirname} from 'node:path';
-import {formatTypeScriptErrorMessage} from './format-typescript-error-message';
+import {formatTypeScriptErrorMessage} from './format-typescript-error-message.js';
 
 const parseConfigHost: ts.ParseConfigHost = {
   fileExists: ts.sys.fileExists,

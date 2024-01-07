@@ -1,10 +1,10 @@
 import {log, readConfigAsync} from '@create-figma-plugin/common';
 
-import {buildBundlesAsync} from './utilities/build-bundles-async/build-bundles-async';
-import {buildCssModulesTypingsAsync} from './utilities/build-css-modules-typings-async';
-import {buildManifestAsync} from './utilities/build-manifest-async';
-import {trackElapsedTime} from './utilities/track-elapsed-time';
-import {typeCheckBuild} from './utilities/type-check/type-check-build';
+import {buildBundlesAsync} from './utilities/build-bundles-async/build-bundles-async.js';
+import {buildCssModulesTypingsAsync} from './utilities/build-css-modules-typings-async.js';
+import {buildManifestAsync} from './utilities/build-manifest-async.js';
+import {trackElapsedTime} from './utilities/track-elapsed-time.js';
+import {typeCheckBuild} from './utilities/type-check/type-check-build.js';
 
 import type {BuildOptions} from './types/build';
 

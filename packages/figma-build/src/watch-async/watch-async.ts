@@ -2,12 +2,12 @@ import {constants, log, readConfigAsync} from '@create-figma-plugin/common';
 import {yellow} from 'kleur/colors';
 import {watch} from 'chokidar';
 
-import {buildBundlesAsync} from '../utilities/build-bundles-async/build-bundles-async';
-import {buildCssModulesTypingsAsync} from '../utilities/build-css-modules-typings-async';
-import {buildManifestAsync} from '../utilities/build-manifest-async';
-import {typeCheckWatch} from '../utilities/type-check/type-check-watch';
-import {trackElapsedTime} from '../utilities/track-elapsed-time';
-import {watchIgnoreRegex} from './watch-ignore-regex';
+import {buildBundlesAsync} from '../utilities/build-bundles-async/build-bundles-async.js';
+import {buildCssModulesTypingsAsync} from '../utilities/build-css-modules-typings-async.js';
+import {buildManifestAsync} from '../utilities/build-manifest-async.js';
+import {typeCheckWatch} from '../utilities/type-check/type-check-watch.js';
+import {trackElapsedTime} from '../utilities/track-elapsed-time.js';
+import {watchIgnoreRegex} from './watch-ignore-regex.js';
 
 import type {BuildOptions} from '../types/build.js';
 

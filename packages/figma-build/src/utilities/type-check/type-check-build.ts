@@ -1,7 +1,7 @@
 import ts from 'typescript';
-import {readTsConfig} from './read-tsconfig';
-import {filterTypeScriptDiagnostics} from './filter-typescript-diagnostics';
-import {formatTypeScriptErrorMessage} from './format-typescript-error-message';
+import {readTsConfig} from './read-tsconfig.js';
+import {filterTypeScriptDiagnostics} from './filter-typescript-diagnostics.js';
+import {formatTypeScriptErrorMessage} from './format-typescript-error-message.js';
 
 export function typeCheckBuild(): void {
   const tsConfig = readTsConfig()

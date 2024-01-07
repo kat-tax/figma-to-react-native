@@ -2,10 +2,10 @@
 import {log} from '@create-figma-plugin/common';
 import sade from 'sade';
 
-import {buildAsync} from './build-async'
-import {watchAsync} from './watch-async/watch-async';
+import {buildAsync} from './build-async.js'
+import {watchAsync} from './watch-async/watch-async.js';
 
-import type {BuildOptions} from './types/build';
+import type {BuildOptions} from './types/build.js';
 
 sade('build-figma-plugin', true)
   .describe('Build a Figma/FigJam plugin/widget')

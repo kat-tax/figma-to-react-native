@@ -3,8 +3,8 @@
   "license": "GPL-3.0",
   "private": true,
   "scripts": {
-    "dev": "build-figma-plugin --typecheck --watch",
-    "build": "build-figma-plugin --typecheck --minify",
+    "dev": "figma-build --typecheck --watch",
+    "build": "figma-build --typecheck --minify",
     "schema": "pnpm schema-user-gen && pnpm schema-project-gen && pnpm schema-project-val",
     "schema-user-gen": "typescript-json-schema tsconfig.json UserSettings --out ./src/interface/schemas/user/schema.json",
     "schema-project-gen": "typescript-json-schema tsconfig.json ProjectSettings --out ./src/interface/schemas/project/schema.json",
@@ -74,7 +74,6 @@
     "yjs": "^13.6.10"
   },
   "devDependencies": {
-    "@create-figma-plugin/build": "^3.1.0",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@figma/plugin-typings": "1.82.0",
     "@types/lodash.camelcase": "^4.3.9",
@@ -82,6 +81,7 @@
     "@types/react-dom": "^18.2.18",
     "ajv-cli": "^5.0.0",
     "esbuild": "^0.19.11",
+    "figma-build": "workspace:*",
     "react-zoom-pan-pinch": "^3.3.0",
     "typescript": "^5.3.3",
     "typescript-json-schema": "^0.62.0"

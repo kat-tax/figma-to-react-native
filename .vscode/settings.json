@@ -4,7 +4,7 @@
       "fileMatch": [
         "plugins/figma/package.json"
       ],
-      "url": "https://yuanqing.github.io/create-figma-plugin/figma-plugin.json"
+      "url": "https://github.com/kat-tax/figma-to-react-native/packages/figma-build/figma-plugin.json"
     }
   ]
 }

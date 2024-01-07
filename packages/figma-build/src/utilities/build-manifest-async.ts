@@ -1,7 +1,7 @@
 import {constants, writeFileAsync} from '@create-figma-plugin/common';
 import {resolve} from 'node:path';
 import {globby} from 'globby';
-import {importFresh} from './import-fresh';
+import {importFresh} from './import-fresh.js';
 
 import type {
   // Config

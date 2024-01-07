@@ -2,10 +2,10 @@ import {log} from '@create-figma-plugin/common';
 import {temporaryFile} from 'tempy';
 import ts from 'typescript';
 
-import {trackElapsedTime} from '../track-elapsed-time';
-import {filterTypeScriptDiagnostics} from './filter-typescript-diagnostics';
-import {formatTypeScriptErrorMessage} from './format-typescript-error-message';
-import {readTsConfig} from './read-tsconfig';
+import {trackElapsedTime} from '../track-elapsed-time.js';
+import {filterTypeScriptDiagnostics} from './filter-typescript-diagnostics.js';
+import {formatTypeScriptErrorMessage} from './format-typescript-error-message.js';
+import {readTsConfig} from './read-tsconfig.js';
 
 export function typeCheckWatch(): () => void {
   const tsConfig = readTsConfig();

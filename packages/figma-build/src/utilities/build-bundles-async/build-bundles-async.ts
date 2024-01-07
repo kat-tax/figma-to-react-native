@@ -4,8 +4,8 @@ import {globby} from 'globby';
 import {resolve} from 'node:path';
 import indentString from 'indent-string';
 
-import {importFresh} from '../import-fresh';
-import {esbuildCssModulesPlugin} from './esbuild-css-modules-plugin';
+import {importFresh} from '../import-fresh.js';
+import {esbuildCssModulesPlugin} from './esbuild-css-modules-plugin.js';
 
 import type {BuildOptions} from 'esbuild';
 import type {
