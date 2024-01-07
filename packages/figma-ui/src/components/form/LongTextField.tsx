@@ -6,7 +6,7 @@ import type {Ref} from 'react';
 export type LongTextFieldProps = HTMLFieldProps<
   string,
   HTMLDivElement,
-  {inputRef?: Ref<HTMLTextAreaElement>},
+  {inputRef?: Ref<HTMLTextAreaElement>}
 >;
 
 function LongText({
