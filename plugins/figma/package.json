@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "build-figma-plugin --typecheck --watch",
     "build": "build-figma-plugin --typecheck --minify",
-    "schema": "pnpm schema-user-gen && pnpm schema-user-val && pnpm schema-project-gen && pnpm schema-project-val",
+    "schema": "pnpm schema-user-gen && pnpm schema-project-gen && pnpm schema-project-val",
     "schema-user-gen": "typescript-json-schema tsconfig.json UserSettings --out ./src/interface/schemas/user/schema.json",
     "schema-project-gen": "typescript-json-schema tsconfig.json ProjectSettings --out ./src/interface/schemas/project/schema.json",
     "schema-project-val": "ajv compile -s ./src/interface/schemas/project/schema -o ./src/interface/schemas/project/validator.js"
