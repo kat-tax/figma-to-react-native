@@ -16,6 +16,7 @@ async function generateIndexTs(globs: Array<string>, outputPath: string): Promis
   const filePaths = await globby([
     ...globs,
     `!${outputPath}`,
+    '!**/form/**', // TODO: temporary
     '!**/*.d.ts',
     '!**/*.stories.tsx',
   ]);

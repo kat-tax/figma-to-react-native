@@ -5,6 +5,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {F2RN_EDITOR_NS} from 'config/env';
 import * as $ from 'interface/store';
 
+// @ts-ignore
 import schema from 'interface/schemas/user/schema.json';
 import templates from './templates';
 
