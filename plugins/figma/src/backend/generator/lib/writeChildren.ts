@@ -1,4 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
+import {blake2sHex} from 'blakejs';
 import {createIdentifierPascal} from 'common/string';
 import {
   getPage,
@@ -7,6 +8,7 @@ import {
   getFillToken,
   getInstanceInfo,
   getCustomReaction,
+  getCollectionByName,
   // getPressReaction,
 } from 'backend/parser/lib';
 
@@ -25,7 +27,14 @@ export function writeChildren(
   getStylePrefix: StylePrefixMapper,
   pressables?: string[][],
 ) {
-  const state = {writer, flags, data, settings, pressables, getStylePrefix};
+  let locales = getCollectionByName('Locales');
+  if (locales) {
+    try {
+      locales = figma.variables.createVariableCollection('Locales');
+    } catch (e) {}
+  }
+
+  const state = {writer, flags, data, locales, settings, pressables, getStylePrefix};
   children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
@@ -57,6 +66,7 @@ function writeChild(
     flags: ImportFlags,
     data: ParseData,
     settings: Settings,
+    locales?: VariableCollection,
     pressables?: string[][],
     getStylePrefix: StylePrefixMapper,
   },
@@ -214,6 +224,12 @@ function writeChild(
           if (settings?.react?.addTranslate) {
             state.flags.lingui.Trans = true;
             writer.write(`<Trans>${propValue}</Trans>`);
+            if (state.locales) {
+              const {id, defaultModeId} = state.locales;
+              const hash = blake2sHex(propValue);
+              const entry = figma.variables.createVariable(hash, id, 'STRING');
+              entry.setValueForMode(defaultModeId, propValue);
+            }
           } else {
             writer.write(`{\`${propValue}\`}`);
           }
