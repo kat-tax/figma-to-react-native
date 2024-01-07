@@ -1,10 +1,7 @@
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 
-const user: Settings = {
-  react: {
-    flavor: 'react-native',
-    addTranslate: false,
-  },
+const user: UserSettings = {
+  addTranslate: false,
   writer: {
     indentNumberOfSpaces: 2,
     useSingleQuote: true,

@@ -7,14 +7,14 @@ import {debounce} from 'common/delay';
 
 import {bridge as schema} from '../utils/editor/schemas/settings.bridge';
 
-import type {ConfigData} from 'interface/hooks/useUserSettings';
-import type {Settings} from 'types/settings';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
+import type {UserSettings} from 'types/settings';
 
 const _path = `${F2RN_EDITOR_NS}settings.json`;
 
 interface ProjectSettingsProps {
-  settings: ConfigData;
-  options: Settings['monaco']['general'];
+  settings: SettingsData;
+  options: UserSettings['monaco']['general'];
   monaco: any;
 }
 

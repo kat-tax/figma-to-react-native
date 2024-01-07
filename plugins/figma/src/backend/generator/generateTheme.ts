@@ -2,13 +2,13 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
 import {getColor, getCollectionModes} from 'backend/parser/lib';
 
-import type {Settings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 
 type ThemeColors = Record<string, ThemeGroup>;
 type ThemeGroup = Record<string, ThemeColor> | ThemeColor;
 type ThemeColor = {value: string, comment: string};
 
-export function generateTheme(settings: Settings) {
+export function generateTheme(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const theme = getCollectionModes('Theme');
 

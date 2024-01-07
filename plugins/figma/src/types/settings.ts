@@ -2,21 +2,18 @@ import type {BuildOptions} from 'web-bundler';
 import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
 import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 
-export interface Settings {
+export interface ProjectSettings {
   /**
-  * Options for code generation.
+   * Enable to add translations tags to strings
+   */
+  addTranslate?: boolean,
+  /**
+  * Options for the code writer.
   */
-  react: {
-    /**
-     * The flavor of React Native to generate
-     */
-    flavor: 'react-native',
-    /**
-     * Enable to add translations tags to strings
-     */
-    addTranslate?: boolean,
-  }
   writer: CodeBlockWriterOptions,
+}
+
+export interface UserSettings extends ProjectSettings {
   /**
   * Options for the code editor.
   */

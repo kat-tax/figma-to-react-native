@@ -2,10 +2,10 @@ import {useMonaco} from '@monaco-editor/react';
 import {useEffect} from 'react';
 import * as lib from 'interface/utils/editor';
 
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 import type {ComponentLinks} from 'types/component';
 
-export function useEditor(settings: Settings, links?: ComponentLinks) {
+export function useEditor(settings: UserSettings, links?: ComponentLinks) {
   const monaco = useMonaco();
 
   useEffect(() => {

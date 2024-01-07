@@ -1,15 +1,13 @@
-import type {ProjectConfig} from 'types/project';
+import type {ProjectSettings} from 'types/settings';
 
-const config: ProjectConfig = {
-  method: 'download',
-  scope: 'document',
-  docKey: '',
-  apiKey: '',
-  packageName: '',
-  packageVersion: '',
-  includeAssets: true,
-  enableAssetOptimizations: false,
-  enableAutoTranslations: false,
+const project: ProjectSettings = {
+  addTranslate: false,
+  writer: {
+    indentNumberOfSpaces: 2,
+    useSingleQuote: true,
+    useTabs: false,
+    newLine: '\n',
+  },
 };
 
-export default config;
+export default project;

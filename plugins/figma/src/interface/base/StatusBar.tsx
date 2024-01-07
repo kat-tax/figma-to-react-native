@@ -1,11 +1,9 @@
 import * as F from 'figma-ui';
 
-import type {ProjectConfig} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 
 interface StatusBarProps {
   build: ComponentBuild,
-  project: ProjectConfig,
   setTarget: (value: string) => void,
 }
 

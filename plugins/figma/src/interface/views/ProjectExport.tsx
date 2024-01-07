@@ -5,7 +5,7 @@ import {useProjectBuild} from 'interface/hooks/useProjectBuild';
 
 import * as F from 'figma-ui';
 
-import type {ProjectConfig, ProjectExportMethod, ProjectExportScope} from 'types/project';
+import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
 import type {EventProjectExport} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 
@@ -54,7 +54,7 @@ const tips = {
 };
 
 interface ProjectExportProps {
-  project: ProjectConfig;
+  project: ProjectRelease;
   build: ComponentBuild;
 }
 
@@ -63,7 +63,7 @@ export function ProjectExport(props: ProjectExportProps) {
   const [isExporting, setExporting] = useState(false);
   const [exportCount, setExportCount] = useState(0);
 
-  const form = F.useForm<ProjectConfig>(props.project, {
+  const form = F.useForm<ProjectRelease>(props.project, {
     close: () => {},
     validate: (data) => {
       if (data.packageVersion) {

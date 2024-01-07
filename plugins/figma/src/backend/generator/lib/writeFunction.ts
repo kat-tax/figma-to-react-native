@@ -8,7 +8,7 @@ import {writeProps} from './writeProps';
 import {writeState} from './writeState';
 
 import type {ParseData} from 'types/parse';
-import type {Settings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string) => string;
@@ -17,7 +17,7 @@ export function writeFunction(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   data: ParseData,
-  settings: Settings,
+  settings: ProjectSettings,
 ): ImportFlags {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;

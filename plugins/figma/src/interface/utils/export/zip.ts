@@ -2,9 +2,9 @@ import {fs} from '@zip.js/zip.js';
 import {F2RN_EXO_REPO_ZIP} from 'config/env';
 
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
-import type {ProjectBuild, ProjectConfig} from 'types/project';
+import type {ProjectBuild, ProjectRelease} from 'types/project';
 
-export async function zip(project: ProjectBuild, config: ProjectConfig) {
+export async function zip(project: ProjectBuild, release: ProjectRelease) {
   // Import exo repo
   const zip = new fs.FS();
   const src = 'https://corsproxy.io/?' + encodeURIComponent(F2RN_EXO_REPO_ZIP + '?_c=' + Math.random());
@@ -16,8 +16,8 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
   
   // Add root files
   tpl.addText('package.json', JSON.stringify({
-    'name': config.method !== 'download' && config.packageName || `@kat.tax/exo`,
-    'version': config.packageVersion || '0.0.1',
+    'name': release.method !== 'download' && release.packageName || `@kat.tax/exo`,
+    'version': release.packageVersion || '0.0.1',
     'private': true,
     'scripts': {
       "figma": "pnpm --filter ./plugins/figma run dev",
@@ -42,7 +42,7 @@ export async function zip(project: ProjectBuild, config: ProjectConfig) {
   });
 
   // Add asset files
-  if (config.includeAssets) {
+  if (release.includeAssets) {
     project.assets.forEach(([name, isVector, bytes]) => {
       const ext = isVector ? 'svg' : 'png';
       const type = isVector ? 'image/svg+xml' : 'image/png';

@@ -7,7 +7,7 @@ import iframe from './templates/iframe.html.tpl';
 import loader from './templates/loader.tsx.tpl';
 import app from './templates/app.tsx.tpl';
 
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 import type {ComponentBuild} from 'types/component';
 
 const ENTRY_POINT = '/index.tsx';
@@ -17,7 +17,7 @@ interface PreviewOptions {
   name: string,
   props: string,
   theme: string,
-  settings: Settings,
+  settings: UserSettings,
   build: ComponentBuild,
 }
 
@@ -71,7 +71,7 @@ export async function preview(options: PreviewOptions) {
   }
 }
 
-export async function init(settings: Settings) {
+export async function init(settings: UserSettings) {
   // Build filesystem
   const files = new Map<string, string>();
   files.set(ENTRY_POINT, atob(loader.toString()));

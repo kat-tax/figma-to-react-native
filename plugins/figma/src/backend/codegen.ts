@@ -56,8 +56,8 @@ export function handleConfigChange() {
       }
       case 'translate': {
         const newValue = value === 'on';
-        if (newValue !== config.state.react.addTranslate) {
-          newConfig.react.addTranslate = newValue;
+        if (newValue !== config.state.addTranslate) {
+          newConfig.addTranslate = newValue;
           configChanged = true;
         }
         break;

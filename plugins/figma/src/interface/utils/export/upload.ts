@@ -7,18 +7,18 @@ import Tus from '@uppy/tus';
 import {zip} from './zip';
 
 import type {UploadResult} from '@uppy/core';
-import type {ProjectBuild, ProjectConfig} from 'types/project';
+import type {ProjectBuild, ProjectRelease} from 'types/project';
 
 const UPLOAD_ENDPOINT = `${SUPABASE_PROJECT_URL}/storage/v1/upload/resumable`;
 const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024;
 
 export async function upload(
   project: ProjectBuild,
-  config: ProjectConfig,
+  release: ProjectRelease,
 ): Promise<UploadResult<Record<string, unknown>, Record<string, unknown>>> {
   return new Promise(async (resolve, reject) => {  
     const uploader = init();
-    const path = `${config.apiKey}/${Date.now()}.zip`;
+    const path = `${release.apiKey}/${Date.now()}.zip`;
 
     uploader.on('complete', (result) => {
       resolve(result);
@@ -33,7 +33,7 @@ export async function upload(
     uploader.addFile({
       name: path,
       type: 'application/zip',
-      data: await zip(project, config),
+      data: await zip(project, release),
     });
   });
 }

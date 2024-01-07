@@ -2,13 +2,13 @@ import CodeBlockWriter from 'code-block-writer';
 import {sortProps, getPropName} from 'backend/parser/lib';
 import {createIdentifierPascal} from 'common/string';
 
-import type {Settings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 
 export function generateStory(
   target: ComponentNode,
   isVariant: boolean,
   props: ComponentPropertyDefinitions,
-  settings: Settings,
+  settings: ProjectSettings,
 ) {
   const writer = new CodeBlockWriter(settings?.writer);
   const masterNode = isVariant ? target.parent : target;

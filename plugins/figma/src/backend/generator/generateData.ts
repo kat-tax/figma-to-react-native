@@ -8,7 +8,7 @@ import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
 
 import type {ComponentData, ComponentLinks} from 'types/component';
-import type {Settings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 
 const emptyBundle: ComponentData = {
   id: '',
@@ -28,7 +28,7 @@ const emptyBundle: ComponentData = {
 
 export async function generateData(
   target: ComponentNode,
-  settings: Settings,
+  settings: ProjectSettings,
 ): Promise<ComponentData> {
   // No target node, return empty bundle
   if (!target) {

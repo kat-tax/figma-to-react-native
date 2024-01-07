@@ -22,7 +22,7 @@ export type ProjectBuildPackage = {
   registry?: 'npm',
 };
 
-export interface ProjectConfig {
+export interface ProjectRelease {
   method: ProjectExportMethod,
   scope: ProjectExportScope,
   apiKey: string,

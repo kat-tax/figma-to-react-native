@@ -7,10 +7,10 @@ import {F2RN_EDITOR_NS} from 'config/env';
 
 import * as $ from 'interface/store';
 
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 
 interface ProjectThemeProps {
-  options: Settings['monaco']['general'],
+  options: UserSettings['monaco']['general'],
   hasStyles: boolean,
 }
 

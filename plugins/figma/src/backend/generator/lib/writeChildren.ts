@@ -13,7 +13,7 @@ import {
 } from 'backend/parser/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
-import type {Settings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string) => string;
@@ -22,7 +22,7 @@ export function writeChildren(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   data: ParseData,
-  settings: Settings,
+  settings: ProjectSettings,
   children: ParseNodeTree,
   getStylePrefix: StylePrefixMapper,
   pressables?: string[][],
@@ -65,7 +65,7 @@ function writeChild(
     writer: CodeBlockWriter,
     flags: ImportFlags,
     data: ParseData,
-    settings: Settings,
+    settings: ProjectSettings,
     locales?: VariableCollection,
     pressables?: string[][],
     getStylePrefix: StylePrefixMapper,
@@ -221,7 +221,7 @@ function writeChild(
         if (propValue.startsWith('props.')) {
           writer.write(`{${propValue}}`);
         } else {
-          if (settings?.react?.addTranslate) {
+          if (settings?.addTranslate) {
             state.flags.lingui.Trans = true;
             writer.write(`<Trans>${propValue}</Trans>`);
             if (state.locales) {

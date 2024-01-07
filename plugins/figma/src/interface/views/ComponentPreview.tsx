@@ -5,7 +5,7 @@ import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 
 import type {ComponentBuild} from 'types/component';
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 import type {VariantData} from 'interface/hooks/useSelectedVariant';
 
 interface ComponentPreviewProps {
@@ -13,7 +13,7 @@ interface ComponentPreviewProps {
   variant: VariantData,
   theme: string,
   build: ComponentBuild,
-  settings: Settings,
+  settings: UserSettings,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {

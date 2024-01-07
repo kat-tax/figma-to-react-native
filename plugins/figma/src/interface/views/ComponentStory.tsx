@@ -6,11 +6,11 @@ import MonacoReact from '@monaco-editor/react';
 
 import * as $ from 'interface/store';
 
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 
 interface ComponentStoryProps {
   componentKey: string;
-  options: Settings['monaco']['general'];
+  options: UserSettings['monaco']['general'];
 }
 
 export function ComponentStory(props: ComponentStoryProps) {

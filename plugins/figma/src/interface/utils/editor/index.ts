@@ -9,7 +9,7 @@ import schema from './schemas/settings.json';
 import templates from './templates';
 
 import type * as monaco from 'monaco-editor';
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 import type {EventFocusNode} from 'types/events';
 import type {ComponentLinks} from 'types/component';
 
@@ -18,7 +18,7 @@ const sourceCache = new LocalStorageCache();
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
 
-export function initTypescript(monaco: Monaco, settings: Settings) {
+export function initTypescript(monaco: Monaco, settings: UserSettings) {
   const ts = monaco.languages.typescript.typescriptDefaults;
   ts?.setInlayHintsOptions(settings.monaco.inlayHints);
   ts?.setDiagnosticsOptions(settings.monaco.diagnostics);

@@ -12,7 +12,7 @@ import {generateIndex} from './generateIndex';
 import {generateStory} from './generateStory';
 import {generateTheme} from './generateTheme';
 
-import type {Settings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 import type {EventComponentBuild, EventProjectTheme, EventProjectIcons, EventSelectVariant} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
 
@@ -22,7 +22,7 @@ export {generateCode, generateIndex, generateStory, generateTheme};
 
 export async function generateBundle(
   node: ComponentNode,
-  settings: Settings,
+  settings: ProjectSettings,
   skipCache?: boolean,
 ) {
   if (!node) return;
@@ -58,7 +58,7 @@ export async function generateBundle(
   return {bundle, cached: false};
 }
 
-export function watchTheme(settings: Settings) {
+export function watchTheme(settings: ProjectSettings) {
   const updateTheme = () => {
     const {code, theme, hasStyles} = generateTheme(settings);
     const currentTheme = theme?.current

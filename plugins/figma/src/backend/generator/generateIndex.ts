@@ -1,10 +1,10 @@
 import CodeBlockWriter from 'code-block-writer';
 
-import type {Settings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 
 export function generateIndex(
   names: Set<string>,
-  settings: Settings,
+  settings: ProjectSettings,
   isMainIndex: boolean = false,
 ) {
   const writer = new CodeBlockWriter(settings?.writer);

@@ -4,26 +4,26 @@ import defaultConfig from 'config/user';
 
 import type {MutableRefObject} from 'react';
 import type {EventConfigLoad, EventConfigUpdate} from 'types/events';
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 
 const indent = defaultConfig?.writer?.indentNumberOfSpaces || 2;
 const configRaw = JSON.stringify(defaultConfig, undefined, indent);
 
-export type ConfigData = {
-  config: Settings,
+export type SettingsData = {
+  config: UserSettings,
   raw: string,
   locked: MutableRefObject<boolean>,
   update: (payload: string, force?: boolean) => void,
 }
 
-export function useUserSettings(): ConfigData {
+export function useUserSettings(): SettingsData {
   const [config, setConfig] = useState(defaultConfig);
   const [raw, setRaw] = useState(configRaw);
   const locked = useRef(false);
 
   const update = useCallback((payload: string, force?: boolean) => {
     if (!force && locked.current) return;
-    let decoded: Settings;
+    let decoded: UserSettings;
     try {decoded = JSON.parse(payload)} catch (e) {}
     if (decoded) {
       emit<EventConfigUpdate>('CONFIG_UPDATE', decoded);

@@ -9,12 +9,12 @@ import * as $ from 'interface/store';
 
 import type {Monaco, Editor} from 'interface/utils/editor';
 import type {ComponentBuild} from 'types/component';
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 
 interface ComponentCodeProps {
   componentKey: string,
   build: ComponentBuild,
-  options: Settings['monaco']['general'],
+  options: UserSettings['monaco']['general'],
   monaco: Monaco,
 }
 

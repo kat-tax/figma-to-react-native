@@ -1,8 +1,8 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
-import type {Settings} from 'types/settings';
+import type {UserSettings} from 'types/settings';
 import type {ThemeColor, ThemeRadius} from 'types/themes';
-import type {ProjectBuild, ProjectConfig} from 'types/project';
+import type {ProjectBuild, ProjectRelease} from 'types/project';
 import type {ComponentData, ComponentBuild} from 'types/component';
 
 /* General */
@@ -43,12 +43,12 @@ export interface EventAppNavigate extends EventHandler {
 
 export interface EventConfigLoad extends EventHandler {
   name: 'CONFIG_LOAD';
-  handler: (config: Settings) => void;
+  handler: (config: UserSettings) => void;
 }
 
 export interface EventConfigUpdate extends EventHandler {
   name: 'CONFIG_UPDATE';
-  handler: (config: Settings) => void;
+  handler: (config: UserSettings) => void;
 }
 
 /* Component */
@@ -77,7 +77,7 @@ export interface DropComponentHandler extends EventHandler {
 
 export interface EventProjectBuild extends EventHandler {
   name: 'PROJECT_BUILD';
-  handler: (project: ProjectBuild | null, config: ProjectConfig, user: User) => void;
+  handler: (project: ProjectBuild | null, config: ProjectRelease, user: User) => void;
 }
 
 export interface EventProjectTheme extends EventHandler {
@@ -92,12 +92,12 @@ export interface EventProjectIcons extends EventHandler {
 
 export interface EventProjectExport extends EventHandler {
   name: 'PROJECT_EXPORT';
-  handler: (config: ProjectConfig) => void;
+  handler: (config: ProjectRelease) => void;
 }
 
 export interface EventProjectConfigLoad extends EventHandler {
   name: 'PROJECT_CONFIG_LOAD';
-  handler: (config: ProjectConfig) => void;
+  handler: (config: ProjectRelease) => void;
 }
 
 export interface EventProjectImportComponents extends EventHandler {
