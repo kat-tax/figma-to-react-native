@@ -1,6 +1,7 @@
 # Project
 build/
 manifest.json
+settings.validate.js
 *.tsbuildinfo
 TODO.md
 
