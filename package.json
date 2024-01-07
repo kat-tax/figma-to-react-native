@@ -7,6 +7,9 @@
     "vscode": "pnpm --filter ./plugins/vscode run dev",
     "build:figma": "pnpm --filter ./plugins/figma run build",
     "build:vscode": "pnpm --filter ./plugins/vscode run build",
-    "postinstall-test": "pnpm --filter ./packages/figma-ui run build pnpm --filter ./plugins/figma run schema"
+    "gen:figma-ui": "pnpm --filter ./packages/figma-ui run build",
+    "gen:figma-build": "pnpm --filter ./packages/figma-ui run build",
+    "gen:figma-schema": "pnpm --filter ./plugins/figma run schema",
+    "postinstall": "pnpm gen:figma-ui && pnpm gen:figma-build && pnpm gen:figma-schema"
   }
 }

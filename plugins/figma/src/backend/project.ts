@@ -32,7 +32,8 @@ export function build(release: ProjectRelease) {
       const useDoc = release.scope === 'document';
       const target = useDoc ? figma.root : figma.currentPage;
       projectName = useDoc ? figma.root.name : figma.currentPage.name;
-      exportNodes = getComponentTargets(target.findAllWithCriteria({types: ['COMPONENT']}));
+      const targets = (target as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
+      exportNodes = getComponentTargets(targets);
       break;
     case 'selected':
       exportNodes = getComponentTargets(figma.currentPage.selection);
