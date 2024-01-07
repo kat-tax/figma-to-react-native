@@ -1,5 +1,5 @@
 {
-  "include": ["scripts/**/*.ts"],
+  "include": ["scripts/*.ts"],
   "compilerOptions": {
     "composite": true,
     "declaration": true,

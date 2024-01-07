@@ -11,7 +11,7 @@ module.exports = (buildOptions) => {
     ...buildOptions,
     target: 'es2020',
     plugins: [
-      ...buildOptions.plugins,
+      ...buildOptions.plugins.filter(p => p.name !== 'preact-compat'),
       NodeModulesPolyfillPlugin({
         path: true,
       }),
