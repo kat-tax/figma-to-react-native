@@ -2,10 +2,10 @@
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["dom", "es2020"],
+    "lib": ["dom", "ES2020"],
     "moduleResolution": "node",
-    "module": "es2020",
-    "target": "es2020",
+    "module": "ES2020",
+    "target": "ES2020",
     "rootDir": "src",
     "outDir": "lib",
     "strict": true,
