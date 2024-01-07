@@ -5,7 +5,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {F2RN_EDITOR_NS} from 'config/env';
 import * as $ from 'interface/store';
 
-import schema from './schemas/settings.json';
+import schema from 'interface/schemas/user/schema.json';
 import templates from './templates';
 
 import type * as monaco from 'monaco-editor';

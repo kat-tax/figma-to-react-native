@@ -5,7 +5,7 @@ import {LoadingIndicator} from 'figma-ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {debounce} from 'common/delay';
 
-import {bridge as schema} from '../utils/editor/schemas/settings.bridge';
+import schema from 'interface/schemas/project';
 
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {UserSettings} from 'types/settings';
