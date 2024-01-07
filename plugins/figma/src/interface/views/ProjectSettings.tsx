@@ -16,8 +16,7 @@ interface ProjectSettingsProps {
 }
 
 export function ProjectSettings(props: ProjectSettingsProps) {
-  const update = useMemo(() =>
-    debounce(props.settings.update, 750), [props.settings.update]);
+  const update = useMemo(() => debounce(props.settings.update, 750), [props.settings.update]);
   return (
     <Fragment>
       <MonacoReact
@@ -27,7 +26,9 @@ export function ProjectSettings(props: ProjectSettingsProps) {
         theme={props.options.theme}
         options={{...props.options, readOnly: false}}
         loading={<LoadingIndicator/> as JSX.Element}
-        onChange={value => update(value)}
+        onChange={value => {
+          update(value);
+        }}
         onValidate={markers => {
           if (markers.length === 0) {
             const uri = props.monaco.Uri.parse(_path);

@@ -29,9 +29,11 @@ if (figma.mode !== 'codegen') {
 }
 
 export default async function() {
+  // Load config (backend only)
+  await config.load(true);
+
   // Headless codegen mode
   if (figma.mode === 'codegen') {
-    await config.load(true);
     figma.codegen.on('generate', (e) => {
       codegen.handleConfigChange();
       return codegen.render(e.node);
@@ -41,45 +43,8 @@ export default async function() {
 
   // Wait for interface to be ready
   once<T.EventAppReady>('APP_READY', async () => {
-    // Load config from storage
-    await config.load();
-
     // Load current page from storage
     _page = await app.loadCurrentPage() || 'code';
-
-    // Send start event to interface
-    emit<T.EventAppStart>(
-      'APP_START',
-      _page,
-      figma.currentUser,
-      // @ts-ignore
-      Boolean(figma.vscode),
-      figma.mode === 'inspect'
-    );
-  
-    // Load project config from storage
-    // TODO: reload project config on root document update
-    project.loadConfig();
-      
-    // Start generator
-    gen.loadComponents(app.targetSelectedComponent);
-    gen.watchTheme(config.state);
-    gen.watchIcons();
-    gen.watchComponents();
-    gen.watchVariantSelect();
-
-    // Update code on selection change
-    figma.on('selectionchange', () => {
-      app.targetSelectedComponent();
-      // @ts-ignore
-      if (figma.vscode
-        && figma.currentPage.selection.length === 0) {
-        // TODO: go to overview when no component selected
-      }
-    });
-
-    // Handle dropping of components, icons, and assets
-    figma.on('drop', drop.importNode);
 
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
@@ -136,5 +101,42 @@ export default async function() {
     on('RESIZE_WINDOW', (size: {width: number; height: number}) => {
       figma.ui.resize(size.width, size.height);
     });
+
+    // Send start event to interface
+    emit<T.EventAppStart>(
+      'APP_START',
+      _page,
+      figma.currentUser,
+      // @ts-ignore
+      Boolean(figma.vscode),
+      figma.mode === 'inspect'
+    );
+
+    // Load config from storage (for frontend)
+    await config.load(false);
+
+    // Handle dropping of components, icons, and assets
+    figma.on('drop', drop.importNode);
+
+    // Update code on selection change
+    figma.on('selectionchange', () => {
+      app.targetSelectedComponent();
+      // @ts-ignore
+      if (figma.vscode
+        && figma.currentPage.selection.length === 0) {
+        // TODO: go to overview when no component selected
+      }
+    });
+      
+    // Load project config from storage
+    // TODO: reload project config on root document update
+    project.loadConfig();
+
+    // Start generator
+    gen.loadComponents(app.targetSelectedComponent);
+    gen.watchTheme(config.state);
+    gen.watchIcons();
+    gen.watchComponents();
+    gen.watchVariantSelect();
   });
 }
