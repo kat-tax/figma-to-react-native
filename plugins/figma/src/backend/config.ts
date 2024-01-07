@@ -13,12 +13,13 @@ export let state: UserSettings = {
 };
 
 export async function load(isHeadless?: boolean) {
+  let _configProject: ProjectSettings;
+  try {_configProject = JSON.parse(figma.root.getPluginData(F2RN_SETTINGS_PROJECT))} catch (e) {}
   const _configUser: UserSettings = await figma.clientStorage.getAsync(F2RN_SETTINGS_USER);
-  const _configProject: ProjectSettings = await figma.clientStorage.getAsync(F2RN_SETTINGS_PROJECT);
   if (_configUser || _configProject) {
-    const _config = {
-      ..._configUser,
-      ..._configProject,
+    const _config: UserSettings = {
+      ...(_configUser || configUser),
+      ...(_configProject || configProject),
     };
     update(_config, true);
     if (!isHeadless) {
@@ -31,10 +32,10 @@ export function update(value: UserSettings, skipSave?: boolean) {
   state = value;
   if (!skipSave) {
     figma.clientStorage.setAsync(F2RN_SETTINGS_USER, value);
-    // Only store relevant project settings
-    figma.clientStorage.setAsync(F2RN_SETTINGS_PROJECT, {
+    // Store relevant project settings in document
+    figma.root.setPluginData(F2RN_SETTINGS_PROJECT, JSON.stringify({
       addTranslate: value.addTranslate,
       writer: value.writer,
-    });
+    } as ProjectSettings));
   }
 }
