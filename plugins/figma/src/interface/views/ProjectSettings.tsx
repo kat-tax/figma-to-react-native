@@ -1,11 +1,11 @@
+import MonacoReact from '@monaco-editor/react';
 import {useMemo, Fragment} from 'react';
 import {LoadingIndicator} from 'figma-ui';
 import {F2RN_EDITOR_NS} from 'config/env';
 import {debounce} from 'common/delay';
-import MonacoReact from '@monaco-editor/react';
 
-import type {Settings} from 'types/settings';
 import type {ConfigData} from 'interface/hooks/useUserSettings';
+import type {Settings} from 'types/settings';
 
 const _path = `${F2RN_EDITOR_NS}settings.json`;
 
