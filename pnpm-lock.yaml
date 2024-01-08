@@ -72,12 +72,6 @@ importers:
         specifier: ^0.8.1
         version: 0.8.1
     devDependencies:
-      '@create-figma-plugin/tsconfig':
-        specifier: ^3.1.0
-        version: 3.1.0
-      '@create-figma-plugin/utilities':
-        specifier: ^3.1.0
-        version: 3.1.0
       '@figma/plugin-typings':
         specifier: 1.83.0
         version: 1.83.0
@@ -1882,10 +1876,6 @@ packages:
       path-exists: 5.0.0
     dev: false
 
-  /@create-figma-plugin/tsconfig@3.1.0:
-    resolution: {integrity: sha512-DrKUi7hlTbPA80cZ4o4WtMGCpe23V+HL6vrjvjaXG8i7XplFGTV0XYB77T2K6R7Mi7BuF2fZRYTVDYnqgSk+6A==}
-    dev: true
-
   /@create-figma-plugin/utilities@3.1.0:
     resolution: {integrity: sha512-Si4eETOK7LJOd2P4WQZ8Yjd/q3ujE4z0vjvJg8axg1olwBl/LwCZiCyDetua0dM0Hiu63/ifPUdAIsZbkfeoSg==}
     engines: {node: '>=20'}
@@ -1893,6 +1883,7 @@ packages:
       hex-rgb: 5.0.0
       natural-compare-lite: 1.4.0
       rgb-hex: 4.1.0
+    dev: false
 
   /@cspotcode/source-map-support@0.8.1:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -5534,6 +5525,7 @@ packages:
   /hex-rgb@5.0.0:
     resolution: {integrity: sha512-NQO+lgVUCtHxZ792FodgW0zflK+ozS9X9dwGp9XvvmPlH7pyxd588cn24TD3rmPm/N0AIRXF10Otah8yKqGw4w==}
     engines: {node: '>=12'}
+    dev: false
 
   /hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
@@ -6968,6 +6960,7 @@ packages:
 
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
+    dev: false
 
   /negotiator@0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
@@ -8325,6 +8318,7 @@ packages:
   /rgb-hex@4.1.0:
     resolution: {integrity: sha512-UZLM57BW09Yi9J1R3OP8B1yCbbDK3NT8BDtihGZkGkGEs2b6EaV85rsfJ6yK4F+8UbxFFmfA+9xHT5ZWhN1gDQ==}
     engines: {node: '>=12'}
+    dev: false
 
   /rimraf@2.6.3:
     resolution: {integrity: sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==}
