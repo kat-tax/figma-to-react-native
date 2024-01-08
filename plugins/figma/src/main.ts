@@ -135,6 +135,7 @@ export default async function() {
     // Start generator
     gen.loadComponents(app.targetSelectedComponent);
     gen.watchTheme(config.state);
+    gen.watchLocale();
     gen.watchIcons();
     gen.watchComponents();
     gen.watchVariantSelect();

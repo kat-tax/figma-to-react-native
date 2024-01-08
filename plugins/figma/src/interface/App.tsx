@@ -19,6 +19,7 @@ import {useEditor} from 'interface/hooks/useEditor';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useNavigation} from 'interface/hooks/useNavigation';
 import {useUserSettings} from 'interface/hooks/useUserSettings';
+import {useProjectLocale} from 'interface/hooks/useProjectLocale';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
@@ -61,6 +62,7 @@ export function App(props: AppProps) {
 
   const build = useBuild();
   const theme = useProjectTheme();
+  const locale = useProjectLocale();
   const icons = useProjectIcons();
   const project = useProjectConfig();
   const settings = useUserSettings();
@@ -119,7 +121,7 @@ export function App(props: AppProps) {
         <ComponentCode {...{componentKey, build, options, monaco}}/>
       </Tab>
       <Tab value="preview">
-        <ComponentPreview {...{componentKey, variant, build, theme, settings: settings.config}}/>
+        <ComponentPreview {...{componentKey, variant, build, theme, locale, settings: settings.config}}/>
       </Tab>
       <Tab value="story">
         <ComponentStory {...{componentKey, options, monaco}}/>

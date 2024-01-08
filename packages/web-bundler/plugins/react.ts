@@ -49,7 +49,7 @@ export default (opts: PluginOptions): Plugin => ({
         contents: isReactInject
           ? `export * as React from 'react'`
           : isLinguiMacro
-            ? `export const Trans = ({children}) => (<span>{children}</span>)`
+            ? translate()
             : await Promise.resolve(opts.resolver.resolve(args.path)),
         loader: isReactInject
           ? 'js'
@@ -62,3 +62,11 @@ export default (opts: PluginOptions): Plugin => ({
     });
   },
 });
+
+export function translate() {
+  return (`
+    export const Trans = ({children}) => (
+      <span>{children}</span>
+    )
+  `);
+}

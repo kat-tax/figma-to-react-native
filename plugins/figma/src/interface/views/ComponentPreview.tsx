@@ -12,12 +12,13 @@ interface ComponentPreviewProps {
   componentKey: string,
   variant: VariantData,
   theme: string,
+  locale: string,
   build: ComponentBuild,
   settings: UserSettings,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {componentKey, theme, build, variant, settings} = props;
+  const {componentKey, theme, locale, build, variant, settings} = props;
 
   const [src, setSrc] = useState('');
   const [node, setNode] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     if (!loaded.current) return
     const {name, props, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
-    preview({tag, name, props, theme, settings, build}).then(bundle => {
+    preview({tag, name, props, theme, locale, settings, build}).then(bundle => {
       const ctx = iframe.current?.contentWindow;
       const name = component?.name;
       ctx?.postMessage({type: 'preview', bundle, name, width, height})
@@ -74,6 +75,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'theme', theme});
   }, [iframe, theme]);
+
+  // Update the preview locale when it changes
+  useEffect(() => {
+    const ctx = iframe.current?.contentWindow;
+    ctx?.postMessage({type: 'locale', locale});
+  }, [iframe, locale]);
 
   // Update the preview variant when it changes
   useEffect(() => {

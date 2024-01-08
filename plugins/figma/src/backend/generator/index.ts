@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getAllIconComponents} from 'backend/icons';
-import {getComponentTargets, getComponentTarget, getPage} from 'backend/parser/lib';
+import {getComponentTargets, getComponentTarget, getCollectionModes, getPage} from 'backend/parser/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
 import {wait} from 'common/delay';
@@ -13,7 +13,7 @@ import {generateStory} from './generateStory';
 import {generateTheme} from './generateTheme';
 
 import type {ProjectSettings} from 'types/settings';
-import type {EventComponentBuild, EventProjectTheme, EventProjectIcons, EventSelectVariant} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLocale, EventProjectIcons, EventSelectVariant} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
 
 const _cache: Record<string, ComponentData> = {};
@@ -68,6 +68,19 @@ export function watchTheme(settings: ProjectSettings) {
   };
   setInterval(updateTheme, 300);
   updateTheme();
+}
+
+export function watchLocale() {
+  let _lastLocale = '';
+  const updateLocale = () => {
+    const locales = getCollectionModes('Locales');
+    const locale = locales.current.name;
+    if (locale === _lastLocale) return;
+    _lastLocale = locale;
+    emit<EventProjectLocale>('PROJECT_LOCALE', locale);
+  };
+  setInterval(updateLocale, 300);
+  updateLocale();
 }
 
 export function watchIcons() {

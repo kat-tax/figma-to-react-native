@@ -84,7 +84,7 @@ export function getComponentParent(node: SceneNode): ComponentNode {
 }
 
 export function getCollectionModes(collectionName: string) {
-  // Find the "Theme" variable collection
+  // Find the variable collection
   const theme = getCollectionByName(collectionName);
   if (!theme) return null;
   // Find the current mode

@@ -8,7 +8,9 @@ import {Icon} from 'react-native-exo';
 import {themes, breakpoints} from 'theme';
 
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
+
 const initialTheme = '__CURRENT_THEME__';
+const initialLocale = '__CURRENT_LOCALE__';
 
 type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
 type AppBreakpoints = typeof breakpoints;
@@ -27,10 +29,18 @@ export function App() {
     const updateProps = (e: JSON) => {
       switch (e.data?.type) {
         case 'theme':
-          return UnistylesRuntime.setTheme(e.data.theme);
+          console.log('changed theme', e.data.theme);
+          UnistylesRuntime.setTheme(e.data.theme);
+          return;
+        case 'locale':
+          console.log('changed locale', e.data.locale);
+          // TODO: switch language
+          return;
         case 'variant':
+          console.log('changed variant', e.data.variant);
           const newRoot = React.cloneElement(variant, e.data.variant.props);
-          return setVariant(newRoot);
+          setVariant(newRoot);
+          return;
       }
     };
     addEventListener('message', updateProps);
@@ -47,6 +57,9 @@ export function App() {
     </ErrorBoundary>
   )
 }
+
+console.log('theme', initialTheme);
+console.log('locale', initialLocale);
 
 UnistylesRegistry
   .addBreakpoints(breakpoints)
