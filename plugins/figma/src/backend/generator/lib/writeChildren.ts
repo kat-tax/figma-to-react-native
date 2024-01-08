@@ -1,4 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
+import {encodeUTF8} from 'backend/encoder';
 import {blake2sHex} from 'blakejs';
 import {createIdentifierPascal} from 'common/string';
 import {
@@ -28,7 +29,7 @@ export function writeChildren(
   pressables?: string[][],
 ) {
   let locales = getCollectionByName('Locales');
-  if (locales) {
+  if (!locales) {
     try {
       locales = figma.variables.createVariableCollection('Locales');
     } catch (e) {}
@@ -226,9 +227,16 @@ function writeChild(
             writer.write(`<Trans>${propValue}</Trans>`);
             if (state.locales) {
               const {id, defaultModeId} = state.locales;
-              const hash = blake2sHex(propValue);
-              const entry = figma.variables.createVariable(hash, id, 'STRING');
-              entry.setValueForMode(defaultModeId, propValue);
+              try {
+                const bytes = encodeUTF8(propValue);
+                const hash = blake2sHex(bytes);
+                if (!figma.variables.getLocalVariables().find(e => e.name === hash)) {
+                  const entry = figma.variables.createVariable(hash, id, 'STRING');
+                  entry.setValueForMode(defaultModeId, propValue);
+                }
+              } catch (e) {
+                console.log(`Unable to create locale ${propValue}`, e);
+              }
             }
           } else {
             writer.write(`{\`${propValue}\`}`);
