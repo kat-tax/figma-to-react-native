@@ -1,9 +1,9 @@
 // @ts-nocheck
 
-import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
-import {Logtail} from '@logtail/browser';
+import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
 import {Icon} from 'react-native-exo';
+import {Logtail} from '@logtail/browser';
 
 import {themes, breakpoints} from 'theme';
 
@@ -11,6 +11,23 @@ const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 
 const initialTheme = '__CURRENT_THEME__';
 const initialLocale = '__CURRENT_LOCALE__';
+
+// TODO: replace with real translations
+window.__messages__ = {
+  'en-US': {
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt..." : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt...",
+    "Footer": "Footer",
+    "Value: ${slider}": "Value: ${slider}",
+  },
+  'es-ES': {
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt..." : "Hola ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt...",
+    "Footer": "Hola",
+    "Value: ${slider}": "Hola: ${slider}",
+  },
+};
+
+window.__locale__ = initialLocale;
+window.__trans__ = (msg: string) => window.__messages__?.[window.__locale__]?.[msg] || msg;
 
 type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
 type AppBreakpoints = typeof breakpoints;
@@ -34,7 +51,7 @@ export function App() {
           return;
         case 'locale':
           console.log('changed locale', e.data.locale);
-          // TODO: switch language
+          __locale__ = e.data.locale;
           return;
         case 'variant':
           console.log('changed variant', e.data.variant);
@@ -58,9 +75,6 @@ export function App() {
   )
 }
 
-console.log('theme', initialTheme);
-console.log('locale', initialLocale);
-
 UnistylesRegistry
   .addBreakpoints(breakpoints)
   .addThemes(themes)
@@ -72,16 +86,16 @@ AppRegistry.runApplication('app', {
 });
 
 class ErrorBoundary extends React.Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = {hasError: false};
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error: Error) {
     return {hasError: true};
   }
 
-  componentDidCatch(error, info) {
+  componentDidCatch(error: Error, info: unknown) {
     const payload = {componentStack: info.componentStack};
     logtail.error(error, payload);
     logtail.flush();

@@ -18,17 +18,18 @@ export default (opts: PluginOptions): Plugin => ({
             path: '/' + args.path,
           };
         case 'import-statement':
+          // LinguiJS macro, use custom component
           if (args.path === '@lingui/macro') {
             return {
               path: '/lingui-macro',
             }
-          // Package import
+          // Found in import map, mark as external
           } else if (opts.importMap && opts.importMap[args.path]) {
             return {
               path: args.path,
               external: true,
             };
-          // Local import
+          // Local import, use resolver
           } else {
             return {
               path: '/' + args.path,
@@ -40,33 +41,32 @@ export default (opts: PluginOptions): Plugin => ({
     });
   
     build.onLoad({filter}, async (args) => {
-      const isReactInject = args.path === '/import-react';
-      const isLinguiMacro = args.path === '/lingui-macro';
-      const isComponent = args.path.startsWith('/components/');
-      const isStyles = args.path.startsWith('/styles');
+      // Special paths
       const isTheme = args.path.startsWith('/theme');
+      const isStyles = args.path.startsWith('/styles');
+      const isComponent = args.path.startsWith('/components/');
+
+      // Special files
+      const isInject = args.path === '/import-react';
+      const isLinguiMacro = args.path === '/lingui-macro';
+
+      // Determine loader
+      const isTS = isStyles || isTheme || args.path.endsWith('.ts');
+      const isTSX = isComponent || isLinguiMacro || args.path.endsWith('.tsx');
       return {
-        contents: isReactInject
+        loader: isInject
+          ? 'js'
+            : isTS
+            ? 'ts'
+            : isTSX
+              ? 'tsx'
+              : 'default',
+        contents: isInject
           ? `export * as React from 'react'`
           : isLinguiMacro
-            ? translate()
-            : await Promise.resolve(opts.resolver.resolve(args.path)),
-        loader: isReactInject
-          ? 'js'
-          : isComponent || isLinguiMacro
-            ? 'tsx'
-            : isStyles || isTheme
-              ? 'ts'
-              : 'default',
+          ? 'export const Trans = ({children}) => (<span>{__trans__(children)}</span>)'
+          : await Promise.resolve(opts.resolver.resolve(args.path)),
         };
     });
   },
 });
-
-export function translate() {
-  return (`
-    export const Trans = ({children}) => (
-      <span>{children}</span>
-    )
-  `);
-}

@@ -74,6 +74,7 @@ export function watchLocale() {
   let _lastLocale = '';
   const updateLocale = () => {
     const locales = getCollectionModes('Locales');
+    if (!locales) return;
     const locale = locales.current.name;
     if (locale === _lastLocale) return;
     _lastLocale = locale;
