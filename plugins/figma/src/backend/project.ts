@@ -2,6 +2,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {getComponentTargets} from 'backend/parser/lib';
 import {generateBundle, generateIndex, generateTheme} from 'backend/generator';
 import {F2RN_PROJECT_RELEASE} from 'config/env';
+import {generateToken} from 'common/random';
 import defaultReleaseConfig from 'config/release';
 import * as config from 'backend/config';
 
@@ -71,8 +72,8 @@ export function build(release: ProjectRelease) {
 
       const build: ProjectBuild = {
         components,
+        time: Date.now(),
         name: projectName,
-        id: release.docKey,
         index: generateIndex(names, config.state, true),
         theme: generateTheme(config.state).code,
         assets: buildAssets,
@@ -95,6 +96,11 @@ export function loadConfig() {
     const parsedConfig = JSON.parse(rawConfig);
     release = parsedConfig;
   } catch (e) {}
-  
-  emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', release || defaultReleaseConfig);
+  const loadedConfig = release || defaultReleaseConfig;
+  // If docKey is empty, generate one and save immediately
+  if (!loadedConfig.docKey) {
+    loadedConfig.docKey = generateToken(22);
+    figma.root.setPluginData(F2RN_PROJECT_RELEASE, JSON.stringify(loadedConfig));
+  }
+  emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', loadedConfig);
 }

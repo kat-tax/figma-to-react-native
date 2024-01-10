@@ -3,7 +3,7 @@ import {Icon, listIcons, getIcon} from '@iconify/react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {Fzf, byLengthAsc} from 'fzf';
 import {VirtuosoGrid} from 'react-virtuoso';
-import {loadIconSet} from 'interface/utils/icons';
+import {loadIconSet} from 'interface/services/iconify';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {emit} from '@create-figma-plugin/utilities';

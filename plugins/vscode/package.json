@@ -1,5 +1,5 @@
 {
-  "name": "@kat.tax/vscode-plugin",
+  "name": "@kat.tax/figma-vscode",
   "version": "0.0.1",
   "displayName": "Figma to React Native",
   "description": "Sync your Figma to React Native conversions to VSCode in real-time.",

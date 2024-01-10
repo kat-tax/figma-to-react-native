@@ -27,7 +27,7 @@ export function useProjectBuild(
         break;
       case 'preview':
         const url = 'http://127.0.0.1:5102'; // 'https://fig.run';
-        open(`${url}/#/${project.id}`);
+        open(`${url}/#/${config.docKey}`);
         break;
     }
     onSuccess();

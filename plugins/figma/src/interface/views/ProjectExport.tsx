@@ -42,9 +42,6 @@ const tips = {
 
   • Enable this to include assets used in your components`,
 
-  autoTranslate: `Auto Translate:
-
-  • Generate translations for text in your components`,
 
   optimizeAssets: `Optimize Assets:
 
@@ -144,8 +141,8 @@ export function ProjectExport(props: ProjectExportProps) {
             disabled={isExporting}
             options={[
               {children: 'Download', value: 'download'},
-              {children: 'Preview', value: 'preview', disabled: true},
-              {children: 'Release', value: 'release', disabled: true},
+              {children: 'Preview', value: 'preview'},
+              {children: 'Release', value: 'release'},
             ]}
           />
           <F.VerticalSpace space="large"/>
@@ -227,17 +224,9 @@ export function ProjectExport(props: ProjectExportProps) {
               <F.Checkbox
                 title={tips.optimizeAssets}
                 disabled={isExporting}
-                value={form.formState.enableAutoTranslations}
+                value={form.formState.enableAssetOptimizations}
                 onValueChange={(v) => form.setFormState(v, 'enableAssetOptimizations')}>
                 <F.Text>Optimize assets</F.Text>
-              </F.Checkbox>
-              <F.VerticalSpace space="small"/>
-              <F.Checkbox
-                title={tips.autoTranslate}
-                disabled={isExporting}
-                value={form.formState.enableAutoTranslations}
-                onValueChange={(v) => form.setFormState(v, 'enableAutoTranslations')}>
-                <F.Text>Auto translate</F.Text>
               </F.Checkbox>
               <F.VerticalSpace space="small"/>
             </Fragment>

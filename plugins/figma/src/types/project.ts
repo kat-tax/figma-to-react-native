@@ -1,11 +1,10 @@
 export interface ProjectBuild {
-  id: string,
   name: string,
+  time: number,
   index: string,
   theme: string,
   assets: ProjectBuildAssets,
   components: ProjectBuildComponents,
-  package?: ProjectBuildPackage,
 }
 
 export interface ProjectIcons {
@@ -16,11 +15,6 @@ export interface ProjectIcons {
 
 export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;
 export type ProjectBuildComponents = Array<[string, string, string, string]>;
-export type ProjectBuildPackage = {
-  name: string,
-  version: string,
-  registry?: 'npm',
-};
 
 export interface ProjectRelease {
   method: ProjectExportMethod,
@@ -29,7 +23,6 @@ export interface ProjectRelease {
   docKey: string,
   packageName: string,
   packageVersion: string,
-  enableAutoTranslations: boolean,
   enableAssetOptimizations: boolean,
   includeAssets: boolean,
 }

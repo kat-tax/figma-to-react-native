@@ -1,72 +1,21 @@
-// TODO: replace uppy with tus-js-client
-// @see: https://supabase.com/docs/guides/storage/uploads#resumable-upload
-
-import {SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY} from 'config/env';
-import Uppy from '@uppy/core';
-import Tus from '@uppy/tus';
+import supabase from 'interface/services/supabase';
 import {zip} from './zip';
 
-import type {UploadResult} from '@uppy/core';
 import type {ProjectBuild, ProjectRelease} from 'types/project';
 
-const UPLOAD_ENDPOINT = `${SUPABASE_PROJECT_URL}/storage/v1/upload/resumable`;
-const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024;
-
-export async function upload(
-  project: ProjectBuild,
-  release: ProjectRelease,
-): Promise<UploadResult<Record<string, unknown>, Record<string, unknown>>> {
-  return new Promise(async (resolve, reject) => {  
-    const uploader = init();
-    const path = `${release.apiKey}/${Date.now()}.zip`;
-
-    uploader.on('complete', (result) => {
-      resolve(result);
-      console.debug('[upload] complete', result);
+export async function upload(build: ProjectBuild, release: ProjectRelease) {
+  const contents = await zip(build, release);
+  const pkg = release.packageName || '';
+  const ver = release.packageVersion || '0.0.0';
+  const time = Math.floor(build.time / 1000);
+  const counts = `${build.components.length}__${build.assets.length}`;
+  const name = `${ver}__${time}__${counts}__${btoa(build.name)}__${btoa(pkg)}`;
+  const path = `${release.apiKey}/${release.docKey}/${name}.zip`;
+  const {data, error} = await supabase
+    .storage
+    .from('releases')
+    .upload(path, contents, {
+      contentType: 'application/zip',
     });
-
-    uploader.on('error', (error) => {
-      reject(error);
-      console.error('[upload] failed', error);
-    });
-
-    uploader.addFile({
-      name: path,
-      type: 'application/zip',
-      data: await zip(project, release),
-    });
-  });
-}
-
-export function init() {
-  const uppy = new Uppy({
-    autoProceed: true,
-  });
-  
-  uppy.use(Tus, {
-    endpoint: UPLOAD_ENDPOINT,
-    chunkSize: UPLOAD_CHUNK_SIZE,
-    uploadDataDuringCreation: true,
-    headers: {
-      authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-    },
-    allowedMetaFields: [
-      'contentType',
-      'objectName',
-      'bucketName',
-      'cacheControl',
-    ],
-  });
-    
-  uppy.on('file-added', (file) => {
-    file.meta = {
-      ...file.meta,
-      contentType: file.type,
-      objectName: file.name,
-      bucketName: 'releases',
-      cacheControl: 3600,
-    };
-  });
-
-  return uppy;
+  console.debug('[service/upload]', data, error);
 }

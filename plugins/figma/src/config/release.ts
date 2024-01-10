@@ -8,8 +8,7 @@ const config: ProjectRelease = {
   packageName: '',
   packageVersion: '',
   includeAssets: true,
-  enableAssetOptimizations: false,
-  enableAutoTranslations: false,
+  enableAssetOptimizations: true,
 };
 
 export default config;
