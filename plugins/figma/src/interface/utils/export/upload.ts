@@ -7,9 +7,8 @@ export async function upload(build: ProjectBuild, release: ProjectRelease) {
   const contents = await zip(build, release);
   const pkg = release.packageName || '';
   const ver = release.packageVersion || '0.0.0';
-  const time = Math.floor(build.time / 1000);
   const counts = `${build.components.length}__${build.assets.length}`;
-  const name = `${ver}__${time}__${counts}__${btoa(build.name)}__${btoa(pkg)}`;
+  const name = `${ver}__${counts}__${btoa(build.name)}__${btoa(pkg)}`;
   const path = `${release.apiKey}/${release.docKey}/${name}.zip`;
   const {data, error} = await supabase
     .storage
