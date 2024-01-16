@@ -4,7 +4,7 @@
   "displayName": "Figma to React Native",
   "description": "Sync your Figma to React Native conversions to VSCode in real-time.",
   "publisher": "KATTAX",
-  "license": "GPL-3.0",
+  "license": "BSL",
   "preview": true,
   "qna": false,
   "icon": "./media/icon.png",

@@ -3,7 +3,7 @@
   "name": "@kat.tax/figma-to-react-native",
   "description": "Transform Figma to React Native",
   "author": "ΚΛΤΤΛΧ",
-  "license": "GPL-3.0",
+  "license": "BSL",
   "repository": {
     "type": "git",
     "url": "https://github.com/kat-tax/figma-to-react-native"

@@ -1,6 +1,6 @@
 {
   "name": "@kat-tax/figma-plugin",
-  "license": "GPL-3.0",
+  "license": "BSL",
   "private": true,
   "scripts": {
     "dev": "figma-build --typecheck --watch",
