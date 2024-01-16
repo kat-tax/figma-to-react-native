@@ -66,7 +66,7 @@ export function NavBar(props: NavBarProps) {
     let i = 0;
     for (const name of props.tabs.main) {
       const tab = (16.5 + name.length * 5.5);
-      const mod =  i === props.tabs.main.length - 1
+      const mod = i === props.tabs.main.length - 1
         ? tab - 40
         : i === 2
           ? tab - 17
