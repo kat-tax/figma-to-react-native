@@ -224,7 +224,7 @@ function writeChild(
         } else {
           if (settings?.addTranslate) {
             state.flags.lingui.Trans = true;
-            writer.write(`<Trans>\`${propValue}\`</Trans>`);
+            writer.write('<Trans>{`' + propValue + '`}</Trans>');
             if (state.locales) {
               const {id, defaultModeId} = state.locales;
               try {
