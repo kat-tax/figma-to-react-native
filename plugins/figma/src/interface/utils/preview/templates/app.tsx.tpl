@@ -10,7 +10,7 @@ import {themes, breakpoints} from 'theme';
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 
 const initialTheme = '__CURRENT_THEME__';
-const initialLocale = '__CURRENT_LOCALE__';
+const initialLanguage = '__CURRENT_LANGUAGE__';
 
 // TODO: replace with real translations
 window.__messages__ = {
@@ -26,8 +26,8 @@ window.__messages__ = {
   },
 };
 
-window.__locale__ = initialLocale;
-window.__trans__ = (msg: string) => window.__messages__?.[window.__locale__]?.[msg] || msg;
+window.__lang__ = initialLanguage;
+window.__trans__ = (msg: string) => window.__messages__?.[window.__lang__]?.[msg] || msg;
 
 type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
 type AppBreakpoints = typeof breakpoints;
@@ -49,9 +49,9 @@ export function App() {
           console.log('changed theme', e.data.theme);
           UnistylesRuntime.setTheme(e.data.theme);
           return;
-        case 'locale':
-          console.log('changed locale', e.data.locale);
-          __locale__ = e.data.locale;
+        case 'language':
+          console.log('changed language', e.data.language);
+          __lang__ = e.data.language;
           return;
         case 'variant':
           console.log('changed variant', e.data.variant);

@@ -169,7 +169,7 @@ function IconListItem(props: IconListItemProps) {
       onDoubleClick={() => emit<EventFocusNode>('FOCUS', props.nodeId)}
       onClick={() => {
         props.copy(tag);
-        emit<EventNotify>('NOTIFY', 'Copied icon to clipboard');
+        emit<EventNotify>('NOTIFY', `Copied "${props.icon}" tag to clipboard`);
       }}
       onDragStart={(e) => {e.dataTransfer.setData('text/plain', tag)}}
       onDragEnd={(e) => {

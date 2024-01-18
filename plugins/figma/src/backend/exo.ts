@@ -28,7 +28,7 @@ export const EXO_COMPONENTS: ExoComponents = {
   },
 };
 
-export const EXO_PRIMITIVES: ExoComponents = {
+export const EXO_NATIVES: ExoComponents = {
   Controls: {
     rect: {x: 0, y: 0, width: 673, height: 624},
     list: {
@@ -38,28 +38,28 @@ export const EXO_PRIMITIVES: ExoComponents = {
 };
 
 export async function importComponents(iconSet: string) {
-  // Create "Common" page
-  let common = figma.root.children.find(p => p.name === 'Common');
-  if (!common) {
-    common = figma.createPage();
-    common.name = 'Common';
-    figma.root.appendChild(common);
+  // Create "Base" page
+  let base = figma.root.children.find(p => p.name === 'Base');
+  if (!base) {
+    base = figma.createPage();
+    base.name = 'Base';
+    figma.root.appendChild(base);
   // Page exists, clear it
   // TODO: only clear preset components
   } else {
-    common.children.forEach(c => c.remove());
+    base.children.forEach(c => c.remove());
   }
 
-  // Create "Primitives" page
-  let primitives = figma.root.children.find(p => p.name === 'Primitives');
-  if (!primitives) {
-    primitives = figma.createPage();
-    primitives.name = 'Primitives';
-    figma.root.appendChild(primitives);
+  // Create "Native" page
+  let natives = figma.root.children.find(p => p.name === 'Native');
+  if (!natives) {
+    natives = figma.createPage();
+    natives.name = 'Native';
+    figma.root.appendChild(natives);
   // Page exists, clear it
-  // TODO: only clear preset primitives
+  // TODO: only clear preset natives
   } else {
-    primitives.children.forEach(c => c.remove());
+    natives.children.forEach(c => c.remove());
   }
 
   // Focus frame
@@ -67,7 +67,7 @@ export async function importComponents(iconSet: string) {
     timeout: 3000,
     button: {
       text: 'View',
-      action: () => focusNode(common.id),
+      action: () => focusNode(base.id),
     }
   });
 
@@ -75,11 +75,11 @@ export async function importComponents(iconSet: string) {
   const icons = getIconComponentMap();
   const variables = figma.variables.getLocalVariables();
 
-  // Create primitive components
-  await createComponents(primitives, iconSet, icons, variables, EXO_PRIMITIVES);
+  // Create native components
+  await createComponents(natives, iconSet, icons, variables, EXO_NATIVES);
 
-  // Create common components
-  await createComponents(common, iconSet, icons, variables, EXO_COMPONENTS);
+  // Create base components
+  await createComponents(base, iconSet, icons, variables, EXO_COMPONENTS);
 }
 
 export async function createComponents(

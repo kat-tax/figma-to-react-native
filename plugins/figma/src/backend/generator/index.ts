@@ -13,7 +13,7 @@ import {generateStory} from './generateStory';
 import {generateTheme} from './generateTheme';
 
 import type {ProjectSettings} from 'types/settings';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLocale, EventProjectIcons, EventSelectVariant} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventSelectVariant} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
 
 const _cache: Record<string, ComponentData> = {};
@@ -70,18 +70,18 @@ export function watchTheme(settings: ProjectSettings) {
   updateTheme();
 }
 
-export function watchLocale() {
-  let _lastLocale = '';
-  const updateLocale = () => {
-    const locales = getCollectionModes('Locales');
-    if (!locales) return;
-    const locale = locales.current.name;
-    if (locale === _lastLocale) return;
-    _lastLocale = locale;
-    emit<EventProjectLocale>('PROJECT_LOCALE', locale);
+export function watchLanguage() {
+  let _lastLanguage = '';
+  const updateLanguage = () => {
+    const language = getCollectionModes('Language');
+    if (!language || !language.current) return;
+    const name = language.current.name;
+    if (name === _lastLanguage) return;
+    _lastLanguage = name;
+    emit<EventProjectLanguage>('PROJECT_LANGUAGE', name);
   };
-  setInterval(updateLocale, 300);
-  updateLocale();
+  setInterval(updateLanguage, 300);
+  updateLanguage();
 }
 
 export function watchIcons() {

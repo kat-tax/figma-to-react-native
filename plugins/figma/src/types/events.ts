@@ -85,9 +85,9 @@ export interface EventProjectTheme extends EventHandler {
   handler: (theme: string, current: string, hasStyles: boolean) => void;
 }
 
-export interface EventProjectLocale extends EventHandler {
-  name: 'PROJECT_LOCALE';
-  handler: (locale: string) => void;
+export interface EventProjectLanguage extends EventHandler {
+  name: 'PROJECT_LANGUAGE';
+  handler: (language: string) => void;
 }
 
 export interface EventProjectIcons extends EventHandler {

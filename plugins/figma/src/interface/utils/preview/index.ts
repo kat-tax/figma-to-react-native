@@ -17,13 +17,13 @@ interface PreviewOptions {
   name: string,
   props: string,
   theme: string,
-  locale: string,
+  language: string,
   settings: UserSettings,
   build: ComponentBuild,
 }
 
 export async function preview(options: PreviewOptions) {
-  const {tag, name, props, theme, locale, settings, build} = options;
+  const {tag, name, props, theme, language, settings, build} = options;
 
   // Virtual filesystem
   const files: Map<string, string | Uint8Array> = new Map();
@@ -63,7 +63,7 @@ export async function preview(options: PreviewOptions) {
     files.set('/theme', $.getProjectTheme().toString());
     files.set(ENTRY_POINT, previewApp
       .replace('__CURRENT_THEME__', theme)
-      .replace('__CURRENT_LOCALE__', locale)
+      .replace('__CURRENT_LANGUAGE__', language)
       .replace('__COMPONENT_DEF__', getImports(name, props))
       .replace('__COMPONENT_REF__', tag));
     return await bundle(ENTRY_POINT, files, settings.esbuild, importMap);

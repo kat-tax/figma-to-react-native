@@ -28,14 +28,14 @@ export function writeChildren(
   getStylePrefix: StylePrefixMapper,
   pressables?: string[][],
 ) {
-  let locales = getCollectionByName('Locales');
-  if (!locales) {
+  let language = getCollectionByName('Language');
+  if (!language) {
     try {
-      locales = figma.variables.createVariableCollection('Locales');
+      language = figma.variables.createVariableCollection('Language');
     } catch (e) {}
   }
 
-  const state = {writer, flags, data, locales, settings, pressables, getStylePrefix};
+  const state = {writer, flags, data, language, settings, pressables, getStylePrefix};
   children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
@@ -67,7 +67,7 @@ function writeChild(
     flags: ImportFlags,
     data: ParseData,
     settings: ProjectSettings,
-    locales?: VariableCollection,
+    language?: VariableCollection,
     pressables?: string[][],
     getStylePrefix: StylePrefixMapper,
   },
@@ -225,8 +225,8 @@ function writeChild(
           if (settings?.addTranslate) {
             state.flags.lingui.Trans = true;
             writer.write('<Trans>{`' + propValue + '`}</Trans>');
-            if (state.locales) {
-              const {id, defaultModeId} = state.locales;
+            if (state.language) {
+              const {id, defaultModeId} = state.language;
               try {
                 const bytes = encodeUTF8(propValue);
                 const hash = blake2sHex(bytes);
@@ -235,7 +235,7 @@ function writeChild(
                   entry.setValueForMode(defaultModeId, propValue);
                 }
               } catch (e) {
-                console.log(`Unable to create locale ${propValue}`, e);
+                console.log(`Unable to create language ${propValue}`, e);
               }
             }
           } else {

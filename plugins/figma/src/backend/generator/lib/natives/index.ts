@@ -2,12 +2,12 @@ import {getComponentTargets} from 'backend/parser/lib';
 
 import {Slider} from './exo/Slider';
 
-export function generatePrimitives(): Record<string, string> {
-  const page = figma.root.children.find(p => p.name === 'Primitives');
+export function generateNatives(): Record<string, string> {
+  const page = figma.root.children.find(p => p.name === 'Native');
   if (!page) return;
 
   const nodes = page.findAllWithCriteria({types: ['COMPONENT']});
-  const primitives: Record<string, string> = {};
+  const natives: Record<string, string> = {};
 
   for (const component of getComponentTargets(nodes)) {
     switch (component.name) {
@@ -24,10 +24,10 @@ export function generatePrimitives(): Record<string, string> {
         //console.log('Progress', component);
         break;
       case 'Slider':
-        primitives.Slider = Slider(component);
+        natives.Slider = Slider(component);
         break;
     }
   }
 
-  return primitives;
+  return natives;
 }

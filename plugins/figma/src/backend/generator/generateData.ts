@@ -2,7 +2,7 @@ import parseFigmaComponent from 'backend/parser';
 import {getPropsJSX, getPage} from 'backend/parser/lib';
 import {createIdentifierPascal} from 'common/string';
 
-import {generatePrimitives} from './lib/primitives';
+import {generateNatives} from './lib/natives';
 import {generateIndex} from './generateIndex';
 import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
@@ -35,16 +35,16 @@ export async function generateData(
     return emptyBundle;
   }
 
-  // Generate exo primitives (if any)
-  const isExo = getPage(target)?.name === 'Primitives';
-  const exo = generatePrimitives();
+  // Generate exo natives (if any)
+  const isExo = getPage(target)?.name === 'Native';
+  const exo = generateNatives();
   
-  // Primitive component
+  // Native component
   if (isExo && exo[target.name]) {
     return {
       ...emptyBundle,
       id: target.id,
-      page: 'Primitives',
+      page: 'Native',
       width: target.width,
       height: target.height,
       name: createIdentifierPascal(target.name),

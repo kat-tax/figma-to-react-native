@@ -19,12 +19,12 @@ import {useEditor} from 'interface/hooks/useEditor';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useNavigation} from 'interface/hooks/useNavigation';
 import {useUserSettings} from 'interface/hooks/useUserSettings';
-import {useProjectLocale} from 'interface/hooks/useProjectLocale';
+import {useProjectLanguage} from 'interface/hooks/useProjectLanguage';
+import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
+import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
+import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
-import {useProjectConfig} from 'interface/hooks/useProjectConfig';
-import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
-import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 
 import * as F from 'figma-ui';
 
@@ -43,7 +43,7 @@ const tabs: AppTabs = {
     //'assets',
     'theme',
     //'fonts',
-    //'locales',
+    //'language',
     //'docs',
     'export',
     'settings',
@@ -60,16 +60,16 @@ export function App(props: AppProps) {
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const isDark = useDarkMode();
   const build = useBuild();
   const theme = useProjectTheme();
-  const locale = useProjectLocale();
   const icons = useProjectIcons();
   const project = useProjectConfig();
+  const language = useProjectLanguage();
   const settings = useUserSettings();
   const variant = useSelectedVariant();
   const monaco = useEditor(settings.config, build.links);
   const nav = useNavigation(build);
-  const isDark = useDarkMode();
 
   const isReady = Boolean(props.startPage && project && monaco);
   const isReadOnly = isDevMode || isVSCode;
@@ -121,7 +121,7 @@ export function App(props: AppProps) {
         <ComponentCode {...{componentKey, build, options, monaco}}/>
       </Tab>
       <Tab value="preview">
-        <ComponentPreview {...{componentKey, variant, build, theme, locale, settings: settings.config}}/>
+        <ComponentPreview {...{componentKey, variant, build, theme, language, settings: settings.config}}/>
       </Tab>
       <Tab value="story">
         <ComponentStory {...{componentKey, options, monaco}}/>
