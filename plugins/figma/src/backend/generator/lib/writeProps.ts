@@ -10,8 +10,8 @@ export function writeProps(
   propDefs: ComponentPropertyDefinitions,
   componentName: string,
   pressables: string[][],
-  isIcon: boolean,
   isRootPressable: boolean,
+  isIcon: boolean,
 ) {
   const props = propDefs ? Object.entries(propDefs) : [];
 

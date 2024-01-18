@@ -40,10 +40,10 @@ const tabs: AppTabs = {
   main: [
     'components',
     'icons',
-    //'assets',
     'theme',
+    // WIP
+    //'assets',
     //'fonts',
-    //'language',
     //'docs',
     'export',
     'settings',
@@ -96,14 +96,15 @@ export function App(props: AppProps) {
   return isReady ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
       <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
+      {/* Project */}
       <Tab value="components">
         <ProjectComponents {...{build, nav, iconSet, isReadOnly, hasIcons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
-      <Tab value="theme">
-        <ProjectTheme {...{options, monaco, hasStyles}}/>
-      </Tab>
       <Tab value="icons">
         <ProjectIcons {...{icons, nav, build, isReadOnly, hasStyles, searchMode, searchQuery}}/>
+      </Tab>
+      <Tab value="theme">
+        <ProjectTheme {...{options, monaco, hasStyles}}/>
       </Tab>
       <Tab value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>
@@ -117,6 +118,7 @@ export function App(props: AppProps) {
       <Tab value="settings">
         <ProjectSettings {...{options, monaco, settings}}/>
       </Tab>
+      {/* Component */}
       <Tab value="code">
         <ComponentCode {...{componentKey, build, options, monaco}}/>
       </Tab>

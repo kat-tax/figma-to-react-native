@@ -52,13 +52,15 @@ export function NodeToolbar(props: NodeToolbarProps) {
       <Toolbar>
         {Object.entries(NodeToolbarActions)
         .map(([name, action]: [string, NodeToolbarActions]) => {
-          return <ToolbarButton
-            key={action}
-            isSelected={active === action}
-            mainTooltip={getTitle(action)}
-            onClick={() => getTrigger(action)}>
-            {name}
-          </ToolbarButton>;
+          return (
+            <ToolbarButton
+              key={action}
+              isSelected={active === action}
+              mainTooltip={getTitle(action)}
+              onClick={() => getTrigger(action)}>
+              {name}
+            </ToolbarButton>
+          )
         })}
       </Toolbar>
     </Fragment>

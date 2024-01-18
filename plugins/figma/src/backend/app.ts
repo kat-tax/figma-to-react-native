@@ -1,6 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getSelectedComponent} from 'backend/parser/lib';
-import {createIdentifierPascal} from 'common/string';
 import {F2RN_NAVIGATE} from 'config/env';
 
 import type {AppPages} from 'types/app';
