@@ -98,7 +98,7 @@ function writeChild(
     const iconColor = getFillToken(iconVector);
     const variantFills = data.variants?.fills?.[slug];
     const hasVariant = data.variants && variantFills && !!Object.values(variantFills);
-    const fillToken = hasVariant ? `colors.${slug}` : iconColor;
+    const fillToken = hasVariant ? `vcolors.${slug}` : iconColor;
     const dynamic = isRootPressable && hasVariant ? '(e)' : '';
     const style = `{color: ${fillToken}${dynamic}}`;
     // Swap icon, override props for this instance

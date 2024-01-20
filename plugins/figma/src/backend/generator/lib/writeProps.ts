@@ -13,44 +13,58 @@ export function writeProps(
   isRootPressable: boolean,
   isIcon: boolean,
 ) {
+  // Import pressable props
+  flags.reactNativeTypes.PressableProps = isRootPressable;
+
+  // Build props from Figma component property definitions
   const props = propDefs ? Object.entries(propDefs) : [];
+  const propLines: string[] = [];
+  const variantMap: Record<string, string[]> = {};
+  props.sort(sortPropsDef).forEach(([key, prop]) => {
+    // Prop type
+    const isBoolean = prop.type === 'BOOLEAN';
+    const isVariant = prop.type === 'VARIANT';
+    const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
+    const isConditional = isBoolean || isVariant || isInstanceSwap;
+    // Prop metadata
+    const propName = getPropName(key);
+    const propType: string = isVariant
+      ? `typeof ${componentName}Variants.${propName}[number]`
+      : isInstanceSwap
+        ? `JSX.Element`
+        : prop.type === 'TEXT'
+          ? 'string'
+          : prop.type.toLowerCase();
+    // Record prop
+    propLines.push(`${propName}${isConditional ? '?' : ''}: ${propType},`);
+    // Record variant
+    if (isVariant) {
+      variantMap[propName] = prop.variantOptions.map(v => createIdentifierPascal(v));
+    }
+  });
 
-  writer.write(`export interface ${componentName}Props`).block(() => {
+  // Write variants
+  if (Object.keys(variantMap).length > 0) {
+    writer.writeLine(`export const ${componentName}Variants = {`).indent(() => {
+      Object.entries(variantMap).forEach(([key, values]) => {
+        writer.write(`${key}: [`);
+        values.forEach((value, i) => {
+          writer.quote(value);
+          i < values.length - 1 && writer.write(', ');
+        });
+        writer.write('],');
+        writer.newLine();
+      });
+    }).writeLine(`} as const;`);
+    writer.blankLine();
+  }
+
+  // Write component props
+  const extProps = isRootPressable ? ' extends PressableProps ' : '';
+  writer.write(`export interface ${componentName}Props${extProps}`).block(() => {
     // Figma props
-    let hasWroteDisableProp = false;
-    props.sort(sortPropsDef).forEach(([key, prop]) => {
-      const propName = getPropName(key);
-
-      if (propName === 'disabled') {
-        if (hasWroteDisableProp) return;
-        hasWroteDisableProp = true;
-      }
-
-      const isBoolean = prop.type === 'BOOLEAN';
-      const isVariant = prop.type === 'VARIANT';
-      const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
-      const isRootPressableState = propName === 'state' && isRootPressable && isVariant;
-      const isConditionalProp = isBoolean || isInstanceSwap || isRootPressableState;
-      const propCond = isConditionalProp ? '?' : '';
-      const propType: string = isVariant
-        ? prop.variantOptions
-          .map((v) => `'${createIdentifierPascal(v)}'`)
-          .join(' | ')
-        : isInstanceSwap
-          ? `JSX.Element`
-          : prop.type === 'TEXT'
-            ? 'string'
-            : prop.type.toLowerCase();
-
-      writer.writeLine(`${propName}${propCond}: ${propType},`);
-
-      // Write disabled prop if needed (special use case)
-      if (isRootPressableState && !hasWroteDisableProp) {
-        writer.writeLine(`disabled?: boolean,`);
-        hasWroteDisableProp = true;
-      }
-    });
-
+    propLines.forEach(line => writer.writeLine(line));
+  
     // Custom props
     if (pressables?.length > 0) {
       flags.reactNativeTypes.GestureResponderEvent = true;

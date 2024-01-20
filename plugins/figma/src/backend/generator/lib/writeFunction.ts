@@ -2,16 +2,14 @@ import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 
 import {writeChildren} from './writeChildren';
-import {writeClasses} from './writeClasses';
-import {writeColors} from './writeColors';
+import {writeStyles} from './writeStyles';
 import {writeProps} from './writeProps';
 import {writeState} from './writeState';
+import {writeDocs} from './writeDocs';
 
 import type {ParseData} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
 import type {ImportFlags} from './writeImports';
-
-type StylePrefixMapper = (slug: string) => string;
 
 export function writeFunction(
   writer: CodeBlockWriter,
@@ -38,89 +36,46 @@ export function writeFunction(
     : null;
 
   // Determine if root node is wrapped in a pressable
-  const isRootPressable = pressables !== null
+  const isPressable = pressables !== null
     && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
 
-  // Component props
-  writeProps(writer, flags, propDefs, name, pressables, isIcon, isRootPressable);
-
-  // Component documentation
-  if (masterNode.description) {
-    writer.writeLine(`/**`);
-    masterNode.description.split('\n').forEach((line: string) => {
-      writer.writeLine(` * ${line.trim()}`);
-    });
-    if (masterNode?.documentationLinks?.length > 0) {
-      writer.writeLine(` * @link ${masterNode.documentationLinks[0].uri}`);
-    }
-    writer.writeLine(` */`);
-  }
-
-  // Determine if style is conditional or static
-  const getStylePrefix: StylePrefixMapper = (slug) => data?.variants
-    && Object.keys(data.variants.classes).includes(slug)
-      ? 'classes' : 'styles';
-
-  // Component function body and children
+  writeProps(writer, flags, propDefs, name, pressables, isPressable, isIcon);
+  writeDocs(writer, masterNode);
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
-
-    // Write state hooks
     writeState(writer, flags, data);
-    
-    // Write style hook
-    flags.unistyles.useStyles = true;
-    writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
-    writer.blankLine();
+    writeStyles(writer, flags, data.variants, isPressable);
 
-    // Write variant conditionals
-    if (isVariant && data?.variants) {
-      if (Object.keys(data.variants.classes).length > 0)
-        writeClasses(writer, flags, data, isRootPressable);
-      if (Object.keys(data.variants.fills).length > 0)
-        writeColors(writer, flags, data, isRootPressable);
-    }
-
-    /* TODO: accessibility
-      if (isRootPressable) {
-        writer.writeLine(`const ref = useRef(null);`);
-        writer.writeLine(`const {buttonProps} = useButton(props);`);
-        writer.writeLine(`const {hoverProps} = useHover({}, ref);`);
-        writer.writeLine(`const {focusProps} = useFocusRing();`);
-        writer.writeLine(`const ariaProps = {...buttonProps, ...hoverProps, ...focusProps};`);
-        writer.blankLine();
-      }
-    */
+    // Helper to determine if style is dynamic or static
+    const getStyleRuntime = (slug: string) => data?.variants
+      && Object.keys(data.variants.classes).includes(slug)
+        ? 'vstyles' : 'styles';
 
     // Write component JSX
     writer.write(`return (`).indent(() => {
-      const pressId = isRootPressable && pressables?.find(e => e[1] === 'root' || !e[1])?.[2];
-      const rootTag = isRootPressable ? 'Pressable' : 'View';
-      const rootStyle = ` style={${getStylePrefix('root')}.root}`;
-      const rootTestID = ` testID={props.testID}`;
-      const rootProps = isRootPressable
-        ? ` onPress={props.${pressId}} disabled={_stateDisabled}` // TODO: ref={ref} {...ariaProps}
-        : '';
+      const tag = isPressable ? 'Pressable' : 'View';
+      const props = isPressable ? ` {...props}` : ' testID={props.testID}';
+      const style = ` style={${getStyleRuntime('root')}.root}`;
 
-      flags.reactNative[rootTag] = true;
-      if (isRootPressable)
-        flags.reactNativeTypes.PressableStateCallbackType = true;
+      // Import flags
+      flags.reactNative[tag] = true;
 
-      writer.write('<' + rootTag + rootStyle + rootProps + rootTestID + '>').indent(() => {
-        writer.conditionalWriteLine(isRootPressable, `{(e: PressableStateCallbackType) => <>`);
-        writer.withIndentationLevel((isRootPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
+      // Write root JSX
+      writer.write('<' + tag + style + props + '>').indent(() => {
+        writer.conditionalWriteLine(isPressable, `{e => <>`);
+        writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
           writeChildren(
             writer,
             flags,
             data,
             settings,
             data.tree,
-            getStylePrefix,
+            getStyleRuntime,
             pressables,
           );
         });
-        writer.conditionalWriteLine(isRootPressable, `</>}`);
+        writer.conditionalWriteLine(isPressable, `</>}`);
       });
-      writer.writeLine(`</${rootTag}>`);
+      writer.writeLine(`</${tag}>`);
     });
     writer.writeLine(');');
   });

@@ -5,6 +5,7 @@ import type {ParseData} from 'types/parse';
 
 export interface ImportFlags {
   exo: {
+    useVariants?: boolean,
     Icon?: boolean,
   },
   lingui: {
@@ -26,6 +27,7 @@ export interface ImportFlags {
     Pressable?: boolean,
   },
   reactNativeTypes: {
+    PressableProps?: boolean,
     GestureResponderEvent?: boolean,
     PressableStateCallbackType?: boolean,
   },
@@ -36,7 +38,8 @@ export function writeImports(
   flags: ImportFlags,
   data: ParseData,
 ) {
-  function writeImport(name: string, props: Record<string, boolean>, isType?: boolean) {
+  // Import template
+  const writeImport = (name: string, props: Record<string, boolean>, isType?: boolean) => {
     const names = Object.entries(props).map(([k, f]) => f && k).filter(Boolean);
     if (!names.length) return;
     writer.write(`import ${isType ? 'type ' : ''}{${names.join(', ')}} from`);
@@ -46,11 +49,11 @@ export function writeImports(
     writer.newLine();
   }
 
-  // Header
+  // Packages
   writeImport('react', flags.react);
   writeImport('react-native-unistyles', flags.unistyles);
-  writeImport('react-native', flags.reactNative);
   writeImport('react-native-exo', flags.exo);
+  writeImport('react-native', flags.reactNative);
   writeImport('@lingui/macro', flags.lingui);
 
   // TODO: aria hooks for each primitive
@@ -59,7 +62,7 @@ export function writeImports(
   // writer.writeLine(`import {useFocusRing} from '@react-native-aria/focus';`);
   // writer.newLine();
 
-  // Subcomponents
+  // Local Components
   const components = Object.entries(data.meta.components);
   if (components.length > 0) {
     components
@@ -74,6 +77,7 @@ export function writeImports(
       });
   }
 
+  // Images & Vectors
   const assets = Object.entries(data.assetData);
   if (assets.length > 0) {
     assets
