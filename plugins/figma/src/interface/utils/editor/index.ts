@@ -121,8 +121,9 @@ export function initComponentEditor(
     versions: {
       '@types/react': '17.0.2',
       '@types/react-native': '0.72.6',
-      'react-native-unistyles': '2.0.0-rc.2',
+      'react-native-unistyles': '2.1.1',
       'react-native-svg': '13.14.0',
+      'react-native-exo': '0.9.6',
     },
   });
 
