@@ -1,4 +1,4 @@
-import type {BuildOptions} from 'web-bundler';
+import type {BuildOptions} from 'syn-bundler';
 import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
 import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 

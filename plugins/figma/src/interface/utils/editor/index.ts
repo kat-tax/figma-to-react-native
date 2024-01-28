@@ -123,7 +123,7 @@ export function initComponentEditor(
       '@types/react-native': '0.72.6',
       'react-native-unistyles': '2.1.1',
       'react-native-svg': '13.14.0',
-      'react-native-exo': '0.9.6',
+      'react-native-exo': '0.9.8',
     },
   });
 
