@@ -43,6 +43,31 @@ export function writeProps(
     }
   });
 
+  // Write component props
+  const extProps = isRootPressable ? ' extends PressableProps ' : '';
+  writer.write(`export interface ${componentName}Props${extProps}`).block(() => {
+    // Figma props
+    propLines.forEach(line => writer.writeLine(line));
+    // Custom props
+    if (pressables?.length > 0) {
+      pressables.forEach(([,,id]) => {
+        if (!isRootPressable || id !== 'onPress') {
+          flags.reactNativeTypes.GestureResponderEvent = true;
+          writer.writeLine(`${id}?: (e: GestureResponderEvent) => void,`);
+        }
+      });
+    }
+    // Icon props
+    if (isIcon) {
+      writer.writeLine(`color?: string,`);
+    }
+    // Test ID
+    if (!isRootPressable) {
+      writer.writeLine(`testID?: string,`);
+    }
+  });
+  writer.blankLine();
+
   // Write variants
   if (Object.keys(variantMap).length > 0) {
     writer.writeLine(`export const ${componentName}Variants = {`).indent(() => {
@@ -58,28 +83,4 @@ export function writeProps(
     }).writeLine(`} as const;`);
     writer.blankLine();
   }
-
-  // Write component props
-  const extProps = isRootPressable ? ' extends PressableProps ' : '';
-  writer.write(`export interface ${componentName}Props${extProps}`).block(() => {
-    // Figma props
-    propLines.forEach(line => writer.writeLine(line));
-  
-    // Custom props
-    if (pressables?.length > 0) {
-      flags.reactNativeTypes.GestureResponderEvent = true;
-      pressables.forEach(([,,id]) => {
-        writer.writeLine(`${id}?: (e: GestureResponderEvent) => void,`);
-      });
-    }
-
-    // Icon props
-    if (isIcon) {
-      writer.writeLine(`color?: string,`);
-    }
-
-    // Test ID
-    writer.writeLine(`testID?: string,`);
-  });
-  writer.blankLine();
 }

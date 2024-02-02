@@ -10,7 +10,7 @@ import {generateData} from './generateData';
 import {generateCode} from './generateCode';
 import {generateIndex} from './generateIndex';
 import {generateStory} from './generateStory';
-import {generateTheme} from './generateTheme';
+import {generateTokens} from './generateTokens';
 
 import type {ProjectSettings} from 'types/settings';
 import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventSelectVariant} from 'types/events';
@@ -18,7 +18,7 @@ import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} fro
 
 const _cache: Record<string, ComponentData> = {};
 
-export {generateCode, generateIndex, generateStory, generateTheme};
+export {generateCode, generateIndex, generateStory, generateTokens};
 
 export async function generateBundle(
   node: ComponentNode,
@@ -60,7 +60,7 @@ export async function generateBundle(
 
 export function watchTheme(settings: ProjectSettings) {
   const updateTheme = () => {
-    const {code, theme, hasStyles} = generateTheme(settings);
+    const {code, theme, hasStyles} = generateTokens(settings);
     const currentTheme = theme?.current
       ? `${createIdentifierCamel(theme.current.name)}`
       : 'main';

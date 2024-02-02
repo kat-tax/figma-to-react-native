@@ -1,7 +1,7 @@
 {
   "version": "0.46.0",
   "name": "@kat.tax/figma-to-react-native",
-  "description": "Transform Figma to React Native",
+  "description": "Transform Figma Designs to React Native",
   "author": "ΚΛΤΤΛΧ",
   "license": "BSL",
   "repository": {
@@ -13,9 +13,12 @@
     "vscode": "pnpm --filter ./plugins/vscode run dev",
     "build:figma": "pnpm --filter ./plugins/figma run build",
     "build:vscode": "pnpm --filter ./plugins/vscode run build",
-    "gen:figma-ui": "pnpm --filter ./packages/figma-ui run build",
-    "gen:figma-build": "pnpm --filter ./packages/figma-build run build",
-    "gen:figma-schema": "pnpm --filter ./plugins/figma run schema",
-    "postinstall": "pnpm gen:figma-build && pnpm gen:figma-ui && pnpm gen:figma-schema && pnpm build:figma && pnpm build:vscode"
+    "generate:figma-ui": "pnpm --filter ./packages/figma-ui run build",
+    "generate:figma-build": "pnpm --filter ./packages/figma-build run build",
+    "generate:figma-schema": "pnpm --filter ./plugins/figma run schema",
+    "postinstall": "concurrently pnpm:generate:* && concurrently pnpm:build:*"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

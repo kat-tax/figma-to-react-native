@@ -8,7 +8,7 @@ type ThemeColors = Record<string, ThemeGroup>;
 type ThemeGroup = Record<string, ThemeColor> | ThemeColor;
 type ThemeColor = {value: string, comment: string};
 
-export function generateTheme(settings: ProjectSettings) {
+export function generateTokens(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
   const theme = getCollectionModes('Theme');
 
