@@ -10,12 +10,14 @@ type ThemeColor = {value: string, comment: string};
 
 export function generateTokens(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
-  const theme = getCollectionModes('Theme');
+  writeBreakpoints(writer);
+  writePallete(writer);
+  return writeThemes(writer);
+}
 
-  let hasStyles = false;
+// Sections
 
-  // Write breakpoints
-  // TODO: support custom breakpoints
+function writeBreakpoints(writer: CodeBlockWriter) {
   writer.write('export const breakpoints = ').inlineBlock(() => {
     writer.writeLine('xs: 0,');
     writer.writeLine('sm: 576,');
@@ -23,23 +25,37 @@ export function generateTokens(settings: ProjectSettings) {
     writer.writeLine('lg: 992,');
     writer.writeLine('xl: 1200,');
   });
-
   writer.blankLine();
+}
 
-  // Write color tokens
+function writePallete(writer: CodeBlockWriter) {
+  const colors = getColorTokenVariables();
   writer.write('export const pallete = ').inlineBlock(() => {
-    writeColorTokens(writer, getColorTokenVariables());
+    // Write color scales (if any)
+    if (Object.keys(colors).length > 0) {
+      Object.keys(colors).forEach(group => {
+        const groupId = createIdentifierCamel(group);
+        const groupItem = colors[group] as ThemeColor;
+        writeColor(writer, groupId, groupItem);
+        writer.newLine();
+      });
+    // No colors found, write empty object
+    } else {
+      writer.write('// No color variables found');
+    }
   });
-
   writer.blankLine();
+}
 
-  // Write themes
+function writeThemes(writer: CodeBlockWriter) {
+  let hasStyles = false;
+  const theme = getCollectionModes('Theme');
   writer.write('export const themes = ').inlineBlock(() => {
     // Theme variable collection found, write modes to themes
     if (theme) {
       theme.modes.forEach(mode => {
         writer.write(`${createIdentifierCamel(mode.name)}: `).inlineBlock(() => {
-          hasStyles = writeThemeTokens(writer, getAllThemeTokens(mode.modeId));
+          hasStyles = writeTheme(writer, getAllThemeTokens(mode.modeId));
         });
         writer.write(',');
         writer.newLine();
@@ -47,42 +63,28 @@ export function generateTokens(settings: ProjectSettings) {
     // No theme variable collection found, local styles only
     } else {
       writer.write(`main: `).inlineBlock(() => {
-        hasStyles = writeThemeTokens(writer, getThemeTokenLocalStyles());
+        hasStyles = writeTheme(writer, getThemeTokenLocalStyles());
       });
       writer.write(',');
       writer.newLine();
     }
   });
-
+  // Default theme export
   writer.blankLine();
-
-  // Write default export
   if (theme) {
     const initialTheme = createIdentifierCamel(theme.default.name);
     writer.writeLine(`export default '${initialTheme}'`);
   } else {
     writer.writeLine(`export default 'main'`);
   }
-    
-  return {code: writer.toString(), theme, hasStyles};
+  // Return token code, theme collection, and whether styles exist
+  const code = writer.toString();
+  return {code, theme, hasStyles};
 }
 
-function writeColorTokens(writer: CodeBlockWriter, colors: ThemeColors) {
-  // Write color scales (if any)
-  if (Object.keys(colors).length > 0) {
-    Object.keys(colors).forEach(group => {
-      const groupId = createIdentifierCamel(group);
-      const groupItem = colors[group] as ThemeColor;
-      writeColorToken(writer, groupId, groupItem);
-      writer.newLine();
-    });
-  // No colors found, write empty object
-  } else {
-    writer.write('// No color variables found');
-  }
-}
+// Utilities
 
-function writeColorToken(writer: CodeBlockWriter, name: string, color: ThemeColor) {
+function writeColor(writer: CodeBlockWriter, name: string, color: ThemeColor) {
   const needsPrefix = /^[0-9]/.test(name);
   const id = needsPrefix ? `$${name}` : name;
   if (color.comment)
@@ -92,7 +94,7 @@ function writeColorToken(writer: CodeBlockWriter, name: string, color: ThemeColo
   writer.write(`,`);
 }
 
-function writeThemeTokens(writer: CodeBlockWriter, colors: ThemeColors) {
+function writeTheme(writer: CodeBlockWriter, colors: ThemeColors) {
   // Write theme colors (if any)
   if (Object.keys(colors).length > 0) {
     writer.write('colors: ').inlineBlock(() => {
