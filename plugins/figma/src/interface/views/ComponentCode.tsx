@@ -2,7 +2,7 @@ import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
 import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {MonacoBinding} from 'interface/utils/editor/lib/yjs';
+import {MonacoBinding} from 'interface/utils/editor/lib/MonacoBinding';
 import {initComponentEditor} from 'interface/utils/editor';
 import {F2RN_EDITOR_NS} from 'config/env';
 import * as $ from 'interface/store';

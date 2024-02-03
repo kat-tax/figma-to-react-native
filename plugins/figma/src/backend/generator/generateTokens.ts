@@ -11,6 +11,7 @@ type ThemeColor = {value: string, comment: string};
 export function generateTokens(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
   writeBreakpoints(writer);
+  writeLayout(writer);
   writePallete(writer);
   return writeThemes(writer);
 }
@@ -24,6 +25,13 @@ function writeBreakpoints(writer: CodeBlockWriter) {
     writer.writeLine('md: 768,');
     writer.writeLine('lg: 992,');
     writer.writeLine('xl: 1200,');
+  });
+  writer.blankLine();
+}
+
+function writeLayout(writer: CodeBlockWriter) {
+  writer.write('export const layout = ').inlineBlock(() => {
+    // TODO: Write layout tokens
   });
   writer.blankLine();
 }

@@ -2,7 +2,7 @@ import {useEffect, useState, Fragment} from 'react';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {Bar, Link} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
-import {patch, actions} from 'interface/utils/editor/lib/patch';
+import {patch, actions} from 'interface/utils/editor/lib/Experimental';
 import {titleCase} from 'common/string';
 
 import * as F from 'figma-ui';

@@ -1,20 +1,17 @@
-// @ts-ignore No types
-import {constrainedEditor} from 'constrained-editor-plugin';
-import {AutoTypings, LocalStorageCache} from 'monaco-editor-auto-typings/custom-editor';
-import {emit} from '@create-figma-plugin/utilities';
 import {F2RN_EDITOR_NS} from 'config/env';
+import {emit} from '@create-figma-plugin/utilities';
+import schema from 'interface/schemas/user/schema.json';
 import * as $ from 'interface/store';
 
-// @ts-ignore
-import schema from 'interface/schemas/user/schema.json';
-import templates from './templates';
+import imports from './lib/imports';
+import AutoTypings from './lib/AutoTypings';
+import Constraints from './lib/Constraints';
+import Experimental from './lib/Experimental';
 
 import type * as monaco from 'monaco-editor';
 import type {UserSettings} from 'types/settings';
 import type {EventFocusNode} from 'types/events';
 import type {ComponentLinks} from 'types/component';
-
-const sourceCache = new LocalStorageCache();
 
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
@@ -49,10 +46,10 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
   }
 
   // Add library files
-  Object.keys(templates).forEach(key => {
+  Object.keys(imports).forEach(key => {
     const uri = monaco.Uri.parse(key);
     if (!monaco.editor.getModel(uri)) {
-      monaco.editor.createModel(templates[key], 'typescript', uri);
+      monaco.editor.createModel(imports[key], 'typescript', uri);
     }
   });
 }
@@ -106,46 +103,9 @@ export function initSettingsSchema(monaco: Monaco) {
   });
 }
 
-export function initComponentEditor(
-  editor: Editor,
-  monaco: Monaco,
-  onTriggerGPT: () => void,
-) {
-  // Automatically import package types
-  AutoTypings.create(editor, {
-    monaco,
-    sourceCache,
-    shareCache: true,
-    preloadPackages: true,
-    fileRootPath: F2RN_EDITOR_NS,
-    versions: {
-      '@types/react': '17.0.2',
-      '@types/react-native': '0.72.6',
-      'react-native-unistyles': '2.1.1',
-      'react-native-svg': '13.14.0',
-      'react-native-exo': '0.9.8',
-    },
-  });
-
-  // Setup constrained editor to limit user input
-  const constraint = constrainedEditor(monaco);
-  constraint.initializeIn(editor);
-
-  // Setup custom commands
-  editor.addAction({
-    id: 'f2rn-gpt',
-    label: 'Patch with GPT-4',
-    contextMenuGroupId: '1_modification',
-    contextMenuOrder: 99,
-    precondition: null,
-    keybindingContext: null,
-    keybindings: [
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG,
-    ],
-    run: () => {
-      onTriggerGPT();
-    },
-  });
-
-  return constraint;
+export function initComponentEditor(editor: Editor, monaco: Monaco, onTriggerGPT: () => void) {
+  console.log('[init editor]', editor, monaco);
+  AutoTypings.init(monaco, editor);
+  Experimental.init(monaco, editor, onTriggerGPT);
+  return Constraints.init(monaco, editor);
 }

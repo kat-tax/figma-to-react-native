@@ -43,7 +43,7 @@ export function writeFunction(
   writeDocs(writer, masterNode);
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
     writeState(writer, flags, data);
-    writeStyles(writer, flags, data.variants);
+    writeStyles(writer, flags, name, data.variants);
 
     // Helper to determine if style is dynamic or static
     const getStyleRuntime = (slug: string) => data?.variants

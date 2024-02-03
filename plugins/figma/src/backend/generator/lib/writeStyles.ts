@@ -7,6 +7,7 @@ import type {ImportFlags} from './writeImports';
 export function writeStyles(
   writer: CodeBlockWriter,
   flags: ImportFlags,
+  name: string,
   variants?: ParseVariantData,
 ) {
   const hasVariants = !!variants;
@@ -64,7 +65,7 @@ export function writeStyles(
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
   writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
-  writer.writeLine(`const {vstyles, vcolors} = useVariants(ButtonVariants, {`).indent(() => {
+  writer.writeLine(`const {vstyles, vcolors} = useVariants(${name}Variants, {`).indent(() => {
     writer.writeLine(`current: {${props}},`);
     writer.writeLine('design: {styles, theme},');
   });
