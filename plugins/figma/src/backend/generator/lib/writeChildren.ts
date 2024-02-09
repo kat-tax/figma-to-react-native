@@ -17,7 +17,7 @@ import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
 import type {ImportFlags} from './writeImports';
 
-type StylePrefixMapper = (slug: string) => string;
+type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
 
 export function writeChildren(
   writer: CodeBlockWriter,
@@ -25,7 +25,7 @@ export function writeChildren(
   data: ParseData,
   settings: ProjectSettings,
   children: ParseNodeTree,
-  getStylePrefix: StylePrefixMapper,
+  getStyleProp: StylePrefixMapper,
   pressables?: string[][],
 ) {
   let language = getCollectionByName('Language');
@@ -35,7 +35,7 @@ export function writeChildren(
     } catch (e) {}
   }
 
-  const state = {writer, flags, data, language, settings, pressables, getStylePrefix};
+  const state = {writer, flags, data, language, settings, pressables, getStyleProp};
   children.forEach(child => {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
@@ -69,10 +69,10 @@ function writeChild(
     settings: ProjectSettings,
     language?: VariableCollection,
     pressables?: string[][],
-    getStylePrefix: StylePrefixMapper,
+    getStyleProp: StylePrefixMapper,
   },
 ) {
-  const {writer, data, settings, pressables, getStylePrefix} = state;
+  const {writer, data, settings, pressables, getStyleProp} = state;
 
   // Derived data
   const testID = ` testID="${child.node.id}"`;
@@ -186,8 +186,7 @@ function writeChild(
   // Create primitive tag
   } else {
     // Determine if root node is wrapped in a pressable
-    const dynamic = isRootPressable ? '(e)' : '';
-    const styles = slug ? ` style={${getStylePrefix(slug)}.${slug}${dynamic}}` : '';
+    const styles = slug ? ` style={${getStyleProp(slug, isRootPressable)}}` : '';
     jsxTag = getReactNativeTag(child.node.type);
     jsxTagWithProps = jsxTag + styles + jsxCustomProps + jsxBaseProps + testID;
     state.flags.reactNative[jsxTag] = true;
@@ -209,7 +208,7 @@ function writeChild(
           data,
           settings,
           child.children,
-          getStylePrefix,
+          getStyleProp,
           pressables,
         );
         break;

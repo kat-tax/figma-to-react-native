@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {titleCase} from 'common/string';
+import {createIdentifierCamel} from 'common/string';
 import {getCollectionByName, getPage} from 'backend/parser/lib';
 
 import type {ParseData} from 'types/parse';
@@ -25,7 +25,9 @@ export function writeState(
     // TODO: handle other variable types (number / boolean only atm)
     // TODO: add typing based on variable type
     const initValue = variable.valuesByMode[state.defaultModeId];
-    writer.writeLine(`const [${name}, set${titleCase(name)}] = useState(${initValue});`);
+    const getName = createIdentifierCamel(name);
+    const setName = createIdentifierCamel(`set_${name}`);
+    writer.writeLine(`const [${getName}, ${setName}] = useState(${initValue});`);
     flags.react.useState = true;
   });
 }

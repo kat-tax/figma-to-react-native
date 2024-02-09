@@ -11,7 +11,7 @@ type ThemeColor = {value: string, comment: string};
 export function generateTokens(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
   writeBreakpoints(writer);
-  writeLayout(writer);
+  //writeLayout(writer);
   writePallete(writer);
   return writeThemes(writer);
 }
@@ -31,7 +31,25 @@ function writeBreakpoints(writer: CodeBlockWriter) {
 
 function writeLayout(writer: CodeBlockWriter) {
   writer.write('export const layout = ').inlineBlock(() => {
-    // TODO: Write layout tokens
+    figma.variables.getLocalVariables()?.forEach(v => {
+      const collection = figma.variables.getVariableCollectionById(v.variableCollectionId);
+      const value = v.valuesByMode[collection.defaultModeId].toString();
+      const id = createIdentifierCamel(v.name);
+      switch (v.resolvedType) {
+        case 'COLOR':
+          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
+          break;
+        case 'STRING':
+          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
+          break;
+        case 'FLOAT':
+          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
+          break;
+        case 'BOOLEAN':
+          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
+          break;
+      }
+    });
   });
   writer.blankLine();
 }
@@ -179,8 +197,12 @@ function getThemeTokenVariables(themeId: string): ThemeColors {
 
 function getColorTokenVariables(): ThemeColors {
   const colors: ThemeColors = {};
-  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === 'Colors');
+  const collection = figma.variables
+    ?.getLocalVariableCollections()
+    ?.find(c => c.name === 'Colors');
+
   if (!collection) return colors;
+
   collection.variableIds
     .map(id => figma.variables.getVariableById(id))
     .filter(v => v.resolvedType === 'COLOR')
@@ -190,5 +212,6 @@ function getColorTokenVariables(): ThemeColors {
         comment: v.description,
       }
     });
+
   return colors;
 }

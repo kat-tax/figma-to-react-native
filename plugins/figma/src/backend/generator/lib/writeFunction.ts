@@ -16,7 +16,7 @@ export function writeFunction(
   flags: ImportFlags,
   data: ParseData,
   settings: ProjectSettings,
-): ImportFlags {
+) {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
   const masterNode = (isVariant ? data.root.node?.parent : data.root.node) as ComponentNode;
@@ -45,16 +45,17 @@ export function writeFunction(
     writeState(writer, flags, data);
     writeStyles(writer, flags, name, data.variants);
 
-    // Helper to determine if style is dynamic or static
-    const getStyleRuntime = (slug: string) => data?.variants
+    // Helper to determine the style prop value
+    const getStyleProp = (slug: string, isDynamic?: boolean) => data?.variants
       && Object.keys(data.variants.classes).includes(slug)
-        ? 'vstyles' : 'styles';
+        ? `vstyles.${slug}(${isDynamic ? 'e' : ''})`
+        : `styles.${slug}`;
 
     // Write component JSX
     writer.write(`return (`).indent(() => {
       const tag = isPressable ? 'Pressable' : 'View';
       const props = isPressable ? ` {...props}` : ' testID={props.testID}';
-      const style = ` style={${getStyleRuntime('root')}.root}`;
+      const style = ` style={${getStyleProp('root')}}`;
 
       // Import flags
       flags.reactNative[tag] = true;
@@ -69,7 +70,7 @@ export function writeFunction(
             data,
             settings,
             data.tree,
-            getStyleRuntime,
+            getStyleProp,
             pressables,
           );
         });
@@ -81,5 +82,4 @@ export function writeFunction(
   });
 
   writer.blankLine();
-  return flags;
 }

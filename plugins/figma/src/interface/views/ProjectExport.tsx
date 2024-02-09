@@ -51,8 +51,8 @@ const tips = {
 };
 
 interface ProjectExportProps {
-  project: ProjectRelease;
-  build: ComponentBuild;
+  project: ProjectRelease,
+  build: ComponentBuild,
 }
 
 export function ProjectExport(props: ProjectExportProps) {
