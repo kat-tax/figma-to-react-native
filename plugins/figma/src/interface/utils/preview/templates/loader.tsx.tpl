@@ -17,19 +17,6 @@ export default function Loader() {
   );
 }
 
-export function StackTrace(error: string, components: string) {
-  return (
-    <div>
-      <pre style={{color: 'red'}}>
-        {this.state.stacktrace?.toString()}
-      </pre>
-      <pre style={{color: 'red'}}>
-        {this.state.components?.toString()}
-      </pre>
-    </div>
-  )
-}
-
 export function Preview() {
   const {zoomToElement} = useControls();
   const [name, setName] = useState();
@@ -100,6 +87,7 @@ export function Preview() {
 
   return (
     <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
+      <div id="component"></div>
       {error &&
         <div>
           <pre style={{color: 'red'}}>
@@ -110,7 +98,6 @@ export function Preview() {
           </pre>
         </div>
       }
-      <div id="component"></div>
       <Inspector
         active={hasInspect && isMouseInComponent}
         onHoverElement={(e) => console.debug('[inspect]', e)}
