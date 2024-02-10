@@ -1,5 +1,24 @@
 {
-  "name": "exo",
-  "version": "0.45.0",
-  "license": "GPL-3.0"
+  "version": "0.46.0",
+  "name": "@kat.tax/figma-to-react-native",
+  "description": "Transform Figma Designs to React Native",
+  "author": "ΚΛΤΤΛΧ",
+  "license": "BSL",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kat-tax/figma-to-react-native"
+  },
+  "scripts": {
+    "figma": "pnpm --filter ./plugins/figma run dev",
+    "vscode": "pnpm --filter ./plugins/vscode run dev",
+    "build:figma": "pnpm --filter ./plugins/figma run build",
+    "build:vscode": "pnpm --filter ./plugins/vscode run build",
+    "generate:figma-ui": "pnpm --filter ./packages/figma-ui run build",
+    "generate:figma-build": "pnpm --filter ./packages/figma-build run build",
+    "generate:figma-schema": "pnpm --filter ./plugins/figma run schema",
+    "postinstall": "concurrently pnpm:generate:* && concurrently pnpm:build:*"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

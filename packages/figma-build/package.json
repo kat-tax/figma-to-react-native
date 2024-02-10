@@ -1,0 +1,52 @@
+{
+  "name": "figma-build",
+  "type": "module",
+  "private": true,
+  "files": [
+    "lib"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "figma-build": "./lib/cli.js"
+  },
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "tsc --build",
+    "clean": "rimraf --glob '*.log' lib tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@create-figma-plugin/common": "^3.1.0",
+    "chokidar": "^3.5.3",
+    "cssnano": "^6.0.3",
+    "esbuild": "0.19.11",
+    "find-up": "^7.0.0",
+    "globby": "^14.0.0",
+    "indent-string": "^5.0.0",
+    "kleur": "^4.1.5",
+    "path-exists": "^5.0.0",
+    "postcss": "^8.4.33",
+    "postcss-modules": "^6.0.0",
+    "rev-hash": "^4.1.0",
+    "sade": "^1.8.1",
+    "temp-write": "^5.0.0",
+    "tempy": "^3.1.0",
+    "typed-css-modules": "^0.8.1"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "1.83.0",
+    "@types/node": "20.10.7",
+    "@types/react": "18.2.47",
+    "@types/rimraf": "4.0.5",
+    "concurrently": "8.2.2",
+    "react": "18.2.0",
+    "rimraf": "5.0.5",
+    "tsx": "4.7.0",
+    "typescript": "5.3.3"
+  },
+  "peerDependencies": {
+    "@figma/plugin-typings": ">=1",
+    "typescript": ">=5"
+  }
+}

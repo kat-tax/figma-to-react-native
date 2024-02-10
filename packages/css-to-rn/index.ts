@@ -1,4 +1,4 @@
-import {transform} from 'lightningcss-wasm';
+import init, {transform} from 'lightningcss-wasm';
 import {parseDeclaration} from './declaration';
 import {kebabToCamelCase, allEqual} from './utils';
 
@@ -17,7 +17,14 @@ import type {
 
 export type {CssToReactNativeOptions};
 
-export {default as init} from 'lightningcss-wasm';
+let _loading = false;
+let _loaded = false;
+
+async function initWASM() {
+  await init('https://esm.sh/lightningcss-wasm@1.22.1/lightningcss_node.wasm');
+  _loading = false;
+  _loaded = true;
+}
 
 /**
  * Converts a CSS file to a collection of style declarations that can be used with the StyleSheet API
@@ -26,10 +33,21 @@ export {default as init} from 'lightningcss-wasm';
  * @param options - (Optional) Options for the conversion process
  * @returns An object containing the extracted style declarations and animations
  */
-export function cssToRN(
+export async function cssToReactNative(
   code: string,
   options: CssToReactNativeOptions = {},
-): StyleSheetRegisterOptions {
+): Promise<StyleSheetRegisterOptions> {
+  if (_loading) {
+    // TODO: use barrier instead of throwing
+    throw new Error(
+      'The WASM module is still loading. Please wait for the module to finish loading before using the `cssToReactNative` function.',
+    );
+  }
+  if (!_loaded) {
+    _loading = true;
+    await initWASM();
+  }
+
   // These will by mutated by `extractRule`
   const extractOptions: ExtractRuleOptions = {
     ...options,

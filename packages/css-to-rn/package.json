@@ -1,11 +1,13 @@
 {
-  "private": true,
   "name": "css-to-rn",
   "main": "index.ts",
+  "type": "module",
+  "private": true,
   "dependencies": {
     "lightningcss-wasm": "^1.22.1"
   },
   "devDependencies": {
-    "@types/react-native": "^0.72.8"
+    "@types/react-native": "^0.73.0",
+    "react-native": "^0.73.1"
   }
 }

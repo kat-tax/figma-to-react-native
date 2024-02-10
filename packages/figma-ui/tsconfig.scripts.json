@@ -1,0 +1,15 @@
+{
+  "include": ["scripts/*.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "removeComments": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2020",
+  }
+}

@@ -1,7 +1,12 @@
 # Project
-manifest.json
-TODO.md
 build/
+manifest.json
+*.tsbuildinfo
+TODO.md
+
+# Schemas
+schema.json
+validator.js
 
 # OSX
 .DS_Store
