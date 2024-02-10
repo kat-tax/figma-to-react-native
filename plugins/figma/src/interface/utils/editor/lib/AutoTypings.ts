@@ -9,7 +9,7 @@ const versions =  {
   '@types/prop-types': '15.7.11',
   'csstype': '3.1.3',
   'react-native': '0.73.3',
-  'react-native-exo': '0.9.10',
+  'react-native-exo': '0.9.11',
   'react-native-svg': '13.14.0',
   'react-native-unistyles': '2.1.1',
 };
@@ -32,7 +32,7 @@ export class AutoTypeCache implements SourceCache {
   }
 
   async storeFile(uri: string, content: string) {
-    console.log('[at-cache]', uri, content.length);
+    //console.log('[at-cache]', uri, content.length);
     AutoTypeCache._.set(uri, content);
   }
 

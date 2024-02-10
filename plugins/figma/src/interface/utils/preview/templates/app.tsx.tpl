@@ -4,11 +4,18 @@ import {AppRegistry} from 'react-native';
 import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
 import {Icon} from 'react-native-exo';
 import {Logtail} from '@logtail/browser';
-
 import {themes, breakpoints} from 'theme';
 
-const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
+type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
+type AppBreakpoints = typeof breakpoints;
 
+declare module 'react-native-unistyles' {
+  export interface UnistylesBreakpoints extends AppBreakpoints {}
+  export interface UnistylesThemes extends AppThemes {}
+}
+
+
+const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 const initialTheme = '__CURRENT_THEME__';
 const initialLanguage = '__CURRENT_LANGUAGE__';
 
@@ -28,14 +35,6 @@ window.__messages__ = {
 
 window.__lang__ = initialLanguage;
 window.__trans__ = (msg: string) => window.__messages__?.[window.__lang__]?.[msg] || msg;
-
-type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
-type AppBreakpoints = typeof breakpoints;
-
-declare module 'react-native-unistyles' {
-  export interface UnistylesBreakpoints extends AppBreakpoints {}
-  export interface UnistylesThemes extends AppThemes {}
-}
 
 __COMPONENT_DEF__
 
@@ -65,19 +64,15 @@ export function App() {
   }, []);
 
   return (
-    <ErrorBoundary fallback={
-      <pre style={{color: 'red'}}>
-        Component error. Check devtools console.
-      </pre>
-    }>
+    <ErrorBoundary>
       {variant}
     </ErrorBoundary>
   )
 }
 
 UnistylesRegistry
-  .addBreakpoints(breakpoints)
   .addThemes(themes)
+  .addBreakpoints(breakpoints)
   .addConfig({initialTheme});
 
 AppRegistry.registerComponent('app', () => App);
@@ -88,22 +83,31 @@ AppRegistry.runApplication('app', {
 class ErrorBoundary extends React.Component {
   constructor(props: any) {
     super(props);
-    this.state = {hasError: false};
+    this.state = {
+      hasError: false,
+      stacktrace: null,
+      components: null,
+    };
   }
 
-  static getDerivedStateFromError(_error: Error) {
-    return {hasError: true};
+  static getDerivedStateFromError(error: Error) {
+    return {
+      hasError: true,
+      stacktrace: error.stack,
+    };
   }
 
   componentDidCatch(error: Error, info: unknown) {
-    const payload = {componentStack: info.componentStack};
-    logtail.error(error, payload);
+    const components = info.componentStack;
+    this.setState({components});
+    logtail.error(error, components);
     logtail.flush();
+    postMessage({type: 'component::error', error, info}, '*');
   }
 
   render() {
-    if (this.state.hasError)
-      return this.props.fallback;
-    return this.props.children;
+    return this.state.hasError
+      ? null
+      : this.props.children;
   }
 }

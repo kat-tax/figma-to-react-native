@@ -72,7 +72,7 @@
   "react-dom/client": "https://ga.jspm.io/npm:react-dom@18.2.0/client.js",
   "react-inspector": "https://ga.jspm.io/npm:react-inspector@6.0.2/dist/index.mjs",
   "react-is": "https://ga.jspm.io/npm:react-is@16.13.1/index.js",
-  "react-native-exo": "https://unpkg.com/react-native-exo@0.9.10/dist/index.js",
+  "react-native-exo": "https://unpkg.com/react-native-exo@0.9.11/dist/index.js",
   "react-native-svg": "https://ga.jspm.io/npm:react-native-svg-web@1.0.9/index.js",
   "react-native-unistyles": "https://unpkg.com/react-native-unistyles@2.0.0-rc.2/lib/module/index.js",
   "react-native": "https://ga.jspm.io/npm:react-native-web@0.19.5/dist/index.js",

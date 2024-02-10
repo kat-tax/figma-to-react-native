@@ -4,7 +4,6 @@ import {createRoot} from 'react-dom/client';
 import {useEffect, useState} from 'react';
 import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 import {Inspector} from 'react-dev-inspector';
-// import {Console, Hook, Unhook} from 'console-feed';
 
 export default function Loader() {
   return (
@@ -18,14 +17,28 @@ export default function Loader() {
   );
 }
 
+export function StackTrace(error: string, components: string) {
+  return (
+    <div>
+      <pre style={{color: 'red'}}>
+        {this.state.stacktrace?.toString()}
+      </pre>
+      <pre style={{color: 'red'}}>
+        {this.state.components?.toString()}
+      </pre>
+    </div>
+  )
+}
+
 export function Preview() {
-  const [name, setName] = useState();
   const {zoomToElement} = useControls();
+  const [name, setName] = useState();
+  const [error, setError] = useState(null);
   const [hasInspect, setInspect] = useState(false);
   const [isMouseInComponent, setMouseInComponent] = useState(false);
 
   useEffect(() => {
-    const load = (e: JSON) => {
+    const figma = (e: JSON) => {
       const component = document.getElementById('component');
       switch (e.data?.type) {
         case 'inspect':
@@ -35,6 +48,7 @@ export function Preview() {
           zoomToElement(component, 1, 0);
           break;
         case 'preview':
+          setError(null);
           // Update frame
           component.style.display = 'flex';
           component.style.width = e.data.width ? e.data.width + 'px' : 'auto';
@@ -64,12 +78,38 @@ export function Preview() {
           break;
       }
     };
-    addEventListener('message', load);
-    return () => removeEventListener('message', load);
+
+    const component = (e: JSON) => {
+      switch (e.data?.type) {
+        case 'component::error':
+          setError({
+            stack: e.data?.error?.stack,
+            components: e.data?.info?.componentStack,
+          });
+          break;
+      }
+    };
+
+    addEventListener('message', figma);
+    addEventListener('message', component);
+    return () => {
+      removeEventListener('message', figma);
+      removeEventListener('message', component);
+    };
   }, [name]);
 
   return (
     <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
+      {error &&
+        <div>
+          <pre style={{color: 'red'}}>
+            {error.stack?.toString()}
+          </pre>
+          <pre style={{color: 'red'}}>
+            {error.components?.toString()}
+          </pre>
+        </div>
+      }
       <div id="component"></div>
       <Inspector
         active={hasInspect && isMouseInComponent}
@@ -82,23 +122,9 @@ export function Preview() {
           }
         }}
       />
-      {/*<LogsContainer/>*/}
     </TransformComponent>
   );
 }
-
-/*function LogsContainer() {
-  const [logs, setLogs] = useState([])
-
-  useEffect(() => {
-    const hookedConsole = Hook(window.console, log => setLogs((c) => [...c, log]),
-      false
-    )
-    return () => Unhook(hookedConsole)
-  }, [])
-
-  return <Console logs={logs} variant="dark"/>
-}*/
 
 createRoot(document.getElementById('previewer')).render(
   <React.StrictMode>
