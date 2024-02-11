@@ -9,6 +9,7 @@ export interface ImportFlags {
     Icon?: boolean,
   },
   lingui: {
+    t?: boolean,
     Trans?: boolean,
   },
   unistyles: {
@@ -25,6 +26,7 @@ export interface ImportFlags {
     Text?: boolean,
     Image?: boolean,
     Pressable?: boolean,
+    TextInput?: boolean,
   },
   reactNativeTypes: {
     PressableProps?: boolean,

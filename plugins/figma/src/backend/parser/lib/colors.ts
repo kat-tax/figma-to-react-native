@@ -59,7 +59,7 @@ export function getTopFill(fills: ReadonlyArray<Paint> | PluginAPI['mixed']): So
   }
 }
 
-export function getFillToken(node: RectangleNode | EllipseNode | VectorNode) {
+export function getFillToken(node: FrameNode | ComponentSetNode | ComponentNode | InstanceNode | VectorNode | StarNode | LineNode | EllipseNode | PolygonNode | RectangleNode | TextNode) {
   const placeholder = '"#000000"';
   if (!node) return placeholder;
   const fill = getTopFill(node.fills);

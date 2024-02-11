@@ -160,7 +160,7 @@ interface IconListItemProps {
 }
 
 function IconListItem(props: IconListItemProps) {
-  const tag = `<Icon icon="${props.icon}"/>`;
+  const tag = `<Icon name="${props.icon}"/>`;
   return (
     <F.IconButton
       title={props.icon}

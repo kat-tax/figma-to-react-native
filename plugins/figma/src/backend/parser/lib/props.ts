@@ -90,7 +90,7 @@ export function propValueToJSX(
     
     // Props specific to icon nodes
     const propsIcon = isIconNode
-      ? ` icon="${masterNode.name}"`
+      ? ` name="${masterNode.name}"`
       : ' ';
 
     // Test ID (if not icon)

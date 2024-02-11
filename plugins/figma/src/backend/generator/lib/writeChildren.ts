@@ -113,7 +113,7 @@ function writeChild(
       writer.newLine();
     // Explicit icon, use Icon component directly
     } else {
-      writer.writeLine(`<Icon icon="${child.node.name}" size={${child.node.width}} style={${style}}/>`);
+      writer.writeLine(`<Icon name="${child.node.name}" size={${child.node.width}} style={${style}}/>`);
       state.flags.exo.Icon = true;
     }
     return;
@@ -185,7 +185,6 @@ function writeChild(
       state.flags.exo.Icon = true;
   // Create primitive tag
   } else {
-    // Determine if root node is wrapped in a pressable
     const styles = slug ? ` style={${getStyleProp(slug, isRootPressable)}}` : '';
     jsxTag = getReactNativeTag(child.node.type);
     jsxTagWithProps = jsxTag + styles + jsxCustomProps + jsxBaseProps + testID;
@@ -195,6 +194,44 @@ function writeChild(
   // No children, self closing tag
   if (!isText && !child.children) {
     writer.writeLine(`<${jsxTagWithProps}/>`);
+    return;
+  }
+
+  // Text properties
+  const textPropId = propRefs?.characters;
+  const textPropName = textPropId ? getPropName(textPropId) : null;
+  const textPropValue = textPropName
+    ? `props.${textPropName}`
+    : (child.node as TextNode).characters || '';
+
+  // Text input detected
+  if (child.node.type === 'TEXT'
+    && child.node.name.toLowerCase().startsWith('textinput')
+    && child.node.name.includes('|')) {
+    const [_, type, value, ...extra] = child.node.name.split('|');
+    state.flags.reactNative.TextInput = true;
+    writer.write('<TextInput').indent(() => {
+      writer.writeLine(`style={${getStyleProp(slug, isRootPressable)}}`);
+      // Type (none, text, decimal, numeric, tel, search, email, url)
+      writer.writeLine(`inputMode="${type.trim().toLowerCase()}"`);
+      // Default value
+      // TODO: support state
+      writer.writeLine(`defaultValue={${value.trim()}}`);
+      // Placeholder (props value)
+      if (textPropValue.startsWith('props.')) {
+        writer.writeLine(`placeholder={${textPropValue}}`);
+      // Placeholder (explict), translate
+      } else if (settings?.addTranslate) {
+        state.flags.lingui.t = true;
+        translate(state.language, textPropValue);
+        writer.writeLine(`placeholder={t\`${textPropValue}\`}`);
+      } else {
+        writer.writeLine(`placeholder={\`${textPropValue}}\``);
+      }
+      writer.writeLine(`placeholderTextColor={${getFillToken(child.node as TextNode)}}`);
+      extra?.forEach(p => p && writer.writeLine(p.trim()));
+    });
+    writer.write(`/>`);
     return;
   }
 
@@ -213,32 +250,17 @@ function writeChild(
         );
         break;
       case 'Text':
-        const propId = propRefs?.characters;
-        const propName = propId ? getPropName(propId) : null;
-        const propValue = propName
-          ? `props.${propName}`
-          : (child.node as TextNode).characters || '';
-        if (propValue.startsWith('props.')) {
-          writer.write(`{${propValue}}`);
+        // Component property string
+        if (textPropValue.startsWith('props.')) {
+          writer.write(`{${textPropValue}}`);
+        // Explicit string
         } else {
           if (settings?.addTranslate) {
             state.flags.lingui.Trans = true;
-            writer.write('<Trans>{`' + propValue + '`}</Trans>');
-            if (state.language) {
-              const {id, defaultModeId} = state.language;
-              try {
-                const bytes = encodeUTF8(propValue);
-                const hash = blake2sHex(bytes);
-                if (!figma.variables.getLocalVariables().find(e => e.name === hash)) {
-                  const entry = figma.variables.createVariable(hash, id, 'STRING');
-                  entry.setValueForMode(defaultModeId, propValue);
-                }
-              } catch (e) {
-                console.log(`Unable to create language ${propValue}`, e);
-              }
-            }
+            translate(state.language, textPropValue);
+            writer.write('<Trans>{`' + textPropValue + '`}</Trans>');
           } else {
-            writer.write(`{\`${propValue}\`}`);
+            writer.write(`{\`${textPropValue}\`}`);
           }
         }
         break;
@@ -247,6 +269,22 @@ function writeChild(
 
   // Closing tag
   writer.writeLine(`</${jsxTag}>`);
+}
+
+function translate(language: VariableCollection, value: string) {
+  if (language) {
+    const {id, defaultModeId} = language;
+    try {
+      const bytes = encodeUTF8(value);
+      const hash = blake2sHex(bytes);
+      if (!figma.variables.getLocalVariables().find(e => e.name === hash)) {
+        const entry = figma.variables.createVariable(hash, id, 'STRING');
+        entry.setValueForMode(defaultModeId, value);
+      }
+    } catch (e) {
+      console.log(`Unable to create language ${value}`, e);
+    }
+  }
 }
 
 function getReactNativeTag(type: string): 'View' | 'Text' | 'Image' {
