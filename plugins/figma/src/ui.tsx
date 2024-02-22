@@ -1,7 +1,7 @@
 import '!@blocknote/core/dist/style.css';
-import '!./interface/css/default.css';
-import '!./interface/css/plugin.css';
-import '!./interface/css/editor.css';
+import '!./interface/styles/default.css';
+import '!./interface/styles/plugin.css';
+import '!./interface/styles/editor.css';
 
 import {on, emit} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'react';
