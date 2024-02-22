@@ -1,8 +1,8 @@
 import {useEffect} from 'react';
 import {on} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
-import {upload} from 'interface/utils/export/upload';
-import {download} from 'interface/utils/export/download';
+import {upload} from 'interface/utils/project/upload';
+import {download} from 'interface/utils/project/download';
 
 import type {EventProjectBuild} from 'types/events';
 
