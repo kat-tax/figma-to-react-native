@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {encodeUTF8} from 'backend/encoder';
+import {encodeUTF8} from 'common/encoder';
 import {blake2sHex} from 'blakejs';
 import {createIdentifierPascal} from 'common/string';
 import {
@@ -11,7 +11,7 @@ import {
   getCustomReaction,
   getCollectionByName,
   // getPressReaction,
-} from 'backend/parser/lib';
+} from 'backend/fig/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
@@ -114,7 +114,7 @@ function writeChild(
     // Explicit icon, use Icon component directly
     } else {
       writer.writeLine(`<Icon name="${child.node.name}" size={${child.node.width}} style={${style}}/>`);
-      state.flags.exo.Icon = true;
+      state.flags.exoIcon.Icon = true;
     }
     return;
   }
@@ -182,7 +182,7 @@ function writeChild(
     jsxTag = createIdentifierPascal(instance.main.name);
     jsxTagWithProps = jsxTag + jsxCustomProps + jsxBaseProps + testID;
     if (jsxTagWithProps.includes('<Icon'))
-      state.flags.exo.Icon = true;
+      state.flags.exoIcon.Icon = true;
   // Create primitive tag
   } else {
     const styles = slug ? ` style={${getStyleProp(slug, isRootPressable)}}` : '';

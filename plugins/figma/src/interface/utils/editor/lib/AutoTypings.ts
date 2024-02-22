@@ -8,8 +8,8 @@ const versions =  {
   '@types/react': '17.0.2',
   '@types/prop-types': '15.7.11',
   'csstype': '3.1.3',
+  'react-exo/variants': '0.10.1',
   'react-native': '0.73.3',
-  'react-native-exo': '0.9.11',
   'react-native-svg': '13.14.0',
   'react-native-unistyles': '2.1.1',
 };

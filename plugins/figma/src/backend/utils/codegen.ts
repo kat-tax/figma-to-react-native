@@ -1,4 +1,4 @@
-import {generateBundle, generateTokens} from 'backend/generator';
+import {generateBundle, generateTokens} from 'backend/gen';
 import * as config from 'backend/config';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {

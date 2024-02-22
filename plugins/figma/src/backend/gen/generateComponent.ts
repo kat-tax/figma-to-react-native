@@ -4,15 +4,16 @@ import {writeImports} from './lib/writeImports';
 import {writeFunction} from './lib/writeFunction';
 import {writeStyleSheet} from './lib/writeStyleSheet';
 
+import type {ImportFlags} from './lib/writeImports';
 import type {ProjectSettings} from 'types/settings';
 import type {ParseData} from 'types/parse';
-import type {ImportFlags} from './lib/writeImports';
 
-export function generateCode(data: ParseData, settings: ProjectSettings) {
+export function generateComponent(data: ParseData, settings: ProjectSettings) {
   const head = new CodeBlockWriter(settings?.writer);
   const body = new CodeBlockWriter(settings?.writer);
   const flags: ImportFlags = {
-    exo: {},
+    exoVariants: {},
+    exoIcon: {},
     lingui: {},
     unistyles: {},
     react: {},

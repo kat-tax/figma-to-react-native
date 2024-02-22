@@ -4,17 +4,19 @@ import {createIdentifierPascal} from 'common/string';
 import type {ParseData} from 'types/parse';
 
 export interface ImportFlags {
-  exo: {
-    useVariants?: boolean,
+  exoIcon: {
     Icon?: boolean,
   },
-  lingui: {
-    t?: boolean,
-    Trans?: boolean,
+  exoVariants: {
+    useVariants?: boolean,
   },
   unistyles: {
     useStyles?: boolean,
     createStyleSheet?: boolean,
+  },
+  lingui: {
+    t?: boolean,
+    Trans?: boolean,
   },
   react: {
     useMemo?: boolean,
@@ -54,7 +56,8 @@ export function writeImports(
   // Packages
   writeImport('react', flags.react);
   writeImport('react-native-unistyles', flags.unistyles);
-  writeImport('react-native-exo', flags.exo);
+  writeImport('react-exo/variants', flags.exoVariants);
+  writeImport('react-exo/icon', flags.exoIcon);
   writeImport('react-native', flags.reactNative);
   writeImport('@lingui/macro', flags.lingui);
 
@@ -88,7 +91,7 @@ export function writeImports(
         writer.write(`import ${asset.name} from`);
         writer.space();
         const base = `assets/${asset.isVector ? 'svgs' : 'images'}`;
-        const path = `${base}/${asset.name}.${asset.isVector ? 'svg' : 'png'}`;
+        const path = `${base}/${asset.name.toLowerCase()}.${asset.isVector ? 'svg' : 'png'}`;
         writer.quote(path);
         writer.write(';');
         writer.newLine();

@@ -1,6 +1,6 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment} from 'react';
 import {Toolbar, ToolbarButton} from '@blocknote/react';
-import {emit} from '@create-figma-plugin/utilities';
 
 import type {EventFocusNode} from 'types/events';
 

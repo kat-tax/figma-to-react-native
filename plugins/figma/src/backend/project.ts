@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getComponentTargets} from 'backend/parser/lib';
-import {generateBundle, generateIndex, generateTokens} from 'backend/generator';
+import {getComponentTargets} from 'backend/fig/lib';
+import {generateBundle, generateIndex, generateTokens} from 'backend/gen';
 import {F2RN_PROJECT_RELEASE} from 'config/env';
 import {generateToken} from 'common/random';
 import defaultReleaseConfig from 'config/release';

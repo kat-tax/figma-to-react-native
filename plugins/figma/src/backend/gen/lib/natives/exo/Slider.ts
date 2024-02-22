@@ -1,4 +1,4 @@
-import {getFillToken} from 'backend/parser/lib';
+import {getFillToken} from 'backend/fig/lib';
 
 export function Slider(component: ComponentNode) {
   const nodeRange = component.findOne(c => c.name === 'Range' && c.type === 'RECTANGLE') as RectangleNode;
@@ -32,7 +32,7 @@ export const template = (_: {
   fillThumb: string,
   importStyles: string,
 }) => `
-import {Slider as SliderBase} from 'react-native-exo';
+import {Slider as SliderBase} from 'react-exo/slider';
 ${_.importStyles}
 export interface SliderProps {
   ${props.map(p => p.join(': ')).join(',\n  ')}

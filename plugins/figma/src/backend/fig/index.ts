@@ -1,5 +1,5 @@
-import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'backend/parser/lib';
-import {getAssets, getStyleSheet, getColorSheet, validate} from './lib';
+import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'backend/fig/lib';
+import {getAssets, getPage, getFillToken, getStyleSheet, getColorSheet, validate} from './lib';
 import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
@@ -92,6 +92,18 @@ function crawlChildren(
     // Record nodes with styles
     if (NODES_WITH_STYLES.includes(node.type) && !node.isAsset) {
       meta.styleNodes.add(node.id);
+    }
+
+    // Record icon styles
+    if (node.name.includes(':')
+      && getPage((node as InstanceNode).mainComponent)?.name === 'Icons') {
+      //meta.styleNodes.add((node as ChildrenMixin).children[0].id);
+      const iconVector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
+      const iconColor = getFillToken(iconVector);
+      console.log(iconColor, iconVector);
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      // TODO: remove the existing colors system and tie in icons to the style variant system
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     // Handle other nodes

@@ -49,7 +49,7 @@ export async function preview(options: PreviewOptions) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
       const folder = asset.isVector ? 'svgs' : 'images';
-      const path = `/assets/${folder}/${asset.name}.${ext}`;
+      const path = `/assets/${folder}/${asset.name.toLowerCase()}.${ext}`;
       files.set(path, asset.bytes);
     } catch (e) {
       notify(e, `Failed to build preview asset: ${asset.name}`);

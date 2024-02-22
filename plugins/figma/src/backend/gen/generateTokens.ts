@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
-import {getColor, getCollectionModes} from 'backend/parser/lib';
+import {getColor, getCollectionModes} from 'backend/fig/lib';
 
 import type {ProjectSettings} from 'types/settings';
 

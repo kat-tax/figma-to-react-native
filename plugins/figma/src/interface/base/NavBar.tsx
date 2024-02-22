@@ -1,9 +1,9 @@
 import {useEffect, useState, Fragment} from 'react';
 import {useWindowSize} from '@uidotdev/usehooks';
-import {Bar, Link} from 'interface/base/Tabs';
-import {SearchBar} from 'interface/base/SearchBar';
 import {patch, actions} from 'interface/utils/editor/lib/Experimental';
 import {titleCase} from 'common/string';
+import {Bar, Link} from 'interface/base/Tabs';
+import {SearchBar} from 'interface/base/SearchBar';
 
 import * as F from 'figma-ui';
 
@@ -16,8 +16,8 @@ interface NavBarProps {
   tabs: AppTabs,
   build: ComponentBuild,
   isVSCode: boolean,
-  searchQuery: string,
   searchMode: boolean,
+  searchQuery: string,
   setSearchQuery: React.Dispatch<string>,
   setSearchMode: React.Dispatch<boolean>,
 }

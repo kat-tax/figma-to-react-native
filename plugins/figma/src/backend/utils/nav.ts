@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getSelectedComponent} from 'backend/parser/lib';
+import {getSelectedComponent} from 'backend/fig/lib';
 import {F2RN_NAVIGATE} from 'config/env';
 
 import type {AppPages} from 'types/app';

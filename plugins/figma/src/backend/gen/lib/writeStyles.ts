@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getPropName} from 'backend/parser/lib';
+import {getPropName} from 'backend/fig/lib';
 
 import type {ParseStyles, ParseVariantData} from 'types/parse';
 import type {ImportFlags} from './writeImports';
@@ -15,7 +15,7 @@ export function writeStyles(
   const hasColors = hasVariants && Object.keys(variants.fills).length > 0;
 
   // Import flags
-  flags.exo.useVariants = hasStyles || hasColors;
+  flags.exoVariants.useVariants = hasStyles || hasColors;
   flags.unistyles.useStyles = true;
 
   // No variants
@@ -65,11 +65,6 @@ export function writeStyles(
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
   writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
-  writer.writeLine(`const {vstyles, vcolors} = useVariants(${name}Variants, {`).indent(() => {
-    writer.writeLine(`current: {${props}},`);
-    writer.writeLine('design: {styles, theme},');
-  });
-
-  writer.write(`});`);
+  writer.writeLine(`const {vstyles} = useVariants(${name}Variants, {${props}}, styles);`);
   writer.blankLine();
 }

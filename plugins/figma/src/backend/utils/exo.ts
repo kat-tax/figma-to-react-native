@@ -1,5 +1,5 @@
-import {focusNode, isNodeIcon} from 'backend/parser/lib';
-import {getIconComponentMap} from 'backend/icons';
+import {focusNode, isNodeIcon} from 'backend/fig/lib';
+import {getIconComponentMap} from 'backend/utils/icons';
 
 type ExoComponents = Record<string, {
   list: Record<string, [string, boolean, number, number]>,

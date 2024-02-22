@@ -41,10 +41,9 @@ const tabs: AppTabs = {
     'components',
     'icons',
     'tokens',
-    // WIP
     //'assets',
     //'fonts',
-    //'docs',
+   // 'docs',
     'export',
     'settings',
   ],
@@ -52,6 +51,7 @@ const tabs: AppTabs = {
     'code',
     'preview',
     'story',
+    //'docs',
   ],
 };
 
@@ -85,7 +85,7 @@ export function App(props: AppProps) {
 
   // Start style gen server
   useStyleGenServer();
-  
+
   // Go to overview when viewing a component that doesn't exist
   useEffect(() => {
     if (!componentKey && nav.component) {

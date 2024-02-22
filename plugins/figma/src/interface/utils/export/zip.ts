@@ -48,7 +48,7 @@ export async function zip(project: ProjectBuild, release: ProjectRelease) {
       const type = isVector ? 'image/svg+xml' : 'image/png';
       const folder = isVector ? 'svgs' : 'images';
       const blob = new Blob([bytes], {type});
-      tpl.addBlob(`${cwd}/assets/${folder}/${name}.${ext}`, blob);
+      tpl.addBlob(`${cwd}/assets/${folder}/${name.toLowerCase()}.${ext}`, blob);
     });
   }
 

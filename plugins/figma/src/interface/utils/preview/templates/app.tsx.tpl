@@ -2,7 +2,7 @@
 
 import {AppRegistry} from 'react-native';
 import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
-import {Icon} from 'react-native-exo';
+import {Icon} from 'react-exo/icon';
 import {Logtail} from '@logtail/browser';
 import {themes, breakpoints} from 'theme';
 

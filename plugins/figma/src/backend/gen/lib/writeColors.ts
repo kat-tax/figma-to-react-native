@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
-import {getPropName} from 'backend/parser/lib';
+import {getPropName} from 'backend/fig/lib';
 
 import type {ParseData} from 'types/parse';
 import type {ImportFlags} from './writeImports';

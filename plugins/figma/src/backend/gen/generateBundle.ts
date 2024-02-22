@@ -1,11 +1,11 @@
-import parseFigmaComponent from 'backend/parser';
-import {getPropsJSX, getPage} from 'backend/parser/lib';
+import parseFigmaComponent from 'backend/fig';
+import {getPropsJSX, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 
-import {generateNatives} from './lib/natives';
+import {generateComponent} from './generateComponent';
 import {generateIndex} from './generateIndex';
-import {generateCode} from './generateCode';
 import {generateStory} from './generateStory';
+import {generateNatives} from './lib/natives';
 
 import type {ComponentData, ComponentLinks} from 'types/component';
 import type {ProjectSettings} from 'types/settings';
@@ -26,7 +26,7 @@ const emptyBundle: ComponentData = {
   icons: [],
 };
 
-export async function generateData(
+export async function generateBundle(
   target: ComponentNode,
   settings: ProjectSettings,
 ): Promise<ComponentData> {
@@ -89,7 +89,7 @@ export async function generateData(
   const name = createIdentifierPascal(masterNode.name);
   const page = getPage(masterNode)?.name;
   const props = getPropsJSX({...propDefs}, data.colorsheet, data.meta.includes);
-  const code = generateCode(data, settings);
+  const code = generateComponent(data, settings);
   const index = generateIndex(new Set<string>().add(name), settings);
   const story = generateStory(target, isVariant, propDefs, settings);
   const assets = Object.values(data.assetData);

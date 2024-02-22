@@ -1,16 +1,16 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getAllIconComponents} from 'backend/icons';
-import {getComponentTargets, getComponentTarget, getCollectionModes, getPage} from 'backend/parser/lib';
+import {getAllIconComponents} from 'backend/utils/icons';
+import {getComponentTargets, getComponentTarget, getCollectionModes, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
 import {wait} from 'common/delay';
 import * as config from 'backend/config';
 
-import {generateData} from './generateData';
-import {generateCode} from './generateCode';
+import {generateBundle as gen} from './generateBundle';
 import {generateIndex} from './generateIndex';
 import {generateStory} from './generateStory';
 import {generateTokens} from './generateTokens';
+import {generateComponent} from './generateComponent';
 
 import type {ProjectSettings} from 'types/settings';
 import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventSelectVariant} from 'types/events';
@@ -18,7 +18,7 @@ import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} fro
 
 const _cache: Record<string, ComponentData> = {};
 
-export {generateCode, generateIndex, generateStory, generateTokens};
+export {generateComponent, generateIndex, generateStory, generateTokens};
 
 export async function generateBundle(
   node: ComponentNode,
@@ -52,7 +52,7 @@ export async function generateBundle(
 
   //console.log('[cache/hit]', node.name);
 
-  const bundle: ComponentData = await generateData(node, instanceSettings);
+  const bundle: ComponentData = await gen(node, instanceSettings);
   _cache[node.key] = bundle;
 
   return {bundle, cached: false};
