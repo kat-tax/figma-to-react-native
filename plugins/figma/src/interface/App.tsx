@@ -3,9 +3,6 @@ import {useState, useEffect} from 'react';
 import {NavBar} from 'interface/base/NavBar';
 import {Tabs, Tab} from 'interface/base/Tabs';
 
-import {ComponentCode} from 'interface/views/ComponentCode';
-import {ComponentStory} from 'interface/views/ComponentStory';
-import {ComponentPreview} from 'interface/views/ComponentPreview';
 import {ProjectComponents} from 'interface/views/ProjectComponents';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {ProjectIcons} from 'interface/views/ProjectIcons';
@@ -13,6 +10,11 @@ import {ProjectTheme} from 'interface/views/ProjectTheme';
 import {ProjectDocs} from 'interface/views/ProjectDocs';
 import {ProjectExport} from 'interface/views/ProjectExport';
 import {ProjectSettings} from 'interface/views/ProjectSettings';
+
+import {ComponentCode} from 'interface/views/ComponentCode';
+import {ComponentDocs} from 'interface/views/ComponentDocs';
+import {ComponentStory} from 'interface/views/ComponentStory';
+import {ComponentPreview} from 'interface/views/ComponentPreview';
 
 import {useBuild} from 'interface/hooks/useBuild';
 import {useEditor} from 'interface/hooks/useEditor';
@@ -41,17 +43,17 @@ const tabs: AppTabs = {
     'components',
     'icons',
     'tokens',
+    //'docs',
     //'assets',
     //'fonts',
-   // 'docs',
     'export',
     'settings',
   ],
   component: [
-    'code',
-    'preview',
-    'story',
-    //'docs',
+    'component/code',
+    'component/preview',
+    'component/story',
+    'component/docs',
   ],
 };
 
@@ -96,7 +98,6 @@ export function App(props: AppProps) {
   return isReady ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
       <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
-      {/* Project */}
       <Tab value="components">
         <ProjectComponents {...{build, nav, iconSet, isReadOnly, hasIcons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
@@ -118,15 +119,17 @@ export function App(props: AppProps) {
       <Tab value="settings">
         <ProjectSettings {...{options, monaco, settings}}/>
       </Tab>
-      {/* Component */}
-      <Tab value="code">
+      <Tab value="component/code">
         <ComponentCode {...{componentKey, build, options, monaco}}/>
       </Tab>
-      <Tab value="preview">
+      <Tab value="component/preview">
         <ComponentPreview {...{componentKey, variant, build, theme, language, settings: settings.config}}/>
       </Tab>
-      <Tab value="story">
+      <Tab value="component/story">
         <ComponentStory {...{componentKey, options, monaco}}/>
+      </Tab>
+      <Tab value="component/docs">
+        <ComponentDocs {...{componentKey, options, monaco}}/>
       </Tab>
     </Tabs>
   ) : (

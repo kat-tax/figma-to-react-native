@@ -54,7 +54,8 @@ export function writeFunction(
     // Write component JSX
     writer.write(`return (`).indent(() => {
       const tag = isPressable ? 'Pressable' : 'View';
-      const props = isPressable ? ` {...props}` : ' testID={props.testID}';
+      const testId = ` testID={props.testID ?? "${masterNode.id}"}`;
+      const props = isPressable ? `${testId} {...props}` : testId;
       const style = ` style={${getStyleProp('root', isPressable, true)}}`;
 
       // Import flags

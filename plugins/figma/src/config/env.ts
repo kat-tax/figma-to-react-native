@@ -1,4 +1,4 @@
-export const F2RN_UI_WIDTH_MIN = 249;
+export const F2RN_UI_WIDTH_MIN = 300;
 
 export const F2RN_STYLEGEN_API = 'https://f2rn.deno.dev';
 export const F2RN_EXO_REPO_ZIP = 'https://codeload.github.com/kat-tax/exo/zip/refs/heads/master';

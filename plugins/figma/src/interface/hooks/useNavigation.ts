@@ -18,9 +18,7 @@ export function useNavigation(build: ComponentBuild) {
   const [component, setComponent] = useState<string | null>(null);
 
   const isComponentTab = (tab: AppPages) =>
-       tab === 'code'
-    || tab === 'preview'
-    || tab === 'story';
+    tab.startsWith('component/');
 
   const gotoOverview = () => {
     setTab('components');
@@ -39,7 +37,7 @@ export function useNavigation(build: ComponentBuild) {
     if (build?.roster?.[key] !== undefined) {
       setComponent(key);
       if (!isComponentTab(tab))
-        setTab('code');
+        setTab('component/code');
     }
   }), [build, tab]);
 

@@ -1,20 +1,23 @@
 import supabase from 'interface/services/supabase';
-import {zip} from './zip';
+import {create} from './create';
 
 import type {ProjectBuild, ProjectRelease} from 'types/project';
 
 export async function upload(build: ProjectBuild, release: ProjectRelease) {
-  const contents = await zip(build, release);
-  const pkg = release.packageName || '';
-  const ver = release.packageVersion || '0.0.0';
-  const counts = `${build.components.length}__${build.assets.length}`;
-  const name = `${ver}__${counts}__${btoa(build.name)}__${btoa(pkg)}`;
-  const path = `${release.apiKey}/${release.docKey}/${name}.zip`;
+  const project = await create(build, release);
+  
+  const name = release.packageName || '';
+  const version = release.packageVersion || '0.0.0';
+  const fileInfo = `${build.components.length}__${build.assets.length}`;
+  const fileName = `${version}__${fileInfo}__${btoa(build.name)}__${btoa(name)}`;
+  const filePath = `${release.apiKey}/${release.docKey}/${fileName}.zip`;
+  
   const {data, error} = await supabase
     .storage
     .from('releases')
-    .upload(path, contents, {
+    .upload(filePath, project, {
       contentType: 'application/zip',
     });
+
   console.debug('[service/upload]', data, error);
 }

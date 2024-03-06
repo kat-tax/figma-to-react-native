@@ -16,7 +16,7 @@
     "generate:figma-ui": "pnpm --filter ./packages/figma-ui run build",
     "generate:figma-build": "pnpm --filter ./packages/figma-build run build",
     "generate:figma-schema": "pnpm --filter ./plugins/figma run schema",
-    "postinstall": "concurrently pnpm:generate:* && concurrently pnpm:build:*"
+    "_postinstall": "concurrently pnpm:generate:* && concurrently pnpm:build:*"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

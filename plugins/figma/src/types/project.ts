@@ -14,7 +14,7 @@ export interface ProjectIcons {
 }
 
 export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;
-export type ProjectBuildComponents = Array<[string, string, string, string]>;
+export type ProjectBuildComponents = Array<[string, string, string, string, string]>;
 
 export interface ProjectRelease {
   method: ProjectExportMethod,
@@ -25,6 +25,16 @@ export interface ProjectRelease {
   packageVersion: string,
   enableAssetOptimizations: boolean,
   includeAssets: boolean,
+  links?: ProjectLinks,
+}
+
+export interface ProjectLinks {
+  documentation?: string,
+  storybook?: string,
+  discord?: string,
+  github?: string,
+  figma?: string,
+  x?: string,
 }
 
 export type ProjectExportScope = 'document' | 'page' | 'selected';

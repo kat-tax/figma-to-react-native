@@ -4,11 +4,21 @@ import {createIdentifierPascal} from 'common/string';
 import type {ParseData} from 'types/parse';
 
 export interface ImportFlags {
-  exoIcon: {
-    Icon?: boolean,
+  react: {
+    useMemo?: boolean,
+    useState?: boolean,
+    cloneElement?: boolean,
   },
-  exoVariants: {
-    useVariants?: boolean,
+  reactNative: {
+    View?: boolean,
+    Text?: boolean,
+    Pressable?: boolean,
+    TextInput?: boolean,
+  },
+  reactNativeTypes: {
+    PressableProps?: boolean,
+    GestureResponderEvent?: boolean,
+    PressableStateCallbackType?: boolean,
   },
   unistyles: {
     useStyles?: boolean,
@@ -18,22 +28,23 @@ export interface ImportFlags {
     t?: boolean,
     Trans?: boolean,
   },
-  react: {
-    useMemo?: boolean,
-    useState?: boolean,
-    cloneElement?: boolean,
+  exoIcon: {
+    Icon?: boolean,
   },
-  reactNative: {
-    View?: boolean,
-    Text?: boolean,
+  exoImage: {
     Image?: boolean,
-    Pressable?: boolean,
-    TextInput?: boolean,
   },
-  reactNativeTypes: {
-    PressableProps?: boolean,
-    GestureResponderEvent?: boolean,
-    PressableStateCallbackType?: boolean,
+  exoVideo: {
+    Video?: boolean,
+  },
+  exoLottie: {
+    Lottie?: boolean,
+  },
+  exoRive: {
+    Rive?: boolean,
+  },
+  exoVariants: {
+    useVariants?: boolean,
   },
 }
 
@@ -57,8 +68,12 @@ export function writeImports(
   writeImport('react', flags.react);
   writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-exo/variants', flags.exoVariants);
-  writeImport('react-exo/icon', flags.exoIcon);
   writeImport('react-native', flags.reactNative);
+  writeImport('react-exo/icon', flags.exoIcon);
+  writeImport('react-exo/image', flags.exoImage);
+  writeImport('react-exo/video', flags.exoVideo);
+  writeImport('react-exo/rive', flags.exoRive);
+  writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('@lingui/macro', flags.lingui);
 
   // TODO: aria hooks for each primitive

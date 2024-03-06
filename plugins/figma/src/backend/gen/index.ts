@@ -7,18 +7,25 @@ import {wait} from 'common/delay';
 import * as config from 'backend/config';
 
 import {generateBundle as gen} from './generateBundle';
+import {generateComponent} from './generateComponent';
+import {generateTokens} from './generateTokens';
 import {generateIndex} from './generateIndex';
 import {generateStory} from './generateStory';
-import {generateTokens} from './generateTokens';
-import {generateComponent} from './generateComponent';
+import {generateDocs} from './generateDocs';
 
 import type {ProjectSettings} from 'types/settings';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventSelectVariant} from 'types/events';
 import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventSelectVariant} from 'types/events';
 
 const _cache: Record<string, ComponentData> = {};
 
-export {generateComponent, generateIndex, generateStory, generateTokens};
+export {
+  generateComponent,
+  generateTokens,
+  generateIndex,
+  generateStory,
+  generateDocs,
+};
 
 export async function generateBundle(
   node: ComponentNode,

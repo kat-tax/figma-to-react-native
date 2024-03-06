@@ -2,10 +2,11 @@ import parseFigmaComponent from 'backend/fig';
 import {getPropsJSX, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 
+import {generateNatives} from './lib/natives';
 import {generateComponent} from './generateComponent';
 import {generateIndex} from './generateIndex';
 import {generateStory} from './generateStory';
-import {generateNatives} from './lib/natives';
+import {generateDocs} from './generateDocs';
 
 import type {ComponentData, ComponentLinks} from 'types/component';
 import type {ProjectSettings} from 'types/settings';
@@ -16,9 +17,10 @@ const emptyBundle: ComponentData = {
   page: '',
   name: '',
   props: '',
-  index: '',
   code: '',
+  index: '',
   story: '',
+  docs: '',
   width: 0,
   height: 0,
   links: {},
@@ -92,23 +94,29 @@ export async function generateBundle(
   const code = generateComponent(data, settings);
   const index = generateIndex(new Set<string>().add(name), settings);
   const story = generateStory(target, isVariant, propDefs, settings);
+  const docs = generateDocs(target, isVariant, propDefs, settings);
   const assets = Object.values(data.assetData);
   const icons = Array.from(data.meta.iconsUsed);
 
   // Return bundle
   return {
+    // Info
     id,
     key,
     name,
     page,
     props,
-    width,
-    height,
-    links,
-    icons,
-    assets,
+    // Text
     code,
     index,
     story,
+    docs,
+    // Rect
+    width,
+    height,
+    // Data
+    links,
+    assets,
+    icons,
   };
 }

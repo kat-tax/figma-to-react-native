@@ -30,6 +30,7 @@ export type ComponentData = {
   code: string,
   index: string,
   story: string,
+  docs: string,
   width: number,
   height: number,
   icons: string[],

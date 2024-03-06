@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {sortProps, getPropName} from 'backend/fig/lib';
+import {sortProps, getPropName, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal} from 'common/string';
 
 import type {ProjectSettings} from 'types/settings';
@@ -14,6 +14,7 @@ export function generateStory(
   const masterNode = isVariant ? target.parent : target;
   const componentName = createIdentifierPascal(masterNode.name);
   const componentProps = props ? Object.entries(props) : [];
+  const componentPage = getPage(target);
 
   // Import Component
   writer.write(`import {${componentName} as Component} from`);
@@ -58,7 +59,7 @@ export function generateStory(
   writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
     writer.write('title:');
     writer.space();
-    writer.quote(isVariant ? target.parent.name : target.name);
+    writer.quote(componentPage.name + '/' + (isVariant ? target.parent.name : target.name));
     writer.write(',');
     writer.newLine();
     writer.writeLine('component: Component,');

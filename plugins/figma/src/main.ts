@@ -15,7 +15,7 @@ import * as exo from 'backend/utils/exo';
 import type * as T from 'types/events';
 import type {AppPages} from 'types/app';
 
-let _page: AppPages = 'code';
+let _page: AppPages = 'components';
 
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
@@ -44,7 +44,7 @@ export default async function() {
   // Wait for interface to be ready
   once<T.EventAppReady>('APP_READY', async () => {
     // Load current page from storage
-    _page = await nav.loadCurrentPage() || 'code';
+    _page = await nav.loadCurrentPage() || 'component/code';
 
     // Update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {

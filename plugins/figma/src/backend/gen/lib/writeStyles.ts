@@ -64,7 +64,7 @@ export function writeStyles(
   // Write hooks
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
-  writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
+  writer.writeLine(`const {styles} = useStyles(stylesheet);`);
   writer.writeLine(`const {vstyles} = useVariants(${name}Variants, {${props}}, styles);`);
   writer.blankLine();
 }

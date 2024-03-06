@@ -88,13 +88,23 @@ export function setComponentIndex(key: string, code: string) {
   text.insert(0, code);
 }
 
+export function getComponentStory(key: string) {
+  const text = doc.getText(`story::${key}`);
+  return text.toString();
+}
+
 export function setComponentStory(key: string, code: string) {
   const text = doc.getText(`story::${key}`);
   text.delete(0, text.length)
   text.insert(0, code);
 }
 
-export function getComponentStory(key: string) {
-  const text = doc.getText(`story::${key}`);
-  return text.toString();
+export function getComponentDocs(key: string) {
+  return doc.getText(`docs::${key}`);
+}
+
+export function setComponentDocs(key: string, code: string) {
+  const text = doc.getText(`docs::${key}`);
+  text.delete(0, text.length)
+  text.insert(0, code);
 }

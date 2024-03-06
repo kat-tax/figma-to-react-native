@@ -4,14 +4,14 @@ import {F2RN_EDITOR_NS} from 'config/env';
 import type {SourceCache} from 'monaco-editor-auto-typings/custom-editor';
 import type {Monaco, Editor} from 'interface/utils/editor';
 
-const versions =  {
+const versions = {
   '@types/react': '17.0.2',
   '@types/prop-types': '15.7.11',
   'csstype': '3.1.3',
-  'react-exo/variants': '0.10.1',
+  'react-exo': '0.10.15',
   'react-native': '0.73.3',
-  'react-native-svg': '13.14.0',
-  'react-native-unistyles': '2.1.1',
+  'react-native-svg': '15.0.0',
+  'react-native-unistyles': '2.4.0',
 };
 
 export class AutoTypeCache implements SourceCache {
@@ -32,7 +32,7 @@ export class AutoTypeCache implements SourceCache {
   }
 
   async storeFile(uri: string, content: string) {
-    //console.log('[at-cache]', uri, content.length);
+    console.log('[at-cache]', uri, content.length);
     AutoTypeCache._.set(uri, content);
   }
 
@@ -51,6 +51,9 @@ export function init(monaco: Monaco, editor: Editor) {
     shareCache: true,
     preloadPackages: true,
     debounceDuration: 6000,
+    onError(error) {
+      console.error('[at-error]', error);
+    },
     fileRootPath: F2RN_EDITOR_NS,
   });
 }

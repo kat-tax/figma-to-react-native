@@ -1,6 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
 import {encodeUTF8} from 'common/encoder';
 import {blake2sHex} from 'blakejs';
+import {round} from 'common/number';
 import {createIdentifierPascal} from 'common/string';
 import {
   getPage,
@@ -127,12 +128,32 @@ function writeChild(
       if (asset.isVector) {
         const vectorTag = '<' + asset.name + '/>'
         writer.writeLine(vectorTag);
-      // Raster node
+      // Asset node
       } else {
-        const uri = asset.name;
-        const style = `{width: ${asset.width}, height: ${asset.height}}`;
-        writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} resizeMode="cover"/>`);
-        state.flags.reactNative.Image = true;
+        const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
+        const sizeProps = `style={{width: ${round(asset.width)}, height: ${round(asset.height)}}}`;
+        const animateProps = assetProps?.length
+          ? ' ' + assetProps.map(a => a.trim()).join(' ')
+          : ' autoplay loop';
+        switch (assetType.trim().toLowerCase()) {
+          case 'lottie':
+            writer.writeLine(`<Lottie url="${assetSource.trim()}"${animateProps} ${sizeProps}/>`);
+            state.flags.exoLottie.Lottie = true;
+            break;
+          case 'rive':
+            writer.writeLine(`<Rive url="${assetSource.trim()}"${animateProps} ${sizeProps}/>`);
+            state.flags.exoRive.Rive = true;
+            break;
+          default:
+            if (asset.isVideo) {
+              writer.writeLine(`<Video source="${assetSource.trim()}" poster={${asset.name}} ${sizeProps} resizeMode="cover"/>`);
+              state.flags.exoVideo.Video = true;
+            } else {
+              writer.writeLine(`<Image url={${asset.name}} ${sizeProps} resizeMode="cover"/>`);
+              state.flags.exoImage.Image = true;
+            }
+            break;
+        }
       }
     } else {
       writer.writeLine(`<View/>`);

@@ -46,7 +46,9 @@ export type ParseAssetData = Record<string, {
   width: number,
   height: number,
   bytes: Uint8Array | null,
+  rawName: string,
   isVector?: boolean,
+  isVideo?: boolean,
 }>;
 
 export type ParseMetaData = {

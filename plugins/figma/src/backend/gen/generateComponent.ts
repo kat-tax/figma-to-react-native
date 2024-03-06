@@ -12,13 +12,17 @@ export function generateComponent(data: ParseData, settings: ProjectSettings) {
   const head = new CodeBlockWriter(settings?.writer);
   const body = new CodeBlockWriter(settings?.writer);
   const flags: ImportFlags = {
-    exoVariants: {},
-    exoIcon: {},
-    lingui: {},
-    unistyles: {},
     react: {},
     reactNative: {},
     reactNativeTypes: {},
+    unistyles: {},
+    lingui: {},
+    exoVariants: {},
+    exoIcon: {},
+    exoImage: {},
+    exoVideo: {},
+    exoLottie: {},
+    exoRive: {},
   };
 
   writeFunction(body, flags, data, settings);

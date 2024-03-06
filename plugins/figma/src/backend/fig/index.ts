@@ -4,7 +4,7 @@ import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
 
-const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'SECTION', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
+const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
 export default async function(component: ComponentNode): Promise<ParseData> {
   // Make sure component can be processed
@@ -98,9 +98,9 @@ function crawlChildren(
     if (node.name.includes(':')
       && getPage((node as InstanceNode).mainComponent)?.name === 'Icons') {
       //meta.styleNodes.add((node as ChildrenMixin).children[0].id);
-      const iconVector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
-      const iconColor = getFillToken(iconVector);
-      console.log(iconColor, iconVector);
+      //const iconVector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
+      //const iconColor = getFillToken(iconVector);
+      //console.log(iconColor, iconVector);
       // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       // TODO: remove the existing colors system and tie in icons to the style variant system
       // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -110,6 +110,7 @@ function crawlChildren(
     switch (node.type) {
       // Container, recurse
       case 'FRAME':
+      case 'GROUP':
       case 'COMPONENT':
         const sub = crawlChildren(node.children, dict, [], meta);
         meta.components = {...meta.components, ...sub.meta.components};

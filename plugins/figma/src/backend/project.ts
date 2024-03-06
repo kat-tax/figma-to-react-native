@@ -55,7 +55,7 @@ export function build(release: ProjectRelease) {
           const {bundle} = await generateBundle(component, config.state);
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
-            components.push([bundle.name, bundle.index, bundle.code, bundle.story]);
+            components.push([bundle.name, bundle.index, bundle.code, bundle.story, bundle.docs]);
             names.add(bundle.name);
             // console.log('[project/bundle]', bundle);
           }

@@ -130,8 +130,8 @@ iframe {
   padding-left: 6px;
 }
 
-.tab-bar-nav .tab[title="Component Story"] {
-  margin-right: 6px;
+.tab-bar-nav .tab[title="Component Docs"] {
+  margin-right: 13px;
 }
 
 .tab {

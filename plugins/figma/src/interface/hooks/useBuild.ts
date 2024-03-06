@@ -28,6 +28,7 @@ export function useBuild(): ComponentBuild {
       $.setComponentCode(component.key, component.code);
       $.setComponentIndex(component.key, component.index);
       $.setComponentStory(component.key, component.story);
+      $.setComponentDocs(component.key, component.docs);
       Object.values(build.assets).forEach(asset =>
         $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes));
       const {id, key, name, page, props, width, height} = component;

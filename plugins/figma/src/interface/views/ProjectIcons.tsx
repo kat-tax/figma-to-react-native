@@ -138,8 +138,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
   return (
     <Fragment>
       <VirtuosoGrid
-        overscan={200}
         style={{height: '100%'}}       
+        overscan={200}
         totalCount={list.length}
         itemContent={i => (
           <Fragment>

@@ -30,6 +30,10 @@ export async function getAssets(nodes: Set<string>): Promise<{
       const isVector = VECTOR_NODE_TYPES.includes(node.type)
         || (node.findAllWithCriteria
           && node.findAllWithCriteria({types: VECTOR_NODE_TYPES})?.length > 0);
+
+      const isVideo = node.type === 'EMBED'
+        || (node.findAllWithCriteria
+          && node.findAllWithCriteria({types: ['EMBED']})?.length > 0);
       
       const identifier = isVector
         ? createIdentifierPascal(node.name)
@@ -53,12 +57,23 @@ export async function getAssets(nodes: Set<string>): Promise<{
           : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
       }
 
+      const rawName = node.name;
       const name = count > 1 ? `${identifier}${count}` : identifier;
       const data = bytes || embed;
       const hash = bytes ? blake2sHex(data) : '';
       const {width, height} = node;
-      assetData[id] = {width, height, name, hash, embed, bytes, isVector};
       assetMap[id] = hash;
+      assetData[id] = {
+        width,
+        height,
+        name,
+        hash,
+        embed,
+        bytes,
+        rawName,
+        isVector,
+        isVideo,
+      };
     }
   } catch (err) {
     console.error('[assets] Failed to convert', err);
