@@ -23,7 +23,7 @@ export async function create(project: ProjectBuild, release: ProjectRelease) {
   // Rename EXO
   tpl.rename(project.name);
   zip.remove(tpl.getChildByName('package.json'));
-  
+
   // Configure EXO
   configureMonorepo(tpl, release);
   configureStorybook(tpl, links, project, release);
@@ -103,7 +103,7 @@ function configureStorybook(
     fontBase: 'Inter, sans-serif',
     base: 'dark',
   }, null, 2)));
-  
+
   tpl.addText('apps/storybook/common/pages/Get Started.mdx', [
     `# ${release.packageName || 'project'}`,
     ``,
@@ -120,57 +120,8 @@ function configureDocs(
   project: ProjectBuild,
   release: ProjectRelease,
 ) {
-  tpl.addText('apps/docs/pages/index.mdx', configVocsLanding
-    .replace('__PACKAGE__', release.packageName || 'project')
-    .replace('__GITHUB__', links.github));
-
-  tpl.addText('apps/docs/pages/getting-started.mdx', configVocsMainPage);
-
-  tpl.addText('apps/docs/config/brand/general.ts', configVocsGeneral.replace('__CONFIG__', JSON.stringify({
-    title: project.name,
-    font: { 
-      google: 'Inter',
-    },
-  }, null, 2)));
-
-  tpl.addText('apps/docs/config/brand/theme.ts', configVocsTheme.replace('__CONFIG__', JSON.stringify({
-    variables: {
-      color: {
-        background: { 
-          light: 'white', 
-          dark: 'black',
-        },
-      },
-    }
-  }, null, 2)));
-
-  tpl.addText('apps/docs/config/brand/topNav.ts', configVocsTopNav.replace('__CONFIG__', JSON.stringify([
-    {
-      text: 'Storybook',
-      link: links.storybook,
-    },
-    { 
-      text: `v${release.packageVersion || '0.0.1'}`, 
-      items: [
-        { 
-          text: 'Changelog', 
-          link: `${links.github}/blob/master/CHANGELOG.md`, 
-        },
-        { 
-          text: 'License', 
-          link: `${links.github}/blob/master/LICENSE.md`, 
-        }, 
-      ],
-    },
-  ], null, 2)));
-
-  tpl.addText('apps/docs/config/brand/socials.ts', configVocsSocials.replace('__CONFIG__', JSON.stringify([
-    {icon: 'github', link: links.github},
-    {icon: 'discord', link: links.discord},
-    {icon: 'x', link: links.x},
-  ], null, 2)));
-
-  tpl.addText('apps/docs/config/sidebar/lib.ts', configVocsSideBar.replace('__CONFIG__', JSON.stringify([
+  // TODO: build the doc index
+  const docIndex = [
     {
       text: 'Guides',
       collapsed: false,
@@ -229,7 +180,84 @@ function configureDocs(
         },
       ],
     },
+  ];
+
+  // Docs "landing" page
+  tpl.addText(
+    'apps/docs/pages/index.mdx', configVocsLanding
+    .replace('__PACKAGE__', release.packageName || 'project')
+    .replace('__GITHUB__', links.github)
+  );
+
+  // Docs "getting started" page
+  tpl.addText(
+    'apps/docs/pages/getting-started.mdx',
+    configVocsMainPage
+  );
+
+  // Docs config
+  tpl.addText(
+    'apps/docs/config/brand/general.ts',
+    configVocsGeneral.replace('__CONFIG__', JSON.stringify({
+      title: project.name,
+      font: {
+        google: 'Inter',
+      },
+    }, null, 2))
+  );
+
+  // Docs theming
+  tpl.addText(
+    'apps/docs/config/brand/theme.ts',
+    configVocsTheme.replace('__CONFIG__', JSON.stringify({
+      variables: {
+        color: {
+          background: {
+            light: 'white',
+            dark: 'black',
+          },
+        },
+      }
+    }, null, 2))
+  );
+
+  // Docs "top navigation" bar
+  tpl.addText(
+    'apps/docs/config/brand/topNav.ts',
+    configVocsTopNav.replace('__CONFIG__', JSON.stringify([
+    {
+      text: 'Storybook',
+      link: links.storybook,
+    },
+    {
+      text: `v${release.packageVersion || '0.0.1'}`,
+      items: [
+        {
+          text: 'Changelog',
+          link: `${links.github}/blob/master/CHANGELOG.md`,
+        },
+        {
+          text: 'License',
+          link: `${links.github}/blob/master/LICENSE.md`,
+        },
+      ],
+    },
   ], null, 2)));
+
+  // Docs "social" links
+  tpl.addText(
+    'apps/docs/config/brand/socials.ts',
+    configVocsSocials.replace('__CONFIG__', JSON.stringify([
+      {icon: 'github', link: links.github},
+      {icon: 'discord', link: links.discord},
+      {icon: 'x', link: links.x},
+    ], null, 2))
+  );
+
+  tpl.addText(
+    'apps/docs/config/sidebar/lib.ts',
+    configVocsSideBar.replace('__CONFIG__', JSON.stringify(docIndex, null, 2))
+  );
 }
 
 // Templates
@@ -277,7 +305,7 @@ import {HomePage} from 'vocs/components';
   </HomePage.Tagline>
   <HomePage.InstallPackage name="__PACKAGE__" type="install"/>
   <HomePage.Buttons>
-    <HomePage.Button href="/install" variant="accent">
+    <HomePage.Button href="/getting-started" variant="accent">
       Get started
     </HomePage.Button>
     <HomePage.Button href="__GITHUB__">
