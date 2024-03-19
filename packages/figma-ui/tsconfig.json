@@ -15,6 +15,7 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "removeComments": true,
+    "skipLibCheck": true,
     "types": [],
   }
 }
