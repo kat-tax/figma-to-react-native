@@ -1,5 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getAllIconComponents} from 'backend/utils/icons';
+import {COLLECTION_LANGUAGE} from 'backend/gen/lib/consts';
 import {getComponentTargets, getComponentTarget, getCollectionModes, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
@@ -80,7 +81,7 @@ export function watchTheme(settings: ProjectSettings) {
 export function watchLanguage() {
   let _lastLanguage = '';
   const updateLanguage = () => {
-    const language = getCollectionModes('Language');
+    const language = getCollectionModes(COLLECTION_LANGUAGE);
     if (!language || !language.current) return;
     const name = language.current.name;
     if (name === _lastLanguage) return;

@@ -1,10 +1,8 @@
 import {titleCase} from 'common/string';
 import {focusNode} from 'backend/fig/lib';
+import {COLLECTION_THEME, COLLECTION_PALLETE} from 'backend/gen/lib/consts';
 
 import type {ThemeColor, ThemeRadius, ThemePreset} from 'types/themes';
-
-export const COLLECTION_THEME = 'Theme';
-export const COLLECTION_PALLETE = 'Colors';
 
 export async function importTheme(color: ThemeColor, radius: ThemeRadius) {
   const preset = getPresetTokens(color);
