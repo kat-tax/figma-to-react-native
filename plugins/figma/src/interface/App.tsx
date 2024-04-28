@@ -42,7 +42,7 @@ const tabs: AppTabs = {
   main: [
     'components',
     'icons',
-    'tokens',
+    'theme',
     //'docs',
     //'assets',
     //'fonts',
@@ -104,7 +104,7 @@ export function App(props: AppProps) {
       <Tab value="icons">
         <ProjectIcons {...{icons, nav, build, isReadOnly, hasStyles, searchMode, searchQuery}}/>
       </Tab>
-      <Tab value="tokens">
+      <Tab value="theme">
         <ProjectTheme {...{options, monaco, hasStyles}}/>
       </Tab>
       <Tab value="assets">

@@ -53,7 +53,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   // Import EXO components
   const importComponents = async () => {
     if (!props.hasStyles) {
-      props.nav.gotoTab('tokens');
+      props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing EXO');
       return;
     }

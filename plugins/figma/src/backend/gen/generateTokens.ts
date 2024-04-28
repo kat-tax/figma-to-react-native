@@ -1,6 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
 import {getColor, getCollectionModes} from 'backend/fig/lib';
+import {COLLECTION_THEME, COLLECTION_PALLETE} from 'backend/themes';
 
 import type {ProjectSettings} from 'types/settings';
 
@@ -75,7 +76,7 @@ function writePallete(writer: CodeBlockWriter) {
 
 function writeThemes(writer: CodeBlockWriter) {
   let hasStyles = false;
-  const theme = getCollectionModes('Theme');
+  const theme = getCollectionModes(COLLECTION_THEME);
   writer.write('export const themes = ').inlineBlock(() => {
     // Theme variable collection found, write modes to themes
     if (theme) {
@@ -177,7 +178,7 @@ function getThemeTokenLocalStyles(): ThemeColors {
 
 function getThemeTokenVariables(themeId: string): ThemeColors {
   const colors: ThemeColors = {};
-  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === 'Theme');
+  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === COLLECTION_THEME);
   if (!collection) return colors;
   collection.variableIds
     .map(id => figma.variables.getVariableById(id))
@@ -199,7 +200,7 @@ function getColorTokenVariables(): ThemeColors {
   const colors: ThemeColors = {};
   const collection = figma.variables
     ?.getLocalVariableCollections()
-    ?.find(c => c.name === 'Colors');
+    ?.find(c => c.name === COLLECTION_PALLETE);
 
   if (!collection) return colors;
 

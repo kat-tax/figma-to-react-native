@@ -73,7 +73,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   // Import icons from Iconify into Figma
   const importIcons = async (prefix: string, name: string) => {
     if (!props.hasStyles) {
-      props.nav.gotoTab('tokens');
+      props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
       return;
     }

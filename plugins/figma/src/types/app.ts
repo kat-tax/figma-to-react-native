@@ -9,7 +9,7 @@ export type AppPagesMain =
   | 'components'
   | 'icons'
   | 'assets'
-  | 'tokens'
+  | 'theme'
   | 'fonts'
   | 'language'
   | 'docs'
