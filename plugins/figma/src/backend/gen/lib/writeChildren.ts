@@ -6,6 +6,7 @@ import {createIdentifierPascal} from 'common/string';
 import {COLLECTION_LANGUAGE} from 'backend/gen/lib/consts';
 import {
   getPage,
+  getTagName,
   getPropsJSX,
   getPropName,
   getFillToken,
@@ -83,7 +84,7 @@ function writeChild(
   const reaction = getCustomReaction(instance.node);
   // TODO: const pressable = getPressReaction(instance.node);
   const swapNodeProp = getPropName(propRefs?.mainComponent);
-  const jsxBaseProps = getPropsJSX(instance.node.componentProperties, data.colorsheet, data.meta.includes);
+  const jsxBaseProps = getPropsJSX(instance.node.componentProperties, data.meta.includes);
   const hasCustomProps = reaction?.type === 'URL';
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
@@ -132,25 +133,25 @@ function writeChild(
       // Asset node
       } else {
         const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
-        const sizeProps = `style={{width: ${round(asset.width)}, height: ${round(asset.height)}}}`;
-        const animateProps = assetProps?.length
+        const sizeProps = `width={${round(asset.width)}} height={${round(asset.height)}}`;
+        const animProps = assetProps?.length
           ? ' ' + assetProps.map(a => a.trim()).join(' ')
           : ' autoplay loop';
         switch (assetType.trim().toLowerCase()) {
           case 'lottie':
-            writer.writeLine(`<Lottie url="${assetSource.trim()}"${animateProps} ${sizeProps}/>`);
+            writer.writeLine(`<Lottie url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
             state.flags.exoLottie.Lottie = true;
             break;
           case 'rive':
-            writer.writeLine(`<Rive url="${assetSource.trim()}"${animateProps} ${sizeProps}/>`);
+            writer.writeLine(`<Rive url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
             state.flags.exoRive.Rive = true;
             break;
           default:
             if (asset.isVideo) {
-              writer.writeLine(`<Video source="${assetSource.trim()}" poster={${asset.name}} ${sizeProps} resizeMode="cover"/>`);
+              writer.writeLine(`<Video url="${assetSource.trim()}" poster={${asset.name}} ${sizeProps}/>`);
               state.flags.exoVideo.Video = true;
             } else {
-              writer.writeLine(`<Image url={${asset.name}} ${sizeProps} resizeMode="cover"/>`);
+              writer.writeLine(`<Image url={${asset.name}} ${sizeProps}/>`);
               state.flags.exoImage.Image = true;
             }
             break;
@@ -208,7 +209,7 @@ function writeChild(
   // Create primitive tag
   } else {
     const styles = slug ? ` style={${getStyleProp(slug, isRootPressable)}}` : '';
-    jsxTag = getReactNativeTag(child.node.type);
+    jsxTag = getTagName(child.node.type);
     jsxTagWithProps = jsxTag + styles + jsxCustomProps + jsxBaseProps + testID;
     state.flags.reactNative[jsxTag] = true;
   }
@@ -306,21 +307,5 @@ function translate(language: VariableCollection, value: string) {
     } catch (e) {
       console.log(`Unable to create language ${value}`, e);
     }
-  }
-}
-
-function getReactNativeTag(type: string): 'View' | 'Text' | 'Image' {
-  switch (type) {
-    case 'TEXT':
-      return 'Text';
-    case 'IMAGE':
-      return 'Image';
-    case 'COMPONENT':
-    case 'INSTANCE':
-    case 'RECTANGLE':
-    case 'ELLIPSE':
-    case 'FRAME':
-    default:
-      return 'View';
   }
 }

@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {sortProps, getPropName, getPage} from 'backend/fig/lib';
+import {writePropImports} from 'backend/gen/lib/writePropImports';
 import {createIdentifierPascal} from 'common/string';
 
 import type {ProjectSettings} from 'types/settings';
@@ -7,14 +8,28 @@ import type {ProjectSettings} from 'types/settings';
 export function generateStory(
   target: ComponentNode,
   isVariant: boolean,
-  props: ComponentPropertyDefinitions,
+  propDefs: ComponentPropertyDefinitions,
   settings: ProjectSettings,
 ) {
   const writer = new CodeBlockWriter(settings?.writer);
   const masterNode = isVariant ? target.parent : target;
   const componentName = createIdentifierPascal(masterNode.name);
-  const componentPage = getPage(target);
 
+  writeImports(writer, propDefs, componentName);
+  writer.blankLine();
+  writeMetaData(writer, target, isVariant);
+  writer.blankLine();
+  writeStories(writer, target, propDefs, isVariant, componentName);
+  writer.writeLine('export default meta;');
+
+  return writer.toString();
+}
+
+function writeImports(
+  writer: CodeBlockWriter,
+  propDefs: ComponentPropertyDefinitions,
+  componentName: string,
+) {
   // Import Component
   writer.write(`import {${componentName} as Component} from`);
   writer.space();
@@ -23,7 +38,7 @@ export function generateStory(
   writer.newLine();
     
   // Import Prop Components (if any)
-  writePropComponentImports(writer, props);
+  writePropImports(writer, propDefs);
 
   // Boilerplate
   writer.write('import type {StoryObj, Meta} from');
@@ -33,9 +48,14 @@ export function generateStory(
   writer.newLine();
   writer.blankLine();
   writer.writeLine('type Story = StoryObj<typeof Component>;');
-  writer.blankLine();
+}
 
-  // Metadata
+function writeMetaData(
+  writer: CodeBlockWriter,
+  target: ComponentNode,
+  isVariant: boolean,
+) {
+  const componentPage = getPage(target);
   writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
     writer.write('title:');
     writer.space();
@@ -45,68 +65,38 @@ export function generateStory(
     writer.writeLine('component: Component,');
   });
   writer.write(';');
-  writer.blankLine();
+}
 
+function writeStories(
+  writer: CodeBlockWriter,
+  target: ComponentNode,
+  propDefs: ComponentPropertyDefinitions,
+  isVariant: boolean,
+  componentName: string,
+) {
   // Single Story
   if (!isVariant) {
     writer.write(`export const ${componentName}: Story = `).inlineBlock(() =>
-      writeProps(writer, props));
+      writeProps(writer, propDefs));
     writer.write(';');
     writer.blankLine();
 
   // Multiple Stories (variants)
   } else {
-    let defaultVariantName: string;
-    target.parent.children.forEach((child: any) => {
-      const variantName = createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
-      writer.write(`export const ${variantName}: Story = `).inlineBlock(() => {
-        if (!defaultVariantName) defaultVariantName = variantName;
-        if (variantName === defaultVariantName) {
-          writeProps(writer, props);
+    let defaultVariant: string;
+    target.parent.children.forEach(child => {
+      const variant = createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
+      writer.write(`export const ${variant}: Story = `).inlineBlock(() => {
+        if (!defaultVariant) defaultVariant = variant;
+        if (variant === defaultVariant) {
+          writeProps(writer, propDefs);
         } else {
-          writePropsVariant(writer, props, variantName, defaultVariantName);
+          const props = Object.entries((child as VariantMixin).variantProperties);
+          writePropsVariant(writer, props, defaultVariant);
         }
       });
       writer.write(';');
       writer.blankLine();
-    });
-  }
-
-  // Default export
-  writer.writeLine('export default meta;');
-
-  return writer.toString();
-}
-
-// TODO: generalize instance swap imports
-function writePropComponentImports(
-  writer: CodeBlockWriter,
-  propDefs: ComponentPropertyDefinitions,
-) {
-  const props = propDefs ? Object.entries(propDefs) : [];
-  const components: ComponentNode[] = [];
-
-  // No props, no imports
-  if (props.length === 0) return;
-
-  // Look for sub-components in props
-  props?.sort(sortProps).forEach(([_key, prop]) => {
-    const {type, value, defaultValue}: any = prop;
-    if (type === 'INSTANCE_SWAP') {
-      const component = figma.getNodeById(value || defaultValue) as ComponentNode;
-      components.push(component);
-    }
-  });
-
-  // Loop through sub-components, import each one
-  if (components.length > 0) {
-    components.forEach((component) => {
-      const name = createIdentifierPascal(component.name);
-      writer.write(`import {${name}} from`);
-      writer.space();
-      writer.quote(`components/${name}`);
-      writer.write(';');
-      writer.newLine();
     });
   }
 }
@@ -149,23 +139,18 @@ function writeProps(
 
 function writePropsVariant(
   writer: CodeBlockWriter,
-  propDefs: ComponentPropertyDefinitions,
-  variant: string,
+  props: Array<[string, string]>,
   defaultVariant: string,
 ) {
-  const props = propDefs ? Object.entries(propDefs) : [];
   writer.write('args: ').inlineBlock(() => {
     writer.writeLine(`...${defaultVariant}.args,`);
-    props.forEach(([key, prop]) => {
-      const {type} = prop;
-      const propName = getPropName(key);
-      if (type === 'VARIANT') {
-        writer.write(`${propName}:`);
+    if (props.length === 0) return;
+    props.forEach(([k, v]) => {
+        writer.write(`${k}:`);
         writer.space();
-        writer.quote(variant);
+        writer.quote(v);
         writer.write(',');
         writer.newLine();
-      }
     });
   });
 }

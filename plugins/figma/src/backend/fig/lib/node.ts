@@ -1,4 +1,4 @@
-import {getPropName} from './props';
+import {getPropName} from './jsx';
 import {getPage} from './traverse';
 
 export function focusNode(id: string) {

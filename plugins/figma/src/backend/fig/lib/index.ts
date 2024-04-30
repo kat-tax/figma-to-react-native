@@ -10,6 +10,15 @@ export {
 } from './colors';
 
 export {
+  getTagName,
+  getPropName,
+  getPropsJSX,
+  getPropJSX,
+  sortProps,
+  sortPropsDef,
+} from './jsx';
+
+export {
   focusNode,
   isNodeIcon,
   isNodeVisible,
@@ -17,13 +26,6 @@ export {
   getCustomReaction,
   getPressReaction,
 } from './node';
-
-export {
-  getPropName,
-  getPropsJSX,
-  sortProps,
-  sortPropsDef,
-} from './props';
 
 export {
   getSelectedComponent,

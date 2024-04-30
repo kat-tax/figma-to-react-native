@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 
-export function writeAria(
+export function writeAriaHooks(
   _writer: CodeBlockWriter,
 ) {
   /* TODO: additional accessibility for custom pressables

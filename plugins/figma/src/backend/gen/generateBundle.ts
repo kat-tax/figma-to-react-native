@@ -90,7 +90,7 @@ export async function generateBundle(
   const height = data.frame ? data.frame.node.height : data.root.node.height;
   const name = createIdentifierPascal(masterNode.name);
   const page = getPage(masterNode)?.name;
-  const props = getPropsJSX({...propDefs}, data.colorsheet, data.meta.includes);
+  const props = getPropsJSX({...propDefs}, data.meta.includes);
   const code = generateComponent(data, settings);
   const index = generateIndex(new Set<string>().add(name), settings);
   const story = generateStory(target, isVariant, propDefs, settings);
