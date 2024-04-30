@@ -1,6 +1,6 @@
 import {titleCase} from 'common/string';
 import {focusNode} from 'backend/fig/lib';
-import {COLLECTION_THEME, COLLECTION_PALLETE} from 'backend/gen/lib/consts';
+import {COLLECTION_COLORS, COLLECTION_SCALE_COLORS} from 'backend/gen/lib/consts';
 
 import type {ThemeColor, ThemeRadius, ThemePreset} from 'types/themes';
 
@@ -53,15 +53,15 @@ export function createVariableTheme(preset: ThemePreset): {
 
   // Try to find existing collections
   let theme = figma.variables.getLocalVariableCollections()
-    ?.find(c => c.name === COLLECTION_THEME);
+    ?.find(c => c.name === COLLECTION_COLORS);
   let pallete = figma.variables.getLocalVariableCollections()
-    ?.find(c => c.name === COLLECTION_PALLETE);
+    ?.find(c => c.name === COLLECTION_SCALE_COLORS);
 
   // Try to create pallete collection if does not exist
   // Note: this will be a Figma pay-walled feature after public beta
   if (!pallete) {
     try {
-      pallete = figma.variables.createVariableCollection(COLLECTION_PALLETE);
+      pallete = figma.variables.createVariableCollection(COLLECTION_SCALE_COLORS);
       pallete.renameMode(pallete.defaultModeId, 'Default');
     } catch (e) {
       throw new Error(e);
@@ -80,7 +80,7 @@ export function createVariableTheme(preset: ThemePreset): {
   // Note: this will be a Figma pay-walled feature after public beta
   if (!theme) {
     try {
-      theme = figma.variables.createVariableCollection(COLLECTION_THEME);
+      theme = figma.variables.createVariableCollection(COLLECTION_COLORS);
     } catch (e) {
       throw new Error(e);
     }
@@ -158,8 +158,8 @@ export function getPresetTokens(color: ThemeColor): ThemePreset {
   const tokens = {colors: {}, modes: {light: {}, dark: {}}} as ThemePreset;
   
   // Color tokens
-  tokens.colors.white = {r: 1, g: 1, b: 1};
-  tokens.colors.black = {r: 0, g: 0, b: 0};
+  tokens.colors.White = {r: 1, g: 1, b: 1};
+  tokens.colors.Black = {r: 0, g: 0, b: 0};
   Object.entries(colorPresets).forEach(([colorName, colorScale]) => {
     for (const {scale, hex} of colorScale) {
       if (hex) {
@@ -180,11 +180,11 @@ export function getPresetTokens(color: ThemeColor): ThemePreset {
 
 export const colorMapping = {
   light: {
-    background: 'white',
+    background: 'White',
     foreground: '{{base}}/950',
-    card: 'white',
+    card: 'White',
     cardForeground: '{{base}}/950',
-    popover: 'white',
+    popover: 'White',
     popoverForeground: '{{base}}/950',
     primary: '{{base}}/900',
     primaryForeground: '{{base}}/50',
@@ -224,7 +224,7 @@ export const colorMapping = {
 } as const
 
 export const colorPresets = {
-  slate: [
+  Slate: [
     {scale: 50, hex: '#f8fafc'},
     {scale: 100, hex: '#f1f5f9'},
     {scale: 200, hex: '#e2e8f0'},
@@ -237,7 +237,7 @@ export const colorPresets = {
     {scale: 900, hex: '#0f172a'},
     {scale: 950, hex: '#020617'},
   ],
-  gray: [
+  Grey: [
     {scale: 50, hex: '#f9fafb'},
     {scale: 100, hex: '#f3f4f6'},
     {scale: 200, hex: '#e5e7eb'},
@@ -250,7 +250,7 @@ export const colorPresets = {
     {scale: 900, hex: '#111827'},
     {scale: 950, hex: '#030712'},
   ],
-  zinc: [
+  Zinc: [
     {scale: 50, hex: '#fafafa'},
     {scale: 100, hex: '#f4f4f5'},
     {scale: 200, hex: '#e4e4e7'},
@@ -263,7 +263,7 @@ export const colorPresets = {
     {scale: 900, hex: '#18181b'},
     {scale: 950, hex: '#09090b'},
   ],
-  neutral: [
+  Neutral: [
     {scale: 50, hex: '#fafafa'},
     {scale: 100, hex: '#f5f5f5'},
     {scale: 200, hex: '#e5e5e5'},
@@ -276,7 +276,7 @@ export const colorPresets = {
     {scale: 900, hex: '#171717'},
     {scale: 950, hex: '#0a0a0a'},
   ],
-  stone: [
+  Stone: [
     {scale: 50, hex: '#fafaf9'},
     {scale: 100, hex: '#f5f5f4'},
     {scale: 200, hex: '#e7e5e4'},
@@ -289,7 +289,7 @@ export const colorPresets = {
     {scale: 900, hex: '#1c1917'},
     {scale: 950, hex: '#0c0a09'},
   ],
-  red: [
+  Red: [
     {scale: 50, hex: '#fef2f2'},
     {scale: 100, hex: '#fee2e2'},
     {scale: 200, hex: '#fecaca'},
@@ -302,7 +302,7 @@ export const colorPresets = {
     {scale: 900, hex: '#7f1d1d'},
     {scale: 950, hex: '#450a0a'},
   ],
-  orange: [
+  Orange: [
     {scale: 50, hex: '#fff7ed'},
     {scale: 100, hex: '#ffedd5'},
     {scale: 200, hex: '#fed7aa'},
@@ -315,7 +315,7 @@ export const colorPresets = {
     {scale: 900, hex: '#7c2d12'},
     {scale: 950, hex: '#431407'},
   ],
-  amber: [
+  Amber: [
     {scale: 50, hex: '#fffbeb'},
     {scale: 100, hex: '#fef3c7'},
     {scale: 200, hex: '#fde68a'},
@@ -328,7 +328,7 @@ export const colorPresets = {
     {scale: 900, hex: '#78350f'},
     {scale: 950, hex: '#451a03'},
   ],
-  yellow: [
+  Yellow: [
     {scale: 50, hex: '#fefce8'},
     {scale: 100, hex: '#fef9c3'},
     {scale: 200, hex: '#fef08a'},
@@ -341,7 +341,7 @@ export const colorPresets = {
     {scale: 900, hex: '#713f12'},
     {scale: 950, hex: '#422006'},
   ],
-  lime: [
+  Lime: [
     {scale: 50, hex: '#f7fee7'},
     {scale: 100, hex: '#ecfccb'},
     {scale: 200, hex: '#d9f99d'},
@@ -354,7 +354,7 @@ export const colorPresets = {
     {scale: 900, hex: '#365314'},
     {scale: 950, hex: '#1a2e05'},
   ],
-  green: [
+  Green: [
     {scale: 50, hex: '#f0fdf4'},
     {scale: 100, hex: '#dcfce7'},
     {scale: 200, hex: '#bbf7d0'},
@@ -367,7 +367,7 @@ export const colorPresets = {
     {scale: 900, hex: '#14532d'},
     {scale: 950, hex: '#052e16'},
   ],
-  emerald: [
+  Emerald: [
     {scale: 50, hex: '#ecfdf5'},
     {scale: 100, hex: '#d1fae5'},
     {scale: 200, hex: '#a7f3d0'},
@@ -380,7 +380,7 @@ export const colorPresets = {
     {scale: 900, hex: '#064e3b'},
     {scale: 950, hex: '#022c22'},
   ],
-  teal: [
+  Teal: [
     {scale: 50, hex: '#f0fdfa'},
     {scale: 100, hex: '#ccfbf1'},
     {scale: 200, hex: '#99f6e4'},
@@ -393,7 +393,7 @@ export const colorPresets = {
     {scale: 900, hex: '#134e4a'},
     {scale: 950, hex: '#042f2e'},
   ],
-  cyan: [
+  Cyan: [
     {scale: 50, hex: '#ecfeff'},
     {scale: 100, hex: '#cffafe'},
     {scale: 200, hex: '#a5f3fc'},
@@ -406,7 +406,7 @@ export const colorPresets = {
     {scale: 900, hex: '#164e63'},
     {scale: 950, hex: '#083344'},
   ],
-  sky: [
+  Sky: [
     {scale: 50, hex: '#f0f9ff'},
     {scale: 100, hex: '#e0f2fe'},
     {scale: 200, hex: '#bae6fd'},
@@ -419,7 +419,7 @@ export const colorPresets = {
     {scale: 900, hex: '#0c4a6e'},
     {scale: 950, hex: '#082f49'},
   ],
-  blue: [
+  Blue: [
     {scale: 50, hex: '#eff6ff'},
     {scale: 100, hex: '#dbeafe'},
     {scale: 200, hex: '#bfdbfe'},
@@ -432,7 +432,7 @@ export const colorPresets = {
     {scale: 900, hex: '#1e3a8a'},
     {scale: 950, hex: '#172554'},
   ],
-  indigo: [
+  Indigo: [
     {scale: 50, hex: '#eef2ff'},
     {scale: 100, hex: '#e0e7ff'},
     {scale: 200, hex: '#c7d2fe'},
@@ -445,7 +445,7 @@ export const colorPresets = {
     {scale: 900, hex: '#312e81'},
     {scale: 950, hex: '#1e1b4b'},
   ],
-  violet: [
+  Violet: [
     {scale: 50, hex: '#f5f3ff'},
     {scale: 100, hex: '#ede9fe'},
     {scale: 200, hex: '#ddd6fe'},
@@ -458,7 +458,7 @@ export const colorPresets = {
     {scale: 900, hex: '#4c1d95'},
     {scale: 950, hex: '#1e1b4b'},
   ],
-  purple: [
+  Purple: [
     {scale: 50, hex: '#faf5ff'},
     {scale: 100, hex: '#f3e8ff'},
     {scale: 200, hex: '#e9d5ff'},
@@ -471,7 +471,7 @@ export const colorPresets = {
     {scale: 900, hex: '#581c87'},
     {scale: 950, hex: '#3b0764'},
   ],
-  fuchsia: [
+  Fuchsia: [
     {scale: 50, hex: '#fdf4ff'},
     {scale: 100, hex: '#fae8ff'},
     {scale: 200, hex: '#f5d0fe'},
@@ -484,7 +484,7 @@ export const colorPresets = {
     {scale: 900, hex: '#701a75'},
     {scale: 950, hex: '#4a044e'},
   ],
-  pink: [
+  Pink: [
     {scale: 50, hex: '#fdf2f8'},
     {scale: 100, hex: '#fce7f3'},
     {scale: 200, hex: '#fbcfe8'},
@@ -497,7 +497,7 @@ export const colorPresets = {
     {scale: 900, hex: '#831843'},
     {scale: 950, hex: '#500724'},
   ],
-  rose: [
+  Rose: [
     {scale: 50, hex: '#fff1f2'},
     {scale: 100, hex: '#ffe4e6'},
     {scale: 200, hex: '#fecdd3'},

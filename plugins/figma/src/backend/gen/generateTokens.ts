@@ -1,7 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
 import {getColor, getCollectionModes} from 'backend/fig/lib';
-import {COLLECTION_THEME, COLLECTION_PALLETE} from 'backend/gen/lib/consts';
+import {COLLECTION_COLORS, COLLECTION_SCALE_COLORS} from 'backend/gen/lib/consts';
 
 import type {ProjectSettings} from 'types/settings';
 
@@ -78,7 +78,7 @@ function writePallete(writer: CodeBlockWriter) {
 
 function writeThemes(writer: CodeBlockWriter) {
   let hasStyles = false;
-  const theme = getCollectionModes(COLLECTION_THEME);
+  const theme = getCollectionModes(COLLECTION_COLORS);
   writer.write('export const themes = ').inlineBlock(() => {
     // Theme variable collection found, write modes to themes
     if (theme) {
@@ -180,7 +180,7 @@ function getThemeTokenLocalStyles(): ThemeColors {
 
 function getThemeTokenVariables(themeId: string): ThemeColors {
   const colors: ThemeColors = {};
-  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === COLLECTION_THEME);
+  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === COLLECTION_COLORS);
   if (!collection) return colors;
   collection.variableIds
     .map(id => figma.variables.getVariableById(id))
@@ -202,7 +202,7 @@ function getColorTokenVariables(): ThemeColors {
   const colors: ThemeColors = {};
   const collection = figma.variables
     ?.getLocalVariableCollections()
-    ?.find(c => c.name === COLLECTION_PALLETE);
+    ?.find(c => c.name === COLLECTION_SCALE_COLORS);
 
   if (!collection) return colors;
 
