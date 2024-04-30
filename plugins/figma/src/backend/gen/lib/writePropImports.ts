@@ -1,5 +1,6 @@
 import {sortProps} from 'backend/fig/lib';
 import {createIdentifierPascal} from 'common/string';
+
 import type CodeBlockWriter from 'code-block-writer';
 
 // TODO:

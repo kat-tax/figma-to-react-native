@@ -1,7 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
+import {createIdentifierPascal} from 'common/string';
 import {sortProps, getPropName, getPage} from 'backend/fig/lib';
 import {writePropImports} from 'backend/gen/lib/writePropImports';
-import {createIdentifierPascal} from 'common/string';
 
 import type {ProjectSettings} from 'types/settings';
 

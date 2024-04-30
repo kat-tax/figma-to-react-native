@@ -1,7 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
-import {encodeUTF8} from 'common/encoder';
 import {blake2sHex} from 'blakejs';
 import {round} from 'common/number';
+import {encodeUTF8} from 'common/encoder';
 import {createIdentifierPascal} from 'common/string';
 import {COLLECTION_LOCALES} from 'backend/gen/lib/consts';
 import {

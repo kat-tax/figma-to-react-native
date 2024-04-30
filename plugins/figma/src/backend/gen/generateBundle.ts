@@ -1,6 +1,6 @@
-import parseFigmaComponent from 'backend/fig';
-import {getPropsJSX, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal} from 'common/string';
+import {getPropsJSX, getPage} from 'backend/fig/lib';
+import parseFigmaComponent from 'backend/fig';
 
 import {generateNatives} from './lib/natives';
 import {generateComponent} from './generateComponent';
