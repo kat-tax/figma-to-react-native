@@ -4,7 +4,7 @@ import {getPropName, sortPropsDef} from 'backend/fig/lib';
 
 import type {ImportFlags} from './writeImports';
 
-export function writeProps(
+export function writePropsInterface(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   propDefs: ComponentPropertyDefinitions,

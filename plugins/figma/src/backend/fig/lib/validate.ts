@@ -6,7 +6,7 @@ export function validate(component: ComponentNode) {
 
   // Disallow certain nodes
   if (component.findAllWithCriteria({types: ['SECTION']}).length > 0) {
-    throw new Error(`Groups & sections are not supported. Convert to frames.`);
+    throw new Error(`Sections cannot be inside a component. Convert them to a frame.`);
   }
 
   // Good to go!

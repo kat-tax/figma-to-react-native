@@ -100,22 +100,22 @@ function writeChild(
     const iconColor = getFillToken(iconVector);
     const variantFills = data.variants?.fills?.[slug];
     const hasVariant = data.variants && variantFills && !!Object.values(variantFills);
-    const fillToken = hasVariant ? `vcolors.${slug}` : iconColor;
+    const fillToken = hasVariant ? `vstyles.${slug}` : iconColor;
     const dynamic = isRootPressable && hasVariant ? '(e)' : '';
-    const style = `{color: ${fillToken}${dynamic}}`;
+    const color = `${fillToken}${dynamic}`;
     // Swap icon, override props for this instance
     if (isSwap) {
       state.flags.react.cloneElement = true;
       const statement = `cloneElement(props.${swapNodeProp}, `;
       writer.write((isConditional ? '' : '{') + statement).inlineBlock(() => {
-        writer.writeLine(`style: ${style},`);
+        writer.writeLine(`color: ${color},`);
         writer.writeLine(`size: ${child.node.width},`);
       });
       writer.write(')' + (isConditional ? '' : '}'));
       writer.newLine();
     // Explicit icon, use Icon component directly
     } else {
-      writer.writeLine(`<Icon name="${child.node.name}" size={${child.node.width}} style={${style}}/>`);
+      writer.writeLine(`<Icon name="${child.node.name}" size={${child.node.width}} color={${color}}/>`);
       state.flags.exoIcon.Icon = true;
     }
     return;

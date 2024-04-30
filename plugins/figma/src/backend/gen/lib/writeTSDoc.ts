@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 
-export function writeDocs(
+export function writeTSDoc(
   writer: CodeBlockWriter,
   component: ComponentNode,
 ) {

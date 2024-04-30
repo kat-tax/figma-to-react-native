@@ -4,7 +4,7 @@ import {getPropName} from 'backend/fig/lib';
 import type {ParseStyles, ParseVariantData} from 'types/parse';
 import type {ImportFlags} from './writeImports';
 
-export function writeStyles(
+export function writeStyleHooks(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   name: string,
@@ -64,7 +64,7 @@ export function writeStyles(
   // Write hooks
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
-  writer.writeLine(`const {styles} = useStyles(stylesheet);`);
+  writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
   writer.writeLine(`const {vstyles} = useVariants(${name}Variants, {${props}}, styles);`);
   writer.blankLine();
 }

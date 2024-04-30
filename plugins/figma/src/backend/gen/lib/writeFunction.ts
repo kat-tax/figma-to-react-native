@@ -1,11 +1,11 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 
+import {writePropsInterface} from './writePropsInterface';
+import {writeStateHooks} from './writeStateHooks';
+import {writeStyleHooks} from './writeStyleHooks';
 import {writeChildren} from './writeChildren';
-import {writeStyles} from './writeStyles';
-import {writeProps} from './writeProps';
-import {writeState} from './writeState';
-import {writeDocs} from './writeDocs';
+import {writeTSDoc} from './writeTSDoc';
 
 import type {ParseData} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
@@ -39,11 +39,12 @@ export function writeFunction(
   const isPressable = pressables !== null
     && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
 
-  writeProps(writer, flags, propDefs, name, pressables, isPressable, isIcon);
-  writeDocs(writer, masterNode);
+  writePropsInterface(writer, flags, propDefs, name, pressables, isPressable, isIcon);
+  writeTSDoc(writer, masterNode);
+
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
-    writeState(writer, flags, data);
-    writeStyles(writer, flags, name, data.variants);
+    writeStateHooks(writer, flags, data);
+    writeStyleHooks(writer, flags, name, data.variants);
 
     // Helper to determine the style prop value
     const getStyleProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants

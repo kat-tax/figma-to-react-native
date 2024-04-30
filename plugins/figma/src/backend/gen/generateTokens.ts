@@ -11,6 +11,8 @@ type ThemeColor = {value: string, comment: string};
 
 export function generateTokens(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
+  writer.writeLine('export type Themes = keyof typeof themes;');
+  writer.blankLine();
   writeBreakpoints(writer);
   //writeLayout(writer);
   writePallete(writer);
@@ -100,9 +102,9 @@ function writeThemes(writer: CodeBlockWriter) {
   writer.blankLine();
   if (theme) {
     const initialTheme = createIdentifierCamel(theme.default.name);
-    writer.writeLine(`export default '${initialTheme}'`);
+    writer.writeLine(`export const initialTheme: Themes = '${initialTheme}'`);
   } else {
-    writer.writeLine(`export default 'main'`);
+    writer.writeLine(`export const initialTheme: Themes = 'main'`);
   }
   // Return token code, theme collection, and whether styles exist
   const code = writer.toString();

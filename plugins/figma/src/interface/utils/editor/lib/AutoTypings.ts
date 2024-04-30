@@ -32,7 +32,7 @@ export class AutoTypeCache implements SourceCache {
   }
 
   async storeFile(uri: string, content: string) {
-    console.log('[at-cache]', uri, content.length);
+    //console.log('[at-cache]', uri, content.length);
     AutoTypeCache._.set(uri, content);
   }
 

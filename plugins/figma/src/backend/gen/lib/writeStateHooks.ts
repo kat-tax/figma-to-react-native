@@ -5,7 +5,7 @@ import {getCollectionByName, getPage} from 'backend/fig/lib';
 import type {ParseData} from 'types/parse';
 import type {ImportFlags} from './writeImports';
 
-export function writeState(
+export function writeStateHooks(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   data: ParseData,
