@@ -66,14 +66,6 @@ export function createVariableTheme(preset: ThemePreset): {
     } catch (e) {
       throw new Error(e);
     }
-  // Collection exists, look for preset palette variables
-  } else {
-    const variables = palette.variableIds.map(id => figma.variables.getVariableById(id));
-    const presetVars = Object.keys(preset.colors);
-    for (const vars of variables) {
-      if (presetVars.includes(vars.name))
-        paletteVars[vars.name] = vars;
-    }
   }
 
   // Try to create theme collection if does not exist
@@ -83,14 +75,6 @@ export function createVariableTheme(preset: ThemePreset): {
       theme = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.THEMES);
     } catch (e) {
       throw new Error(e);
-    }
-  // Collection exists, look for preset colors variables
-  } else {
-    const variables = theme.variableIds.map(id => figma.variables.getVariableById(id));
-    const presetVars = Object.keys(colorMapping.light);
-    for (const vars of variables) {
-      if (presetVars.includes(vars.name))
-        themeVars[vars.name] = vars;
     }
   }
 
@@ -106,6 +90,26 @@ export function createVariableTheme(preset: ThemePreset): {
     console.log('Could not add dark mode', e);
   }
 
+  // Look for preset palette variables
+  {
+    const variables = palette.variableIds.map(id => figma.variables.getVariableById(id));
+    const presetVars = Object.keys(preset.colors);
+    for (const vars of variables) {
+      if (presetVars.includes(vars.name))
+        paletteVars[vars.name] = vars;
+    }
+  }
+
+  // Look for preset theme variables
+  {
+    const variables = theme.variableIds.map(id => figma.variables.getVariableById(id));
+    const presetVars = Object.keys(colorMapping.light);
+    for (const vars of variables) {
+      if (presetVars.includes(vars.name))
+        themeVars[vars.name] = vars;
+    }
+  }
+
   // Create non-existing theme variables
   for (const name of Object.keys(preset.modes.light)) {
     if (!themeVars[name]) {
@@ -118,7 +122,7 @@ export function createVariableTheme(preset: ThemePreset): {
     }
   }
 
-  // Create non-existing color variables
+  // Create non-existing palette variables
   for (const [name, rgb] of Object.entries(preset.colors)) {
     if (!paletteVars[name]) {
       try {
@@ -180,46 +184,46 @@ export function getPresetTokens(color: ThemeColor): ThemePreset {
 
 export const colorMapping = {
   light: {
-    background: 'White',
-    foreground: '{{base}}/950',
-    card: 'White',
-    cardForeground: '{{base}}/950',
-    popover: 'White',
-    popoverForeground: '{{base}}/950',
-    primary: '{{base}}/900',
-    primaryForeground: '{{base}}/50',
-    secondary: '{{base}}/100',
-    secondaryForeground: '{{base}}/900',
-    muted: '{{base}}/100',
-    mutedForeground: '{{base}}/500',
-    accent: '{{base}}/100',
-    accentForeground: '{{base}}/900',
-    destructive: 'red/500',
-    destructiveForeground: '{{base}}/50',
-    border: '{{base}}/200',
-    input: '{{base}}/200',
-    ring: '{{base}}/950',
+    'Background': 'White',
+    'Foreground': '{{base}}/950',
+    'Card': 'White',
+    'Card Foreground': '{{base}}/950',
+    'Popover': 'White',
+    'Popover Foreground': '{{base}}/950',
+    'Primary': '{{base}}/900',
+    'Primary Foreground': '{{base}}/50',
+    'Secondary': '{{base}}/100',
+    'Secondary Foreground': '{{base}}/900',
+    'Muted': '{{base}}/100',
+    'Muted Foreground': '{{base}}/500',
+    'Accent': '{{base}}/100',
+    'Accent Foreground': '{{base}}/900',
+    'Destructive': 'Red/500',
+    'Destructive Foreground': '{{base}}/50',
+    'Border': '{{base}}/200',
+    'Input': '{{base}}/200',
+    'Ring': '{{base}}/950',
   },
   dark: {
-    background: '{{base}}/950',
-    foreground: '{{base}}/50',
-    card: '{{base}}/950',
-    cardForeground: '{{base}}/50',
-    popover: '{{base}}/950',
-    popoverForeground: '{{base}}/50',
-    primary: '{{base}}/50',
-    primaryForeground: '{{base}}/900',
-    secondary: '{{base}}/800',
-    secondaryForeground: '{{base}}/50',
-    muted: '{{base}}/800',
-    mutedForeground: '{{base}}/400',
-    accent: '{{base}}/800',
-    accentForeground: '{{base}}/50',
-    destructive: 'red/900',
-    destructiveForeground: '{{base}}/50',
-    border: '{{base}}/800',
-    input: '{{base}}/800',
-    ring: '{{base}}/300',
+    'Background': '{{base}}/950',
+    'foreground': '{{base}}/50',
+    'Card': '{{base}}/950',
+    'Card Foreground': '{{base}}/50',
+    'Popover': '{{base}}/950',
+    'Popover Foreground': '{{base}}/50',
+    'Primary': '{{base}}/50',
+    'Primary Foreground': '{{base}}/900',
+    'secondary': '{{base}}/800',
+    'secondary Foreground': '{{base}}/50',
+    'Muted': '{{base}}/800',
+    'Muted Foreground': '{{base}}/400',
+    'Accent': '{{base}}/800',
+    'Accent Foreground': '{{base}}/50',
+    'Destructive': 'Red/900',
+    'Destructive Foreground': '{{base}}/50',
+    'Border': '{{base}}/800',
+    'Input': '{{base}}/800',
+    'Ring': '{{base}}/300',
   },
 } as const
 
