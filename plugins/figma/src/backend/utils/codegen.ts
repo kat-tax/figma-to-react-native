@@ -4,7 +4,7 @@ import * as config from 'backend/config';
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];
   const {bundle} = await generateBundle(node, config.state);
-  const {code} = generateTokens(config.state);
+  const {code} = generateTokens(config.state).themes;
   return bundle.code ? [
     {
       language: 'TYPESCRIPT',

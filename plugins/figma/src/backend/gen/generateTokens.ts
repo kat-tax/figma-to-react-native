@@ -1,90 +1,160 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
 import {getColor, getCollectionModes} from 'backend/fig/lib';
-import {COLLECTION_COLORS, COLLECTION_SCALE_COLORS} from 'backend/gen/lib/consts';
+import {VARIABLE_COLLECTIONS} from 'backend/gen/lib/consts';
 
 import type {ProjectSettings} from 'types/settings';
 
-type ThemeColors = Record<string, ThemeGroup>;
-type ThemeGroup = Record<string, ThemeColor> | ThemeColor;
-type ThemeColor = {value: string, comment: string};
+type ScaleToken = ScaleColorToken | ScaleFloatToken | ScaleRefToken;
+
+type ScaleColors = Record<string, ScaleColorGroup>;
+type ScaleColorGroup = Record<string, ScaleColorToken> | ScaleColorToken;
+type ScaleColorToken = {value: string, comment: string};
+
+type ScaleFloats = Record<string, ScaleFloatGroup>;
+type ScaleFloatGroup = Record<string, ScaleFloatToken> | ScaleFloatToken;
+type ScaleFloatToken = {value: number, comment: string};
+
+type ScaleRefs = Record<string, ScaleRefGroup>;
+type ScaleRefGroup = Record<string, ScaleRefToken> | ScaleRefToken;
+type ScaleRefToken = {value: string, comment: string};
 
 export function generateTokens(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
   writer.writeLine('export type Themes = keyof typeof themes;');
   writer.blankLine();
-  writeBreakpoints(writer);
-  //writeLayout(writer);
+  writeDisplay(writer);
+  const fonts = writeFonts(writer);
   writePallete(writer);
-  return writeThemes(writer);
+  const themes = writeThemes(writer);
+  return {fonts, themes};
 }
 
 // Sections
 
-function writeBreakpoints(writer: CodeBlockWriter) {
-  writer.write('export const breakpoints = ').inlineBlock(() => {
-    writer.writeLine('xs: 0,');
-    writer.writeLine('sm: 576,');
-    writer.writeLine('md: 768,');
-    writer.writeLine('lg: 992,');
-    writer.writeLine('xl: 1200,');
-  });
+function writeDisplay(writer: CodeBlockWriter) {
+  const display = getFloatScaleVariables(VARIABLE_COLLECTIONS.SCALE_DISPLAY);
+
+  writer.write('export const breakpoints = {').indent(() => {
+    // Write breakpoints (if any)
+    const keys = Object.keys(display).filter(k => k.includes('Breakpoint/'));
+    if (keys.length > 0) {
+      keys.forEach(group => {
+        const groupId = createIdentifierCamel(group.split('/').pop());
+        const groupItem = display[group] as ScaleFloatToken;
+        writeScaleToken(writer, groupId, groupItem);
+        writer.newLine();
+      });
+    // No breakpoints found, write default breakpoints
+    } else {
+      writer.writeLine('xs: 0,');
+      writer.writeLine('sm: 576,');
+      writer.writeLine('md: 768,');
+      writer.writeLine('lg: 992,');
+      writer.writeLine('xl: 1200,');
+    }
+  }).writeLine(`} as const;`);
+
+  writer.blankLine();
+
+  writer.write('export const display = {').indent(() => {
+    // Write display scales (if any)
+    const keys = Object.keys(display).filter(k => !k.includes('Breakpoint/'));
+    if (keys.length > 0) {
+      keys.forEach(group => {
+        const groupId = createIdentifierCamel(group);
+        const groupItem = display[group] as ScaleFloatToken;
+        writeScaleToken(writer, groupId, groupItem);
+        writer.newLine();
+      });
+    // No display scales found, write empty object
+    } else {
+      writer.write('// No display variables found');
+    }
+  }).writeLine(`} as const;`);
+
   writer.blankLine();
 }
 
-function writeLayout(writer: CodeBlockWriter) {
-  writer.write('export const layout = ').inlineBlock(() => {
-    figma.variables.getLocalVariables()?.forEach(v => {
-      const collection = figma.variables.getVariableCollectionById(v.variableCollectionId);
-      const value = v.valuesByMode[collection.defaultModeId].toString();
-      const id = createIdentifierCamel(v.name);
-      switch (v.resolvedType) {
-        case 'COLOR':
-          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
-          break;
-        case 'STRING':
-          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
-          break;
-        case 'FLOAT':
-          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
-          break;
-        case 'BOOLEAN':
-          writer.writeLine(`${createIdentifierCamel(v.name)}: ${value},`);
-          break;
-      }
-    });
-  });
+function writeFonts(writer: CodeBlockWriter) {
+  const font = getFontScaleVariables(VARIABLE_COLLECTIONS.FONTS);
+  const typography = getFloatScaleVariables(VARIABLE_COLLECTIONS.SCALE_FONTS);
+
+  writer.write('export const typography = {').indent(() => {
+    // Write font scales (if any)
+    const keys = Object.keys(typography);
+    if (keys.length > 0) {
+      keys.forEach(group => {
+        const groupId = createIdentifierCamel(group);
+        const groupItem = typography[group] as ScaleFloatToken;
+        writeScaleToken(writer, groupId, groupItem);
+        writer.newLine();
+      });
+    // No font scales found, write empty object
+    } else {
+      writer.write('// No font scale variables found');
+    }
+  }).writeLine(`} as const;`);
+
   writer.blankLine();
+
+  writer.write('export const font = {').indent(() => {
+    // Write fonts (if any)
+    const keys = Object.keys(font.refs);
+    if (keys.length > 0) {
+      keys.forEach(group => {
+        const groupId = createIdentifierCamel(group);
+        const groupItem = font.refs[group] as ScaleRefToken;
+        writeScaleToken(writer, groupId, groupItem);
+        writer.newLine();
+      });
+    // No fonts found, write empty object
+    } else {
+      writer.write('// No font variables found');
+    }
+  }).writeLine(`} as const;`);
+
+  writer.blankLine();
+
+  return font.names;
 }
 
 function writePallete(writer: CodeBlockWriter) {
-  const colors = getColorTokenVariables();
-  writer.write('export const pallete = ').inlineBlock(() => {
+  const colors = getColorScaleVariables(VARIABLE_COLLECTIONS.SCALE_COLORS);
+
+  writer.write('export const pallete = {').indent(() => {
     // Write color scales (if any)
-    if (Object.keys(colors).length > 0) {
-      Object.keys(colors).forEach(group => {
+    const keys = Object.keys(colors);
+    if (keys.length > 0) {
+      keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = colors[group] as ThemeColor;
-        writeColor(writer, groupId, groupItem);
+        const groupItem = colors[group] as ScaleColorToken;
+        writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
     // No colors found, write empty object
     } else {
-      writer.write('// No color variables found');
+      writer.write('// No color scale variables found');
     }
-  });
+  }).writeLine(`} as const;`);
+
   writer.blankLine();
 }
 
 function writeThemes(writer: CodeBlockWriter) {
+  const theme = getCollectionModes(VARIABLE_COLLECTIONS.COLORS);
   let hasStyles = false;
-  const theme = getCollectionModes(COLLECTION_COLORS);
-  writer.write('export const themes = ').inlineBlock(() => {
+
+  writer.write('export const themes = {').indent(() => {
     // Theme variable collection found, write modes to themes
     if (theme) {
       theme.modes.forEach(mode => {
         writer.write(`${createIdentifierCamel(mode.name)}: `).inlineBlock(() => {
-          hasStyles = writeTheme(writer, getAllThemeTokens(mode.modeId));
+          hasStyles = writeColors(writer, getColorTokens(mode.modeId));
+          writer.writeLine('...display,');
+          writer.writeLine('...pallete,');
+          writer.writeLine('...typography,');
+          writer.writeLine('...font,');
         });
         writer.write(',');
         writer.newLine();
@@ -92,45 +162,39 @@ function writeThemes(writer: CodeBlockWriter) {
     // No theme variable collection found, local styles only
     } else {
       writer.write(`main: `).inlineBlock(() => {
-        hasStyles = writeTheme(writer, getThemeTokenLocalStyles());
+        hasStyles = writeColors(writer, getColorLocalStyles());
       });
       writer.write(',');
       writer.newLine();
     }
-  });
-  // Default theme export
+  }).writeLine(`} as const;`);
+
   writer.blankLine();
+
+  // Default theme export
   if (theme) {
     const initialTheme = createIdentifierCamel(theme.default.name);
     writer.writeLine(`export const initialTheme: Themes = '${initialTheme}'`);
   } else {
     writer.writeLine(`export const initialTheme: Themes = 'main'`);
   }
+
   // Return token code, theme collection, and whether styles exist
   const code = writer.toString();
   return {code, theme, hasStyles};
 }
 
-// Utilities
+// Helpers
 
-function writeColor(writer: CodeBlockWriter, name: string, color: ThemeColor) {
-  const needsPrefix = /^[0-9]/.test(name);
-  const id = needsPrefix ? `$${name}` : name;
-  if (color.comment)
-    writer.writeLine(`/** ${color.comment} */`);
-  writer.write(`${id}: `);
-  writer.quote(color.value);
-  writer.write(`,`);
-}
-
-function writeTheme(writer: CodeBlockWriter, colors: ThemeColors) {
+function writeColors(writer: CodeBlockWriter, colors: ScaleColors) {
   // Write theme colors (if any)
-  if (Object.keys(colors).length > 0) {
+  const keys = Object.keys(colors);
+  if (keys.length > 0) {
     writer.write('colors: ').inlineBlock(() => {
-      Object.keys(colors).forEach(group => {
+      keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = colors[group] as ThemeColor;
-        writeThemeToken(writer, groupId, groupItem);
+        const groupItem = colors[group] as ScaleColorToken;
+        writeColorToken(writer, groupId, groupItem);
         writer.newLine();
       });
     });
@@ -144,7 +208,7 @@ function writeTheme(writer: CodeBlockWriter, colors: ThemeColors) {
   }
 }
 
-function writeThemeToken(writer: CodeBlockWriter, name: string, color: ThemeColor) {
+function writeColorToken(writer: CodeBlockWriter, name: string, color: ScaleColorToken) {
   const needsPrefix = /^[0-9]/.test(name);
   const id = needsPrefix ? `$${name}` : name;
   if (color.comment)
@@ -158,15 +222,31 @@ function writeThemeToken(writer: CodeBlockWriter, name: string, color: ThemeColo
   writer.write(`,`);
 }
 
-function getAllThemeTokens(themeId: string): ThemeColors {
+function writeScaleToken(writer: CodeBlockWriter, name: string, scale: ScaleToken) {
+  const needsPrefix = /^[0-9]/.test(name);
+  const id = needsPrefix ? `$${name}` : name;
+  if (scale.comment)
+    writer.writeLine(`/** ${scale.comment} */`);
+  if (typeof scale.value === 'number' || scale.value.includes('.')) {
+    writer.write(`${id}: ${scale.value},`);
+  } else {
+    writer.write(`${id}: `);
+    writer.quote(scale.value);
+    writer.write(',');
+  }
+}
+
+// Utilities
+
+function getColorTokens(themeId: string): ScaleColors {
   return {
-    ...getThemeTokenVariables(themeId),
-    ...getThemeTokenLocalStyles(),
+    ...getColorVariables(themeId),
+    ...getColorLocalStyles(),
   };
 }
 
-function getThemeTokenLocalStyles(): ThemeColors {
-  const colors: ThemeColors = {};
+function getColorLocalStyles(): ScaleColors {
+  const colors: ScaleColors = {};
   const styles = figma.getLocalPaintStyles();
   styles?.forEach(paint => {
     colors[paint.name] = {
@@ -178,10 +258,14 @@ function getThemeTokenLocalStyles(): ThemeColors {
   return colors;
 }
 
-function getThemeTokenVariables(themeId: string): ThemeColors {
-  const colors: ThemeColors = {};
-  const collection = figma.variables.getLocalVariableCollections()?.find(c => c.name === COLLECTION_COLORS);
+function getColorVariables(themeId: string): ScaleColors {
+  const colors: ScaleColors = {};
+  const collection = figma.variables
+    ?.getLocalVariableCollections()
+    ?.find(c => c.name === VARIABLE_COLLECTIONS.COLORS);
+  
   if (!collection) return colors;
+
   collection.variableIds
     .map(id => figma.variables.getVariableById(id))
     .filter(v => v.resolvedType === 'COLOR')
@@ -198,11 +282,11 @@ function getThemeTokenVariables(themeId: string): ThemeColors {
   return colors;
 }
 
-function getColorTokenVariables(): ThemeColors {
-  const colors: ThemeColors = {};
+function getColorScaleVariables(collectionName: string): ScaleColors {
+  const colors: ScaleColors = {};
   const collection = figma.variables
     ?.getLocalVariableCollections()
-    ?.find(c => c.name === COLLECTION_SCALE_COLORS);
+    ?.find(c => c.name === collectionName);
 
   if (!collection) return colors;
 
@@ -217,4 +301,50 @@ function getColorTokenVariables(): ThemeColors {
     });
 
   return colors;
+}
+
+function getFloatScaleVariables(collectionName: string): ScaleFloats {
+  const scales: ScaleFloats = {};
+  const collection = figma.variables
+    ?.getLocalVariableCollections()
+    ?.find(c => c.name === collectionName);
+
+  if (!collection) return scales;
+
+  collection.variableIds
+    .map(id => figma.variables.getVariableById(id))
+    .filter(v => v.resolvedType === 'FLOAT')
+    .forEach(v => {
+      scales[v.name] = {
+        value: parseFloat(parseFloat(v.valuesByMode[collection.defaultModeId].toString()).toFixed(5)),
+        comment: v.description,
+      }
+    });
+
+  return scales;
+}
+
+function getFontScaleVariables(collectionName: string): {names: string[], refs: ScaleRefs} {
+  const names: string[] = [];
+  const refs: ScaleRefs = {};
+
+  const collection = figma.variables
+    ?.getLocalVariableCollections()
+    ?.find(c => c.name === collectionName);
+
+  if (!collection) return {names: ['Inter'], refs};
+
+  collection.variableIds
+    .map(id => figma.variables.getVariableById(id))
+    .forEach(v => {
+      const value = v.valuesByMode[collection.defaultModeId] as any;
+      const isRef = value?.type === 'VARIABLE_ALIAS';
+      const alias = isRef ? figma.variables.getVariableById(value.id) : null;
+      refs[v.name] = {
+        value: isRef ? `typography.${createIdentifierCamel(alias.name)}` : value,
+        comment: v.description,
+      }
+    });
+
+  return {names, refs};
 }

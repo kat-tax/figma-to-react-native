@@ -1,13 +1,14 @@
-// Variable Collections
-
-export const COLLECTION_COLORS = 'Colors';
-export const COLLECTION_DISPLAY = 'Display';
-export const COLLECTION_FONTS = 'Fonts';
-export const COLLECTION_LOCALES = 'Locales';
-
-export const COLLECTION_SCALE_COLORS = 'Scale (Colors)';
-export const COLLECTION_SCALE_DISPLAY = 'Scale (Display)';
-export const COLLECTION_SCALE_FONTS = 'Scale (Fonts)';
-
-export const COLLECTION_STATE_LOCAL = 'State (Local)';
-export const COLLECTION_STATE_REDUX = 'State (Redux)';
+export const VARIABLE_COLLECTIONS = {
+  // Main
+  COLORS: 'Colors',
+  DISPLAY: 'Display',
+  FONTS: 'Fonts',
+  LOCALES: 'Locales',
+  // Scales
+  SCALE_COLORS: 'Scale (Colors)',
+  SCALE_DISPLAY: 'Scale (Display)',
+  SCALE_FONTS: 'Scale (Fonts)',
+  // State
+  STATE_LOCAL: 'State (Local)',
+  STATE_REDUX: 'State (Redux)',
+} as const;

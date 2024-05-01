@@ -3,7 +3,7 @@ import {blake2sHex} from 'blakejs';
 import {round} from 'common/number';
 import {encodeUTF8} from 'common/encoder';
 import {createIdentifierPascal} from 'common/string';
-import {COLLECTION_LOCALES} from 'backend/gen/lib/consts';
+import {VARIABLE_COLLECTIONS} from 'backend/gen/lib/consts';
 import {
   getPage,
   getTagName,
@@ -31,10 +31,10 @@ export function writeChildren(
   getStyleProp: StylePrefixMapper,
   pressables?: string[][],
 ) {
-  let language = getCollectionByName(COLLECTION_LOCALES);
+  let language = getCollectionByName(VARIABLE_COLLECTIONS.LOCALES);
   if (!language) {
     try {
-      language = figma.variables.createVariableCollection(COLLECTION_LOCALES);
+      language = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
     } catch (e) {}
   }
 

@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getAllIconComponents} from 'backend/utils/icons';
-import {COLLECTION_LOCALES} from 'backend/gen/lib/consts';
+import {VARIABLE_COLLECTIONS} from 'backend/gen/lib/consts';
 import {getComponentTargets, getComponentTarget, getCollectionModes, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
@@ -68,7 +68,8 @@ export async function generateBundle(
 
 export function watchTheme(settings: ProjectSettings) {
   const updateTheme = () => {
-    const {code, theme, hasStyles} = generateTokens(settings);
+    const tokens = generateTokens(settings);
+    const {code, theme, hasStyles} = tokens.themes;
     const currentTheme = theme?.current
       ? `${createIdentifierCamel(theme.current.name)}`
       : 'main';
@@ -81,7 +82,7 @@ export function watchTheme(settings: ProjectSettings) {
 export function watchLanguage() {
   let _lastLanguage = '';
   const updateLanguage = () => {
-    const language = getCollectionModes(COLLECTION_LOCALES);
+    const language = getCollectionModes(VARIABLE_COLLECTIONS.LOCALES);
     if (!language || !language.current) return;
     const name = language.current.name;
     if (name === _lastLanguage) return;

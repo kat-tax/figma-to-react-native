@@ -1,6 +1,6 @@
 import {titleCase} from 'common/string';
 import {focusNode} from 'backend/fig/lib';
-import {COLLECTION_COLORS, COLLECTION_SCALE_COLORS} from 'backend/gen/lib/consts';
+import {VARIABLE_COLLECTIONS} from 'backend/gen/lib/consts';
 
 import type {ThemeColor, ThemeRadius, ThemePreset} from 'types/themes';
 
@@ -53,15 +53,15 @@ export function createVariableTheme(preset: ThemePreset): {
 
   // Try to find existing collections
   let theme = figma.variables.getLocalVariableCollections()
-    ?.find(c => c.name === COLLECTION_COLORS);
+    ?.find(c => c.name === VARIABLE_COLLECTIONS.COLORS);
   let pallete = figma.variables.getLocalVariableCollections()
-    ?.find(c => c.name === COLLECTION_SCALE_COLORS);
+    ?.find(c => c.name === VARIABLE_COLLECTIONS.SCALE_COLORS);
 
   // Try to create pallete collection if does not exist
   // Note: this will be a Figma pay-walled feature after public beta
   if (!pallete) {
     try {
-      pallete = figma.variables.createVariableCollection(COLLECTION_SCALE_COLORS);
+      pallete = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.SCALE_COLORS);
       pallete.renameMode(pallete.defaultModeId, 'Default');
     } catch (e) {
       throw new Error(e);
@@ -80,7 +80,7 @@ export function createVariableTheme(preset: ThemePreset): {
   // Note: this will be a Figma pay-walled feature after public beta
   if (!theme) {
     try {
-      theme = figma.variables.createVariableCollection(COLLECTION_COLORS);
+      theme = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.COLORS);
     } catch (e) {
       throw new Error(e);
     }

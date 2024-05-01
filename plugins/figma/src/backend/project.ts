@@ -75,7 +75,7 @@ export function build(release: ProjectRelease) {
         time: Date.now(),
         name: projectName,
         index: generateIndex(names, config.state, true),
-        theme: generateTokens(config.state).code,
+        theme: generateTokens(config.state).themes.code,
         assets: buildAssets,
       };
 
