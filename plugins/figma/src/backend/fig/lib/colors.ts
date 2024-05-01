@@ -66,6 +66,7 @@ export function getFillToken(node: FrameNode | ComponentSetNode | ComponentNode 
   if (!fill) return placeholder;
   const fillId = fill?.boundVariables?.color?.id;
   const fillVar = fillId && figma.variables.getVariableById(fillId);
+  // TODO: use the code syntax if available, otherwise heuristic?, otherwise raw value
   return fillVar && fillVar.resolvedType === 'COLOR'
     ? `theme.colors.${createIdentifierCamel(fillVar.name)}`
     : `"${getColor(fill.color, fill.opacity)}"`
