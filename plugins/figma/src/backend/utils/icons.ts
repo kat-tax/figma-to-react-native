@@ -150,7 +150,7 @@ export function getVariables(): {
 } {
   let background: Variable;
   let foreground: Variable;
-  const theme = figma.variables.getLocalVariableCollections()?.find(c => c.name === VARIABLE_COLLECTIONS.COLORS);
+  const theme = figma.variables.getLocalVariableCollections()?.find(c => c.name === VARIABLE_COLLECTIONS.THEMES);
   if (theme) {
     const variables = theme.variableIds.map(id => figma.variables.getVariableById(id))
     for (const variable of variables) {

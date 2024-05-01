@@ -53,7 +53,7 @@ export function createVariableTheme(preset: ThemePreset): {
 
   // Try to find existing collections
   let theme = figma.variables.getLocalVariableCollections()
-    ?.find(c => c.name === VARIABLE_COLLECTIONS.COLORS);
+    ?.find(c => c.name === VARIABLE_COLLECTIONS.THEMES);
   let palette = figma.variables.getLocalVariableCollections()
     ?.find(c => c.name === VARIABLE_COLLECTIONS.SCALE_COLORS);
 
@@ -80,7 +80,7 @@ export function createVariableTheme(preset: ThemePreset): {
   // Note: this will be a Figma pay-walled feature after public beta
   if (!theme) {
     try {
-      theme = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.COLORS);
+      theme = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.THEMES);
     } catch (e) {
       throw new Error(e);
     }

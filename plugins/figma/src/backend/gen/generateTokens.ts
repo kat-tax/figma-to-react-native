@@ -134,7 +134,7 @@ function writePalette(writer: CodeBlockWriter) {
 }
 
 function writeThemes(writer: CodeBlockWriter) {
-  const theme = getCollectionModes(VARIABLE_COLLECTIONS.COLORS);
+  const theme = getCollectionModes(VARIABLE_COLLECTIONS.THEMES);
   let hasStyles = false;
 
   writer.write('export const themes = {').indent(() => {
@@ -239,7 +239,7 @@ function writeScaleToken(writer: CodeBlockWriter, name: string, token: ScaleToke
 
 function getColorTokens(themeId: string): ScaleColors {
   return {
-    ...getColorScaleVariables(VARIABLE_COLLECTIONS.COLORS, 'colors', themeId),
+    ...getColorScaleVariables(VARIABLE_COLLECTIONS.THEMES, 'colors', themeId),
     ...getColorLocalStyles(),
   };
 }
