@@ -14,6 +14,7 @@ export {
   getPropName,
   getPropsJSX,
   getPropJSX,
+  getPropComponent,
   sortProps,
   sortPropsDef,
 } from './jsx';

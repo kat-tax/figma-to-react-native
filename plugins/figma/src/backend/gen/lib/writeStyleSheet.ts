@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
+import {getColor} from 'backend/fig/lib';
 
 import type {ParseData} from 'types/parse';
 import type {ImportFlags} from './writeImports';
@@ -51,7 +52,7 @@ export function writeStyleSheet(
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
   const props = styles && Object.keys(styles);
-  if (props.length > 0) {
+  if (props?.length > 0) {
     writeProps(props, writer, slug, styles);
   }
 }
@@ -67,27 +68,13 @@ export function writeProps(props: string[], writer: CodeBlockWriter, slug: strin
 
 export function writeProp(
   prop: string,
-  value: any,
+  value: unknown,
   writer: CodeBlockWriter,
 ) {
   // Expand shorthand props
-  // TODO: shouldn't be done here, can't diff this way
+  // TODO: expansion shouldn't be done here, can't diff this way
   if (prop === 'border') {
-    if (Array.isArray(value)) {
-      const [width, style, color] = value;
-      const colorVal = color?.type === 'runtime' && color?.name === 'var'
-        ? `theme.colors.${createIdentifierCamel(color.arguments[0])}`
-        : color;
-      writer.writeLine(`borderWidth: ${width},`);
-      writer.write(`borderStyle: `);
-      writer.quote(style);
-      writer.write(',');
-      writer.writeLine(`borderColor: ${colorVal},`);
-    } else {
-      writer.writeLine(`borderWidth: 'unset' as any,`);
-      writer.writeLine(`borderStyle: 'unset' as any,`);
-      writer.writeLine(`borderColor: 'unset' as any,`);
-    }
+    writeExpandedBorderProps(writer, value);
   // Other props
   } else {
     writer.write(`${prop}: `);
@@ -95,27 +82,80 @@ export function writeProp(
     if (typeof value === 'undefined' || value === 'unset') {
       writer.quote('unset')
       writer.write(' as any');
-    // Number values
-    } else if (typeof value === 'number') {
-      writer.write(Number.isInteger(value)
-        ? value.toString()
-        : parseFloat(value.toFixed(5)).toString()
-      );
-    // Theme values (local styles)
-    } else if (typeof value === 'string' && value.startsWith('theme.')) {
-      writer.write(value);
-    // Runtime values (variables)
-    } else if (value?.type === 'runtime' && value?.name === 'var') {
-      writer.write('theme.colors.' + createIdentifierCamel(value.arguments[0]));
-    // String values
-    } else if (typeof value === 'string') {
-      writer.quote(value);
-    // Object values
     } else {
-      writer.write(JSON.stringify(value));
-      //writer.write(JSON.stringify(value));
+      const val = isRuntimeVar(value) ? getRuntimeVar(value) : value;
+      // Number values
+      if (typeof val === 'number') {
+        // Hack: font weight needs to be a string
+        if (prop === 'fontWeight') {
+          writer.quote(val.toString());
+        // Round numbers from figma
+        } else {
+          writer.write(Number.isInteger(val)
+            ? val.toString()
+            : parseFloat(val.toFixed(5)).toString()
+          );
+        }
+      // Code syntax array (variables)
+      } else if (Array.isArray(val)) {
+        writer.write(val.join('.'));
+      // String values
+      } else if (typeof val === 'string') {
+        writer.quote(val);
+      // Unknown value
+      } else {
+        writer.write(JSON.stringify(val));
+      }
     }
     writer.write(',');
     writer.newLine();
+  }
+}
+
+type RuntimeVariable = {
+  type: 'runtime',
+  name: 'var',
+  arguments: [string, any],
+}
+
+function isRuntimeVar(value: any): value is RuntimeVariable {
+  return value?.type === 'runtime'
+    && value?.name === 'var'
+    && Array.isArray(value?.arguments)
+    && value.arguments.length === 2;
+}
+
+function getRuntimeVar(runtime: RuntimeVariable) {
+  const variable = runtime.arguments[1][0]?.value;
+  switch (variable?.type) {
+    case 'rgb':
+      const {r,g,b,alpha} = variable;
+      if (alpha === 1) {
+        return `rgb(${r},${g},${b})`
+      } else {
+        return `rgba(${r},${g},${b},${alpha})`;
+      }
+    default:
+      return variable?.value ?? variable;
+  }
+}
+
+function writeExpandedBorderProps(writer: CodeBlockWriter, value: unknown) {
+  if (Array.isArray(value)) {
+    const [width, style, color] = value;
+    const val = isRuntimeVar(color) ? getRuntimeVar(color) : color;
+    writer.writeLine(`borderWidth: ${width},`);
+    writer.write(`borderStyle: `);
+    writer.quote(style);
+    writer.write(',');
+    writer.newLine();
+    writer.write(`borderColor: `);
+    writer.quote(val);
+    writer.write(',');
+    writer.newLine();
+  } else {
+    writer.writeLine(`borderWidth: 'unset' as any,`);
+    writer.writeLine(`borderStyle: 'unset' as any,`);
+    writer.writeLine(`borderColor: 'unset' as any,`);
   }
 }

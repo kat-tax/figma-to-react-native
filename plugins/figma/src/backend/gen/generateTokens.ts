@@ -151,10 +151,10 @@ function writeThemes(writer: CodeBlockWriter) {
       theme.modes.forEach(mode => {
         writer.write(`${createIdentifierCamel(mode.name)}: `).inlineBlock(() => {
           hasStyles = writeColors(writer, getColorTokens(mode.modeId));
-          writer.writeLine('...display,');
-          writer.writeLine('...pallete,');
-          writer.writeLine('...typography,');
-          writer.writeLine('...font,');
+          writer.writeLine('display,');
+          writer.writeLine('pallete,');
+          writer.writeLine('typography,');
+          writer.writeLine('font,');
         });
         writer.write(',');
         writer.newLine();
