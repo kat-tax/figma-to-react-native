@@ -1,5 +1,6 @@
 export const VARIABLE_COLLECTIONS = {
   // Main
+  BREAKPOINTS: 'Breakpoints',
   COLORS: 'Colors',
   DISPLAY: 'Display',
   FONTS: 'Fonts',

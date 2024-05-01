@@ -45,7 +45,6 @@ const tabs: AppTabs = {
     'theme',
     //'docs',
     //'assets',
-    //'fonts',
     'export',
     'settings',
   ],

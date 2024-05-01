@@ -44,35 +44,35 @@ export function createLocalStylesTheme(preset: ThemePreset): {
 
 export function createVariableTheme(preset: ThemePreset): {
   themeVars: Record<string, Variable>,
-  palleteVars: Record<string, Variable>,
+  paletteVars: Record<string, Variable>,
   isVariable: true,
 } {
   const themeVars: Record<string, Variable> = {};
-  const palleteVars: Record<string, Variable> = {};
+  const paletteVars: Record<string, Variable> = {};
   const createdThemeVars: Record<string, boolean> = {};
 
   // Try to find existing collections
   let theme = figma.variables.getLocalVariableCollections()
     ?.find(c => c.name === VARIABLE_COLLECTIONS.COLORS);
-  let pallete = figma.variables.getLocalVariableCollections()
+  let palette = figma.variables.getLocalVariableCollections()
     ?.find(c => c.name === VARIABLE_COLLECTIONS.SCALE_COLORS);
 
-  // Try to create pallete collection if does not exist
+  // Try to create palette collection if does not exist
   // Note: this will be a Figma pay-walled feature after public beta
-  if (!pallete) {
+  if (!palette) {
     try {
-      pallete = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.SCALE_COLORS);
-      pallete.renameMode(pallete.defaultModeId, 'Default');
+      palette = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.SCALE_COLORS);
+      palette.renameMode(palette.defaultModeId, 'Default');
     } catch (e) {
       throw new Error(e);
     }
-  // Collection exists, look for preset pallete variables
+  // Collection exists, look for preset palette variables
   } else {
-    const variables = pallete.variableIds.map(id => figma.variables.getVariableById(id));
+    const variables = palette.variableIds.map(id => figma.variables.getVariableById(id));
     const presetVars = Object.keys(preset.colors);
     for (const vars of variables) {
       if (presetVars.includes(vars.name))
-        palleteVars[vars.name] = vars;
+        paletteVars[vars.name] = vars;
     }
   }
 
@@ -120,11 +120,11 @@ export function createVariableTheme(preset: ThemePreset): {
 
   // Create non-existing color variables
   for (const [name, rgb] of Object.entries(preset.colors)) {
-    if (!palleteVars[name]) {
+    if (!paletteVars[name]) {
       try {
-        const colorVar = figma.variables.createVariable(name, pallete.id, 'COLOR');
-        colorVar.setValueForMode(pallete.defaultModeId, rgb);
-        palleteVars[name] = colorVar;
+        const colorVar = figma.variables.createVariable(name, palette.id, 'COLOR');
+        colorVar.setValueForMode(palette.defaultModeId, rgb);
+        paletteVars[name] = colorVar;
       } catch (e) {
         throw new Error(e);
       }
@@ -139,7 +139,7 @@ export function createVariableTheme(preset: ThemePreset): {
       Object.entries(preset.modes[modeType])?.forEach(([name, token]) => {
         const variable = themeVars[name];
         variable.setValueForMode(modeId, {
-          id: palleteVars[token].id,
+          id: paletteVars[token].id,
           type: 'VARIABLE_ALIAS',
         });
       });
@@ -149,7 +149,7 @@ export function createVariableTheme(preset: ThemePreset): {
   // Return variables
   return {
     themeVars,
-    palleteVars,
+    paletteVars,
     isVariable: true,
   };
 }
