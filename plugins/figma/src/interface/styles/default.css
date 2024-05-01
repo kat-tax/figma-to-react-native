@@ -402,50 +402,50 @@ iframe {
   border-radius: 10px;
 }
 
-.theme-picker-colors input[value="zinc"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Zinc"] ~[class*="_fill_"] {
   background: hsl(240 5.2% 33.9%) !important;
 }
 
-.theme-picker-colors input[value="slate"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Slate"] ~[class*="_fill_"] {
   background: hsl(215.3 19.3% 34.5%) !important;
 }
 
-.theme-picker-colors input[value="stone"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Stone"] ~[class*="_fill_"] {
   background: hsl(33.3 5.5% 32.4%) !important;
 }
 
-.theme-picker-colors input[value="gray"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Grey"] ~[class*="_fill_"] {
   background: hsl(215 13.8% 34.1%) !important;
 }
 
-.theme-picker-colors input[value="neutral"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Neutral"] ~[class*="_fill_"] {
   background: hsl(0 0% 32.2%) !important;
 }
 
-.theme-picker-colors input[value="red"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Red"] ~[class*="_fill_"] {
   background: hsl(0 72.2% 50.6%) !important;
 }
 
-.theme-picker-colors input[value="rose"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Rose"] ~[class*="_fill_"] {
   background: hsl(346.8 77.2% 49.8%) !important;
 }
 
-.theme-picker-colors input[value="orange"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Orange"] ~[class*="_fill_"] {
   background: hsl(20.5 90.2% 48.2%) !important;
 }
 
-.theme-picker-colors input[value="green"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Green"] ~[class*="_fill_"] {
   background: hsl(142.1 70.6% 45.3%) !important;
 }
 
-.theme-picker-colors input[value="blue"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Blue"] ~[class*="_fill_"] {
   background: hsl(217.2 91.2% 59.8%) !important;
 }
 
-.theme-picker-colors input[value="yellow"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Yellow"] ~[class*="_fill_"] {
   background: hsl(47.9 95.8% 53.1%) !important;
 }
 
-.theme-picker-colors input[value="violet"] ~[class*="_fill_"] {
+.theme-picker-colors input[value="Violet"] ~[class*="_fill_"] {
   background: hsl(263.4 70% 50.4%) !important;
 }

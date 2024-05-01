@@ -13,7 +13,7 @@ export function ThemePicker() {
   const [isGenerating, setGenerating] = useState(false);
 
   const initialForm: ThemePickerForm = {
-    color: 'zinc',
+    color: 'Zinc',
     radius: '0.5',
   };
 
