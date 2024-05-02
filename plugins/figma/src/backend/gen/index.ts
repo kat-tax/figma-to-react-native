@@ -1,7 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getAllIconComponents} from 'backend/utils/icons';
 import {VARIABLE_COLLECTIONS} from 'backend/gen/lib/consts';
-import {getComponentTargets, getComponentTarget, getCollectionModes, getPage} from 'backend/fig/lib';
+import {getComponentTargets, getComponentTarget, getVariableCollectionModes, getPage} from 'backend/fig/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
 import {wait} from 'common/delay';
@@ -82,7 +82,7 @@ export function watchTheme(settings: ProjectSettings) {
 export function watchLanguage() {
   let _lastLanguage = '';
   const updateLanguage = () => {
-    const language = getCollectionModes(VARIABLE_COLLECTIONS.LOCALES);
+    const language = getVariableCollectionModes(VARIABLE_COLLECTIONS.LOCALES);
     if (!language || !language.current) return;
     const name = language.current.name;
     if (name === _lastLanguage) return;

@@ -1,14 +1,13 @@
 import {getPropName} from './jsx';
 import {getPage} from './traverse';
 
-export function focusNode(id: string) {
+export async function focusNode(id: string) {
   try {
     const node = figma.getNodeById(id);
     if (node) {
       const page = getPage(node);
-      if (page && figma.currentPage !== page) {
-        figma.currentPage = page;
-      }
+      if (page && figma.currentPage !== page)
+        await figma.setCurrentPageAsync(page);
       figma.currentPage.selection = [node as SceneNode];
       figma.viewport.scrollAndZoomIntoView([node]);
     }

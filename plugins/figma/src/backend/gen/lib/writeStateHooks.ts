@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
-import {getCollectionByName, getPage} from 'backend/fig/lib';
+import {getVariableCollection, getPage} from 'backend/fig/lib';
 import {VARIABLE_COLLECTIONS} from 'backend/gen/lib/consts';
 
 import type {ParseData} from 'types/parse';
@@ -12,7 +12,7 @@ export function writeStateHooks(
   data: ParseData,
 ) {
   // Check if root has a variable group (matches page and name)
-  const state = getCollectionByName(VARIABLE_COLLECTIONS.STATE_LOCAL);
+  const state = getVariableCollection(VARIABLE_COLLECTIONS.STATE_LOCAL);
   if (!state) return;
   const rootName = data.root.node.name;
   const rootPage = getPage(data.root.node);

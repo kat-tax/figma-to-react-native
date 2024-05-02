@@ -83,26 +83,6 @@ export function getComponentParent(node: SceneNode): ComponentNode {
   return null;
 }
 
-export function getCollectionModes(collectionName: string) {
-  // Find the variable collection
-  const theme = getCollectionByName(collectionName);
-  if (!theme) return null;
-  // Find the current mode
-  const component = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']})?.pop();
-  const current = component?.resolvedVariableModes?.[theme.id];
-  return {
-    current: theme.modes.find(m => m.modeId === current),
-    default: theme.modes.find(m => m.modeId === theme.defaultModeId),
-    modes: theme.modes,
-  };
-}
-
-export function getCollectionByName(collectionName: string) {
-  const collections = figma.variables.getLocalVariableCollections();
-  const collection = collections?.find(c => c.name === collectionName);
-  return collection;
-}
-
 // Get the page of a node
 export function getPage(node: BaseNode): PageNode {
   if (!node) return null;

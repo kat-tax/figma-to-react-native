@@ -1,5 +1,5 @@
 import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'backend/fig/lib';
-import {getAssets, getPage, getFillToken, getStyleSheet, getColorSheet, validate} from './lib';
+import {getAssets, getPage, getFillToken, getStyleSheet, getColorSheet} from './lib';
 import {createIdentifierCamel} from 'common/string';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
@@ -32,6 +32,21 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   // console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
 
   return {...data, stylesheet, colorsheet, assetData, assetMap};
+}
+
+function validate(component: ComponentNode) {
+  // Sanity check
+  if (!component || component.type !== 'COMPONENT') {
+    throw new Error(`Component not found.`);
+  }
+
+  // Disallow certain nodes
+  if (component.findAllWithCriteria({types: ['SECTION']}).length > 0) {
+    throw new Error(`Sections cannot be inside a component. Convert them to a frame.`);
+  }
+
+  // Good to go!
+  return true;
 }
 
 function crawl(node: ComponentNode) {

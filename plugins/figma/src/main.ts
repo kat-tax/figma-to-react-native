@@ -43,6 +43,11 @@ export default async function() {
 
   // Wait for interface to be ready
   once<T.EventAppReady>('APP_READY', async () => {
+    // Load all pages into memory.
+    // TODO: This may be removed if the plugin can be refactored to handle dynamic pages
+    // REF: https://www.figma.com/plugin-docs/migrating-to-dynamic-loading/
+    await figma.loadAllPagesAsync();
+
     // Load current page from storage
     _page = await nav.loadCurrentPage() || 'component/code';
 

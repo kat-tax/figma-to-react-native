@@ -1,6 +1,6 @@
-export {validate} from './validate';
-export {getAssets} from './assets';
-export {getStyleSheet} from './styles';
+export {
+  getAssets,
+} from './assets';
 
 export {
   getColorSheet,
@@ -29,11 +29,18 @@ export {
 } from './node';
 
 export {
+  getStyleSheet,
+} from './styles';
+
+export {
   getSelectedComponent,
   getComponentTargets,
   getComponentTarget,
   getComponentParent,
-  getCollectionModes,
-  getCollectionByName,
   getPage,
 } from './traverse';
+
+export {
+  getVariableCollection,
+  getVariableCollectionModes,
+} from './variables';

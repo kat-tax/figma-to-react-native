@@ -67,7 +67,9 @@ export async function importComponents(iconSet: string) {
     timeout: 3000,
     button: {
       text: 'View',
-      action: () => focusNode(base.id),
+      action: () => {
+        focusNode(base.id);
+      }
     }
   });
 

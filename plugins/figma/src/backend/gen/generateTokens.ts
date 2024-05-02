@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
-import {getColor, getCollectionModes} from 'backend/fig/lib';
+import {getColor, getVariableCollection, getVariableCollectionModes} from 'backend/fig/lib';
 import {VARIABLE_COLLECTIONS} from 'backend/gen/lib/consts';
 import {isReadOnly} from 'backend/utils/mode';
 
@@ -134,7 +134,7 @@ function writePalette(writer: CodeBlockWriter) {
 }
 
 function writeThemes(writer: CodeBlockWriter) {
-  const theme = getCollectionModes(VARIABLE_COLLECTIONS.THEMES);
+  const theme = getVariableCollectionModes(VARIABLE_COLLECTIONS.THEMES);
   let hasStyles = false;
 
   writer.write('export const themes = {').indent(() => {
@@ -320,12 +320,6 @@ function getFontScaleVariables(key: string, ns: string): {names: string[], refs:
       }
     });
   return {names, refs};
-}
-
-function getVariableCollection(name: string) {
-  return figma.variables
-    ?.getLocalVariableCollections()
-    ?.find(c => c.name === name);
 }
 
 function setVariableCodeSyntax(variable: Variable, namespace: string) {

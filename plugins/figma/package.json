@@ -75,7 +75,7 @@
   },
   "devDependencies": {
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
-    "@figma/plugin-typings": "1.88.0",
+    "@figma/plugin-typings": "latest",
     "@types/lodash.camelcase": "^4.3.9",
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",

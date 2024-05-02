@@ -12,7 +12,7 @@ import {
   getFillToken,
   getInstanceInfo,
   getCustomReaction,
-  getCollectionByName,
+  getVariableCollection,
   // getPressReaction,
 } from 'backend/fig/lib';
 
@@ -31,7 +31,7 @@ export function writeChildren(
   getStyleProp: StylePrefixMapper,
   pressables?: string[][],
 ) {
-  let language = getCollectionByName(VARIABLE_COLLECTIONS.LOCALES);
+  let language = getVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
   if (!language) {
     try {
       language = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.LOCALES);

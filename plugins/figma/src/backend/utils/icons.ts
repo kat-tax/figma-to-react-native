@@ -62,7 +62,9 @@ export async function importIcons(setName: string, icons: Record<string, string>
     timeout: 3000,
     button: {
       text: 'View',
-      action: () => focusNode(frame.id),
+      action: () => {
+        focusNode(frame.id)
+      },
     }
   });
 
@@ -150,7 +152,8 @@ export function getVariables(): {
 } {
   let background: Variable;
   let foreground: Variable;
-  const theme = figma.variables.getLocalVariableCollections()?.find(c => c.name === VARIABLE_COLLECTIONS.THEMES);
+  const theme = figma.variables.getLocalVariableCollections()
+    ?.find(c => c.name === VARIABLE_COLLECTIONS.THEMES);
   if (theme) {
     const variables = theme.variableIds.map(id => figma.variables.getVariableById(id))
     for (const variable of variables) {
