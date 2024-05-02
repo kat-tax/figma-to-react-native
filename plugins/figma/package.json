@@ -13,6 +13,7 @@
   "figma-plugin": {
     "id": "821138713091291738",
     "name": "Figma -> React Native",
+    "documentAccess": "dynamic-page",
     "networkAccess": {
       "allowedDomains": [
         "*"

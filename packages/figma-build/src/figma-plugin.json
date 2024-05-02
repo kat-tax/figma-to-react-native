@@ -1,7 +1,7 @@
 {
   "title": "Figma Plugin JSON Schema",
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "https://github.com/kat-tax/figma-to-react-native/packages/figma-build/figma-plugin.json",
+  "id": "https://raw.githubusercontent.com/kat-tax/figma-to-react-native/master/packages/figma-build/src/figma-plugin.json",
   "type": "object",
   "definitions": {
     "FileMain": {
@@ -155,6 +155,11 @@
             "type": "string",
             "enum": ["dev", "figjam", "figma"]
           }
+        },
+        "documentAccess": {
+          "description": "(optional)\nHow to access the document. Set to \"dynamic-page\" to load pages dynamically.",
+          "type": "string",
+          "enum": ["dynamic-page"]
         },
         "containsWidget": {
           "description": "(optional)\nThis field must be set to `true` for a FigJam widget. Defaults to `false`.",

@@ -4,7 +4,15 @@
       "fileMatch": [
         "plugins/figma/package.json"
       ],
-      "url": "https://github.com/kat-tax/figma-to-react-native/packages/figma-build/figma-plugin.json"
+      "url": "./packages/figma-build/src/figma-plugin.json"
     }
-  ]
+  ],
+  "material-icon-theme.activeIconPack": "react",
+  "typescript.tsserver.watchOptions": {
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriorityPolling",
+    "watchFile": "useFsEventsOnParentDirectory",
+    "excludeDirectories": ["**/node_modules/**/*"],
+    "synchronousWatchDirectory": true,
+  },
 }
