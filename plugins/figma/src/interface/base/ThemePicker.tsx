@@ -32,7 +32,7 @@ export function ThemePicker() {
     <F.Container space="medium" style={{maxWidth: 340, margin: '0 auto'}}>
       <F.VerticalSpace space="large"/>
       <Fragment>
-        <F.Bold>Color</F.Bold>
+        <F.Bold>Presets</F.Bold>
         <div className="theme-picker-colors">
           <F.VerticalSpace space="small"/>
           <F.RadioButtons
@@ -57,7 +57,7 @@ export function ThemePicker() {
         </div>
         <F.VerticalSpace space="extraLarge"/>
       </Fragment>
-      <Fragment>
+      {/*<Fragment>
         <F.Bold>Radius</F.Bold>
         <F.VerticalSpace space="small"/>
         <F.SegmentedControl
@@ -74,7 +74,7 @@ export function ThemePicker() {
         />
         <F.VerticalSpace space="extraLarge"/>
         <F.VerticalSpace space="small"/>
-      </Fragment>
+      </Fragment>*/}
       <Fragment>
         <F.Button
           fullWidth

@@ -1,9 +1,9 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getSelectedComponent} from 'backend/fig/lib';
+import {getSelectedComponent} from 'backend/parser/lib';
 import {F2RN_NAVIGATE} from 'config/env';
 
 import type {AppPages} from 'types/app';
-import type {EventSelectComponent} from 'types/events';
+import type {EventSelectComponent, EventSelectVariant} from 'types/events';
 
 export async function loadCurrentPage(): Promise<AppPages | null> {
   try {
@@ -22,9 +22,23 @@ export async function saveCurrentPage(page: AppPages) {
 }
 
 export function targetSelectedComponent() {
+  if (!figma.currentPage.selection.length) return;
   const component = getSelectedComponent();
   if (!component) return;
   const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
   const masterNode = (isVariant ? component?.parent : component) as ComponentNode;
   emit<EventSelectComponent>('SELECT_COMPONENT', masterNode.key);
+}
+
+export function targetSelectedComponentVariant() {
+  if (!figma.currentPage.selection.length) return;
+  const selection = figma.currentPage.selection[0];
+  let target = selection;
+  while (target.type !== 'COMPONENT' && target.parent.type !== 'PAGE')
+    target = target.parent as SceneNode;
+  if (target?.type !== 'COMPONENT') return;
+  const name = target.parent.name;
+  const props = (target as SceneNode & VariantMixin)?.variantProperties;
+  emit<EventSelectVariant>('SELECT_VARIANT', name, props);
+  return;
 }
