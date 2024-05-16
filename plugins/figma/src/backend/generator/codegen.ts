@@ -1,12 +1,12 @@
 import * as config from 'backend/utils/config';
 
-import {generateTokens} from './lib/generateTokens';
+import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];
   const bundle = await generateBundle(node, config.state);
-  const {code} = (await generateTokens(config.state)).themes;
+  const {code} = (await generateTheme(config.state)).themes;
   return bundle.code ? [
     {
       language: 'TYPESCRIPT',

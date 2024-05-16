@@ -7,7 +7,7 @@ import {wait} from 'common/delay';
 import * as config from 'backend/utils/config';
 
 import {generateIndex} from './lib/generateIndex';
-import {generateTokens} from './lib/generateTokens';
+import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 import {VARIABLE_COLLECTIONS} from './lib/consts';
 
@@ -71,7 +71,7 @@ export async function watchComponents(targetComponent: () => void) {
 
 export async function watchTheme(settings: ProjectSettings) {
   const updateTheme = async () => {
-    const tokens = await generateTokens(settings);
+    const tokens = await generateTheme(settings);
     const {code, theme, hasStyles} = tokens.themes;
     const currentTheme = theme?.current
       ? `${createIdentifierCamel(theme.current.name)}`

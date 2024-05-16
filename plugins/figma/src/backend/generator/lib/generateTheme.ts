@@ -6,7 +6,7 @@ import {VARIABLE_COLLECTIONS} from './consts';
 
 import type {ProjectSettings} from 'types/settings';
 
-export async function generateTokens(settings: ProjectSettings) {
+export async function generateTheme(settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
   writer.writeLine('export type Themes = keyof typeof themes;');
   writer.blankLine();

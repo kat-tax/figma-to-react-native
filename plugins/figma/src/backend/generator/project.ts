@@ -7,7 +7,7 @@ import * as config from 'backend/utils/config';
 
 import {generateBundle} from './lib/generateBundle';
 import {generateIndex} from './lib/generateIndex';
-import {generateTokens} from './lib/generateTokens';
+import {generateTheme} from './lib/generateTheme';
 
 import type {ProjectBuild, ProjectRelease, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
 import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';
@@ -78,7 +78,7 @@ export function build(release: ProjectRelease) {
         time: Date.now(),
         name: projectName,
         index: generateIndex(names, config.state, true),
-        theme: (await generateTokens(config.state)).themes.code,
+        theme: (await generateTheme(config.state)).themes.code,
         assets: buildAssets,
       };
 
