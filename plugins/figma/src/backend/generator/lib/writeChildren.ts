@@ -1,9 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
-import {blake2sHex} from 'blakejs';
 import {round} from 'common/number';
-import {encodeUTF8} from 'common/encoder';
 import {createIdentifierPascal} from 'common/string';
-import {VARIABLE_COLLECTIONS} from './consts';
+import {translate} from 'backend/utils/translate';
 import {
   getPage,
   getTagName,
@@ -12,7 +10,6 @@ import {
   getFillToken,
   getInstanceInfo,
   getCustomReaction,
-  getVariableCollection,
   // getPressReaction,
 } from 'backend/parser/lib';
 
@@ -22,24 +19,19 @@ import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
 
-export async function writeChildren(
+export function writeChildren(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   data: ParseData,
   settings: ProjectSettings,
+  language: VariableCollection,
   children: ParseNodeTree,
   getStyleProp: StylePrefixMapper,
   pressables?: string[][],
 ) {
-  let language = await getVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
-  if (!language) {
-    try {
-      language = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
-    } catch (e) {}
-  }
 
   const state = {writer, flags, data, language, settings, pressables, getStyleProp};
-  for await (const child of children) {
+  for (const child of children) {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
@@ -52,8 +44,8 @@ export async function writeChildren(
     writer.conditionalWriteLine(isConditional, `{props.${getPropName(propRefs?.visible)} && `);
     writer.withIndentationLevel((isConditional ? 1 : 0) + writer.getIndentationLevel(), () => {
       writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressId}}>`);
-      writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), async () => {
-        await writeChild(child, slug, isConditional, state);
+      writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
+        writeChild(child, slug, isConditional, state);
       });
       writer.conditionalWriteLine(isPressable, `</Pressable>`);
     });
@@ -61,7 +53,7 @@ export async function writeChildren(
   }
 }
 
-async function writeChild(
+function writeChild(
   child: ParseNodeTreeItem,
   slug: string,
   isConditional: boolean,
@@ -70,7 +62,7 @@ async function writeChild(
     flags: ImportFlags,
     data: ParseData,
     settings: ProjectSettings,
-    language?: VariableCollection,
+    language: VariableCollection,
     pressables?: string[][],
     getStyleProp: StylePrefixMapper,
   },
@@ -98,7 +90,7 @@ async function writeChild(
   // Icon node
   if (isIcon) {
     const iconVector = instance.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
-    const iconColor = await getFillToken(iconVector);
+    const iconColor = getFillToken(iconVector);
     const variantFills = data.variants?.fills?.[slug];
     const hasVariant = data.variants && variantFills && !!Object.values(variantFills);
     const fillToken = hasVariant ? `vstyles.${slug}` : iconColor;
@@ -259,14 +251,15 @@ async function writeChild(
   }
 
   // Child nodes, open tag and write children
-  writer.write(`<${jsxTagWithProps}>`).indent(async () => {
+  writer.write(`<${jsxTagWithProps}>`).indent(() => {
     switch (jsxTag) {
       case 'View':
-        await writeChildren(
+        writeChildren(
           writer,
           state.flags,
           data,
           settings,
+          state.language,
           child.children,
           getStyleProp,
           pressables,
@@ -292,21 +285,4 @@ async function writeChild(
 
   // Closing tag
   writer.writeLine(`</${jsxTag}>`);
-}
-
-async function translate(language: VariableCollection, value: string) {
-  if (language) {
-    const {id, defaultModeId} = language;
-    try {
-      const bytes = encodeUTF8(value);
-      const hash = blake2sHex(bytes);
-      const vars = await figma.variables.getLocalVariablesAsync();
-      if (!vars.find(e => e.name === hash)) {
-        const entry = figma.variables.createVariable(hash, id, 'STRING');
-        entry.setValueForMode(defaultModeId, value);
-      }
-    } catch (e) {
-      console.log(`Unable to create language ${value}`, e);
-    }
-  }
 }

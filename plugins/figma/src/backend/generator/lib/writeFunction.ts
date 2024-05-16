@@ -16,6 +16,7 @@ export async function writeFunction(
   flags: ImportFlags,
   data: ParseData,
   settings: ProjectSettings,
+  language: VariableCollection,
 ) {
   // Derived data
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
@@ -65,8 +66,8 @@ export async function writeFunction(
       // Write root JSX
       writer.write('<' + tag + style + props + '>').indent(() => {
         writer.conditionalWriteLine(isPressable, `{e => <>`);
-        writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), async () => {
-          await writeChildren(writer, flags, data, settings, data.tree, getStyleProp, pressables);
+        writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
+          writeChildren(writer, flags, data, settings, language, data.tree, getStyleProp, pressables);
         });
         writer.conditionalWriteLine(isPressable, `</>}`);
       });
