@@ -321,7 +321,7 @@ async function getFontScaleVariables(key: string, ns: string): Promise<{names: s
 
 function setVariableCodeSyntax(variable: Variable, namespace: string) {
   const id = `theme.${namespace}.${createIdentifierCamel(variable.name)}`;
-  if (!isReadOnly() && variable.codeSyntax?.WEB !== id) {
+  if (!isReadOnly && variable.codeSyntax?.WEB !== id) {
     variable.setVariableCodeSyntax('WEB', id);
   }
 }

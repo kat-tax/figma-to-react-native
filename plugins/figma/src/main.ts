@@ -11,6 +11,7 @@ import * as icons from 'backend/importer/icons';
 import * as exo from 'backend/importer/exo';
 
 import * as config from 'backend/utils/config';
+import * as mode from 'backend/utils/mode';
 import * as drop from 'backend/utils/drop';
 import * as nav from 'backend/utils/nav';
 
@@ -19,13 +20,9 @@ import type {AppPages} from 'types/app';
 
 let _page: AppPages = 'components';
 
-const isCodegen = figma.mode === 'codegen';
-const isInspect = figma.mode === 'inspect';
-const isVSCode = Boolean(figma.vscode);
-
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
-if (!isCodegen) {
+if (!mode.isCodegen) {
   const width = F2RN_UI_WIDTH_MIN;
   const height = 999999;
   const x = Math.round(figma.viewport.bounds.x);
@@ -38,7 +35,7 @@ export default async function() {
   await config.load(true);
 
   // Headless codegen mode
-  if (isCodegen) {
+  if (mode.isCodegen) {
     figma.codegen.on('generate', (e) => {
       codegen.handleConfigChange();
       return codegen.render(e.node);
@@ -110,7 +107,13 @@ export default async function() {
     });
 
     // Send event to show interface (remove spinner)
-    emit<T.EventAppStart>('APP_START', _page, figma.currentUser, isVSCode, isInspect);
+    emit<T.EventAppStart>(
+      'APP_START',
+      _page,
+      figma.currentUser,
+      mode.isVSCode,
+      mode.isInspect,
+    );
 
     // Load config from storage (for frontend)
     await config.load(false);
