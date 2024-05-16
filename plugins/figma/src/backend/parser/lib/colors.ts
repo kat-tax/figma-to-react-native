@@ -10,25 +10,25 @@ export async function getColorSheet(
 ): Promise<ParseColorSheet> {
   // Generate base colors
   const colors: ParseColorSheet = {};
-  for await (const id of nodes) {
+  for (const id of nodes) {
     const node = figma.getNodeById(id) as ComponentNode;
     if (node.isAsset && node.findAllWithCriteria) {
       const vector = node.findAllWithCriteria({types: ['VECTOR']})[0];
       if (vector?.type === 'VECTOR') {
-        colors[id] = await getFillToken(vector);
+        colors[id] = getFillToken(vector);
       }
     }
   }
 
   // Generate variant colors
   if (variants?.mapping) {
-    for await (const id of Object.keys(variants.mapping)) {
-      for await (const [baseId, variantId] of Object.entries(variants.mapping[id])) {
+    for (const id of Object.keys(variants.mapping)) {
+      for (const [baseId, variantId] of Object.entries(variants.mapping[id])) {
         const vnode = figma.getNodeById(variantId) as ComponentNode;
         if (vnode.isAsset && vnode.findAllWithCriteria) {
           const vector = vnode.findAllWithCriteria({types: ['VECTOR']})[0];
           if (vector?.type === 'VECTOR') {
-            const token = await getFillToken(vector);
+            const token = getFillToken(vector);
             const isModified = colors[baseId] !== token;
             if (isModified) {
               colors[variantId] = token;
@@ -41,13 +41,13 @@ export async function getColorSheet(
   return colors;
 }
 
-export async function getFillToken(node: FillNodes) {
+export function getFillToken(node: FillNodes) {
   const placeholder = '"#000000"';
   if (!node) return placeholder;
   const fill = getTopFill(node.fills);
   if (!fill) return placeholder;
   const fillId = fill?.boundVariables?.color?.id;
-  const fillVar = fillId && await figma.variables.getVariableByIdAsync(fillId);
+  const fillVar = fillId && figma.variables.getVariableById(fillId);
   // TODO: use the code syntax if available, otherwise heuristic?, otherwise raw value
   return fillVar && fillVar.resolvedType === 'COLOR'
     ? `theme.colors.${createIdentifierCamel(fillVar.name)}`

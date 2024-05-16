@@ -6,9 +6,9 @@ export async function Slider(component: ComponentNode) {
   const nodeThumb = component.findOne(c => c.name === 'Thumb' && c.type === 'ELLIPSE') as EllipseNode;
 
   return template({
-    fillRange: await getFillToken(nodeRange),
-    fillTrack: await getFillToken(nodeTrack),
-    fillThumb: await getFillToken(nodeThumb),
+    fillRange: getFillToken(nodeRange),
+    fillTrack: getFillToken(nodeTrack),
+    fillThumb: getFillToken(nodeThumb),
     importStyles: `import {useStyles} from 'react-native-unistyles';\n`,
   }).slice(1);
 }
