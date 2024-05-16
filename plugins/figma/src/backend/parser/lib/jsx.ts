@@ -92,8 +92,8 @@ export function getPropComponent(
   // REFACTOR: a bit hacky, but only needed for previews that pass components to an instance swap prop
   let variantNode: BaseNode;
   if (isVariant) {
-    if (nodeRef[masterNode.id]) {
-      variantNode = nodeRef[masterNode.id][1];
+    if (nodeRef?.[masterNode.id]) {
+      variantNode = nodeRef?.[masterNode.id]?.[1];
     }
   }
 
@@ -105,12 +105,12 @@ export function getPropComponent(
         ? getPropsJSX(((node?.parent as ComponentSetNode))?.componentPropertyDefinitions, nodeRef)
         : getPropsJSX(node?.componentPropertyDefinitions, nodeRef)
       : '';
-      
+
   // Name of this instance swap tag
   const tagName = !isIconNode
     ? string.createIdentifierPascal(masterNode?.name)
     : 'Icon';
-  
+
   // Props specific to icon nodes
   const propsIcon = isIconNode
     ? ` name="${masterNode.name}"`
