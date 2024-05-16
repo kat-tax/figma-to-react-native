@@ -304,7 +304,12 @@ async function getFontVariables(key: string, ns: string): Promise<{names: string
   const names: string[] = [];
   const refs: Fonts = {};
   const collection = await getVariableCollection(key);
-  if (!collection) return {names: ['Inter'], refs};
+
+  // No variable collection found, use Inter as default font
+  if (!collection)
+    return {names: ['Inter'], refs};
+
+  // Use variables from collection
   const vars = await getVariables(collection.variableIds);
   for await (const v of vars) {
     const value = v.valuesByMode[collection.defaultModeId] as any;
@@ -312,7 +317,11 @@ async function getFontVariables(key: string, ns: string): Promise<{names: string
     const alias = isRef ? await figma.variables.getVariableByIdAsync(value.id) : null;
     setVariableCodeSyntax(v, ns);
     refs[v.name] = {
-      value: isRef ? `typography.${createIdentifierCamel(alias.name)}` : value,
+      value: isRef
+        ? alias.resolvedType === 'FLOAT'
+          ? `typography.${createIdentifierCamel(alias.name)}`
+          : Object.values(alias.valuesByMode).shift()
+        : value,
       comment: v.description,
     }
   }
