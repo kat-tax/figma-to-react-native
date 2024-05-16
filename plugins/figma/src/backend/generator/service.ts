@@ -16,6 +16,8 @@ import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, Event
 import type {ProjectSettings} from 'types/settings';
 
 const _cache: Record<string, ComponentData> = {};
+let _lastThemeCode = '';
+let _lastThemeName = '';
 
 export async function watchComponents(targetComponent: () => void) {
   // Compile all components in background on init
@@ -76,9 +78,13 @@ export async function watchTheme(settings: ProjectSettings) {
     const themeName = collection?.current
       ? `${createIdentifierCamel(collection.current.name)}`
       : 'main';
+    if (code === _lastThemeCode && themeName === _lastThemeName)
+        return;
+    _lastThemeCode = code;
+    _lastThemeName = themeName;
     emit<EventProjectTheme>('PROJECT_THEME', code, themeName, hasStyles);
   };
-  setInterval(updateTheme, 600);
+  setInterval(updateTheme, 1200);
   updateTheme();
 }
 

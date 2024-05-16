@@ -1,8 +1,10 @@
 import CodeBlockWriter from 'code-block-writer';
+import {getVariableCollection} from 'backend/parser/lib';
 
 import {writeImports} from './writeImports';
 import {writeFunction} from './writeFunction';
 import {writeStyleSheet} from './writeStyleSheet';
+import {VARIABLE_COLLECTIONS} from './consts';
 
 import type {ImportFlags} from './writeImports';
 import type {ProjectSettings} from 'types/settings';
@@ -25,7 +27,14 @@ export async function generateComponent(data: ParseData, settings: ProjectSettin
     exoRive: {},
   };
 
-  await writeFunction(body, flags, data, settings);
+  let language = await getVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
+  if (!language) {
+    try {
+      language = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
+    } catch (e) {}
+  }
+
+  await writeFunction(body, flags, data, settings, language);
   await writeStyleSheet(body, flags, data);
   await writeImports(head, flags, data);
 

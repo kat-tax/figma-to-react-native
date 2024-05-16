@@ -79,6 +79,9 @@ async function writeFonts(writer: CodeBlockWriter) {
       keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
         const groupItem = typography[group] as FloatToken;
+        // Hack: font weight needs to be a string
+        if (groupId.startsWith('weight'))
+          groupItem.value = groupItem.value.toString()
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
@@ -189,7 +192,7 @@ type ColorToken = {value: string, comment: string};
 
 type Floats = Record<string, FloatGroup>;
 type FloatGroup = Record<string, FloatToken> | FloatToken;
-type FloatToken = {value: number, comment: string};
+type FloatToken = {value: number | string, comment: string};
 
 type Fonts = Record<string, FontGroup>;
 type FontGroup = Record<string, FontToken> | FontToken;
