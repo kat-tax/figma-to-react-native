@@ -133,7 +133,7 @@ export default async function() {
     // Start generation services
     service.watchComponents(nav.targetSelectedComponent);
     service.watchTheme(config.state);
-    service.watchLocales();
     service.watchIcons();
+    service.watchLocales();
   });
 }
