@@ -3,8 +3,10 @@ import {titleCase} from 'common/string';
 import {focusNode, getVariables, getVariableCollection} from 'backend/parser/lib';
 import {VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
 
-const svgSize = 16;
-const svgProps = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${svgSize}" height="${svgSize}" viewBox="0 0 256 256"`;
+const SVG_SIZE = 16;
+const SVG_PROPS = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 256 256"`;
+const COLOR_BACKGROUND = 'Background';
+const COLOR_FOREGROUND = 'Foreground';
 
 export async function importIcons(setName: string, icons: Record<string, string>) {
   // Number of icon columns
@@ -29,7 +31,7 @@ export async function importIcons(setName: string, icons: Record<string, string>
   
   // Create icon set frame
   const frame = figma.createFrame();
-  frame.name = `${setName}, Normal, ${svgSize}`;
+  frame.name = `${setName}, Normal, ${SVG_SIZE}`;
   frame.cornerRadius = 3;
   frame.itemSpacing = 5;
   frame.counterAxisSpacing = 5;
@@ -40,7 +42,7 @@ export async function importIcons(setName: string, icons: Record<string, string>
   frame.layoutPositioning = 'AUTO';
   frame.layoutSizingVertical = 'HUG';
   frame.layoutSizingHorizontal = 'FIXED';
-  frame.resize((columns * svgSize)
+  frame.resize((columns * SVG_SIZE)
     + ((columns - 1) * frame.itemSpacing)
     + frame.horizontalPadding * 2
   , 100);
@@ -104,10 +106,10 @@ export async function createIcons(
     component.counterAxisAlignItems = 'CENTER';
     component.layoutSizingVertical = 'FIXED';
     component.layoutSizingHorizontal = 'FIXED';
-    component.resize(svgSize, svgSize);
+    component.resize(SVG_SIZE, SVG_SIZE);
 
     // Create icon frame
-    const frame = figma.createNodeFromSvg(`<svg ${svgProps}>${svg}</svg>`);
+    const frame = figma.createNodeFromSvg(`<svg ${SVG_PROPS}>${svg}</svg>`);
     frame.name = 'Frame';
     frame.findAllWithCriteria({types: ['VECTOR']}).forEach(c => {
       if (style) {
@@ -140,8 +142,8 @@ export async function getLocalStylesTokens(): Promise<{
   isVariable: false,
 }> {
   const styles = await figma.getLocalPaintStylesAsync();
-  const background = styles.find(s => s.name === 'background');
-  const foreground = styles.find(s => s.name === 'foreground');
+  const background = styles.find(s => s.name === COLOR_BACKGROUND);
+  const foreground = styles.find(s => s.name === COLOR_FOREGROUND);
   return {background, foreground, isVariable: false};
 }
 
@@ -156,9 +158,9 @@ export async function getVariableTokens(): Promise<{
   if (theme) {
     const variables = await getVariables(theme.variableIds);
     for (const variable of variables) {
-      if (variable.name === 'background')
+      if (variable.name === COLOR_BACKGROUND)
         background = variable;
-      if (variable.name === 'foreground')
+      if (variable.name === COLOR_FOREGROUND)
         foreground = variable;
       if (background && foreground)
         break;

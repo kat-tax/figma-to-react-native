@@ -61,7 +61,7 @@ async function writeDisplay(writer: CodeBlockWriter) {
       });
     // No display scales found, write empty object
     } else {
-      writer.write('// No display variables found');
+      writer.write(`// No "${VARIABLE_COLLECTIONS.SCALE_DISPLAY}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
@@ -84,7 +84,7 @@ async function writeFonts(writer: CodeBlockWriter) {
       });
     // No font scales found, write empty object
     } else {
-      writer.write('// No font scale variables found');
+      writer.write(`// No "${VARIABLE_COLLECTIONS.SCALE_FONTS}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
@@ -102,7 +102,7 @@ async function writeFonts(writer: CodeBlockWriter) {
       });
     // No fonts found, write empty object
     } else {
-      writer.write('// No font variables found');
+      writer.write(`// No "${VARIABLE_COLLECTIONS.FONTS}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
@@ -126,7 +126,7 @@ async function writePalette(writer: CodeBlockWriter) {
       });
     // No colors found, write empty object
     } else {
-      writer.write('// No color scale variables found');
+      writer.write(`// No "${VARIABLE_COLLECTIONS.SCALE_COLORS}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
