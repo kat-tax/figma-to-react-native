@@ -97,7 +97,7 @@ export function writeProp(
         }
       // Code syntax array (variables)
       } else if (Array.isArray(val)) {
-        writer.write(val.join('.'));
+        writer.write(val.filter(i => typeof i === 'string').join('.'));
       // String values
       } else if (typeof val === 'string') {
         writer.quote(val);
