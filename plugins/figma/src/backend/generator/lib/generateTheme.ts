@@ -21,7 +21,7 @@ export async function generateTheme(settings: ProjectSettings) {
 // Sections
 
 async function writeBreakpoints(writer: CodeBlockWriter) {
-  const display = await getFloatScaleVariables(VARIABLE_COLLECTIONS.BREAKPOINTS, 'breakpoints');
+  const display = await getFloatVariables(VARIABLE_COLLECTIONS.BREAKPOINTS, 'breakpoints');
 
   writer.write('export const breakpoints = {').indent(() => {
     // Write breakpoints (if any)
@@ -29,7 +29,7 @@ async function writeBreakpoints(writer: CodeBlockWriter) {
     if (keys.length > 0) {
       keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = display[group] as ScaleFloatToken;
+        const groupItem = display[group] as FloatToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
@@ -47,7 +47,7 @@ async function writeBreakpoints(writer: CodeBlockWriter) {
 }
 
 async function writeDisplay(writer: CodeBlockWriter) {
-  const display = await getFloatScaleVariables(VARIABLE_COLLECTIONS.SCALE_DISPLAY, 'display');
+  const display = await getFloatVariables(VARIABLE_COLLECTIONS.SCALE_DISPLAY, 'display');
 
   writer.write('export const display = {').indent(() => {
     // Write display scales (if any)
@@ -55,7 +55,7 @@ async function writeDisplay(writer: CodeBlockWriter) {
     if (keys.length > 0) {
       keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = display[group] as ScaleFloatToken;
+        const groupItem = display[group] as FloatToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
@@ -69,8 +69,8 @@ async function writeDisplay(writer: CodeBlockWriter) {
 }
 
 async function writeFonts(writer: CodeBlockWriter) {
-  const font = await getFontScaleVariables(VARIABLE_COLLECTIONS.FONTS, 'font');
-  const typography = await getFloatScaleVariables(VARIABLE_COLLECTIONS.SCALE_FONTS, 'typography');
+  const font = await getFontVariables(VARIABLE_COLLECTIONS.FONTS, 'font');
+  const typography = await getFloatVariables(VARIABLE_COLLECTIONS.SCALE_FONTS, 'typography');
 
   writer.write('export const typography = {').indent(() => {
     // Write font scales (if any)
@@ -78,7 +78,7 @@ async function writeFonts(writer: CodeBlockWriter) {
     if (keys.length > 0) {
       keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = typography[group] as ScaleFloatToken;
+        const groupItem = typography[group] as FloatToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
@@ -96,7 +96,7 @@ async function writeFonts(writer: CodeBlockWriter) {
     if (keys.length > 0) {
       keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = font.refs[group] as ScaleRefToken;
+        const groupItem = font.refs[group] as FontToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
@@ -112,7 +112,7 @@ async function writeFonts(writer: CodeBlockWriter) {
 }
 
 async function writePalette(writer: CodeBlockWriter) {
-  const colors = await getColorScaleVariables(VARIABLE_COLLECTIONS.SCALE_COLORS, 'palette');
+  const colors = await getColorVariables(VARIABLE_COLLECTIONS.SCALE_COLORS, 'palette');
 
   writer.write('export const palette = {').indent(() => {
     // Write color scales (if any)
@@ -120,7 +120,7 @@ async function writePalette(writer: CodeBlockWriter) {
     if (keys.length > 0) {
       keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = colors[group] as ScaleColorToken;
+        const groupItem = colors[group] as ColorToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
@@ -135,7 +135,7 @@ async function writePalette(writer: CodeBlockWriter) {
 
 async function writeThemes(writer: CodeBlockWriter) {
   const collection = await getVariableCollectionModes(VARIABLE_COLLECTIONS.THEMES);
-  const themes: {[key: string]: ScaleColors} = {};
+  const themes: {[key: string]: Colors} = {};
   let hasStyles = false;
 
   // Theme variable collection found, use variables + local styles
@@ -181,30 +181,30 @@ async function writeThemes(writer: CodeBlockWriter) {
 
 // Types
 
-type ScaleToken = ScaleColorToken | ScaleFloatToken | ScaleRefToken;
+type Token = ColorToken | FloatToken | FontToken;
 
-type ScaleColors = Record<string, ScaleColorGroup>;
-type ScaleColorGroup = Record<string, ScaleColorToken> | ScaleColorToken;
-type ScaleColorToken = {value: string, comment: string};
+type Colors = Record<string, ColorGroup>;
+type ColorGroup = Record<string, ColorToken> | ColorToken;
+type ColorToken = {value: string, comment: string};
 
-type ScaleFloats = Record<string, ScaleFloatGroup>;
-type ScaleFloatGroup = Record<string, ScaleFloatToken> | ScaleFloatToken;
-type ScaleFloatToken = {value: number, comment: string};
+type Floats = Record<string, FloatGroup>;
+type FloatGroup = Record<string, FloatToken> | FloatToken;
+type FloatToken = {value: number, comment: string};
 
-type ScaleRefs = Record<string, ScaleRefGroup>;
-type ScaleRefGroup = Record<string, ScaleRefToken> | ScaleRefToken;
-type ScaleRefToken = {value: string, comment: string};
+type Fonts = Record<string, FontGroup>;
+type FontGroup = Record<string, FontToken> | FontToken;
+type FontToken = {value: string, comment: string};
 
 // Helpers
 
-function writeThemeColors(writer: CodeBlockWriter, colors: ScaleColors) {
+function writeThemeColors(writer: CodeBlockWriter, colors: Colors) {
   // Write theme colors (if any)
   const keys = Object.keys(colors);
   if (keys.length > 0) {
     writer.write('colors: ').inlineBlock(() => {
       keys.forEach(group => {
         const groupId = createIdentifierCamel(group);
-        const groupItem = colors[group] as ScaleColorToken;
+        const groupItem = colors[group] as ColorToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
@@ -219,7 +219,7 @@ function writeThemeColors(writer: CodeBlockWriter, colors: ScaleColors) {
   }
 }
 
-function writeScaleToken(writer: CodeBlockWriter, name: string, token: ScaleToken) {
+function writeScaleToken(writer: CodeBlockWriter, name: string, token: Token) {
   const needsPrefix = /^[0-9]/.test(name);
   const id = needsPrefix ? `$${name}` : name;
   if (token.comment)
@@ -237,15 +237,15 @@ function writeScaleToken(writer: CodeBlockWriter, name: string, token: ScaleToke
 
 // Getters / Setters
 
-async function getColorTokens(themeId: string): Promise<ScaleColors> {
+async function getColorTokens(themeId: string): Promise<Colors> {
   return {
-    ...await getColorScaleVariables(VARIABLE_COLLECTIONS.THEMES, 'colors', themeId),
+    ...await getColorVariables(VARIABLE_COLLECTIONS.THEMES, 'colors', themeId),
     ...await getColorLocalStyles(),
   };
 }
 
-async function getColorLocalStyles(): Promise<ScaleColors> {
-  const colors: ScaleColors = {};
+async function getColorLocalStyles(): Promise<Colors> {
+  const colors: Colors = {};
   const styles = await figma.getLocalPaintStylesAsync();
   styles?.forEach(paint => {
     colors[paint.name] = {
@@ -257,8 +257,8 @@ async function getColorLocalStyles(): Promise<ScaleColors> {
   return colors;
 }
 
-async function getColorScaleVariables(key: string, ns: string, themeId?: string): Promise<ScaleColors> {
-  const colors: ScaleColors = {};
+async function getColorVariables(key: string, ns: string, themeId?: string): Promise<Colors> {
+  const colors: Colors = {};
   const collection = await getVariableCollection(key);
   if (!collection) return colors;
   const vars = await getVariables(collection.variableIds);
@@ -283,8 +283,8 @@ async function getColorScaleVariables(key: string, ns: string, themeId?: string)
   return colors;
 }
 
-async function getFloatScaleVariables(key: string, ns: string): Promise<ScaleFloats> {
-  const scales: ScaleFloats = {};
+async function getFloatVariables(key: string, ns: string): Promise<Floats> {
+  const scales: Floats = {};
   const collection = await getVariableCollection(key);
   if (!collection) return scales;
   const vars = await getVariables(collection.variableIds);
@@ -300,9 +300,9 @@ async function getFloatScaleVariables(key: string, ns: string): Promise<ScaleFlo
   return scales;
 }
 
-async function getFontScaleVariables(key: string, ns: string): Promise<{names: string[], refs: ScaleRefs}> {
+async function getFontVariables(key: string, ns: string): Promise<{names: string[], refs: Fonts}> {
   const names: string[] = [];
-  const refs: ScaleRefs = {};
+  const refs: Fonts = {};
   const collection = await getVariableCollection(key);
   if (!collection) return {names: ['Inter'], refs};
   const vars = await getVariables(collection.variableIds);
