@@ -4,7 +4,7 @@ import {getComponentTargets, getComponentTarget, getVariableCollectionModes, get
 import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
 import {wait} from 'common/delay';
-import * as config from 'backend/config';
+import * as config from 'backend/utils/config';
 
 import {generateIndex} from './lib/generateIndex';
 import {generateTokens} from './lib/generateTokens';

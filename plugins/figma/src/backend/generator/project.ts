@@ -3,7 +3,7 @@ import {getComponentTargets} from 'backend/parser/lib';
 import {F2RN_PROJECT_RELEASE} from 'config/env';
 import {generateToken} from 'common/random';
 import defaultReleaseConfig from 'config/release';
-import * as config from 'backend/config';
+import * as config from 'backend/utils/config';
 
 import {generateBundle} from './lib/generateBundle';
 import {generateIndex} from './lib/generateIndex';

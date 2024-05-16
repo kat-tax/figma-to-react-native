@@ -2,13 +2,15 @@ import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {F2RN_UI_WIDTH_MIN} from 'config/env';
 import {focusNode} from 'backend/parser/lib';
 
-import * as config from 'backend/config';
 import * as project from 'backend/generator/project';
 import * as service from 'backend/generator/service';
 import * as codegen from 'backend/generator/codegen';
+
 import * as themes from 'backend/importer/themes';
 import * as icons from 'backend/importer/icons';
 import * as exo from 'backend/importer/exo';
+
+import * as config from 'backend/utils/config';
 import * as drop from 'backend/utils/drop';
 import * as nav from 'backend/utils/nav';
 

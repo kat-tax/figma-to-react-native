@@ -8,6 +8,13 @@
     }
   ],
   "material-icon-theme.activeIconPack": "react",
+  "material-icon-theme.folders.associations": {
+    "importer": "import",
+    "parser": "review",
+    "editor": "mock",
+    "preview": "content",
+    "user": "admin"
+  },
   "typescript.tsserver.watchOptions": {
     "watchDirectory": "useFsEvents",
     "fallbackPolling": "dynamicPriorityPolling",

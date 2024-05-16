@@ -1,4 +1,4 @@
-import * as config from 'backend/config';
+import * as config from 'backend/utils/config';
 
 import {generateTokens} from './lib/generateTokens';
 import {generateBundle} from './lib/generateBundle';
