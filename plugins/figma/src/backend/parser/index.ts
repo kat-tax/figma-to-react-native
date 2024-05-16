@@ -22,7 +22,8 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   const data = crawl(component);
 
   // Generated styles and assets
-  const [stylesheet, colorsheet, {assetData, assetMap}] = await Promise.all([
+  const [localState, stylesheet, colorsheet, {assetData, assetMap}] = await Promise.all([
+    parser.getLocalState(),
     parser.getStyleSheet(data.meta.styleNodes, data.variants),
     parser.getColorSheet(data.meta.assetNodes, data.variants),
     parser.getAssets(data.meta.assetNodes),
@@ -31,7 +32,7 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   // Profile
   // console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
 
-  return {...data, stylesheet, colorsheet, assetData, assetMap};
+  return {...data, localState, stylesheet, colorsheet, assetData, assetMap};
 }
 
 function validate(component: ComponentNode) {

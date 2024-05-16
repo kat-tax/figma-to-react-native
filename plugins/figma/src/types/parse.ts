@@ -7,6 +7,7 @@ export interface ParseData {
   variants: ParseVariantData,
   stylesheet: ParseStyleSheet,
   colorsheet: ParseColorSheet,
+  localState: ParseLocalState,
   assetData: ParseAssetData,
   assetMap: Record<string, string>,
 }
@@ -57,6 +58,12 @@ export type ParseMetaData = {
   iconsUsed: Set<string>,
   components: Record<string, [BaseNode, BaseNode]>,
   includes: Record<string, [BaseNode, BaseNode]>,
+};
+
+export type ParseLocalState = {
+  [page: string]: {
+    [component: string]: Array<[string, VariableValue]>,
+  },
 };
 
 export type ParseStyleSheet = Record<string, ParseStyles>;

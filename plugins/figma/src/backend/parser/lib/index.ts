@@ -33,6 +33,10 @@ export {
 } from './styles';
 
 export {
+  getLocalState,
+} from './state';
+
+export {
   getSelectedComponent,
   getComponentTargets,
   getComponentTarget,
