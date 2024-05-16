@@ -2,6 +2,7 @@ import CodeBlockWriter from 'code-block-writer';
 import {round} from 'common/number';
 import {createIdentifierPascal} from 'common/string';
 import {translate} from 'backend/utils/translate';
+import {PAGES_SPECIAL} from './consts';
 import {
   getPage,
   getTagName,
@@ -85,7 +86,7 @@ function writeChild(
   const isSwap = Boolean(swapNodeProp);
   const isIcon = isInstance
     && child.node.name.includes(':')
-    && getPage((child.node as InstanceNode).mainComponent)?.name === 'Icons'
+    && getPage((child.node as InstanceNode).mainComponent)?.name === PAGES_SPECIAL.ICONS
 
   // Icon node
   if (isIcon) {

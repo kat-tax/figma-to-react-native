@@ -1,7 +1,7 @@
 import {wait} from 'common/delay';
 import {titleCase} from 'common/string';
 import {focusNode, getVariables, getVariableCollection} from 'backend/parser/lib';
-import {VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
+import {VARIABLE_COLLECTIONS, PAGES_SPECIAL} from 'backend/generator/lib/consts';
 
 const SVG_SIZE = 16;
 const SVG_PROPS = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 256 256"`;
@@ -13,10 +13,10 @@ export async function importIcons(setName: string, icons: Record<string, string>
   const columns = 15;
 
   // Create page
-  let page = figma.root.children.find(p => p.name === 'Icons');
+  let page = figma.root.children.find(p => p.name === PAGES_SPECIAL.ICONS);
   if (!page) {
     page = figma.createPage();
-    page.name = 'Icons';
+    page.name = PAGES_SPECIAL.ICONS;
     figma.root.appendChild(page);
   // Page exists, remove all children
   } else {
@@ -170,7 +170,7 @@ export async function getVariableTokens(): Promise<{
 }
 
 export function getAllIconComponents() {
-  const iconPage = figma.root?.children?.find(p => p.name === 'Icons');
+  const iconPage = figma.root?.children?.find(p => p.name === PAGES_SPECIAL.ICONS);
   const components = iconPage?.findAllWithCriteria({types: ['COMPONENT']});
   const icons = components?.filter(c => c.name.includes(':'));
   return icons;

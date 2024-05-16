@@ -1,7 +1,7 @@
 import {createIdentifierPascal} from 'common/string';
 import {getPropsJSX, getPage} from 'backend/parser/lib';
 import parseFigmaComponent from 'backend/parser';
-
+import {PAGES_SPECIAL} from './consts';
 import {generateComponent} from './generateComponent';
 import {generateIndex} from './generateIndex';
 import {generateDocs} from './generateDocs';
@@ -38,15 +38,16 @@ export async function generateBundle(
   }
 
   // Generate exo natives (if any)
-  const isExo = getPage(target)?.name === 'Native';
-  const exo = await generateNatives();
+  const isExo = getPage(target)?.name === PAGES_SPECIAL.LIBRARY;
+  const exo = generateNatives();
 
   // Native component
   if (isExo && exo[target.name]) {
     return {
       ...emptyBundle,
       id: target.id,
-      page: 'Native',
+      key: target.key,
+      page: PAGES_SPECIAL.LIBRARY,
       width: target.width,
       height: target.height,
       name: createIdentifierPascal(target.name),

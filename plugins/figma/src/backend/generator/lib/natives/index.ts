@@ -1,9 +1,10 @@
 import {getComponentTargets} from 'backend/parser/lib';
+import {PAGES_SPECIAL} from '../consts';
 
 import {Slider} from './exo/Slider';
 
-export async function generateNatives(): Promise<Record<string, string>> {
-  const page = figma.root.children.find(p => p.name === 'Native');
+export function generateNatives(): Record<string, string> {
+  const page = figma.root.children.find(p => p.name === PAGES_SPECIAL.LIBRARY);
   if (!page) return;
 
   const nodes = page.findAllWithCriteria({types: ['COMPONENT']});
@@ -24,7 +25,7 @@ export async function generateNatives(): Promise<Record<string, string>> {
         //console.log('Progress', component);
         break;
       case 'Slider':
-        natives.Slider = await Slider(component);
+        natives.Slider = Slider(component);
         break;
     }
   }

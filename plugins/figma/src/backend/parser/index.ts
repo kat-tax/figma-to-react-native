@@ -1,5 +1,6 @@
 import * as parser from './lib';
 import {createIdentifierCamel} from 'common/string';
+import {PAGES_SPECIAL} from 'backend/generator/lib/consts';
 
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
 
@@ -110,7 +111,7 @@ function crawlChildren(
 
     // Record icon styles
     if (node.name.includes(':')
-      && parser.getPage((node as InstanceNode).mainComponent)?.name === 'Icons') {
+      && parser.getPage((node as InstanceNode).mainComponent)?.name === PAGES_SPECIAL.ICONS) {
       //meta.styleNodes.add((node as ChildrenMixin).children[0].id);
       //const iconVector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
       //const iconColor = getFillToken(iconVector);

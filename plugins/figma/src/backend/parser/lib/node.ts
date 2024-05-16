@@ -1,3 +1,4 @@
+import {PAGES_SPECIAL} from 'backend/generator/lib/consts';
 import {getPropName} from './jsx';
 import {getPage} from './traverse';
 
@@ -22,7 +23,8 @@ export function isNodeVisible(node: SceneNode) {
 }
 
 export function isNodeIcon(node: BaseNode) {
-  return node.name.includes(':') && getPage(node)?.name === 'Icons';
+  return node.name.includes(':')
+    && getPage(node)?.name === PAGES_SPECIAL.ICONS;
 }
 
 export function getInstanceInfo(node: InstanceNode) {

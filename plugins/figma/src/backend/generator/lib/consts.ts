@@ -1,3 +1,8 @@
+export const PAGES_SPECIAL = {
+  LIBRARY: 'Library',
+  ICONS: 'Icons',
+} as const;
+
 export const VARIABLE_COLLECTIONS = {
   // Main
   APP_CONFIG: 'App Config',

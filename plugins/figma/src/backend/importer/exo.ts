@@ -1,3 +1,4 @@
+import {PAGES_SPECIAL} from 'backend/generator/lib/consts';
 import {focusNode, isNodeIcon} from 'backend/parser/lib';
 import {getIconComponentMap} from './icons';
 
@@ -51,10 +52,10 @@ export async function importComponents(iconSet: string) {
   }
 
   // Create "Native" page
-  let natives = figma.root.children.find(p => p.name === 'Native');
+  let natives = figma.root.children.find(p => p.name === PAGES_SPECIAL.LIBRARY);
   if (!natives) {
     natives = figma.createPage();
-    natives.name = 'Native';
+    natives.name = PAGES_SPECIAL.LIBRARY;
     figma.root.appendChild(natives);
   // Page exists, clear it
   // TODO: only clear preset natives

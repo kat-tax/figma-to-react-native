@@ -105,7 +105,7 @@ export async function writeImports(
       .forEach(([_id, asset]) => {
         writer.write(`import ${asset.name} from`);
         writer.space();
-        const base = `assets/${asset.isVector ? 'svgs' : 'images'}`;
+        const base = `assets/${asset.isVector ? 'svg' : 'img'}`;
         const path = `${base}/${asset.name.toLowerCase()}.${asset.isVector ? 'svg' : 'png'}`;
         writer.quote(path);
         writer.write(';');
