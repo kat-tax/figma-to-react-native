@@ -72,13 +72,13 @@ export async function watchComponents(targetComponent: () => void) {
 export async function watchTheme(settings: ProjectSettings) {
   const updateTheme = async () => {
     const tokens = await generateTheme(settings);
-    const {code, theme, hasStyles} = tokens.themes;
-    const currentTheme = theme?.current
-      ? `${createIdentifierCamel(theme.current.name)}`
+    const {code, collection, hasStyles} = tokens.themes;
+    const themeName = collection?.current
+      ? `${createIdentifierCamel(collection.current.name)}`
       : 'main';
-    emit<EventProjectTheme>('PROJECT_THEME', code, currentTheme, hasStyles);
+    emit<EventProjectTheme>('PROJECT_THEME', code, themeName, hasStyles);
   };
-  setInterval(updateTheme, 300);
+  setInterval(updateTheme, 600);
   updateTheme();
 }
 

@@ -21,7 +21,7 @@ export async function generateTheme(settings: ProjectSettings) {
 // Sections
 
 async function writeBreakpoints(writer: CodeBlockWriter) {
-  const display = getFloatScaleVariables(VARIABLE_COLLECTIONS.BREAKPOINTS, 'breakpoints');
+  const display = await getFloatScaleVariables(VARIABLE_COLLECTIONS.BREAKPOINTS, 'breakpoints');
 
   writer.write('export const breakpoints = {').indent(() => {
     // Write breakpoints (if any)
@@ -47,7 +47,7 @@ async function writeBreakpoints(writer: CodeBlockWriter) {
 }
 
 async function writeDisplay(writer: CodeBlockWriter) {
-  const display = getFloatScaleVariables(VARIABLE_COLLECTIONS.SCALE_DISPLAY, 'display');
+  const display = await getFloatScaleVariables(VARIABLE_COLLECTIONS.SCALE_DISPLAY, 'display');
 
   writer.write('export const display = {').indent(() => {
     // Write display scales (if any)
@@ -112,7 +112,7 @@ async function writeFonts(writer: CodeBlockWriter) {
 }
 
 async function writePalette(writer: CodeBlockWriter) {
-  const colors = getColorScaleVariables(VARIABLE_COLLECTIONS.SCALE_COLORS, 'palette');
+  const colors = await getColorScaleVariables(VARIABLE_COLLECTIONS.SCALE_COLORS, 'palette');
 
   writer.write('export const palette = {').indent(() => {
     // Write color scales (if any)
@@ -134,28 +134,28 @@ async function writePalette(writer: CodeBlockWriter) {
 }
 
 async function writeThemes(writer: CodeBlockWriter) {
-  const theme = await getVariableCollectionModes(VARIABLE_COLLECTIONS.THEMES);
+  const collection = await getVariableCollectionModes(VARIABLE_COLLECTIONS.THEMES);
+  const themes: {[key: string]: ScaleColors} = {};
   let hasStyles = false;
 
-  writer.write('export const themes = {').indent(async () => {
-    // Theme variable collection found, write modes to themes
-    if (theme) {
-      for await (const mode of theme.modes) {
-        writer.write(`${createIdentifierCamel(mode.name)}: `).inlineBlock(async () => {
-          hasStyles = writeThemeColors(writer, await getColorTokens(mode.modeId));
-          writer.writeLine('breakpoints,');
-          writer.writeLine('display,');
-          writer.writeLine('font,');
-          writer.writeLine('palette,');
-          writer.writeLine('typography,');
-        });
-        writer.write(',');
-        writer.newLine();
-      }
-    // No theme variable collection found, local styles only
-    } else {
-      writer.write(`main: `).inlineBlock(async () => {
-        hasStyles = writeThemeColors(writer, await getColorLocalStyles());
+  // Theme variable collection found, use variables + local styles
+  if (collection) {
+    for await (const mode of collection.modes)
+      themes[mode.name] = await getColorTokens(mode.modeId);
+  // No theme variable collection found, use local styles only
+  } else {
+    themes['main'] = await getColorLocalStyles();
+  }
+
+  writer.write('export const themes = {').indent(() => {
+    for (const [name, colors] of Object.entries(themes)) {
+      writer.write(`${createIdentifierCamel(name)}: `).inlineBlock(() => {
+        hasStyles = writeThemeColors(writer, colors);
+        writer.writeLine('breakpoints,');
+        writer.writeLine('display,');
+        writer.writeLine('font,');
+        writer.writeLine('palette,');
+        writer.writeLine('typography,');
       });
       writer.write(',');
       writer.newLine();
@@ -167,8 +167,8 @@ async function writeThemes(writer: CodeBlockWriter) {
   // Default theme export
   const prefix = 'export const initialTheme: Themes = ';
   const suffix = ' as const';
-  if (theme) {
-    const initialTheme = createIdentifierCamel(theme.default.name);
+  if (collection) {
+    const initialTheme = createIdentifierCamel(collection.default.name);
     writer.writeLine(`${prefix}'${initialTheme}'`);
   } else {
     writer.writeLine(`${prefix}'main'${suffix}`);
@@ -176,7 +176,7 @@ async function writeThemes(writer: CodeBlockWriter) {
 
   // Return token code, theme collection, and whether styles exist
   const code = writer.toString();
-  return {code, theme, hasStyles};
+  return {code, collection, hasStyles};
 }
 
 // Types
