@@ -204,8 +204,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(react@18.2.0)(yjs@13.6.14)
       '@zip.js/zip.js':
-        specifier: ^2.7.36
-        version: 2.7.36
+        specifier: ^2.7.44
+        version: 2.7.44
       blakejs:
         specifier: ^1.2.1
         version: 1.2.1
@@ -3916,8 +3916,8 @@ packages:
       '@types/node': 20.11.13
     dev: false
 
-  /@zip.js/zip.js@2.7.36:
-    resolution: {integrity: sha512-u11fkedhUmMYIH1RRiVJM7fVw4CY+VPl0k6BxLBgngsIml70gGvbTHLhbXcN+BMBmQbZWL3DGEVxIo2xXVkLWg==}
+  /@zip.js/zip.js@2.7.44:
+    resolution: {integrity: sha512-ZzMhAcAyRAYi1FZELsvKaw8I4ADxNTqbiVIjyo/syBe4HGWop9+OADnuBnHpm2TxgXPogxxhhPffOhDD40jUdA==}
     engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=16.5.0'}
     dev: false
 

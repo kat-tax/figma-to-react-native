@@ -4,9 +4,6 @@ import {F2RN_EXO_REPO_ZIP} from 'config/env';
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectRelease, ProjectLinks} from 'types/project';
 
-const PATH_DESIGN = 'design';
-const PATH_GUIDES = 'guides';
-
 export async function create(project: ProjectBuild, release: ProjectRelease) {
   // Import EXO
   const zip = new fs.FS();
@@ -14,124 +11,115 @@ export async function create(project: ProjectBuild, release: ProjectRelease) {
   const tpl = (await zip.importHttpContent(src))[0] as ZipDirectoryEntry;
 
   // Project info
+  // TODO: use variable collection "App Config" values instead of hardcoding
   const font = 'Inter';
   const links: ProjectLinks = {
     documentation: 'https://exo.ult.dev',
     storybook: 'https://exo.fig.run',
     discord: 'https://discord.gg/KpMZVKmfnb',
     github: 'https://github.com/kat-tax/exo',
-    figma: 'https://www.figma.com/file/DFmPlavFWyMaYJtoGLhGz3',
     x: 'https://twitter.com/theultdev',
   };
 
-  // Rename EXO
+  // Root
   tpl.rename(project.name);
-  zip.remove(tpl.getChildByName('package.json'));
 
-  // Configure EXO
-  configureMonorepo(tpl, links, font, release);
-  configureStorybook(tpl, links, release);
-  configureDocs(tpl);
+  // Subfolders
+  const guides = tpl.getChildByName('guides') as ZipDirectoryEntry;
+  const design = tpl.getChildByName('design') as ZipDirectoryEntry;
+  const assets = design.getChildByName('assets') as ZipDirectoryEntry;
+  const components = design.getChildByName('components') as ZipDirectoryEntry;
 
-  // Add project files
-  tpl.addText(`${PATH_DESIGN}/index.ts`, project.index);
-  tpl.addText(`${PATH_DESIGN}/theme.ts`, project.theme);
-
-  // Add component files
-  project.components.forEach(([name, index, code, story, docs]) => {
-    const dir = tpl.addDirectory(`${PATH_DESIGN}/components/${name}`);
-    if (index)
-      dir.addText('index.ts', index);
-    if (code)
-      dir.addText(`${name}.tsx`, code);
-    if (story)
-      dir.addText(`${name}.story.tsx`, story);
-    if (docs)
-      dir.addText(`${name}.docs.mdx`, docs);
-  });
-
-  // Add asset files
-  if (release.includeAssets) {
-    project.assets.forEach(([name, isVector, bytes]) => {
-      const ext = isVector ? 'svg' : 'png';
-      const type = isVector ? 'image/svg+xml' : 'image/png';
-      const folder = isVector ? 'svg' : 'img';
-      const blob = new Blob([bytes], {type});
-      tpl.addBlob(`${PATH_DESIGN}/assets/${folder}/${name.toLowerCase()}.${ext}`, blob);
-    });
-  }
-
-  // Export EXO
-  return zip.exportBlob();
-}
-
-// Helpers
-
-function configureMonorepo(
-  tpl: ZipDirectoryEntry,
-  link: ProjectLinks,
-  font: string,
-  release: ProjectRelease,
-) {
+  // Config
+  zip.remove(tpl.getChildByName('config.yaml'));
   tpl.addText('config.yaml', templateAppConfig
     .replace('__NAME__', release.packageName || 'project')
+    .replace('__DISPLAY_NAME__', release.packageName || 'Project')
     .replace('__FONT__', font)
     .replace('__PACKAGE__', release.packageName || 'react-exo')
     .replace('__PACKAGE_VERSION__', release.packageVersion || '0.0.1')
-    .replace('__LINK_DOCS__', link.documentation)
-    .replace('__LINK_STORYBOOK__', link.storybook)
-    .replace('__LINK_DISCORD__', link.discord)
-    .replace('__LINK_GITHUB__', link.github)
-    .replace('__LINK_X__', link.x)
+    .replace('__LINK_DOCS__', links.documentation)
+    .replace('__LINK_STORYBOOK__', links.storybook)
+    .replace('__LINK_DISCORD__', links.discord)
+    .replace('__LINK_GITHUB__', links.github)
+    .replace('__LINK_X__', links.x)
   );
 
-  // TOOD: generate locales from variable collection
-  tpl.addText('src/locales.ts', templateLocales);
-}
+  // Locales
+  zip.remove(tpl.getChildByName('locales.ts'));
+  tpl.addText('locales.ts', templateLocales);
 
-function configureStorybook(
-  tpl: ZipDirectoryEntry,
-  links: ProjectLinks,
-  release: ProjectRelease,
-) {
-  tpl.addText(`${PATH_GUIDES}/docs/styleguide/Get Started.mdx`, [
+  // Docs
+  /*const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
+  zip.remove(docs.getChildByName('getting-started.mdx'));
+  docs.addText('getting-started.mdx', templateDocsHome);
+
+  // Storybook
+  const sb = guides.getChildByName('storybook') as ZipDirectoryEntry;
+  zip.remove(sb.getChildByName('Get Started.mdx'));
+  sb.addText('Get Started.mdx', [
     `# ${release.packageName || 'project'}`,
     ``,
     `#### ${release.packageVersion || '0.0.1'}`,
     `- [Documentation](${links.documentation})`,
     `- [GitHub](${links.github})`,
     `- [Figma](${links.figma})`,
-  ].join('\n'));
-}
+  ].join('\n'));*/
 
-function configureDocs(
-  tpl: ZipDirectoryEntry,
-) {
-  // Docs "getting started" page
-  tpl.addText(
-    `${PATH_GUIDES}/docs/developer/getting-started.mdx`,
-    templateDocsHome
-  );
+  // Design
+  zip.remove(design.getChildByName('index.ts'));
+  zip.remove(design.getChildByName('theme.ts'));
+  design.addText('index.ts', project.index);
+  design.addText('theme.ts', project.theme);
+
+  // Assets
+  /*if (release.includeAssets) {
+    project.assets.forEach(([name, isVector, bytes]) => {
+      const ext = isVector ? 'svg' : 'png';
+      const type = isVector ? 'svg' : 'img';
+      const mime = isVector ? 'image/svg+xml' : 'image/png';
+      const blob = new Blob([bytes], {type: mime});
+      let category = assets.getChildByName(type) as ZipDirectoryEntry;
+      if (category) zip.remove(category);
+      else category = assets.addDirectory(type);
+      category.addBlob(`${name.toLowerCase()}.${ext}`, blob);
+    });
+  }*/
+
+  // Components
+  project.components.forEach(([name, index, code, story, docs]) => {
+    const component = components.addDirectory(name);
+    if (index)
+      component.addText('index.ts', index);
+    if (code)
+      component.addText(`${name}.tsx`, code);
+    if (story)
+      component.addText(`${name}.story.tsx`, story);
+    if (docs)
+      component.addText(`${name}.docs.mdx`, docs);
+  });
+
+  // Export
+  return zip.exportBlob();
 }
 
 // Templates
 
 const templateAppConfig = `# General
-APP_NAME: __NAME__
-APP_DISPLAY_NAME: __NAME__
-
-# State
-STORE_VERSION: 1.0
+APP_NAME: __APP_NAME__
+APP_DISPLAY_NAME: __APP_DISPLAY_NAME__
 
 # Design
-FONT_NAME: __FONT__
-FONT_WEIGHTS: 400,500
+FONT_NAME: __FONT_NAME__
+
+# State
+STORE_VERSION: __STORE_VERSION__
 
 # Library
-LIB_NAME: __PACKAGE__
-LIB_VERSION: __PACKAGE_VERSION__
+LIB_NAME: __LIB_NAME__
+LIB_VERSION: __LIB_VERSION__
 
-# Links
+# Web
 LINK_DOCS: __LINK_DOCS__
 LINK_STORYBOOK: __LINK_STORYBOOK__
 LINK_DISCORD: __LINK_DISCORD__
@@ -139,10 +127,10 @@ LINK_GITHUB: __LINK_GITHUB__
 LINK_X: __LINK_X__
 
 # Native
-PACKAGE_IOS: com.exo.ios
-PACKAGE_MACOS: com.exo.macos
-PACKAGE_ANDROID: com.exo.android
-PACKAGE_WINDOWS: com.exo.windows
+PACKAGE_IOS: __PACKAGE_IOS__
+PACKAGE_MACOS: __PACKAGE_MACOS__
+PACKAGE_ANDROID: __PACKAGE_ANDROID__
+PACKAGE_WINDOWS: __PACKAGE_WINDOWS__
 `;
 
 const templateLocales = `/** Supported languages **/
