@@ -60,6 +60,7 @@ export function writePropsInterface(
     // Icon props
     if (isIcon) {
       writer.writeLine(`color?: string,`);
+      writer.writeLine(`size?: number,`);
     }
     // Test ID
     if (!isRootPressable) {

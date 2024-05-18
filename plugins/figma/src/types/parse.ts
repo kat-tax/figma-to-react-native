@@ -6,7 +6,6 @@ export interface ParseData {
   children: Array<{node: SceneNode, slug: string}>,
   variants: ParseVariantData,
   stylesheet: ParseStyleSheet,
-  colorsheet: ParseColorSheet,
   localState: ParseLocalState,
   assetData: ParseAssetData,
   assetMap: Record<string, string>,
@@ -37,7 +36,7 @@ export type ParseNodeTreeItem = {
 export type ParseVariantData = {
   mapping: Record<string, Record<string, string>>,
   classes: Record<string, Record<string, string>>,
-  fills: Record<string, Record<string, string>>,
+  icons: Record<string, Record<string, ParseIconData>>,
 };
 
 export type ParseAssetData = Record<string, {
@@ -52,12 +51,19 @@ export type ParseAssetData = Record<string, {
   isVideo?: boolean,
 }>;
 
+export type ParseIconData = {
+  name: string,
+  color: string,
+  size: number,
+};
+
 export type ParseMetaData = {
   assetNodes: Set<string>,
   styleNodes: Set<string>,
   iconsUsed: Set<string>,
   components: Record<string, [BaseNode, BaseNode]>,
   includes: Record<string, [BaseNode, BaseNode]>,
+  icons: Record<string, ParseIconData>,
 };
 
 export type ParseLocalState = {
@@ -67,8 +73,6 @@ export type ParseLocalState = {
 };
 
 export type ParseStyleSheet = Record<string, ParseStyles>;
-export type ParseColorSheet = Record<string, string>;
-
 export type ParseStyles = {
   [key: string]: string | number,
 };

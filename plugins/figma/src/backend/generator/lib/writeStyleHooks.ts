@@ -12,14 +12,14 @@ export function writeStyleHooks(
 ) {
   const hasVariants = !!variants;
   const hasStyles = hasVariants && Object.keys(variants.classes).length > 0;
-  const hasColors = hasVariants && Object.keys(variants.fills).length > 0;
+  const hasIcons = hasVariants && Object.keys(variants.icons).length > 0;
 
   // Import flags
-  flags.exoVariants.useVariants = hasStyles || hasColors;
+  flags.exoVariants.useVariants = hasStyles || hasIcons;
   flags.unistyles.useStyles = true;
 
   // No variants
-  if (!hasVariants || (!hasStyles && !hasColors)) {
+  if (!hasVariants || (!hasStyles && !hasIcons)) {
     writer.writeLine(`const {styles} = useStyles(stylesheet);`);
     writer.blankLine();
     return;
@@ -46,25 +46,27 @@ export function writeStyleHooks(
     });
   }
 
-  // Derive colors data from variants
-  Object.keys(variants.fills).forEach((k: string) => {
-    colors[k] = Object
-      .keys(variants.fills[k])
-      .filter(v => !!variants.fills[k][v])
-      .map(v => {
-        const k = v.split(', ')?.map(part => {
-          const [state, value] = part.split('=');
-          varIds.add(getPropName(state));
-          return value;
+  // Derive icon data from variants
+  if (hasIcons) {
+    Object.keys(variants.icons).forEach((k: string) => {
+      colors[k] = Object
+        .keys(variants.icons[k])
+        .filter(v => !!variants.icons[k][v])
+        .map(v => {
+          const k = v.split(', ')?.map(part => {
+            const [state, value] = part.split('=');
+            varIds.add(getPropName(state));
+            return value;
+          });
+          return [k, v];
         });
-        return [k, v];
       });
-  });
+  }
 
   // Write hooks
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
-  writer.writeLine(`const {styles, theme} = useStyles(stylesheet);`);
+  writer.writeLine(`const {styles} = useStyles(stylesheet);`);
   writer.writeLine(`const {vstyles} = useVariants(${name}Variants, {${props}}, styles);`);
   writer.blankLine();
 }

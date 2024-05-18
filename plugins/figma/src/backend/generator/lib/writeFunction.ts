@@ -52,6 +52,12 @@ export async function writeFunction(
       && Object.keys(data.variants.classes).includes(slug)
         ? `vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
         : `styles.${slug}`;
+    
+    // Helper to determine the icon prop value
+    const getIconProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants
+      && Object.keys(data.variants.icons).includes(slug)
+        ? `vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
+        : `styles.${slug}`;
 
     // Write component JSX
     writer.write(`return (`).indent(() => {
@@ -67,7 +73,7 @@ export async function writeFunction(
       writer.write('<' + tag + style + props + '>').indent(() => {
         writer.conditionalWriteLine(isPressable, `{e => <>`);
         writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-          writeChildren(writer, flags, data, settings, language, data.tree, getStyleProp, pressables);
+          writeChildren(writer, flags, data, settings, language, data.tree, getStyleProp, getIconProp, pressables);
         });
         writer.conditionalWriteLine(isPressable, `</>}`);
       });

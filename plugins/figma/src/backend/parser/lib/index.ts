@@ -3,7 +3,6 @@ export {
 } from './assets';
 
 export {
-  getColorSheet,
   getFillToken,
   getTopFill,
   getColor,

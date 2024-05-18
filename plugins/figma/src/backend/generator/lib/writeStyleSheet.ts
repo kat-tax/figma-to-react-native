@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierCamel} from 'common/string';
+import {diff} from 'deep-object-diff';
 
 import type {ImportFlags} from './writeImports';
 import type {ParseData} from 'types/parse';
@@ -10,6 +11,7 @@ export async function writeStyleSheet(
   data: ParseData,
 ): Promise<ImportFlags> {
   flags.unistyles.createStyleSheet = true;
+
   writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
     // Root styles
     writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
@@ -42,6 +44,21 @@ export async function writeStyleSheet(
         }
       }
     }
+
+    // Children icon props
+    for (const child of data.children) {
+      const childIconData = data.meta.icons[child.node.id];
+      if (childIconData) {
+        writeStyle(writer, child.slug, childIconData);
+        const iconVariants = data.variants?.icons[child.slug];
+        if (iconVariants) {
+          Object.entries(iconVariants).forEach(([key, iconStyle]) => {
+            const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+            writeStyle(writer, className, diff(childIconData, iconStyle));
+          });
+        }
+      }
+    }
   });
   writer.write('));');
   writer.newLine();
@@ -52,24 +69,20 @@ export async function writeStyleSheet(
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
   const props = styles && Object.keys(styles);
   if (props?.length > 0) {
-    writeProps(props, writer, slug, styles);
+    writeProps(writer, props, slug, styles);
   }
 }
 
-export function writeProps(props: string[], writer: CodeBlockWriter, slug: string, styles: any) {
+export function writeProps(writer: CodeBlockWriter,props: string[], slug: string, styles: any) {
   writer.write(`${slug}: {`).indent(() => {
     props.forEach(prop => {
-      writeProp(prop, styles[prop], writer);
+      writeProp(writer, prop, styles[prop]);
     });
   });
   writer.writeLine('},');
 }
 
-export function writeProp(
-  prop: string,
-  value: unknown,
-  writer: CodeBlockWriter,
-) {
+export function writeProp(writer: CodeBlockWriter, prop: string, value: unknown) {
   // Expand shorthand props
   // TODO: expansion shouldn't be done here, can't diff this way
   if (prop === 'border') {
@@ -100,7 +113,11 @@ export function writeProp(
         writer.write(val.filter(i => typeof i === 'string').join('.'));
       // String values
       } else if (typeof val === 'string') {
-        writer.quote(val);
+        if (val.startsWith('theme.')) {
+          writer.write(val);
+        } else {
+          writer.quote(val);
+        }
       // Unknown value
       } else {
         writer.write(JSON.stringify(val));
@@ -108,6 +125,26 @@ export function writeProp(
     }
     writer.write(',');
     writer.newLine();
+  }
+}
+
+function writeExpandedBorderProps(writer: CodeBlockWriter, value: unknown) {
+  if (Array.isArray(value)) {
+    const [width, style, color] = value;
+    const val = isRuntimeVar(color) ? getRuntimeVar(color) : color;
+    writer.writeLine(`borderWidth: ${width},`);
+    writer.write(`borderStyle: `);
+    writer.quote(style);
+    writer.write(',');
+    writer.newLine();
+    writer.write(`borderColor: `);
+    writer.quote(val);
+    writer.write(',');
+    writer.newLine();
+  } else {
+    writer.writeLine(`borderWidth: 'unset' as any,`);
+    writer.writeLine(`borderStyle: 'unset' as any,`);
+    writer.writeLine(`borderColor: 'unset' as any,`);
   }
 }
 
@@ -136,25 +173,5 @@ function getRuntimeVar(runtime: RuntimeVariable) {
       }
     default:
       return variable?.value ?? variable;
-  }
-}
-
-function writeExpandedBorderProps(writer: CodeBlockWriter, value: unknown) {
-  if (Array.isArray(value)) {
-    const [width, style, color] = value;
-    const val = isRuntimeVar(color) ? getRuntimeVar(color) : color;
-    writer.writeLine(`borderWidth: ${width},`);
-    writer.write(`borderStyle: `);
-    writer.quote(style);
-    writer.write(',');
-    writer.newLine();
-    writer.write(`borderColor: `);
-    writer.quote(val);
-    writer.write(',');
-    writer.newLine();
-  } else {
-    writer.writeLine(`borderWidth: 'unset' as any,`);
-    writer.writeLine(`borderStyle: 'unset' as any,`);
-    writer.writeLine(`borderColor: 'unset' as any,`);
   }
 }

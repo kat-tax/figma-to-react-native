@@ -28,10 +28,11 @@ export function writeChildren(
   language: VariableCollection,
   children: ParseNodeTree,
   getStyleProp: StylePrefixMapper,
+  getIconProp: StylePrefixMapper,
   pressables?: string[][],
 ) {
+  const state = {writer, flags, data, language, settings, pressables, getStyleProp, getIconProp};
 
-  const state = {writer, flags, data, language, settings, pressables, getStyleProp};
   for (const child of children) {
     const slug = data.children?.find(c => c.node === child.node)?.slug;
     const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
@@ -66,9 +67,10 @@ function writeChild(
     language: VariableCollection,
     pressables?: string[][],
     getStyleProp: StylePrefixMapper,
+    getIconProp: StylePrefixMapper,
   },
 ) {
-  const {writer, data, settings, pressables, getStyleProp} = state;
+  const {writer, data, settings, pressables, getStyleProp, getIconProp} = state;
 
   // Derived data
   const testID = ` testID="${child.node.id}"`;
@@ -90,27 +92,17 @@ function writeChild(
 
   // Icon node
   if (isIcon) {
-    const iconVector = instance.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
-    const iconColor = getFillToken(iconVector);
-    const variantFills = data.variants?.fills?.[slug];
-    const hasVariant = data.variants && variantFills && !!Object.values(variantFills);
-    const fillToken = hasVariant ? `vstyles.${slug}` : iconColor;
-    const dynamic = isRootPressable && hasVariant ? '(e)' : '';
-    const color = `${fillToken}${dynamic}`;
+    const icon = getIconProp(slug, isRootPressable);
+    state.flags.reactNative.StyleSheet = true;
     // Swap icon, override props for this instance
     if (isSwap) {
       state.flags.react.cloneElement = true;
-      const statement = `cloneElement(props.${swapNodeProp}, `;
-      writer.write((isConditional ? '' : '{') + statement).inlineBlock(() => {
-        writer.writeLine(`color: ${color},`);
-        writer.writeLine(`size: ${child.node.width},`);
-      });
-      writer.write(')' + (isConditional ? '' : '}'));
-      writer.newLine();
+      const statement = `cloneElement(props.${swapNodeProp}, StyleSheet.flatten(${icon}))`;
+      writer.writeLine((isConditional ? '' : '{') + statement + (isConditional ? '' : '}'));
     // Explicit icon, use Icon component directly
     } else {
-      writer.writeLine(`<Icon name="${child.node.name}" size={${child.node.width}} color={${color}}/>`);
       state.flags.exoIcon.Icon = true;
+      writer.writeLine(`<Icon {...StyleSheet.flatten(${icon})}/>`);
     }
     return;
   }
@@ -263,6 +255,7 @@ function writeChild(
           state.language,
           child.children,
           getStyleProp,
+          getIconProp,
           pressables,
         );
         break;

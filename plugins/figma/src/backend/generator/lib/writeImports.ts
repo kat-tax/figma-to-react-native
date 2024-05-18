@@ -14,6 +14,7 @@ export interface ImportFlags {
     Text?: boolean,
     Pressable?: boolean,
     TextInput?: boolean,
+    StyleSheet?: boolean,
   },
   reactNativeTypes: {
     PressableProps?: boolean,

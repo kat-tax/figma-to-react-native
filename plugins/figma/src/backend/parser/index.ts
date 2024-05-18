@@ -1,8 +1,7 @@
 import * as parser from './lib';
 import {createIdentifierCamel} from 'common/string';
-import {PAGES_SPECIAL} from 'backend/generator/lib/consts';
 
-import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
+import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData, ParseIconData} from 'types/parse';
 
 const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
@@ -16,38 +15,29 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   }
 
   // Profile
-  // const _t1 = Date.now();
+  //const _t1 = Date.now();
 
   // Gather node data relative to conversion
   const data = crawl(component);
 
+  // DEBUG
+  if (component.parent.type === 'COMPONENT_SET') {
+    console.log(component.parent.name, data);
+  } else {
+    console.log(component.name, data);
+  }
+
   // Generated styles and assets
-  const [localState, stylesheet, colorsheet, {assetData, assetMap}] = await Promise.all([
+  const [localState, stylesheet, {assetData, assetMap}] = await Promise.all([
     parser.getLocalState(),
     parser.getStyleSheet(data.meta.styleNodes, data.variants),
-    parser.getColorSheet(data.meta.assetNodes, data.variants),
     parser.getAssets(data.meta.assetNodes),
   ]);
 
   // Profile
   // console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
 
-  return {...data, localState, stylesheet, colorsheet, assetData, assetMap};
-}
-
-function validate(component: ComponentNode) {
-  // Sanity check
-  if (!component || component.type !== 'COMPONENT') {
-    throw new Error(`Component not found.`);
-  }
-
-  // Disallow certain nodes
-  if (component.findAllWithCriteria({types: ['SECTION']}).length > 0) {
-    throw new Error(`Sections cannot be inside a component. Convert them to a frame.`);
-  }
-
-  // Good to go!
-  return true;
+  return {...data, localState, stylesheet, assetData, assetMap};
 }
 
 function crawl(node: ComponentNode) {
@@ -89,41 +79,52 @@ function crawlChildren(
     iconsUsed: new Set(),
     components: {},
     includes: {},
+    icons: {},
   };
   
   for (const node of nodes) {
     // Skip nodes that are not visible and not conditionally rendered
     if (!parser.isNodeVisible(node)) continue;
 
-    // Record asset nodes to be exported, nothing further is needed
+    // Node types
     const isInstance = node.type === 'INSTANCE';
-    const isAsset = (node.isAsset && !isInstance) || node.type === 'VECTOR';
-    if (isAsset) {
+    const isVector = node.type === 'VECTOR';
+    const isIcon = parser.isNodeIcon(node);
+
+    // Node states
+    const hasAsset = (node.isAsset && !isInstance) || isVector;
+    const hasStyle = NODES_WITH_STYLES.includes(node.type) && !node.isAsset;
+
+    // Record asset nodes to be exported, nothing further is needed
+    if (hasAsset) {
       meta.assetNodes.add(node.id);
       dict.add(node);
       tree.push({node});
       continue;
     }
 
-    // Record nodes with styles
-    if (NODES_WITH_STYLES.includes(node.type) && !node.isAsset) {
+    // Record nodes with styles, css will be extracted & converted later
+    if (hasStyle) {
       meta.styleNodes.add(node.id);
     }
 
-    // Record icon styles
-    if (node.name.includes(':')
-      && parser.getPage((node as InstanceNode).mainComponent)?.name === PAGES_SPECIAL.ICONS) {
-      //meta.styleNodes.add((node as ChildrenMixin).children[0].id);
-      //const iconVector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
-      //const iconColor = getFillToken(iconVector);
-      //console.log(iconColor, iconVector);
-      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      // TODO: remove the existing colors system and tie in icons to the style variant system
-      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Record icon color and size
+    if (isIcon) {
+      const iconData = getIconData(node);
+      meta.iconsUsed.add(iconData.name);
+      meta.icons[node.id] = iconData;
     }
 
     // Handle other nodes
     switch (node.type) {
+      case 'TEXT':
+        dict.add(node);
+        tree.push({node});
+        break;
+      case 'RECTANGLE':
+        dict.add(node);
+        tree.push({node});
+        break;
       // Container, recurse
       case 'FRAME':
       case 'GROUP':
@@ -172,17 +173,25 @@ function crawlChildren(
         dict.add(node);
         tree.push({node});
         break;
-      case 'TEXT':
-        dict.add(node);
-        tree.push({node});
-        break;
-      case 'RECTANGLE':
-        dict.add(node);
-        tree.push({node});
     }
   }
 
   return {dict, tree, meta};
+}
+
+function validate(component: ComponentNode) {
+  // Sanity check
+  if (!component || component.type !== 'COMPONENT') {
+    throw new Error(`Component not found.`);
+  }
+
+  // Disallow certain nodes
+  if (component.findAllWithCriteria({types: ['SECTION']}).length > 0) {
+    throw new Error(`Sections cannot be inside a component. Convert them to a frame.`);
+  }
+
+  // Good to go!
+  return true;
 }
 
 function getRoot(node: ComponentNode): ParseRoot {
@@ -192,6 +201,14 @@ function getRoot(node: ComponentNode): ParseRoot {
 function getFrame(node: ComponentNode): ParseFrame {
   if (node.parent.type !== 'FRAME') return null;
   return {node: node.parent, slug: 'frame'};
+}
+
+function getIconData(node: SceneNode): ParseIconData {
+  const vector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
+  const color = parser.getFillToken(vector);
+  const size = Math.max(node.width, node.height);
+  const name = (node as InstanceNode).mainComponent.name;
+  return {name, color, size};
 }
 
 function getChildren(nodes: Set<SceneNode>): ParseChild[] {
@@ -209,7 +226,7 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
   const variants: ParseVariantData = {
     mapping: {},
     classes: {},
-    fills: {},
+    icons: {},
   };
 
   if (!root || !root.variantProperties)
@@ -237,28 +254,21 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
       for (const child of children) {
         if (!child || !child.node) continue;
 
-        // Find matching base node
-        const childId = createIdentifierCamel(child?.node.name);
-        const baseNode = rootChildren.find((c) =>
-          createIdentifierCamel(c?.node.name) === childId
-          && c?.node.type === child?.node.type
-        );
-
-        // Map variant child nodes
+        // Map node to base node
+        const baseNode = rootChildren.find((c) => c.slug === child.slug);
         variants.mapping[variant.id][baseNode?.node.id] = child?.node.id;
   
-        // Node with fills
-        if (child?.node?.isAsset) {
-          if (!variants.fills[childId])
-            variants.fills[childId] = {};
-          variants.fills[childId][variant.name] = child?.node.id;
+        // Icon node
+        if (parser.isNodeIcon(child.node)) {
+          if (!variants.icons[child.slug]) variants.icons[child.slug] = {};
+          const iconData = getIconData(child.node);
+          variants.icons[child.slug][variant.name] = iconData;
         }
 
-        // Node with styles
+        // Styled node
         if (NODES_WITH_STYLES.includes(child?.node.type)) {
-          if (!variants.classes[childId])
-            variants.classes[childId] = {};
-          variants.classes[childId][variant.name] = child?.node.id;
+          if (!variants.classes[child.slug]) variants.classes[child.slug] = {};
+          variants.classes[child.slug][variant.name] = child?.node.id;
         }
       }
     }

@@ -1,45 +1,6 @@
 import {createIdentifierCamel} from 'common/string';
 
-import type {ParseVariantData, ParseColorSheet} from 'types/parse';
-
 type FillNodes = FrameNode | ComponentSetNode | ComponentNode | InstanceNode | VectorNode | StarNode | LineNode | EllipseNode | PolygonNode | RectangleNode | TextNode;
-
-export async function getColorSheet(
-  nodes: Set<string>,
-  variants?: ParseVariantData,
-): Promise<ParseColorSheet> {
-  // Generate base colors
-  const colors: ParseColorSheet = {};
-  for (const id of nodes) {
-    const node = figma.getNodeById(id) as ComponentNode;
-    if (node.isAsset && node.findAllWithCriteria) {
-      const vector = node.findAllWithCriteria({types: ['VECTOR']})[0];
-      if (vector?.type === 'VECTOR') {
-        colors[id] = getFillToken(vector);
-      }
-    }
-  }
-
-  // Generate variant colors
-  if (variants?.mapping) {
-    for (const id of Object.keys(variants.mapping)) {
-      for (const [baseId, variantId] of Object.entries(variants.mapping[id])) {
-        const vnode = figma.getNodeById(variantId) as ComponentNode;
-        if (vnode.isAsset && vnode.findAllWithCriteria) {
-          const vector = vnode.findAllWithCriteria({types: ['VECTOR']})[0];
-          if (vector?.type === 'VECTOR') {
-            const token = getFillToken(vector);
-            const isModified = colors[baseId] !== token;
-            if (isModified) {
-              colors[variantId] = token;
-            }
-          }
-        }
-      }
-    }
-  }
-  return colors;
-}
 
 export function getFillToken(node: FillNodes) {
   const placeholder = '"#000000"';

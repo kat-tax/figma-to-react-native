@@ -23,8 +23,10 @@ export function isNodeVisible(node: SceneNode) {
 }
 
 export function isNodeIcon(node: BaseNode) {
-  return node.name.includes(':')
-    && getPage(node)?.name === PAGES_SPECIAL.ICONS;
+  if (!node.name.includes(':')) return;
+  const isInstance = node.type === 'INSTANCE';
+  const masterNode = isInstance ? node.mainComponent : node;
+  return getPage(masterNode)?.name === PAGES_SPECIAL.ICONS;
 }
 
 export function getInstanceInfo(node: InstanceNode) {

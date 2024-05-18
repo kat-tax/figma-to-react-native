@@ -133,7 +133,7 @@ export async function watchLocales() {
   updateLanguage();
 }
 
-async function compile(
+export async function compile(
   components: Set<ComponentNode>,
   skipCache?: boolean,
   updated?: Set<ComponentNode>,
@@ -224,7 +224,7 @@ async function compile(
   return _cached;
 }
 
-async function bundle(
+export async function bundle(
   node: ComponentNode,
   settings: ProjectSettings,
   skipCache?: boolean,
