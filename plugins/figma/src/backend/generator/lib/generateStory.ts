@@ -36,7 +36,7 @@ function writeImports(
   writer.quote(`components/${componentName}`);
   writer.write(';');
   writer.newLine();
-    
+
   // Import Prop Components (if any)
   writePropImports(writer, propDefs);
 
