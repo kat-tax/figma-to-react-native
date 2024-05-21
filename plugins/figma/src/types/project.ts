@@ -41,16 +41,6 @@ export interface ProjectRelease {
   packageVersion: string,
   enableAssetOptimizations: boolean,
   includeAssets: boolean,
-  links?: ProjectLinks,
-}
-
-export interface ProjectLinks {
-  documentation?: string,
-  storybook?: string,
-  discord?: string,
-  github?: string,
-  figma?: string,
-  x?: string,
 }
 
 export type ProjectExportScope = 'document' | 'page' | 'selected';

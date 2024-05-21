@@ -5,7 +5,7 @@ import {fs} from '@zip.js/zip.js';
 import {F2RN_EXO_REPO_ZIP} from 'config/env';
 
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
-import type {ProjectBuild, ProjectInfo, ProjectRelease, ProjectLinks} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 
 export async function create(project: ProjectBuild, info: ProjectInfo, release: ProjectRelease) {
   // Debug
@@ -25,15 +25,10 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   const assets = design.getChildByName('assets') as ZipDirectoryEntry;
   const components = design.getChildByName('components') as ZipDirectoryEntry;
 
-  // Web Links
-  const links: ProjectLinks = {
-    documentation: info.appConfig?.['Web']?.['DOCS']?.toString(),
-    storybook: info.appConfig?.['Web']?.['STORYBOOK']?.toString(),
-    discord: info.appConfig?.['Web']?.['DISCORD']?.toString(),
-    github: info.appConfig?.['Web']?.['GITHUB']?.toString(),
-    figma: info.appConfig?.['Web']?.['FIGMA']?.toString(),
-    x: info.appConfig?.['Web']?.['X']?.toString(),
-  };
+  // Links
+  const linkDocs = info.appConfig?.['Web']?.['DOCS']?.toString();
+  const linkGithub = info.appConfig?.['Web']?.['GITHUB']?.toString();
+  const linkFigma = info.appConfig?.['Web']?.['FIGMA']?.toString();
 
   // Config
   zip.remove(tpl.getChildByName('config.yaml'));
@@ -67,9 +62,9 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
     `# ${release.packageName || 'project'}`,
     ``,
     `#### ${release.packageVersion || '0.0.1'}`,
-    links.documentation && `- [Documentation](${links.documentation})`,
-    links.github && `- [GitHub](${links.github})`,
-    links.figma && `- [Figma](${links.figma})`,
+    linkDocs && `- [Documentation](${linkDocs})`,
+    linkGithub && `- [GitHub](${linkGithub})`,
+    linkFigma && `- [Figma](${linkFigma})`,
   ].filter(Boolean).join('\n'));
 
   // Design
