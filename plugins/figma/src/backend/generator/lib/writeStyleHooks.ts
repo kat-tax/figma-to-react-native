@@ -13,6 +13,7 @@ export function writeStyleHooks(
   const hasVariants = !!variants;
   const hasStyles = hasVariants && Object.keys(variants.classes).length > 0;
   const hasIcons = hasVariants && Object.keys(variants.icons).length > 0;
+  const destructure = flags.useStylesTheme ? '{styles, theme}' : '{styles}';
 
   // Import flags
   flags.exoVariants.useVariants = hasStyles || hasIcons;
@@ -20,7 +21,7 @@ export function writeStyleHooks(
 
   // No variants
   if (!hasVariants || (!hasStyles && !hasIcons)) {
-    writer.writeLine(`const {styles} = useStyles(stylesheet);`);
+    writer.writeLine(`const ${destructure} = useStyles(stylesheet);`);
     writer.blankLine();
     return;
   }
@@ -66,7 +67,7 @@ export function writeStyleHooks(
   // Write hooks
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
-  writer.writeLine(`const {styles} = useStyles(stylesheet);`);
+  writer.writeLine(`const ${destructure} = useStyles(stylesheet);`);
   writer.writeLine(`const {vstyles} = useVariants(${name}Variants, {${props}}, styles);`);
   writer.blankLine();
 }

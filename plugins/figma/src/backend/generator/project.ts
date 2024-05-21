@@ -1,17 +1,20 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getComponentTargets} from 'backend/parser/lib';
-import {F2RN_PROJECT_RELEASE} from 'config/env';
+import {VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
+import {createIdentifierConstant, titleCase} from 'common/string';
 import {generateToken} from 'common/random';
 import defaultReleaseConfig from 'config/release';
+import {F2RN_PROJECT_RELEASE} from 'config/env';
 import * as config from 'backend/utils/config';
+import * as parser from 'backend/parser/lib';
 
 import {bundle as generateBundle} from './service';
 import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';
 
-import type {ProjectBuild, ProjectRelease, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectRelease, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
 import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';
 import type {ComponentAsset} from 'types/component';
+import type {VariableModes} from 'types/figma';
 
 export function build(release: ProjectRelease) {
   const user = figma.currentUser;
@@ -37,10 +40,10 @@ export function build(release: ProjectRelease) {
       const target = useDoc ? figma.root : figma.currentPage;
       projectName = useDoc ? figma.root.name : figma.currentPage.name;
       const targets = (target as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
-      exportNodes = getComponentTargets(targets);
+      exportNodes = parser.getComponentTargets(targets);
       break;
     case 'selected':
-      exportNodes = getComponentTargets(figma.currentPage.selection);
+      exportNodes = parser.getComponentTargets(figma.currentPage.selection);
       break;
   }
 
@@ -73,6 +76,23 @@ export function build(release: ProjectRelease) {
         asset.bytes,
       ]));
 
+      const [collectionConfig, collectionLocales] = await Promise.all([
+        parser.getVariableCollection(VARIABLE_COLLECTIONS.APP_CONFIG),
+        parser.getVariableCollection(VARIABLE_COLLECTIONS.LOCALES),
+      ]);
+
+      const [varsConfig, varsTranslations, modesLocales] = await Promise.all([
+        parser.getVariables(collectionConfig.variableIds),
+        parser.getVariables(collectionLocales.variableIds),
+        parser.getVariableCollectionModes(collectionLocales),
+      ]);
+      
+      const info: ProjectInfo = {
+        appConfig: getAppConfig(collectionConfig, varsConfig),
+        locales: getLocales(modesLocales),
+        translations: getTranslations(collectionLocales, varsTranslations, modesLocales),
+      };
+
       const build: ProjectBuild = {
         components,
         time: Date.now(),
@@ -83,11 +103,10 @@ export function build(release: ProjectRelease) {
       };
 
       // console.log('[project/build]', build, projectConfig);
-
-      emit<EventProjectBuild>('PROJECT_BUILD', build, release, user);
+      emit<EventProjectBuild>('PROJECT_BUILD', build, info, release, user);
     }, 500);
   } else {
-    emit<EventProjectBuild>('PROJECT_BUILD', null, release, user);
+    emit<EventProjectBuild>('PROJECT_BUILD', null, null, release, user);
     figma.notify('No components found to export', {error: true});
   }
 }
@@ -108,3 +127,51 @@ export function loadConfig() {
   }
   emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', loadedConfig);
 }
+
+function getAppConfig(
+  collection: VariableCollection,
+  variables: Variable[],
+): ProjectInfo['appConfig'] {
+  return variables.reduce((acc, cur) => {
+    const defaultMode = collection.defaultModeId;
+    const defaultValue = cur.valuesByMode[defaultMode]?.toString().trim();
+    const [_group, _key] = cur.name.includes('/') ? cur.name.split('/') : ['General', cur.name];
+    const group = titleCase(_group);
+    const key = createIdentifierConstant(_key);
+    if (!acc[group]) acc[group] = {};
+    acc[group][key] = defaultValue;
+    return acc;
+  }, {} as ProjectInfo['appConfig']);
+}
+
+function getLocales(modes: VariableModes): ProjectInfo['locales'] {
+  return {
+    source: getLocaleData(modes.default.name)[0],
+    all: modes.modes.map(mode =>
+      getLocaleData(mode.name).map(s => s.trim()) as [string, string]),
+  }
+}
+
+function getTranslations(
+  locales: VariableCollection,
+  messages: Variable[],
+  modes: VariableModes,
+): ProjectInfo['translations'] {
+  return messages.reduce((acc, cur) => {
+    const defaultMode = locales.defaultModeId;
+    const defaultValue = cur.valuesByMode[defaultMode]?.toString().trim();
+    const otherValues = Object.entries(cur.valuesByMode);
+    acc[defaultValue] = otherValues.reduce((acc, [modeId, value]) => {
+      if (modeId === defaultMode) return acc;
+      const [locale] = getLocaleData(modes.modes?.find(mode => mode.modeId === modeId)?.name);
+      if (locale) acc[locale] = value.toString().trim();
+      return acc;
+    }, {} as Record<string, string>);
+    return acc;
+  }, {} as ProjectInfo['translations']);
+}
+
+function getLocaleData(locale: string) {
+  return locale.split(' – ');
+}
+

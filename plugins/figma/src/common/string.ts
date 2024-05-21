@@ -17,6 +17,10 @@ export function pascalCase(input: string): string {
   });
 }
 
+export function constantCase(input: string): string {
+  return input.replace(/[\s\-]+/g, '_').toUpperCase();
+}
+
 export function escapeBacktick(input: string): string {
   return input.replace(/[\`]/g, '\\$&');
 }
@@ -41,4 +45,8 @@ export function createIdentifierPascal(input: string) {
 // Create a variable identifier (camelcased)
 export function createIdentifierCamel(input: string) {
   return createIdentifier(camelCase(input));
+}
+
+export function createIdentifierConstant(input: string) {
+  return createIdentifier(constantCase(input));
 }

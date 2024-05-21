@@ -47,6 +47,8 @@ export interface ImportFlags {
   exoVariants: {
     useVariants?: boolean,
   },
+  // Hook destructuring
+  useStylesTheme: boolean,
 }
 
 export async function writeImports(

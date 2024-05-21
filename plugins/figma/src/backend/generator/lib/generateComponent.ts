@@ -25,6 +25,7 @@ export async function generateComponent(data: ParseData, settings: ProjectSettin
     exoVideo: {},
     exoLottie: {},
     exoRive: {},
+    useStylesTheme: false,
   };
 
   let language = await getVariableCollection(VARIABLE_COLLECTIONS.LOCALES);

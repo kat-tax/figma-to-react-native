@@ -7,6 +7,22 @@ export interface ProjectBuild {
   components: ProjectBuildComponents,
 }
 
+export interface ProjectInfo {
+  appConfig: {
+    [group: string]: {
+      [key: string]: string | number | boolean}
+    },
+  locales: {
+    source: string,
+    all: Array<[string, string]>,
+  },
+  translations: {
+    [locale: string]: {
+      [key: string]: string,
+    },
+  },
+}
+
 export interface ProjectIcons {
   sets: string[],
   list: string[],

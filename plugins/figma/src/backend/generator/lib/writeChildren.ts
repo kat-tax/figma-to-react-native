@@ -236,6 +236,7 @@ function writeChild(
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
+      state.flags.useStylesTheme = true;
       writer.writeLine(`placeholderTextColor={${getFillToken(child.node as TextNode)}}`);
       extra?.forEach(p => p && writer.writeLine(p.trim()));
     });

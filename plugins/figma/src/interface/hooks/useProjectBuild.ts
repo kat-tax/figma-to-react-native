@@ -11,7 +11,7 @@ export function useProjectBuild(
   onError: () => void,
   setExportCount: React.Dispatch<number>,
 ): void {
-  useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, config, user) => {
+  useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, info, config, user) => {
     if (project === null) {
       onError();
       return;
@@ -20,10 +20,10 @@ export function useProjectBuild(
     const components = project.components.length;
     switch (config.method) {
       case 'download':
-        download(project, config);
+        download(project, info, config);
         break;
       case 'release':
-        upload(project, config);
+        upload(project, info, config);
         break;
       case 'preview':
         const url = 'http://127.0.0.1:5102'; // 'https://fig.run';

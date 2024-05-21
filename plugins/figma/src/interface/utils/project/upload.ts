@@ -1,10 +1,10 @@
 import supabase from 'interface/services/supabase';
 import {create} from './create';
 
-import type {ProjectBuild, ProjectRelease} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 
-export async function upload(build: ProjectBuild, release: ProjectRelease) {
-  const project = await create(build, release);
+export async function upload(build: ProjectBuild, info: ProjectInfo, release: ProjectRelease) {
+  const project = await create(build, info, release);
   
   const name = release.packageName || '';
   const version = release.packageVersion || '0.0.0';

@@ -44,43 +44,60 @@ export async function writeFunction(
   writeTSDoc(writer, masterNode);
 
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
+    const code = getComponentCode(flags, data, settings, language, masterNode, pressables, isPressable);
     writeStateHooks(writer, flags, data);
     writeStyleHooks(writer, flags, name, data.variants);
-
-    // Helper to determine the style prop value
-    const getStyleProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants
-      && Object.keys(data.variants.classes).includes(slug)
-        ? `vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
-        : `styles.${slug}`;
-    
-    // Helper to determine the icon prop value
-    const getIconProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants
-      && Object.keys(data.variants.icons).includes(slug)
-        ? `vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
-        : `styles.${slug}`;
-
-    // Write component JSX
-    writer.write(`return (`).indent(() => {
-      const tag = isPressable ? 'Pressable' : 'View';
-      const testId = ` testID={props.testID ?? "${masterNode.id}"}`;
-      const props = isPressable ? `${testId} {...props}` : testId;
-      const style = ` style={${getStyleProp('root', isPressable, true)}}`;
-
-      // Import flags
-      flags.reactNative[tag] = true;
-
-      // Write root JSX
-      writer.write('<' + tag + style + props + '>').indent(() => {
-        writer.conditionalWriteLine(isPressable, `{e => <>`);
-        writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-          writeChildren(writer, flags, data, settings, language, data.tree, getStyleProp, getIconProp, pressables);
-        });
-        writer.conditionalWriteLine(isPressable, `</>}`);
-      });
-      writer.writeLine(`</${tag}>`);
-    });
-    writer.writeLine(');');
+    writer.write(code);
   });
 
   writer.blankLine();
 }
+
+function getComponentCode(
+  flags: ImportFlags,
+  data: ParseData,
+  settings: ProjectSettings,
+  language: VariableCollection,
+  masterNode: ComponentNode,
+  pressables: string[][],
+  isPressable: boolean,
+) {
+  const writer = new CodeBlockWriter(settings.writer);
+
+  // Helper to determine the style prop value
+  const getStyleProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants
+    && Object.keys(data.variants.classes).includes(slug)
+      ? `vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
+      : `styles.${slug}`;
+  
+  // Helper to determine the icon prop value
+  const getIconProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants
+    && Object.keys(data.variants.icons).includes(slug)
+      ? `vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
+      : `styles.${slug}`;
+
+  // Write component JSX
+  writer.write(`return (`).indent(() => {
+    const tag = isPressable ? 'Pressable' : 'View';
+    const testId = ` testID={props.testID ?? "${masterNode.id}"}`;
+    const props = isPressable ? `${testId} {...props}` : testId;
+    const style = ` style={${getStyleProp('root', isPressable, true)}}`;
+
+    // Import flags
+    flags.reactNative[tag] = true;
+
+    // Write root JSX
+    writer.write('<' + tag + style + props + '>').indent(() => {
+      writer.conditionalWriteLine(isPressable, `{e => <>`);
+      writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
+        writeChildren(writer, flags, data, settings, language, data.tree, getStyleProp, getIconProp, pressables);
+      });
+      writer.conditionalWriteLine(isPressable, `</>}`);
+    });
+    writer.writeLine(`</${tag}>`);
+  });
+  writer.writeLine(');');
+
+  return writer.toString();
+}
+

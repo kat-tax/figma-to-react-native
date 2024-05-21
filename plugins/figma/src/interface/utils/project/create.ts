@@ -1,25 +1,20 @@
+// TODO:
+// - fix component folders (lowercase + use sections for categories)
+
 import {fs} from '@zip.js/zip.js';
 import {F2RN_EXO_REPO_ZIP} from 'config/env';
 
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
-import type {ProjectBuild, ProjectRelease, ProjectLinks} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectRelease, ProjectLinks} from 'types/project';
 
-export async function create(project: ProjectBuild, release: ProjectRelease) {
+export async function create(project: ProjectBuild, info: ProjectInfo, release: ProjectRelease) {
+  // Debug
+  console.log('export', project, info, release);
+  
   // Import EXO
   const zip = new fs.FS();
   const src = 'https://corsproxy.io/?' + encodeURIComponent(F2RN_EXO_REPO_ZIP + '?_c=' + Math.random());
   const tpl = (await zip.importHttpContent(src))[0] as ZipDirectoryEntry;
-
-  // Project info
-  // TODO: use variable collection "App Config" values instead of hardcoding
-  const font = 'Inter';
-  const links: ProjectLinks = {
-    documentation: 'https://exo.ult.dev',
-    storybook: 'https://exo.fig.run',
-    discord: 'https://discord.gg/KpMZVKmfnb',
-    github: 'https://github.com/kat-tax/exo',
-    x: 'https://twitter.com/theultdev',
-  };
 
   // Root
   tpl.rename(project.name);
@@ -30,41 +25,52 @@ export async function create(project: ProjectBuild, release: ProjectRelease) {
   const assets = design.getChildByName('assets') as ZipDirectoryEntry;
   const components = design.getChildByName('components') as ZipDirectoryEntry;
 
+  // Web Links
+  const links: ProjectLinks = {
+    documentation: info.appConfig?.['Web']?.['DOCS']?.toString(),
+    storybook: info.appConfig?.['Web']?.['STORYBOOK']?.toString(),
+    discord: info.appConfig?.['Web']?.['DISCORD']?.toString(),
+    github: info.appConfig?.['Web']?.['GITHUB']?.toString(),
+    figma: info.appConfig?.['Web']?.['FIGMA']?.toString(),
+    x: info.appConfig?.['Web']?.['X']?.toString(),
+  };
+
   // Config
   zip.remove(tpl.getChildByName('config.yaml'));
-  tpl.addText('config.yaml', templateAppConfig
-    .replace('__NAME__', release.packageName || 'project')
-    .replace('__DISPLAY_NAME__', release.packageName || 'Project')
-    .replace('__FONT__', font)
-    .replace('__PACKAGE__', release.packageName || 'react-exo')
-    .replace('__PACKAGE_VERSION__', release.packageVersion || '0.0.1')
-    .replace('__LINK_DOCS__', links.documentation)
-    .replace('__LINK_STORYBOOK__', links.storybook)
-    .replace('__LINK_DISCORD__', links.discord)
-    .replace('__LINK_GITHUB__', links.github)
-    .replace('__LINK_X__', links.x)
-  );
+  tpl.addText('config.yaml', Object.entries(info.appConfig)
+  .map(([group, section]) => `# ${group}\n` + Object.entries(section)
+    .map(([key, value]) => `${key}: ${value}`).join('\n'))
+  .join('\n\n'));
 
   // Locales
   zip.remove(tpl.getChildByName('locales.ts'));
-  tpl.addText('locales.ts', templateLocales);
+  tpl.addText('locales.ts', [
+    `/** Supported languages **/`,
+    ``,
+    `export type Locales = keyof typeof locales;`,
+    `export const sourceLocale: Locales = '${info.locales.source}';`,
+    `export const locales = ${JSON.stringify(info.locales.all.reduce((acc, [key, value]) => {
+      acc[key] = value;
+      return acc;
+    }, {}), null, 2)} as const;`,
+   ].join('\n'));
 
   // Docs
-  /*const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
-  zip.remove(docs.getChildByName('getting-started.mdx'));
-  docs.addText('getting-started.mdx', templateDocsHome);
+  const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
+  docs.children.forEach(child => zip.remove(child));
+  docs.addText('start/index.mdx', docIndexTemplate);
 
   // Storybook
   const sb = guides.getChildByName('storybook') as ZipDirectoryEntry;
-  zip.remove(sb.getChildByName('Get Started.mdx'));
-  sb.addText('Get Started.mdx', [
+  zip.remove(sb.getChildByName('get started.mdx'));
+  sb.addText('get started.mdx', [
     `# ${release.packageName || 'project'}`,
     ``,
     `#### ${release.packageVersion || '0.0.1'}`,
-    `- [Documentation](${links.documentation})`,
-    `- [GitHub](${links.github})`,
-    `- [Figma](${links.figma})`,
-  ].join('\n'));*/
+    links.documentation && `- [Documentation](${links.documentation})`,
+    links.github && `- [GitHub](${links.github})`,
+    links.figma && `- [Figma](${links.figma})`,
+  ].filter(Boolean).join('\n'));
 
   // Design
   zip.remove(design.getChildByName('index.ts'));
@@ -73,18 +79,21 @@ export async function create(project: ProjectBuild, release: ProjectRelease) {
   design.addText('theme.ts', project.theme);
 
   // Assets
-  /*if (release.includeAssets) {
+  if (release.includeAssets) {
+    const added = new Set();
     project.assets.forEach(([name, isVector, bytes]) => {
       const ext = isVector ? 'svg' : 'png';
       const type = isVector ? 'svg' : 'img';
       const mime = isVector ? 'image/svg+xml' : 'image/png';
       const blob = new Blob([bytes], {type: mime});
+      const path = `${type}/${name.toLowerCase()}.${ext}`;
+      if (added.has(path)) return;
       let category = assets.getChildByName(type) as ZipDirectoryEntry;
       if (category) zip.remove(category);
-      else category = assets.addDirectory(type);
-      category.addBlob(`${name.toLowerCase()}.${ext}`, blob);
+      assets.addBlob(path, blob);
+      added.add(path);
     });
-  }*/
+  }
 
   // Components
   project.components.forEach(([name, index, code, story, docs]) => {
@@ -103,54 +112,7 @@ export async function create(project: ProjectBuild, release: ProjectRelease) {
   return zip.exportBlob();
 }
 
-// Templates
-
-const templateAppConfig = `# General
-APP_NAME: __APP_NAME__
-APP_DISPLAY_NAME: __APP_DISPLAY_NAME__
-
-# Design
-FONT_NAME: __FONT_NAME__
-
-# State
-STORE_VERSION: __STORE_VERSION__
-
-# Library
-LIB_NAME: __LIB_NAME__
-LIB_VERSION: __LIB_VERSION__
-
-# Web
-LINK_DOCS: __LINK_DOCS__
-LINK_STORYBOOK: __LINK_STORYBOOK__
-LINK_DISCORD: __LINK_DISCORD__
-LINK_GITHUB: __LINK_GITHUB__
-LINK_X: __LINK_X__
-
-# Native
-PACKAGE_IOS: __PACKAGE_IOS__
-PACKAGE_MACOS: __PACKAGE_MACOS__
-PACKAGE_ANDROID: __PACKAGE_ANDROID__
-PACKAGE_WINDOWS: __PACKAGE_WINDOWS__
-`;
-
-const templateLocales = `/** Supported languages **/
-
-export type Locales = keyof typeof locales;
-
-export const sourceLocale: Locales = 'en';
-export const locales = {
-  en: 'English',
-  de: 'Deutsch',
-  es: 'Español',
-  pt: 'Portugués',
-  ja: 'Bahasa Indonesia',
-  ru: 'Русский',
-  ar: 'やまと',
-  id: 'عربي',
-} as const;
-`;
-
-const templateDocsHome = `# Getting Started
+const docIndexTemplate = `# Getting Started
 
 ::::steps
 
