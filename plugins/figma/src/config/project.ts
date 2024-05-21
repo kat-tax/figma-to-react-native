@@ -1,7 +1,7 @@
 import type {ProjectSettings} from 'types/settings';
 
 const project: ProjectSettings = {
-  addTranslate: false,
+  addTranslate: true,
   writer: {
     indentNumberOfSpaces: 2,
     useSingleQuote: true,

@@ -37,8 +37,6 @@ export interface ProjectRelease {
   scope: ProjectExportScope,
   apiKey: string,
   docKey: string,
-  packageName: string,
-  packageVersion: string,
   enableAssetOptimizations: boolean,
   includeAssets: boolean,
 }

@@ -9,8 +9,6 @@ import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'type
 import type {EventProjectExport} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 
-const regexSemver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
-
 const tips = {
   export: `Export Method:
 
@@ -29,14 +27,6 @@ const tips = {
   apiKey: `Your Project Key generated at:
 
   • https://figma-to-react-native.com/dashboard`,
-
-  packageName: `Package Name:
-
-  • The name of the package to be created`,
-
-  packageVersion: `Package Version:
-
-  • The version of the package to be created`,
 
   includeAssets: `Include Assets:
 
@@ -62,12 +52,7 @@ export function ProjectExport(props: ProjectExportProps) {
 
   const form = F.useForm<ProjectRelease>(props.project, {
     close: () => {},
-    validate: (data) => {
-      if (data.packageVersion) {
-        return regexSemver.test(data.packageVersion);
-      }
-      return true;
-    },
+    validate: (_data) => true,
     submit: (data) => {
       setHasSuccess(false);
       setExporting(true);
@@ -161,36 +146,6 @@ export function ProjectExport(props: ProjectExportProps) {
                 {children: 'Page', value: 'page'},
                 {children: 'Selection', value: 'selected'},
               ]}
-            />
-            <F.VerticalSpace space="large"/>
-          </div>
-        }
-        {isReleasing &&
-          <div title={tips.packageName}>
-            <F.Bold>Package Name</F.Bold>
-            <F.VerticalSpace space="small"/>
-            <F.Textbox
-              placeholder="@acme/ui"
-              disabled={isExporting}
-              value={form.formState.packageName}
-              onValueInput={v => form.setFormState(v, 'packageName')}
-              aria-label={tips.packageName}
-              variant="border"
-            />
-            <F.VerticalSpace space="large"/>
-          </div>
-        }
-        {isReleasing &&
-          <div title={tips.packageVersion}>
-            <F.Bold>Package Version</F.Bold>
-            <F.VerticalSpace space="small"/>
-            <F.Textbox
-              disabled={isExporting}
-              value={form.formState.packageVersion}
-              onValueInput={v => form.setFormState(v, 'packageVersion')}
-              aria-label={tips.packageVersion}
-              placeholder="1.0.0"
-              variant="border"
             />
             <F.VerticalSpace space="large"/>
           </div>

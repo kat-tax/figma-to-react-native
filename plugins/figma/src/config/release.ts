@@ -5,8 +5,6 @@ const config: ProjectRelease = {
   scope: 'document',
   docKey: '',
   apiKey: '',
-  packageName: '',
-  packageVersion: '',
   includeAssets: true,
   enableAssetOptimizations: true,
 };

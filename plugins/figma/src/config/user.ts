@@ -1,7 +1,7 @@
 import type {UserSettings} from 'types/settings';
 
 const user: UserSettings = {
-  addTranslate: false,
+  addTranslate: true,
   writer: {
     indentNumberOfSpaces: 2,
     useSingleQuote: true,

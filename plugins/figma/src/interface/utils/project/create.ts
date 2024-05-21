@@ -25,10 +25,12 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   const assets = design.getChildByName('assets') as ZipDirectoryEntry;
   const components = design.getChildByName('components') as ZipDirectoryEntry;
 
-  // Links
+  // Info
   const linkDocs = info.appConfig?.['Web']?.['DOCS']?.toString();
   const linkGithub = info.appConfig?.['Web']?.['GITHUB']?.toString();
   const linkFigma = info.appConfig?.['Web']?.['FIGMA']?.toString();
+  const pkgName = info.appConfig?.['Library']?.['PACKAGE_NAME']?.toString();
+  const pkgVersion = info.appConfig?.['Library']?.['PACKAGE_VERSION']?.toString();
 
   // Config
   zip.remove(tpl.getChildByName('config.yaml'));
@@ -59,9 +61,9 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   const sb = guides.getChildByName('storybook') as ZipDirectoryEntry;
   zip.remove(sb.getChildByName('get started.mdx'));
   sb.addText('get started.mdx', [
-    `# ${release.packageName || 'project'}`,
+    `# ${pkgName || 'project'}`,
     ``,
-    `#### ${release.packageVersion || '0.0.1'}`,
+    `#### ${pkgVersion || '0.0.1'}`,
     linkDocs && `- [Documentation](${linkDocs})`,
     linkGithub && `- [GitHub](${linkGithub})`,
     linkFigma && `- [Figma](${linkFigma})`,
