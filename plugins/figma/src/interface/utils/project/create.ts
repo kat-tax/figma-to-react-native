@@ -43,7 +43,7 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
     `/** Supported languages **/`,
     ``,
     `export type Locales = keyof typeof locales;`,
-    `export const sourceLocale: Locales = '${info.locales.source}';`,
+    `export const sourceLocale: Locales = "${info.locales.source}";`,
     `export const locales = ${JSON.stringify(info.locales.all.reduce((acc, [key, value]) => {
       acc[key] = value;
       return acc;
