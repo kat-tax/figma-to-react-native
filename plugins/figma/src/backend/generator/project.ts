@@ -1,9 +1,9 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
-import {createIdentifierConstant, titleCase} from 'common/string';
-import {generateToken} from 'common/random';
 import defaultReleaseConfig from 'config/release';
 import {F2RN_PROJECT_RELEASE} from 'config/env';
+import {PAGES_SPECIAL, VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
+import {createIdentifierConstant, titleCase} from 'common/string';
+import {generateToken} from 'common/random';
 import * as config from 'backend/utils/config';
 import * as parser from 'backend/parser/lib';
 
@@ -13,7 +13,7 @@ import {generateTheme} from './lib/generateTheme';
 
 import type {ProjectBuild, ProjectInfo, ProjectRelease, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
 import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';
-import type {ComponentAsset} from 'types/component';
+import type {ComponentInfo, ComponentAsset} from 'types/component';
 import type {VariableModes} from 'types/figma';
 
 export function build(release: ProjectRelease) {
@@ -41,6 +41,14 @@ export function build(release: ProjectRelease) {
       projectName = useDoc ? figma.root.name : figma.currentPage.name;
       const targets = (target as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
       exportNodes = parser.getComponentTargets(targets);
+      exportNodes.forEach(node => {
+        if (release.scope === 'document') {
+          const pageName = parser.getPage(node).name;
+          if (pageName === PAGES_SPECIAL.TESTS) {
+            exportNodes.delete(node);
+          }
+        }
+      });
       break;
     case 'selected':
       exportNodes = parser.getComponentTargets(figma.currentPage.selection);
@@ -51,18 +59,25 @@ export function build(release: ProjectRelease) {
   if (exportNodes.size > 0) {
     figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
     setTimeout(async () => {
-      const names = new Set<string>();
-      const assets = new Map<string, ComponentAsset>();
-      const buildAssets: ProjectBuildAssets = [];
       const components: ProjectBuildComponents = [];
+      const buildAssets: ProjectBuildAssets = [];
+      const componentInfo: Record<string, ComponentInfo> = {};
+      const assets = new Map<string, ComponentAsset>();
 
       for await (const component of exportNodes) {
         try {
           const {bundle} = await generateBundle(component, config.state);
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
-            components.push([bundle.name, bundle.index, bundle.code, bundle.story, bundle.docs]);
-            names.add(bundle.name);
+            componentInfo[bundle.key] = bundle.info;
+            components.push([
+              bundle.info.path,
+              bundle.info.name,
+              bundle.index,
+              bundle.code,
+              bundle.story,
+              bundle.docs,
+            ]);
             // console.log('[project/bundle]', bundle);
           }
         } catch (e) {
@@ -97,7 +112,7 @@ export function build(release: ProjectRelease) {
         components,
         time: Date.now(),
         name: projectName,
-        index: generateIndex(names, config.state, true),
+        index: generateIndex(Object.values(componentInfo), config.state, true),
         theme: (await generateTheme(config.state)).themes.code,
         assets: buildAssets,
       };

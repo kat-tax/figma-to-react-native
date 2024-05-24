@@ -14,7 +14,6 @@ declare module 'react-native-unistyles' {
   export interface UnistylesThemes extends AppThemes {}
 }
 
-
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 const initialTheme = '__CURRENT_THEME__';
 const initialLanguage = '__CURRENT_LANGUAGE__';
@@ -59,8 +58,10 @@ export function App() {
           return;
       }
     };
-    addEventListener('message', updateProps);
-    return () => removeEventListener('message', updateProps);
+    // Note: do not use addEventListener, cleanup doesn't always work
+    // due to how the app is reloaded in the loader
+    window.onmessage = updateProps;
+    return () => window.onmessage = null;
   }, []);
 
   return (

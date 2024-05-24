@@ -10,12 +10,12 @@ export async function render(node: SceneNode): Promise<CodegenResult[]> {
   return bundle.code ? [
     {
       language: 'TYPESCRIPT',
-      title: `${bundle.name}.tsx`,
+      title: `${bundle.info.name}.tsx`,
       code: bundle.code,
     },
     {
       language: 'TYPESCRIPT',
-      title: `${bundle.name}.story.tsx`,
+      title: `${bundle.info.name}.story.tsx`,
       code: bundle.story,
     },
     {

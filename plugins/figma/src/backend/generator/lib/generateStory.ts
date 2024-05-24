@@ -1,44 +1,34 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {sortProps, getPropName, getPage} from 'backend/parser/lib';
+import {sortProps, getPropName, getPropsJSX} from 'backend/parser/lib';
 import {writePropImports} from './writePropImports';
 
 import type {ProjectSettings} from 'types/settings';
+import type {ComponentInfo} from 'types/component';
 
-export function generateStory(
-  target: ComponentNode,
-  isVariant: boolean,
-  propDefs: ComponentPropertyDefinitions,
-  settings: ProjectSettings,
-) {
+export function generateStory(component: ComponentInfo, settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
-  const masterNode = isVariant ? target.parent : target;
-  const componentName = createIdentifierPascal(masterNode.name);
 
-  writeImports(writer, propDefs, componentName);
+  writeImports(writer, component);
   writer.blankLine();
-  writeMetaData(writer, target, isVariant);
+  writeMetaData(writer, component);
   writer.blankLine();
-  writeStories(writer, target, propDefs, isVariant, componentName);
+  writeStories(writer, component);
   writer.writeLine('export default meta;');
 
   return writer.toString();
 }
 
-function writeImports(
-  writer: CodeBlockWriter,
-  propDefs: ComponentPropertyDefinitions,
-  componentName: string,
-) {
+function writeImports(writer: CodeBlockWriter, component: ComponentInfo) {
   // Import Component
-  writer.write(`import {${componentName} as Component} from`);
+  writer.write(`import {${component.name} as Component} from`);
   writer.space();
-  writer.quote(`components/${componentName}`);
+  writer.quote(component.path);
   writer.write(';');
   writer.newLine();
 
   // Import Prop Components (if any)
-  writePropImports(writer, propDefs);
+  writePropImports(writer, component.propDefs);
 
   // Boilerplate
   writer.write('import type {StoryObj, Meta} from');
@@ -50,16 +40,11 @@ function writeImports(
   writer.writeLine('type Story = StoryObj<typeof Component>;');
 }
 
-function writeMetaData(
-  writer: CodeBlockWriter,
-  target: ComponentNode,
-  isVariant: boolean,
-) {
-  const componentPage = getPage(target);
+function writeMetaData(writer: CodeBlockWriter, component: ComponentInfo) {
   writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
     writer.write('title:');
     writer.space();
-    writer.quote(componentPage.name + '/' + (isVariant ? target.parent.name : target.name));
+    writer.quote(`${component.page}/${component.section}/${component.name}`);
     writer.write(',');
     writer.newLine();
     writer.writeLine('component: Component,');
@@ -67,32 +52,25 @@ function writeMetaData(
   writer.write(';');
 }
 
-function writeStories(
-  writer: CodeBlockWriter,
-  target: ComponentNode,
-  propDefs: ComponentPropertyDefinitions,
-  isVariant: boolean,
-  componentName: string,
-) {
+function writeStories(writer: CodeBlockWriter, component: ComponentInfo) {
   // Single Story
-  if (!isVariant) {
-    writer.write(`export const ${componentName}: Story = `).inlineBlock(() =>
-      writeProps(writer, propDefs));
+  if (!component.isVariant) {
+    writer.write(`export const ${component.name}: Story = `).inlineBlock(() =>
+      writeStoryProps(writer, component));
     writer.write(';');
     writer.blankLine();
 
   // Multiple Stories (variants)
   } else {
     let defaultVariant: string;
-    target.parent.children.forEach(child => {
+    component.target.children.forEach(child => {
       const variant = createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
       writer.write(`export const ${variant}: Story = `).inlineBlock(() => {
         if (!defaultVariant) defaultVariant = variant;
         if (variant === defaultVariant) {
-          writeProps(writer, propDefs);
+          writeStoryProps(writer, component);
         } else {
-          const props = Object.entries((child as VariantMixin).variantProperties);
-          writePropsVariant(writer, props, defaultVariant);
+          writeStoryPropsVariant(writer, (child as VariantMixin), defaultVariant);
         }
       });
       writer.write(';');
@@ -101,11 +79,8 @@ function writeStories(
   }
 }
 
-function writeProps(
-  writer: CodeBlockWriter,
-  propDefs: ComponentPropertyDefinitions,
-) {
-  const props = propDefs ? Object.entries(propDefs) : [];
+function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
+  const props = component.propDefs ? Object.entries(component.propDefs) : [];
   if (props.length > 0) {
     writer.write('args: ').inlineBlock(() => {
       props.sort(sortProps).forEach(([key, prop]) => {
@@ -120,10 +95,13 @@ function writeProps(
           writer.write(',');
           writer.newLine();
         // Component
-        // TODO: generalize instance swap handling
         } else if (type === 'INSTANCE_SWAP') {
           const component = figma.getNodeById(value);
-          const tagName = '<' + (createIdentifierPascal(component.name) || 'View') + '/>';
+          const isVariant = component.parent.type === 'COMPONENT_SET';
+          const masterNode = isVariant ? component.parent : component;
+          const propDefs = (masterNode as ComponentSetNode).componentPropertyDefinitions;
+          const componentName = createIdentifierPascal(masterNode.name);
+          const tagName = `<${componentName}${getPropsJSX(propDefs)}/>`;
           writer.writeLine(`${name}: ${tagName},`);
         // Number or boolean
         } else {
@@ -137,11 +115,12 @@ function writeProps(
   }
 }
 
-function writePropsVariant(
+function writeStoryPropsVariant(
   writer: CodeBlockWriter,
-  props: Array<[string, string]>,
+  variant: VariantMixin,
   defaultVariant: string,
 ) {
+  const props = Object.entries(variant.variantProperties);
   writer.write('args: ').inlineBlock(() => {
     writer.writeLine(`...${defaultVariant}.args,`);
     if (props.length === 0) return;

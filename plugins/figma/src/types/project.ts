@@ -30,7 +30,7 @@ export interface ProjectIcons {
 }
 
 export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;
-export type ProjectBuildComponents = Array<[string, string, string, string, string]>;
+export type ProjectBuildComponents = Array<[string, string, string, string, string, string]>;
 
 export interface ProjectRelease {
   method: ProjectExportMethod,

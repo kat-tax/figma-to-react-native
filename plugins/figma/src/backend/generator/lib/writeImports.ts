@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal} from 'common/string';
+import {getComponentInfo} from 'backend/parser/lib';
 
 import type {ParseData} from 'types/parse';
 
@@ -79,22 +79,16 @@ export async function writeImports(
   writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('@lingui/macro', flags.lingui);
 
-  // TODO: aria hooks for each primitive
-  // writer.writeLine(`import {useButton} from '@react-native-aria/button';`);
-  // writer.writeLine(`import {useHover} from '@react-native-aria/interactions';`);
-  // writer.writeLine(`import {useFocusRing} from '@react-native-aria/focus';`);
-  // writer.newLine();
-
   // Local Components
   const components = Object.entries(data.meta.components);
   if (components.length > 0) {
     components
       .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
       .forEach(([_id, [node, _instance]]) => {
-        const component = createIdentifierPascal(node.name);
-        writer.write(`import {${component}} from`);
+        const component = getComponentInfo(node);
+        writer.write(`import {${component.name}} from`);
         writer.space();
-        writer.quote(`components/${component}`);
+        writer.quote(component.path);
         writer.write(';');
         writer.newLine();
       });

@@ -1,6 +1,7 @@
 export const PAGES_SPECIAL = {
   LIBRARY: 'Library',
   ICONS: 'Icons',
+  TESTS: 'Tests',
 } as const;
 
 export const VARIABLE_COLLECTIONS = {

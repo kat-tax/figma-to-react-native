@@ -85,6 +85,17 @@ export function getComponentParent(node: SceneNode): ComponentNode {
   return null;
 }
 
+// Find the section of a node
+export function getSection(node: BaseNode): SectionNode {
+  let target: BaseNode = node;
+  if (!target) return null;
+  while (target.type !== 'SECTION') {
+    target = target.parent;
+    if (!target) return null;
+  }
+  return target;
+}
+
 // Get the page of a node
 export function getPage(node: BaseNode): PageNode {
   if (!node) return null;

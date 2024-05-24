@@ -11,21 +11,19 @@ import type {VariantData} from 'interface/hooks/useSelectedVariant';
 interface ComponentPreviewProps {
   componentKey: string,
   variant: VariantData,
-  language: string,
-  theme: string,
   build: ComponentBuild,
+  theme: string,
+  language: string,
   settings: UserSettings,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
   const {componentKey, theme, language, build, variant, settings} = props;
-
+  const [_node, setNode] = useState<string | null>(null);
   const [src, setSrc] = useState('');
-  const [node, setNode] = useState<string | null>(null);
-
+  const screen = useWindowSize();
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
-  const screen = useWindowSize();
   const component = $.components.get(componentKey);
 
   // Inits the loader that renders component apps
@@ -37,7 +35,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         initApp();
       }
     });
-  }, [iframe, component, settings]);
+  }, [component, settings]);
 
   // Inits a component app in the loader
   const initApp = useCallback(() => {
@@ -50,13 +48,13 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       const name = component?.name;
       ctx?.postMessage({type: 'preview', bundle, name, width, height})
     });
-  }, [iframe, component, settings, props.build]);
+  }, [component, settings, props.build]);
 
   // Enable inspect mode in the app
   const inspectApp = useCallback((enabled: boolean) => {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'inspect', enabled});
-  }, [iframe]);
+  }, []);
 
   // Render the loader when the settings change
   useEffect(initLoader, [settings]);
@@ -68,19 +66,19 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   useEffect(() => {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'resize', width: screen.width, height: screen.height});
-  }, [iframe, screen]);
+  }, [screen]);
 
   // Update the preview theme when it changes
   useEffect(() => {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'theme', theme});
-  }, [iframe, theme]);
+  }, [theme]);
 
   // Update the preview language when it changes
   useEffect(() => {
     const ctx = iframe.current?.contentWindow;
     ctx?.postMessage({type: 'language', language});
-  }, [iframe, language]);
+  }, [language]);
 
   // Update the preview variant when it changes
   useEffect(() => {

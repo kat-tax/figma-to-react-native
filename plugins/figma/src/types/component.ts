@@ -1,3 +1,14 @@
+export type ComponentInfo = {
+  target: ComponentSetNode | ComponentNode,
+  name: string,
+  page: string,
+  path: string,
+  section: string,
+  propDefs: ComponentPropertyDefinitions,
+  isVariant: boolean,
+  isInstance: boolean,
+}
+
 export type ComponentBuild = {
   roster: ComponentRoster,
   assets: Record<string, ComponentAsset>,
@@ -10,11 +21,9 @@ export type ComponentBuild = {
   index: string,
 }
 
-export type ComponentRoster = Record<string, ComponentEntry>
-
-export type ComponentEntry = {
+export type ComponentRoster = Record<string, ComponentRosterEntry>
+export type ComponentRosterEntry = {
   id: string,
-  key: string,
   name: string,
   page: string,
   loading: boolean,
@@ -24,8 +33,6 @@ export type ComponentEntry = {
 export type ComponentData = {
   id: string,
   key: string,
-  page: string,
-  name: string,
   props: string,
   code: string,
   index: string,
@@ -36,6 +43,7 @@ export type ComponentData = {
   icons: string[],
   assets: ComponentAsset[] | null,
   links: ComponentLinks,
+  info: ComponentInfo,
 }
 
 export type ComponentAsset = {

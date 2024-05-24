@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getAllIconComponents} from 'backend/importer/icons';
-import {getComponentTargets, getComponentTarget, getVariableCollectionModes, getPage} from 'backend/parser/lib';
+import {getComponentTargets, getComponentTarget, getComponentInfo, getVariableCollectionModes, getPage} from 'backend/parser/lib';
 import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
 import {wait} from 'common/delay';
@@ -11,7 +11,7 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 import {VARIABLE_COLLECTIONS} from './lib/consts';
 
-import type {ComponentAsset, ComponentData, ComponentLinks, ComponentRoster} from 'types/component';
+import type {ComponentInfo, ComponentData, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
 import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
@@ -138,48 +138,43 @@ export async function compile(
   skipCache?: boolean,
   updated?: Set<ComponentNode>,
 ) {
-  const _names = new Set<string>();
-  const _icons = new Set<string>();
-  const _assets: Record<string, ComponentAsset> = {};
   const _roster: ComponentRoster = {};
-  let _links: ComponentLinks = {};
+  const _info: Record<string, ComponentInfo> = {};
+  const _assets: Record<string, ComponentAsset> = {};
+  const _icons = new Set<string>();
 
+  let _links: ComponentLinks = {};
   let _total = 0;
   let _loaded = 0;
   let _cached = false;
 
+  // Iterate over all components, fill roster, info, and total
   for await (const component of components) {
-    const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
-    const masterNode = (isVariant ? component?.parent : component);
-    const imageExport = false; // TODO: await (masterNode as ComponentNode).exportAsync({format: 'PNG'});
-    const preview = imageExport ? `data:image/png;base64,${figma.base64Encode(imageExport)}` : '';
-    const name = createIdentifierPascal(masterNode.name);
-    const page = getPage(masterNode).name;
-    const key = (masterNode as ComponentNode).key;
-    const id = masterNode.id;
+    const info = getComponentInfo(component);
+    if (!info) continue;
+    const {name, page, target} = info;
+    const {id, key} = target;
+    const loading = !skipCache;
+    const preview = ''; // data:image/png;base64,${await info.target.exportAsync({format: 'PNG'})}` : '';
     _total++;
-    _names.add(name);
-    _roster[key] = {
-      id,
-      key,
-      name,
-      page,
-      preview,
-      loading: !skipCache,
-    };
+    _info[key] = info;
+    _roster[key] = {id, name, page, loading, preview};
   }
 
-  const index = generateIndex(_names, config.state, true);
-  const targets = updated || components;
+  // Generate index
+  const index = generateIndex(Object.values(_info), config.state, true);
 
+  // Compile either all components or just updated components if provided
+  const targets = updated || components;
   for await (const component of targets) {
-    wait(1); // Prevent UI from freezing
+    // Prevent UI from freezing
+    wait(1);
     try {
       // Compile component
       const res = await bundle(component, config.state, skipCache);
 
       // Derive data
-      const {id, key, page, name, links, icons, assets} = res.bundle;
+      const {id, key, info, links, icons, assets} = res.bundle;
       const pages = figma.root.children?.map(p => p.name);
 
       // Aggregate data
@@ -188,10 +183,10 @@ export async function compile(
       _links = {..._links, ...links};
       _cache[component.id] = res.bundle;
       _roster[key] = {
-        ..._roster[name],
+        ..._roster[key],
         id,
-        name,
-        page,
+        name: info.name,
+        page: info.page,
         loading: false,
       };
 
@@ -215,7 +210,7 @@ export async function compile(
         assetMap: {},
       }, res.bundle);
 
-      // console.log('[compile]', name, bundle);
+      //console.log('[compile]', info.name, res.bundle);
     } catch (e) {
       console.error('Failed to export', component, e);
     }
@@ -241,7 +236,7 @@ export async function bundle(
       return {bundle: _cache[node.key], cached: true};
     }
     // Disk cache
-    const data = node.getSharedPluginData('f2rn', 'data');
+    const data = false // node.getSharedPluginData('f2rn', 'data');
     if (data) {
       try {
         const bundle = JSON.parse(data) as ComponentData;

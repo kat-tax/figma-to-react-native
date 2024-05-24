@@ -22,8 +22,6 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   // Subfolders
   const guides = tpl.getChildByName('guides') as ZipDirectoryEntry;
   const design = tpl.getChildByName('design') as ZipDirectoryEntry;
-  const assets = design.getChildByName('assets') as ZipDirectoryEntry;
-  const components = design.getChildByName('components') as ZipDirectoryEntry;
 
   // Info
   const linkDocs = info.appConfig?.['Web']?.['DOCS']?.toString();
@@ -83,18 +81,18 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
       const type = isVector ? 'svg' : 'img';
       const mime = isVector ? 'image/svg+xml' : 'image/png';
       const blob = new Blob([bytes], {type: mime});
-      const path = `${type}/${name.toLowerCase()}.${ext}`;
+      const path = `assets/${type}/${name.toLowerCase()}.${ext}`;
       if (added.has(path)) return;
-      let category = assets.getChildByName(type) as ZipDirectoryEntry;
+      let category = design.getChildByName(`assets/${type}`);
       if (category) zip.remove(category);
-      assets.addBlob(path, blob);
+      design.addBlob(path, blob);
       added.add(path);
     });
   }
 
   // Components
-  project.components.forEach(([name, index, code, story, docs]) => {
-    const component = components.addDirectory(name);
+  project.components.forEach(([path, name, index, code, story, docs]) => {
+    const component = design.addDirectory(path);
     if (index)
       component.addText('index.ts', index);
     if (code)

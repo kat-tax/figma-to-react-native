@@ -31,10 +31,10 @@ export function useBuild(): ComponentBuild {
       $.setComponentDocs(component.key, component.docs);
       Object.values(build.assets).forEach(asset =>
         $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes));
-      const {id, key, name, page, props, width, height} = component;
+      const {id, key, info, props, width, height} = component;
+      const {name, page} = info;
       $.components.set(component.key, {id, key, name, page, props, width, height});
     });
-    // console.log('[build]', component.name, newBuild);
   }), []);
 
   return build;

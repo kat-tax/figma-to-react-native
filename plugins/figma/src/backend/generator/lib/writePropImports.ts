@@ -1,6 +1,4 @@
-import {sortProps} from 'backend/parser/lib';
-import {createIdentifierPascal} from 'common/string';
-
+import {sortProps, getComponentInfo} from 'backend/parser/lib';
 import type CodeBlockWriter from 'code-block-writer';
 
 // TODO:
@@ -29,11 +27,11 @@ export function writePropImports(
 
   // Loop through sub-components, import each one
   if (components.length > 0) {
-    components.forEach(component => {
-      const name = createIdentifierPascal(component.name);
-      writer.write(`import {${name}} from`);
+    components.forEach(node => {
+      const component = getComponentInfo(node);
+      writer.write(`import {${component.name}} from`);
       writer.space();
-      writer.quote(`components/${name}`);
+      writer.quote(component.path);
       writer.write(';');
       writer.newLine();
     });

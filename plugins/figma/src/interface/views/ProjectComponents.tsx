@@ -1,16 +1,17 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
+import {createIdentifierCamel} from 'common/string';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from 'figma-ui';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
-import type {ComponentBuild, ComponentEntry} from 'types/component';
+import type {ComponentBuild, ComponentRosterEntry} from 'types/component';
 import type {EventNotify, EventFocusNode, EventProjectImportComponents} from 'types/events';
 
 interface ProjectComponentsProps {
@@ -30,7 +31,7 @@ type ProjectComponentIndex = Record<
 >
 
 type ProjectComponentEntry = {
-  item: ComponentEntry,
+  item: ComponentRosterEntry & {key: string},
   positions: Set<number>,
 }
 
@@ -42,7 +43,8 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   
   const index = useMemo(() => {
-    const entries = hasComponents ? Object.values(props.build?.roster) : [];
+    const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
+    const entries = _entries.map(([key, item]) => ({...item, key}));
     return new Fzf(entries, {
       selector: (item) => `${item.page}/${item.name}`,
       tiebreakers: [byLengthAsc],
@@ -118,7 +120,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           key={page}
           title={page}
           onSelect={select}
-          entries={list[page]}
+          entries={list[createIdentifierCamel(page)]}
         />
       )}
       <ProjectPageGroup
@@ -139,7 +141,6 @@ interface ProjectPageGroupProps {
 
 function ProjectPageGroup(props: ProjectPageGroupProps) {
   const [isExpanded, setExpanded] = useState<boolean>(true);
-
   if (!props?.entries?.length) return null;
 
   return (

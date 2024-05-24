@@ -9,6 +9,7 @@ export {
 } from './colors';
 
 export {
+  getComponentInfo,
   getTagName,
   getPropName,
   getPropsJSX,
@@ -40,6 +41,7 @@ export {
   getComponentTargets,
   getComponentTarget,
   getComponentParent,
+  getSection,
   getPage,
 } from './traverse';
 

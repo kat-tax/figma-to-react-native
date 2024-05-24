@@ -1,24 +1,17 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal} from 'common/string';
 import {getPropsJSX} from 'backend/parser/lib';
 import {writePropImports} from './writePropImports';
 
 import type {ProjectSettings} from 'types/settings';
+import type {ComponentInfo} from 'types/component';
 
-export function generateDocs(
-  target: ComponentNode,
-  isVariant: boolean,
-  propDefs: ComponentPropertyDefinitions,
-  settings: ProjectSettings,
-) {
+export function generateDocs(component: ComponentInfo, settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
-  const masterNode = isVariant ? target.parent : target;
-  const componentName = createIdentifierPascal(masterNode.name);
 
   // Imports
   writer.writeLine(':::imports');
   writer.blankLine();
-  writePropImports(writer, propDefs);
+  writePropImports(writer, component.propDefs);
   writer.blankLine();
   writer.writeLine(':::');
   writer.blankLine();
@@ -30,7 +23,7 @@ export function generateDocs(
   // Example
   writer.writeLine(':::demo');
   writer.blankLine();
-  writer.writeLine(`<${componentName}${getPropsJSX(propDefs)}/>`);
+  writer.writeLine(`<${component.name}${getPropsJSX(component.propDefs)}/>`);
   writer.blankLine();
   writer.writeLine(':::');
   writer.blankLine();

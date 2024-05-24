@@ -1,5 +1,43 @@
 import {isNodeIcon} from './node';
+import {getPage, getSection} from './traverse';
 import * as string from 'common/string';
+
+import type {ComponentInfo} from 'types/component';
+
+export function getComponentInfo(node: BaseNode): ComponentInfo | null {
+  if (node.type !== 'COMPONENT'
+    && node.type !== 'INSTANCE'
+    && node.type !== 'COMPONENT_SET') return null;
+
+  const isVariant = node?.parent?.type === 'COMPONENT_SET';
+  const isInstance = node?.type === 'INSTANCE';
+  const target = isVariant
+    ? node.parent
+    : isInstance
+      ? node.mainComponent
+        : node;
+
+  const name = string.createIdentifierPascal(target.name);
+  const page = string.createIdentifierCamel(getPage(target)?.name.toLowerCase() || 'common');
+  const section = string.createIdentifierCamel(getSection(target)?.name.toLowerCase() || 'base');
+  const path = `components/${page}/${section}/${string.createIdentifierCamel(target.name)}`;
+  const propDefs = target.componentPropertyDefinitions;
+
+  // Find the selected variant (if applicable)
+  // TODO: fix this?, it should use the node target?
+  const selectedVariant = (isVariant
+    ? target.children.filter((n) => figma.currentPage.selection.includes(n)).pop()
+    : undefined) as VariantMixin;
+    
+  // Override propDefs values with selected variant values
+  if (selectedVariant) {
+    Object.entries(selectedVariant?.variantProperties).forEach((v: any) => {
+      propDefs[v[0]].defaultValue = v[1];
+    });
+  }
+
+  return {target, name, page, section, path, propDefs, isVariant, isInstance};
+}
 
 export function getTagName(type: string): 'View' | 'Text' | 'Image' {
   switch (type) {
