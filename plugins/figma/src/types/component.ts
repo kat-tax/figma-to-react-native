@@ -26,6 +26,7 @@ export type ComponentRosterEntry = {
   id: string,
   name: string,
   page: string,
+  path: string,
   loading: boolean,
   preview: string,
 }

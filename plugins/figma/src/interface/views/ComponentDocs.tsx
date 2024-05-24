@@ -23,7 +23,7 @@ export function ComponentDocs(props: ComponentDocsProps) {
       }
       <MonacoReact
         language="mdx"
-        path={`${F2RN_EDITOR_NS}${$componentInfo?.name}.docs.mdx`}
+        path={`${F2RN_EDITOR_NS}${$componentInfo?.path}.docs.mdx`}
         theme={props.options?.theme}
         options={{...props.options}}
         loading={<LoadingIndicator/> as JSX.Element}

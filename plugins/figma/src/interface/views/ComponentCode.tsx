@@ -47,7 +47,7 @@ export function ComponentCode(props: ComponentCodeProps) {
     if (props.build) {
       Object.entries(props.build.roster).forEach(([key, component]) => {
         const code = $.getComponentCode(key);
-        const uri = `${F2RN_EDITOR_NS}${component.name}.tsx`;
+        const uri = `${F2RN_EDITOR_NS}${component.path.split('/').slice(1).join('/')}.tsx`;
         const path = props.monaco.Uri.parse(uri);
         const model = props.monaco.editor.getModel(path);
         if (!model) {
@@ -84,7 +84,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         theme={props.options?.theme}
         options={{...props.options}}
         loading={<LoadingIndicator/> as JSX.Element}
-        path={`${F2RN_EDITOR_NS}${$componentInfo?.name}.tsx`}
+        path={`${F2RN_EDITOR_NS}${$componentInfo?.path.split('/').slice(1).join('/')}.tsx`}
         onMount={(e, m) => {
           editor.current = e;
           constraint.current = initComponentEditor(e, m, handleGPT);
@@ -103,8 +103,8 @@ export function ComponentCode(props: ComponentCodeProps) {
         loading={<LoadingIndicator/> as JSX.Element}
         original={$componentCode.toString()}
         modified={patch}
-        originalModelPath={`${F2RN_EDITOR_NS}${$componentInfo?.name}.tsx`}
-        modifiedModelPath={`${F2RN_EDITOR_NS}patch/${$componentInfo?.name}.tsx`}
+        originalModelPath={`${F2RN_EDITOR_NS}${$componentInfo?.path.split('/').slice(1).join('/')}.tsx`}
+        modifiedModelPath={`${F2RN_EDITOR_NS}patch/${$componentInfo?.path}.tsx`}
         keepCurrentOriginalModel={true}
         keepCurrentModifiedModel={false}
       />}

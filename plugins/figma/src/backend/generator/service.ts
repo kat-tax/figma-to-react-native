@@ -152,13 +152,13 @@ export async function compile(
   for await (const component of components) {
     const info = getComponentInfo(component);
     if (!info) continue;
-    const {name, page, target} = info;
+    const {name, page, path, target} = info;
     const {id, key} = target;
     const loading = !skipCache;
     const preview = ''; // data:image/png;base64,${await info.target.exportAsync({format: 'PNG'})}` : '';
     _total++;
     _info[key] = info;
-    _roster[key] = {id, name, page, loading, preview};
+    _roster[key] = {id, name, page, path, loading, preview};
   }
 
   // Generate index

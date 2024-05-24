@@ -23,7 +23,7 @@ export function ComponentStory(props: ComponentStoryProps) {
       }
       <MonacoReact
         language="typescript"
-        path={`${F2RN_EDITOR_NS}${component?.name}.story.ts`}
+        path={`${F2RN_EDITOR_NS}${component?.path}.story.ts`}
         value={story}
         theme={props.options?.theme}
         options={{...props.options, readOnly: true}}

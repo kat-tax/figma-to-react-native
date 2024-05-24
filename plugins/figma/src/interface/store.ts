@@ -23,6 +23,7 @@ export const components = doc.getMap<{
   key: string,
   name: string,
   page: string,
+  path: string,
   props: string,
   width: number,
   height: number,
