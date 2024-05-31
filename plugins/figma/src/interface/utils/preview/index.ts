@@ -15,6 +15,7 @@ const ENTRY_POINT = '/index.tsx';
 interface PreviewOptions {
   tag: string,
   name: string,
+  path: string,
   props: string,
   theme: string,
   language: string,
@@ -23,7 +24,7 @@ interface PreviewOptions {
 }
 
 export async function preview(options: PreviewOptions) {
-  const {tag, name, props, theme, language, settings, build} = options;
+  const {tag, name, path, props, theme, language, settings, build} = options;
 
   // Virtual filesystem
   const files: Map<string, string | Uint8Array> = new Map();
@@ -32,9 +33,8 @@ export async function preview(options: PreviewOptions) {
   for (const [key, component] of Object.entries(build.roster)) {
     try {
       const contents = $.getComponentCode(key);
-      const path = `/components/${component.name}`;
       const code = contents.toString();
-      files.set(path, code);
+      files.set(component.path, code);
       if (name === component.name) {
         console.debug('[preview]', tag);
       }
@@ -59,12 +59,13 @@ export async function preview(options: PreviewOptions) {
 
   // Build preview app
   const previewApp = atob(app.toString());
+  console.log('PROPS', previewApp, props);
   try {
     files.set('/theme', $.getProjectTheme().toString());
     files.set(ENTRY_POINT, previewApp
       .replace('__CURRENT_THEME__', theme)
       .replace('__CURRENT_LANGUAGE__', language)
-      .replace('__COMPONENT_DEF__', getImports(name, props))
+      .replace('__COMPONENT_DEF__', getImports(name, path, props))
       .replace('__COMPONENT_REF__', tag));
     return await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
   } catch (e) {
@@ -89,14 +90,17 @@ export async function init(settings: UserSettings) {
   }
 }
 
-function getImports(name: string, props: string) {
+// TODO: this regex matching is flaky, make the generator provide
+// the main component import path as well as any prop imports
+function getImports(name: string, path: string, props: string) {
   const regex = /<\s*([a-zA-Z][^\s>\/]*)[^>]*>/g;
   const swaps = Array
     .from(props.matchAll(regex), match => match[1])
     .filter(swap => swap !== 'Icon');
   const imports = [
-    `import {${name}} from 'components/${name}';`,
+    `import {${name}} from '${path}';`,
     ...swaps?.map(swap => `import {${swap}} from 'components/${swap}';`),
   ];
+  console.log('Parsed Imports:', imports);
   return imports.join('\n');
 }

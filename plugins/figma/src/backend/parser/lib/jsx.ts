@@ -67,11 +67,14 @@ export function getPropsJSX(
   if (!props) return '';
   const attrs = Object.entries(props);
   if (attrs.length === 0) return '';
-  return ' ' + Object.entries(props)
+  const imports = [];
+  const propData = Object.entries(props)
     .sort(sortProps)
     .map(p => getPropJSX(p, props, nodeRef))
-    .filter(Boolean)
-    .join(' ');
+    .filter(Boolean);
+  propData.forEach(([_, path]) => path &&
+    imports.push(`import ${path[0]} from '${path[1]}'`));
+  return ' ' + propData.map(([tag, _]) => tag).join(' ');
 }
 
 export function getPropJSX(
@@ -79,7 +82,7 @@ export function getPropJSX(
   propDefs: ComponentPropertyDefinitions | ComponentProperties,
   // TODO: nodeRef is empty sometimes, not able to map button instance
   nodeRef?: Record<string, [BaseNode, BaseNode]>,
-) {
+): [string | boolean, [string, string] | null] {
   type Prop = {type: string, value: string, defaultValue: string};
   const {type, value, defaultValue}: Prop = prop;
   const k = getPropName(key);
@@ -87,20 +90,21 @@ export function getPropJSX(
 
   // Boolean prop shorthand (omit if false)
   if (type === 'BOOLEAN') {
-    return v ? k : false;
+    return [v ? k : false, null];
   // Text props k={v} and gets quotes escaped
   } else if (type === 'TEXT') {
     if (v.includes('${') || v.includes('"')) {
-      return `${k}={\`${string.escapeBacktick(v)}\`}`;
+      return [`${k}={\`${string.escapeBacktick(v)}\`}`, null];
     } else {
-      return `${k}="${v}"`;
+      return [`${k}="${v}"`, null];
     }
   // Variants are sanitized for invalid identifier chars
   } else if (type === 'VARIANT') {
-    return `${k}="${string.createIdentifier(v)}"`;
+    return [`${k}="${string.createIdentifier(v)}"`, null];
   // Instance swap (JSX tag as prop value)
   } else if (type === 'INSTANCE_SWAP') {
-    return `${k}={${getPropComponent(v, propDefs, nodeRef)}}`;
+    const [tag, path] = getPropComponent(v, propDefs, nodeRef);
+    return [`${k}={${tag}}`, path];
   }
 }
 
@@ -108,8 +112,9 @@ export function getPropComponent(
   id: string,
   propDefs: ComponentPropertyDefinitions | ComponentProperties,
   nodeRef?: Record<string, [BaseNode, BaseNode]>,
-) {
+): [string, [string, string]] {
   const node = figma.getNodeById(id) as ComponentNode;
+  const info = getComponentInfo(node);
   const props = node.variantProperties;
   const propsRef = node.instances[0].componentPropertyReferences;
   const isVariant = !!props;
@@ -122,7 +127,7 @@ export function getPropComponent(
   if (typeof propDefs[propsRef.visible] !== 'undefined') {
     // If visible is false, return an empty string so not prop (k=v) is written
     if ((propDefs[propsRef.visible] as any)?.value === false)
-      return '';
+      return ['', [info.name, info.path]];
   }
 
   // This instance swap is a variant that needs props passed to it
@@ -164,7 +169,7 @@ export function getPropComponent(
     ? `<${tagName}${propsIcon}${propsInstance}${propTestID}/>`
     : '<View/>';
 
-  return tag;
+  return [tag, [info.name, info.path]];
 }
 
 export function sortProps(a: any, b: any) {
