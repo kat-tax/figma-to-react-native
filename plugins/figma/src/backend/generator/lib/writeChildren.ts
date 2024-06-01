@@ -1,53 +1,46 @@
 import CodeBlockWriter from 'code-block-writer';
-import {round} from 'common/number';
 import {createIdentifierPascal} from 'common/string';
+import {round} from 'common/number';
 import {translate} from 'backend/utils/translate';
+import * as parser from 'backend/parser/lib';
+import {writePropsAttributes} from './writePropsAttributes';
 import {PAGES_SPECIAL} from './consts';
-import {
-  getPage,
-  getTagName,
-  getPropsJSX,
-  getPropName,
-  getFillToken,
-  getInstanceInfo,
-  getCustomReaction,
-  // getPressReaction,
-} from 'backend/parser/lib';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
-
-export function writeChildren(
-  writer: CodeBlockWriter,
+type WriteChildrenState = {
   flags: ImportFlags,
   data: ParseData,
   settings: ProjectSettings,
   language: VariableCollection,
-  children: ParseNodeTree,
+  pressables?: string[][],
   getStyleProp: StylePrefixMapper,
   getIconProp: StylePrefixMapper,
-  pressables?: string[][],
-) {
-  const state = {writer, flags, data, language, settings, pressables, getStyleProp, getIconProp};
+}
 
+export function writeChildren(
+  writer: CodeBlockWriter,
+  children: ParseNodeTree,
+  state: WriteChildrenState,
+) {
   for (const child of children) {
-    const slug = data.children?.find(c => c.node === child.node)?.slug;
-    const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
+    const slug = state.data.children?.find(c => c.node === child.node)?.slug;
+    const pressId = state.pressables?.find(e => e?.[1] === slug)?.[2];
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
     const masterNode = isVariant ? child.node.parent : child.node;
     const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
     const isPressable = Boolean(pressId);
     const isConditional = Boolean(propRefs?.visible);
     if (isPressable)
-      flags.reactNative.Pressable = true;
-    writer.conditionalWriteLine(isConditional, `{props.${getPropName(propRefs?.visible)} && `);
+      state.flags.reactNative.Pressable = true;
+    writer.conditionalWriteLine(isConditional, `{props.${parser.getComponentPropName(propRefs?.visible)} && `);
     writer.withIndentationLevel((isConditional ? 1 : 0) + writer.getIndentationLevel(), () => {
       writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressId}}>`);
       writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-        writeChild(child, slug, isConditional, state);
+        writeChild(writer, child, slug, isConditional, state);
       });
       writer.conditionalWriteLine(isPressable, `</Pressable>`);
     });
@@ -55,31 +48,21 @@ export function writeChildren(
   }
 }
 
-function writeChild(
+export function writeChild(
+  writer: CodeBlockWriter,
   child: ParseNodeTreeItem,
   slug: string,
   isConditional: boolean,
-  state: {
-    writer: CodeBlockWriter,
-    flags: ImportFlags,
-    data: ParseData,
-    settings: ProjectSettings,
-    language: VariableCollection,
-    pressables?: string[][],
-    getStyleProp: StylePrefixMapper,
-    getIconProp: StylePrefixMapper,
-  },
+  state: WriteChildrenState,
 ) {
-  const {writer, data, settings, pressables, getStyleProp, getIconProp} = state;
+  const {data, settings, pressables, getStyleProp, getIconProp} = state;
 
   // Derived data
-  const testID = ` testID="${child.node.id}"`;
   const propRefs = child.node.componentPropertyReferences;
-  const instance = getInstanceInfo(child.node as InstanceNode);
-  const reaction = getCustomReaction(instance.node);
+  const instance = parser.getComponentInstanceInfo(child.node as InstanceNode);
+  const reaction = parser.getComponentCustomReaction(instance.node);
   // TODO: const pressable = getPressReaction(instance.node);
-  const swapNodeProp = getPropName(propRefs?.mainComponent);
-  const jsxBaseProps = getPropsJSX(instance.node.componentProperties, data.meta.includes);
+  const swapNodeProp = parser.getComponentPropName(propRefs?.mainComponent);
   const hasCustomProps = reaction?.type === 'URL';
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
@@ -88,7 +71,7 @@ function writeChild(
   const isSwap = Boolean(swapNodeProp);
   const isIcon = isInstance
     && child.node.name.includes(':')
-    && getPage((child.node as InstanceNode).mainComponent)?.name === PAGES_SPECIAL.ICONS
+    && parser.getPage((child.node as InstanceNode).mainComponent)?.name === PAGES_SPECIAL.ICONS
 
   // Icon node
   if (isIcon) {
@@ -158,11 +141,12 @@ function writeChild(
   // Normal node
   let jsxTag: string;
   let jsxTagWithProps: string;
-  let jsxCustomProps = '';
+  let jsxStyleProp: string;
+  let jsxExtraProps: Array<[string, string]> = [];
 
   // Custom props (via prototype interaction)
   if (hasCustomProps) {
-    jsxCustomProps = reaction.url
+    jsxExtraProps = reaction.url
       ?.split(',')
       ?.map(p => p.trim())
       ?.map(p => {
@@ -171,31 +155,50 @@ function writeChild(
         if (relation.length === 2) {
           const [k, v] = relation;
           if (k && v) {
-            return ` ${getPropName(k)}={props.${getPropName(v)}}`;
+            return [
+              `${parser.getComponentPropName(k)}`,
+              `{props.${parser.getComponentPropName(v)}}`,
+            ] as [string, string];
           }
         }
         // Purely custom input (raw k=v)
         const custom = p?.split('=');
         if (custom.length === 1 && custom[0])
-          return ' ' + custom[0];
+          return [custom[0], ''] as [string, string];
         if (custom.length === 2 && custom[1])
-          return ' ' + custom.join('=');
+          return [custom[0], custom[1]] as [string, string];
         // Invalid input
-        return '';
-      })?.join('');
+        return null as [string, string];
+      })
+      .filter(Boolean);
   }
+
+  // Styles prop
+  if (!isInstance && slug) {
+    jsxStyleProp = `${getStyleProp(slug, isRootPressable)}`;
+  }
+
+  // Component props
+  console.log('[writeChild]', instance.node.name, instance.node, child.node)
+  const jsxProps = writePropsAttributes(
+    new CodeBlockWriter(state.settings.writer),
+    instance.node.componentProperties,
+    state.data.meta.includes,
+    instance.node.id,
+    jsxStyleProp,
+    jsxExtraProps,
+  );
 
   // Create instance tag
   if (isInstance) {
     jsxTag = createIdentifierPascal(instance.main.name);
-    jsxTagWithProps = jsxTag + jsxCustomProps + jsxBaseProps + testID;
+    jsxTagWithProps = jsxTag + jsxProps;
     if (jsxTagWithProps.includes('<Icon'))
       state.flags.exoIcon.Icon = true;
   // Create primitive tag
   } else {
-    const styles = slug ? ` style={${getStyleProp(slug, isRootPressable)}}` : '';
     jsxTag = getTagName(child.node.type);
-    jsxTagWithProps = jsxTag + styles + jsxCustomProps + jsxBaseProps + testID;
+    jsxTagWithProps = jsxTag + jsxProps;
     state.flags.reactNative[jsxTag] = true;
   }
 
@@ -207,7 +210,7 @@ function writeChild(
 
   // Text properties
   const textPropId = propRefs?.characters;
-  const textPropName = textPropId ? getPropName(textPropId) : null;
+  const textPropName = textPropId ? parser.getComponentPropName(textPropId) : null;
   const textPropValue = textPropName
     ? `props.${textPropName}`
     : (child.node as TextNode).characters || '';
@@ -220,6 +223,7 @@ function writeChild(
     state.flags.reactNative.TextInput = true;
     writer.write('<TextInput').indent(() => {
       writer.writeLine(`style={${getStyleProp(slug, isRootPressable)}}`);
+      writer.writeLine(`testID="${child.node.id}"`);
       // Type (none, text, decimal, numeric, tel, search, email, url)
       writer.writeLine(`inputMode="${type.trim().toLowerCase()}"`);
       // Default value
@@ -237,7 +241,7 @@ function writeChild(
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
       state.flags.useStylesTheme = true;
-      writer.writeLine(`placeholderTextColor={${getFillToken(child.node as TextNode)}}`);
+      writer.writeLine(`placeholderTextColor={${parser.getFillToken(child.node as TextNode)}}`);
       extra?.forEach(p => p && writer.writeLine(p.trim()));
     });
     writer.write(`/>`);
@@ -248,17 +252,15 @@ function writeChild(
   writer.write(`<${jsxTagWithProps}>`).indent(() => {
     switch (jsxTag) {
       case 'View':
-        writeChildren(
-          writer,
-          state.flags,
+        writeChildren(writer, child.children, {
           data,
           settings,
-          state.language,
-          child.children,
+          pressables,
+          flags: state.flags,
+          language: state.language,
           getStyleProp,
           getIconProp,
-          pressables,
-        );
+        });
         break;
       case 'Text':
         // Component property string
@@ -280,4 +282,20 @@ function writeChild(
 
   // Closing tag
   writer.writeLine(`</${jsxTag}>`);
+}
+
+function getTagName(type: string): 'View' | 'Text' | 'Image' {
+  switch (type) {
+    case 'TEXT':
+      return 'Text';
+    case 'IMAGE':
+      return 'Image';
+    case 'COMPONENT':
+    case 'INSTANCE':
+    case 'RECTANGLE':
+    case 'ELLIPSE':
+    case 'FRAME':
+    default:
+      return 'View';
+  }
 }

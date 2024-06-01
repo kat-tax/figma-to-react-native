@@ -1,7 +1,8 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {sortProps, getPropName, getPropsJSX} from 'backend/parser/lib';
-import {writePropImports} from './writePropImports';
+import {getComponentPropName, sortComponentProps} from 'backend/parser/lib';
+import {writePropsAttributes} from './writePropsAttributes';
+import {writePropsImports} from './writePropsImports';
 
 import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
@@ -28,7 +29,7 @@ function writeImports(writer: CodeBlockWriter, component: ComponentInfo) {
   writer.newLine();
 
   // Import Prop Components (if any)
-  writePropImports(writer, component.propDefs);
+  writePropsImports(writer, component.propDefs);
 
   // Boilerplate
   writer.write('import type {StoryObj, Meta} from');
@@ -83,10 +84,10 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
   const props = component.propDefs ? Object.entries(component.propDefs) : [];
   if (props.length > 0) {
     writer.write('args: ').inlineBlock(() => {
-      props.sort(sortProps).forEach(([key, prop]) => {
+      props.sort(sortComponentProps).forEach(([key, prop]) => {
         const {type, defaultValue} = prop;
         const value = defaultValue.toString();
-        const name = getPropName(key);
+        const name = getComponentPropName(key);
         // String or state
         if (type === 'TEXT' || type === 'VARIANT') {
           writer.write(`${name}:`);
@@ -101,8 +102,14 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
           const masterNode = isVariant ? component.parent : component;
           const propDefs = (masterNode as ComponentSetNode).componentPropertyDefinitions;
           const componentName = createIdentifierPascal(masterNode.name);
-          const tagName = `<${componentName}${getPropsJSX(propDefs)}/>`;
-          writer.writeLine(`${name}: ${tagName},`);
+          writer.write(`${name}: (`);
+          writer.indent(() => {
+            writer.write(`<${componentName}`);
+            writePropsAttributes(writer, propDefs);
+            writer.write('/>');
+          });
+          writer.write('),');
+          writer.newLine();
         // Number or boolean
         } else {
           writer.writeLine(`${name}: ${value},`);

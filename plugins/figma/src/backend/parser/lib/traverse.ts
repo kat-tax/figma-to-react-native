@@ -105,3 +105,17 @@ export function getPage(node: BaseNode): PageNode {
   }
   return node;
 }
+
+// Focus a node (and go to the page it's on)
+export async function focusNode(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page)
+        await figma.setCurrentPageAsync(page);
+      figma.currentPage.selection = [node as SceneNode];
+      figma.viewport.scrollAndZoomIntoView([node]);
+    }
+  } catch (e) {}
+}

@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getPropsJSX} from 'backend/parser/lib';
-import {writePropImports} from './writePropImports';
+import {writePropsImports} from './writePropsImports';
+import {writePropsAttributes} from './writePropsAttributes';
 
 import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
@@ -11,7 +11,7 @@ export function generateDocs(component: ComponentInfo, settings: ProjectSettings
   // Imports
   writer.writeLine(':::imports');
   writer.blankLine();
-  writePropImports(writer, component.propDefs);
+  writePropsImports(writer, component.propDefs);
   writer.blankLine();
   writer.writeLine(':::');
   writer.blankLine();
@@ -23,7 +23,9 @@ export function generateDocs(component: ComponentInfo, settings: ProjectSettings
   // Example
   writer.writeLine(':::demo');
   writer.blankLine();
-  writer.writeLine(`<${component.name}${getPropsJSX(component.propDefs)}/>`);
+  writer.write(`<${component.name}`);
+  writer.write(writePropsAttributes(new CodeBlockWriter(settings?.writer), component.propDefs));
+  writer.write('/>');
   writer.blankLine();
   writer.writeLine(':::');
   writer.blankLine();

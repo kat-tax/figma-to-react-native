@@ -1,6 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {getPropName, sortPropsDef} from 'backend/parser/lib';
+import {getComponentPropName, sortComponentPropsDef} from 'backend/parser/lib';
 
 import type {ImportFlags} from './writeImports';
 
@@ -20,14 +20,14 @@ export function writePropsInterface(
   const props = propDefs ? Object.entries(propDefs) : [];
   const propLines: string[] = [];
   const variantMap: Record<string, string[]> = {};
-  props.sort(sortPropsDef).forEach(([key, prop]) => {
+  props.sort(sortComponentPropsDef).forEach(([key, prop]) => {
     // Prop type
     const isBoolean = prop.type === 'BOOLEAN';
     const isVariant = prop.type === 'VARIANT';
     const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
     const isConditional = isBoolean || isVariant || isInstanceSwap;
     // Prop metadata
-    const propName = getPropName(key);
+    const propName = getComponentPropName(key);
     const propType: string = isVariant
       ? `typeof ${componentName}Variants.${propName}[number]`
       : isInstanceSwap

@@ -90,7 +90,15 @@ function getComponentCode(
     writer.write('<' + tag + style + props + '>').indent(() => {
       writer.conditionalWriteLine(isPressable, `{e => <>`);
       writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-        writeChildren(writer, flags, data, settings, language, data.tree, getStyleProp, getIconProp, pressables);
+        writeChildren(writer, data.tree, {
+          data,
+          flags,
+          settings,
+          language,
+          pressables,
+          getIconProp,
+          getStyleProp,
+        });
       });
       writer.conditionalWriteLine(isPressable, `</>}`);
     });

@@ -10,22 +10,17 @@ export {
 
 export {
   getComponentInfo,
-  getTagName,
-  getPropName,
-  getPropsJSX,
-  getPropJSX,
-  getPropComponent,
-  sortProps,
-  sortPropsDef,
-} from './jsx';
+  getComponentPropName,
+  getComponentInstanceInfo,
+  getComponentCustomReaction,
+  getComponentPressReaction,
+  sortComponentProps,
+  sortComponentPropsDef,
+} from './components';
 
 export {
-  focusNode,
   isNodeIcon,
   isNodeVisible,
-  getInstanceInfo,
-  getCustomReaction,
-  getPressReaction,
 } from './node';
 
 export {
@@ -43,6 +38,7 @@ export {
   getComponentParent,
   getSection,
   getPage,
+  focusNode,
 } from './traverse';
 
 export {

@@ -1,7 +1,8 @@
+import CodeBlockWriter from 'code-block-writer';
 import parseFigmaComponent from 'backend/parser';
-import {getPropsJSX, getComponentInfo} from 'backend/parser/lib';
+import {getComponentInfo} from 'backend/parser/lib';
 import {createIdentifierPascal} from 'common/string';
-
+import {writePropsAttributes} from './writePropsAttributes';
 import {generateComponent} from './generateComponent';
 import {generateIndex} from './generateIndex';
 import {generateDocs} from './generateDocs';
@@ -76,7 +77,11 @@ export async function generateBundle(
     // Info
     id: component.target.id,
     key: component.target.key,
-    props: getPropsJSX({...component.propDefs}, data.meta.includes),
+    props: writePropsAttributes(
+      new CodeBlockWriter(settings.writer),
+      {...component.propDefs},
+      data.meta.includes,
+    ),
     // Text
     code: await generateComponent(data, settings),
     index: generateIndex([component], settings, false),

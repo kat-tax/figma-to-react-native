@@ -1,6 +1,5 @@
 import * as parser from './lib';
 import {createIdentifierCamel} from 'common/string';
-
 import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData, ParseIconData} from 'types/parse';
 
 const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
@@ -40,7 +39,7 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   return {...data, localState, stylesheet, assetData, assetMap};
 }
 
-function crawl(node: ComponentNode) {
+export function crawl(node: ComponentNode) {
   // const _t1 = Date.now();
   const {dict, tree, meta} = crawlChildren(node.children);
 
@@ -139,7 +138,7 @@ function crawlChildren(
         break;
       // Instance swap
       case 'INSTANCE':
-        const info = parser.getInstanceInfo(node);
+        const info = parser.getComponentInstanceInfo(node);
         if (info.propName) {
           meta.includes[info.main.id] = [info.main, node];
         } else {
@@ -195,7 +194,7 @@ function validate(component: ComponentNode) {
 }
 
 function getRoot(node: ComponentNode): ParseRoot {
-  return {node, slug: 'root', click: parser.getCustomReaction(node)};
+  return {node, slug: 'root', click: parser.getComponentCustomReaction(node)};
 }
 
 function getFrame(node: ComponentNode): ParseFrame {

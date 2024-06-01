@@ -1,19 +1,5 @@
 import {PAGES_SPECIAL} from 'backend/generator/lib/consts';
-import {getPropName} from './jsx';
 import {getPage} from './traverse';
-
-export async function focusNode(id: string) {
-  try {
-    const node = figma.getNodeById(id);
-    if (node) {
-      const page = getPage(node);
-      if (page && figma.currentPage !== page)
-        await figma.setCurrentPageAsync(page);
-      figma.currentPage.selection = [node as SceneNode];
-      figma.viewport.scrollAndZoomIntoView([node]);
-    }
-  } catch (e) {}
-}
 
 export function isNodeVisible(node: SceneNode) {
   const isVariant = !!(node as SceneNode & VariantMixin).variantProperties;
@@ -27,24 +13,4 @@ export function isNodeIcon(node: BaseNode) {
   const isInstance = node.type === 'INSTANCE';
   const masterNode = isInstance ? node.mainComponent : node;
   return getPage(masterNode)?.name === PAGES_SPECIAL.ICONS;
-}
-
-export function getInstanceInfo(node: InstanceNode) {
-  const isInstance = node.type === 'INSTANCE';
-  const isVariant = !!node.variantProperties;
-  const main = isVariant ? node.mainComponent.parent : node.mainComponent;
-  const props = node.componentProperties;
-  const propId = node.componentPropertyReferences?.mainComponent;
-  const propName = propId ? getPropName(propId) : null;
-  return {node, main, props, propName, isInstance};
-}
-
-export function getCustomReaction(node: ComponentNode | InstanceNode) {
-  return node.reactions
-    ?.filter(r => r.trigger?.type === 'ON_CLICK'
-      && r.action?.type === 'URL')[0]?.action;
-}
-
-export function getPressReaction(node: ComponentNode | InstanceNode) {
-  return node.reactions?.filter(r => r.trigger?.type === 'ON_PRESS')?.[0];
 }

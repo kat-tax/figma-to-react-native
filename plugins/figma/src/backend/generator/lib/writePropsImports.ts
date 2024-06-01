@@ -1,4 +1,4 @@
-import {sortProps, getComponentInfo} from 'backend/parser/lib';
+import {getComponentInfo, sortComponentProps} from 'backend/parser/lib';
 import type CodeBlockWriter from 'code-block-writer';
 
 // TODO:
@@ -6,7 +6,7 @@ import type CodeBlockWriter from 'code-block-writer';
 // - handle assets
 // - replace implementations w/ this function
 
-export function writePropImports(
+export function writePropsImports(
   writer: CodeBlockWriter,
   propDefs: ComponentPropertyDefinitions,
 ) {
@@ -17,7 +17,8 @@ export function writePropImports(
   if (props.length === 0) return;
 
   // Look for sub-components in props
-  props?.sort(sortProps).forEach(([_key, prop]) => {
+  // TODO: recurse through deeper sub-components
+  props?.sort(sortComponentProps).forEach(([_key, prop]) => {
     const {type, defaultValue} = prop;
     if (type === 'INSTANCE_SWAP' && typeof defaultValue === 'string') {
       const component = figma.getNodeById(defaultValue);
