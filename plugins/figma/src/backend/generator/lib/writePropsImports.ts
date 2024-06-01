@@ -10,6 +10,7 @@ import type CodeBlockWriter from 'code-block-writer';
 export function writePropsImports(
   writer: CodeBlockWriter,
   propDefs: ComponentPropertyDefinitions,
+  skipIconImport?: boolean,
 ) {
   const components = getComponentImports(propDefs);
   let hasIconImport = false;
@@ -30,8 +31,8 @@ export function writePropsImports(
     });
   }
 
-  // Write icon import (if used)
-  if (hasIconImport) {
+  // Write icon import (if used and not already imported)
+  if (hasIconImport && !skipIconImport) {
     writer.write(`import {Icon} from`);
     writer.space();
     writer.quote('react-exo/icon');
@@ -42,9 +43,8 @@ export function writePropsImports(
   return writer.toString();
 }
 
-function getComponentImports(propDefs: ComponentPropertyDefinitions) {
+function getComponentImports(propDefs: ComponentPropertyDefinitions, components: BaseNode[] = []) {
   const props = propDefs ? Object.entries(propDefs) : [];
-  const components: BaseNode[] = [];
 
   // No props, no imports
   if (props.length === 0) return components;
@@ -57,10 +57,7 @@ function getComponentImports(propDefs: ComponentPropertyDefinitions) {
       const component = getComponentInfo(node);
       components.push(node);
       if (component.propDefs) {
-        const subComponents = getComponentImports(component.propDefs);
-        if (subComponents.length > 0) {
-          components.push(...subComponents);
-        }
+        return getComponentImports(component.propDefs, components);
       }
     }
   });

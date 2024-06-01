@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import {getComponentInfo} from 'backend/parser/lib';
+import {writePropsImports} from './writePropsImports';
 
 import type {ParseData} from 'types/parse';
 
@@ -67,7 +68,7 @@ export async function writeImports(
     writer.newLine();
   }
 
-  // Packages
+  // Package Imports
   writeImport('react', flags.react);
   writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-exo/variants', flags.exoVariants);
@@ -79,7 +80,7 @@ export async function writeImports(
   writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('@lingui/macro', flags.lingui);
 
-  // Local Components
+  // Component Imports
   const components = Object.entries(data.meta.components);
   if (components.length > 0) {
     components
@@ -91,10 +92,11 @@ export async function writeImports(
         writer.quote(component.path);
         writer.write(';');
         writer.newLine();
+        writePropsImports(writer, component.propDefs, flags.exoIcon.Icon);
       });
   }
 
-  // Images & Vectors
+  // Image & Vector Imports
   const assets = Object.entries(data.assetData);
   if (assets.length > 0) {
     assets
@@ -111,7 +113,7 @@ export async function writeImports(
     writer.blankLineIfLastNot();
   }
 
-  // Types
+  // Type Imports
   if (flags.reactNativeTypes) {
     writer.blankLineIfLastNot();
     writeImport('react-native', flags.reactNativeTypes, true);

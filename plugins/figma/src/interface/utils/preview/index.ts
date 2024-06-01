@@ -16,7 +16,6 @@ interface PreviewOptions {
   tag: string,
   name: string,
   path: string,
-  props: string,
   imports: string,
   theme: string,
   language: string,
@@ -25,7 +24,7 @@ interface PreviewOptions {
 }
 
 export async function preview(options: PreviewOptions) {
-  const {tag, name, path, props, imports, theme, language, settings, build} = options;
+  const {tag, name, path, imports, theme, language, settings, build} = options;
 
   // Virtual filesystem
   const files: Map<string, string | Uint8Array> = new Map();
@@ -35,7 +34,7 @@ export async function preview(options: PreviewOptions) {
     try {
       const contents = $.getComponentCode(key);
       const code = contents.toString();
-      files.set(component.path, code);
+      files.set('/' + component.path, code);
       if (name === component.name) {
         console.debug('[preview]', tag);
       }
