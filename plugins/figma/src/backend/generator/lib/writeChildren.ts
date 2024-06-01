@@ -179,7 +179,6 @@ export function writeChild(
   }
 
   // Component props
-  console.log('[writeChild]', instance.node.name, instance.node, child.node)
   const jsxProps = writePropsAttributes(
     new CodeBlockWriter(state.settings.writer),
     instance.node.componentProperties,
