@@ -1,7 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
-import {createIdentifierCamel} from 'common/string';
 import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
@@ -120,7 +119,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           key={page}
           title={page}
           onSelect={select}
-          entries={list[createIdentifierCamel(page)]}
+          entries={list[page]}
         />
       )}
       <ProjectPageGroup

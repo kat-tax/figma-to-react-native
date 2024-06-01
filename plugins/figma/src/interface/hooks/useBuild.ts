@@ -33,7 +33,16 @@ export function useBuild(): ComponentBuild {
         $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes));
       const {id, key, info, props, width, height} = component;
       const {name, page, path} = info;
-      $.components.set(component.key, {id, key, name, page, path, props, width, height});
+      $.components.set(component.key, {
+        id,
+        key,
+        name,
+        path,
+        props,
+        width,
+        height,
+        page: page.name,
+      });
     });
   }), []);
 

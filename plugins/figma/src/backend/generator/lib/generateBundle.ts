@@ -43,7 +43,7 @@ export async function generateBundle(
   if (!component.target) return emptyBundle;
 
   // Generate exo natives (if any)
-  const isExo = component.page === PAGES_SPECIAL.LIBRARY;
+  const isExo = component.page.name === PAGES_SPECIAL.LIBRARY;
   const exo = generateNatives();
 
   // Native component

@@ -1,8 +1,8 @@
 import CodeBlockWriter from 'code-block-writer';
 import {createIdentifierPascal} from 'common/string';
-import {getComponentPropName, sortComponentProps} from 'backend/parser/lib';
 import {writePropsAttributes} from './writePropsAttributes';
 import {writePropsImports} from './writePropsImports';
+import * as parser from 'backend/parser/lib';
 
 import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
@@ -45,7 +45,7 @@ function writeMetaData(writer: CodeBlockWriter, component: ComponentInfo) {
   writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
     writer.write('title:');
     writer.space();
-    writer.quote(`${component.page}/${component.section}/${component.name}`);
+    writer.quote(`${component.page.name}/${component.section.name}/${component.name}`);
     writer.write(',');
     writer.newLine();
     writer.writeLine('component: Component,');
@@ -84,10 +84,10 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
   const props = component.propDefs ? Object.entries(component.propDefs) : [];
   if (props.length > 0) {
     writer.write('args: ').inlineBlock(() => {
-      props.sort(sortComponentProps).forEach(([key, prop]) => {
+      props.sort(parser.sortComponentProps).forEach(([key, prop]) => {
         const {type, defaultValue} = prop;
         const value = defaultValue.toString();
-        const name = getComponentPropName(key);
+        const name = parser.getComponentPropName(key);
         // String or state
         if (type === 'TEXT' || type === 'VARIANT') {
           writer.write(`${name}:`);
@@ -97,15 +97,14 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
           writer.newLine();
         // Component
         } else if (type === 'INSTANCE_SWAP') {
-          const component = figma.getNodeById(value);
-          const isVariant = component.parent.type === 'COMPONENT_SET';
-          const masterNode = isVariant ? component.parent : component;
-          const propDefs = (masterNode as ComponentSetNode).componentPropertyDefinitions;
-          const componentName = createIdentifierPascal(masterNode.name);
+          const node = figma.getNodeById(value);
+          const component = parser.getComponentInfo(node);
+          const isIcon = parser.isNodeIcon(component.target);
+          const tagName = !isIcon ? createIdentifierPascal(component.name) : 'Icon';
           writer.write(`${name}: (`);
           writer.indent(() => {
-            writer.write(`<${componentName}`);
-            writePropsAttributes(writer, propDefs);
+            writer.write(`<${tagName}`);
+            writePropsAttributes(writer, component.propDefs);
             writer.write('/>');
           });
           writer.write('),');

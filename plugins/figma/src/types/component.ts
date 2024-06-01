@@ -1,9 +1,9 @@
 export type ComponentInfo = {
   target: ComponentSetNode | ComponentNode,
   name: string,
-  page: string,
   path: string,
-  section: string,
+  page: PageNode,
+  section: SectionNode,
   propDefs: ComponentPropertyDefinitions,
   isVariant: boolean,
   isInstance: boolean,

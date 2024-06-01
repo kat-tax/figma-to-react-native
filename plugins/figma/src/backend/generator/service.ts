@@ -158,7 +158,7 @@ export async function compile(
     const preview = ''; // data:image/png;base64,${await info.target.exportAsync({format: 'PNG'})}` : '';
     _total++;
     _info[key] = info;
-    _roster[key] = {id, name, page, path, loading, preview};
+    _roster[key] = {id, name, page: page.name, path, loading, preview};
   }
 
   // Generate index
@@ -186,7 +186,7 @@ export async function compile(
         ..._roster[key],
         id,
         name: info.name,
-        page: info.page,
+        page: info.page.name,
         loading: false,
       };
 

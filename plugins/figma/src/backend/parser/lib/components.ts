@@ -13,14 +13,18 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
     ? node.parent
     : isInstance
       ? node.mainComponent
-        : node;
+      : node;
 
   const name = createIdentifierPascal(target.name);
-  const page = createIdentifierCamel(getPage(target)?.name.toLowerCase() || 'common');
-  const section = createIdentifierCamel(getSection(target)?.name.toLowerCase() || 'base');
-  const path = `components/${page}/${section}/${createIdentifierCamel(target.name)}`;
-  const propDefs = target.componentPropertyDefinitions;
-
+  const section = getSection(target);
+  const page = getPage(target);
+  const path = 'components/'
+    + createIdentifierCamel(page?.name?.toLowerCase() || 'common')
+    + '/'
+    + createIdentifierCamel(section?.name?.toLowerCase() || 'base')
+    + '/'
+    + createIdentifierCamel(target.name);
+  
   // Find the selected variant (if applicable)
   // TODO: fix this?, it should use the node target?
   const selectedVariant = (isVariant
@@ -28,6 +32,7 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
     : undefined) as VariantMixin;
     
   // Override propDefs values with selected variant values
+  const propDefs = target.componentPropertyDefinitions;
   if (selectedVariant) {
     Object.entries(selectedVariant?.variantProperties).forEach((v: any) => {
       propDefs[v[0]].defaultValue = v[1];
