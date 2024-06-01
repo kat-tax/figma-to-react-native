@@ -52,7 +52,10 @@ export function writeProp(
   const v = prop.value || prop.defaultValue;
   // Boolean prop
   if (prop.type === 'BOOLEAN') {
-    writer.writeLine(`${k}={${v ? 'true' : 'false'}}`);
+    writer.writeLine(v
+      ? k
+      : `${k}={false}`
+    );
   // Text props k={v} and gets quotes escaped
   } else if (prop.type === 'TEXT') {
     writer.writeLine(v.includes('${') || v.includes('"')
