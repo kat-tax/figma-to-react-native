@@ -3,6 +3,7 @@ import parseFigmaComponent from 'backend/parser';
 import {getComponentInfo} from 'backend/parser/lib';
 import {createIdentifierPascal} from 'common/string';
 import {writePropsAttributes} from './writePropsAttributes';
+import {writePropsImports} from './writePropsImports';
 import {generateComponent} from './generateComponent';
 import {generateIndex} from './generateIndex';
 import {generateDocs} from './generateDocs';
@@ -17,6 +18,7 @@ const emptyBundle: ComponentData = {
   id: '',
   key: '',
   props: '',
+  imports: '',
   code: '',
   index: '',
   story: '',
@@ -80,7 +82,10 @@ export async function generateBundle(
     props: writePropsAttributes(
       new CodeBlockWriter(settings.writer),
       {...component.propDefs},
-      data.meta.includes,
+    ),
+    imports: writePropsImports(
+      new CodeBlockWriter(settings.writer),
+      {...component.propDefs},
     ),
     // Text
     code: await generateComponent(data, settings),

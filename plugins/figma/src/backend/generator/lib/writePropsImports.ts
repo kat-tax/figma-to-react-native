@@ -38,6 +38,8 @@ export function writePropsImports(
     writer.write(';');
     writer.newLine();
   }
+
+  return writer.toString();
 }
 
 function getComponentImports(propDefs: ComponentPropertyDefinitions) {

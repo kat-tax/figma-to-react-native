@@ -182,7 +182,6 @@ export function writeChild(
   const jsxProps = writePropsAttributes(
     new CodeBlockWriter(state.settings.writer),
     instance.node.componentProperties,
-    state.data.meta.includes,
     instance.node.id,
     jsxStyleProp,
     jsxExtraProps,

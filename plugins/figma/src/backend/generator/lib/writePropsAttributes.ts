@@ -5,7 +5,6 @@ import * as parser from 'backend/parser/lib';
 export function writePropsAttributes(
   writer: CodeBlockWriter,
   props: ComponentPropertyDefinitions | ComponentProperties,
-  includes?: Record<string, [BaseNode, BaseNode]>,
   testProp?: string,
   styleProp?: string,
   extraProps?: Array<[string, string]>,
@@ -33,7 +32,7 @@ export function writePropsAttributes(
       writer.writeLine(`testID="${testProp}"`);
     // Write component props
     _props.sort(parser.sortComponentPropsDef).forEach(prop =>
-      writeProp(writer, prop, props, includes, !testProp));
+      writeProp(writer, prop, props, !testProp));
     // Write extra props
     extraProps?.forEach(prop =>
       writer.writeLine(`${prop[0]}=${prop[1]}`));
@@ -45,7 +44,6 @@ export function writeProp(
   writer: CodeBlockWriter,
   [propId, prop]: [string, {type: string, value: string, defaultValue: string}],
   props: ComponentPropertyDefinitions | ComponentProperties,
-  includes?: Record<string, [BaseNode, BaseNode]>,
   excludeTestIds?: boolean,
 ) {
   const k = parser.getComponentPropName(propId);
@@ -66,7 +64,7 @@ export function writeProp(
     writer.writeLine(`${k}="${createIdentifier(v)}"`);
   // Instance swap (JSX tag as prop value)
   } else if (prop.type === 'INSTANCE_SWAP') {
-    writePropComponent(writer, propId, k, v, props, includes, excludeTestIds);
+    writePropComponent(writer, propId, k, v, props, excludeTestIds);
   }
 }
 
@@ -76,7 +74,6 @@ export function writePropComponent(
   propName: string,
   componentId: string,
   props: ComponentPropertyDefinitions | ComponentProperties,
-  includes?: Record<string, [BaseNode, BaseNode]>,
   excludeTestIds?: boolean,
 ) {
   const node = figma.getNodeById(componentId) as ComponentNode | InstanceNode;
@@ -110,7 +107,6 @@ export function writePropComponent(
   const jsxProps = writePropsAttributes(
     new CodeBlockWriter(writer.getOptions()),
     instance?.componentProperties,
-    includes,
     jsxTestProp,
     undefined,
     jsxExtraProps,

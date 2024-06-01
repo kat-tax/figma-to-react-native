@@ -41,9 +41,9 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const initApp = useCallback(() => {
     if (!component) return;
     if (!loaded.current) return
-    const {name, props, path, width, height} = component;
+    const {name, props, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
-    preview({tag, name, path, props, theme, language, settings, build}).then(bundle => {
+    preview({tag, name, path, props, imports, theme, language, settings, build}).then(bundle => {
       const ctx = iframe.current?.contentWindow;
       const name = component?.name;
       ctx?.postMessage({type: 'preview', bundle, name, width, height})

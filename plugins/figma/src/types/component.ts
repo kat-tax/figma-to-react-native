@@ -35,6 +35,7 @@ export type ComponentData = {
   id: string,
   key: string,
   props: string,
+  imports: string,
   code: string,
   index: string,
   story: string,

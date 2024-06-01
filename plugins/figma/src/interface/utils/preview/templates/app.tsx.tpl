@@ -2,7 +2,6 @@
 
 import {AppRegistry} from 'react-native';
 import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
-import {Icon} from 'react-exo/icon';
 import {Logtail} from '@logtail/browser';
 import {themes, breakpoints} from 'theme';
 
@@ -35,10 +34,10 @@ window.__messages__ = {
 window.__lang__ = initialLanguage;
 window.__trans__ = (msg: string) => window.__messages__?.[window.__lang__]?.[msg] || msg;
 
-__COMPONENT_DEF__
+__COMPONENT_IMPORTS__
 
 export function App() {
-  const [variant, setVariant] = React.useState(__COMPONENT_REF__);
+  const [variant, setVariant] = React.useState(__COMPONENT_TAG__);
 
   React.useEffect(() => {
     const updateProps = (e: JSON) => {

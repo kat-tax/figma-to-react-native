@@ -17,6 +17,7 @@ interface PreviewOptions {
   name: string,
   path: string,
   props: string,
+  imports: string,
   theme: string,
   language: string,
   settings: UserSettings,
@@ -24,7 +25,7 @@ interface PreviewOptions {
 }
 
 export async function preview(options: PreviewOptions) {
-  const {tag, name, path, props, theme, language, settings, build} = options;
+  const {tag, name, path, props, imports, theme, language, settings, build} = options;
 
   // Virtual filesystem
   const files: Map<string, string | Uint8Array> = new Map();
@@ -59,14 +60,13 @@ export async function preview(options: PreviewOptions) {
 
   // Build preview app
   const previewApp = atob(app.toString());
-  console.log('PROPS', previewApp, props);
   try {
     files.set('/theme', $.getProjectTheme().toString());
     files.set(ENTRY_POINT, previewApp
       .replace('__CURRENT_THEME__', theme)
       .replace('__CURRENT_LANGUAGE__', language)
-      .replace('__COMPONENT_DEF__', getImports(name, path, props))
-      .replace('__COMPONENT_REF__', tag));
+      .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n` + imports)
+      .replace('__COMPONENT_TAG__', tag));
     return await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
   } catch (e) {
     notify(e, 'Failed to build preview app');
@@ -88,19 +88,4 @@ export async function init(settings: UserSettings) {
   } catch(e) {
     notify(e, 'Failed to build preview loader');
   }
-}
-
-// TODO: this regex matching is flaky, make the generator provide
-// the main component import path as well as any prop imports
-function getImports(name: string, path: string, props: string) {
-  const regex = /<\s*([a-zA-Z][^\s>\/]*)[^>]*>/g;
-  const swaps = Array
-    .from(props.matchAll(regex), match => match[1])
-    .filter(swap => swap !== 'Icon');
-  const imports = [
-    `import {${name}} from '${path}';`,
-    ...swaps?.map(swap => `import {${swap}} from 'components/${swap}';`),
-  ];
-  console.log('Parsed Imports:', imports);
-  return imports.join('\n');
 }
