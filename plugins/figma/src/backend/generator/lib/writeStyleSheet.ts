@@ -49,12 +49,18 @@ export async function writeStyleSheet(
     for (const child of data.children) {
       const childIconData = data.meta.icons[child.node.id];
       if (childIconData) {
+        // TEMP: Workaround to prevent placeholder from overriding instance icons
+        if (childIconData.name.includes(':placeholder'))
+          delete childIconData.name;
         writeStyle(writer, child.slug, childIconData);
         const iconVariants = data.variants?.icons[child.slug];
         if (iconVariants) {
-          Object.entries(iconVariants).forEach(([key, iconStyle]) => {
+          Object.entries(iconVariants).forEach(([key, childVariantIconData]) => {
+            // TEMP: Workaround to prevent placeholder from overriding instance icons
+            if (childVariantIconData.name.includes(':placeholder'))
+              delete childVariantIconData.name;
             const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
-            writeStyle(writer, className, diff(childIconData, iconStyle));
+            writeStyle(writer, className, diff(childIconData, childVariantIconData));
           });
         }
       }
@@ -84,7 +90,7 @@ export function writeProps(writer: CodeBlockWriter,props: string[], slug: string
 
 export function writeProp(writer: CodeBlockWriter, prop: string, value: unknown) {
   // Expand shorthand props
-  // TODO: expansion shouldn't be done here, can't diff this way
+  // TODO: Refactor the css-to-rn converter to not use shorthand, this is unstable
   if (prop === 'border') {
     writeExpandedBorderProps(writer, value);
   // Other props
@@ -110,6 +116,8 @@ export function writeProp(writer: CodeBlockWriter, prop: string, value: unknown)
         }
       // Code syntax array (variables)
       } else if (Array.isArray(val)) {
+        // BUG: this is breaking padding shorthand (8px 0)
+        // TODO: Refactor the css-to-rn converter to not use shorthand, this is unstable
         writer.write(val.filter(i => typeof i === 'string').join('.'));
       // String values
       } else if (typeof val === 'string') {

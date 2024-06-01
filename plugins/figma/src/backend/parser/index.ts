@@ -109,7 +109,7 @@ function crawlChildren(
 
     // Record icon color and size
     if (isIcon) {
-      const iconData = getIconData(node);
+      const iconData = parser.getIconData(node);
       meta.iconsUsed.add(iconData.name);
       meta.icons[node.id] = iconData;
     }
@@ -202,14 +202,6 @@ function getFrame(node: ComponentNode): ParseFrame {
   return {node: node.parent, slug: 'frame'};
 }
 
-function getIconData(node: SceneNode): ParseIconData {
-  const vector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
-  const color = parser.getFillToken(vector);
-  const size = Math.max(node.width, node.height);
-  const name = (node as InstanceNode).mainComponent.name;
-  return {name, color, size};
-}
-
 function getChildren(nodes: Set<SceneNode>): ParseChild[] {
   const children: ParseChild[] = [];
   for (const node of nodes) {
@@ -260,7 +252,7 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
         // Icon node
         if (parser.isNodeIcon(child.node)) {
           if (!variants.icons[child.slug]) variants.icons[child.slug] = {};
-          const iconData = getIconData(child.node);
+          const iconData = parser.getIconData(child.node);
           variants.icons[child.slug][variant.name] = iconData;
         }
 

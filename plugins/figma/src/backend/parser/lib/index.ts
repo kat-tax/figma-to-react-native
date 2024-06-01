@@ -19,8 +19,9 @@ export {
 } from './components';
 
 export {
-  isNodeIcon,
   isNodeVisible,
+  isNodeIcon,
+  getIconData,
 } from './node';
 
 export {
