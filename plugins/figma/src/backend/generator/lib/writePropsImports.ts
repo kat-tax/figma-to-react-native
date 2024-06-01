@@ -11,22 +11,8 @@ export function writePropsImports(
   writer: CodeBlockWriter,
   propDefs: ComponentPropertyDefinitions,
 ) {
-  const props = propDefs ? Object.entries(propDefs) : [];
-  const components: BaseNode[] = [];
+  const components = getComponentImports(propDefs);
   let hasIconImport = false;
-
-  // No props, no imports
-  if (props.length === 0) return;
-
-  // Look for sub-components in props
-  // TODO: recurse through deeper sub-components
-  props?.sort(sortComponentProps).forEach(([_key, prop]) => {
-    const {type, defaultValue} = prop;
-    if (type === 'INSTANCE_SWAP' && typeof defaultValue === 'string') {
-      const component = figma.getNodeById(defaultValue);
-      components.push(component);
-    }
-  });
 
   // Loop through sub-components, import each one
   if (components.length > 0) {
@@ -53,3 +39,30 @@ export function writePropsImports(
     writer.newLine();
   }
 }
+
+function getComponentImports(propDefs: ComponentPropertyDefinitions) {
+  const props = propDefs ? Object.entries(propDefs) : [];
+  const components: BaseNode[] = [];
+
+  // No props, no imports
+  if (props.length === 0) return components;
+
+  // Look for components in props
+  props?.sort(sortComponentProps).forEach(([_key, prop]) => {
+    const {type, defaultValue} = prop;
+    if (type === 'INSTANCE_SWAP' && typeof defaultValue === 'string') {
+      const node = figma.getNodeById(defaultValue);
+      const component = getComponentInfo(node);
+      components.push(node);
+      if (component.propDefs) {
+        const subComponents = getComponentImports(component.propDefs);
+        if (subComponents.length > 0) {
+          components.push(...subComponents);
+        }
+      }
+    }
+  });
+
+  return components;
+}
+

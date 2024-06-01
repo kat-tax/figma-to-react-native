@@ -84,7 +84,7 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
   const props = component.propDefs ? Object.entries(component.propDefs) : [];
   if (props.length > 0) {
     writer.write('args: ').inlineBlock(() => {
-      props.sort(parser.sortComponentProps).forEach(([key, prop]) => {
+      props.sort(parser.sortComponentPropsDef).forEach(([key, prop]) => {
         const {type, defaultValue} = prop;
         const value = defaultValue.toString();
         const name = parser.getComponentPropName(key);
@@ -104,7 +104,10 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
           writer.write(`${name}: (`);
           writer.indent(() => {
             writer.write(`<${tagName}`);
-            writePropsAttributes(writer, component.propDefs);
+            writer.write(writePropsAttributes(
+              new CodeBlockWriter(writer.getOptions()),
+              component.propDefs,
+            ));
             writer.write('/>');
           });
           writer.write('),');
