@@ -1,5 +1,5 @@
 {
-  "name": "css-to-rn",
+  "name": "css-to-rn-local",
   "main": "index.ts",
   "type": "module",
   "private": true,

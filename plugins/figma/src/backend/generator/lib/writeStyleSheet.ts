@@ -93,7 +93,6 @@ export function writeProp(writer: CodeBlockWriter, prop: string, value: unknown)
   // TODO: Refactor the css-to-rn converter to not use shorthand, this is unstable
   if (prop === 'border') {
     writeExpandedBorderProps(writer, value);
-  // Other props
   } else {
     writer.write(`${prop}: `);
     // Undefined values
@@ -116,8 +115,7 @@ export function writeProp(writer: CodeBlockWriter, prop: string, value: unknown)
         }
       // Code syntax array (variables)
       } else if (Array.isArray(val)) {
-        // BUG: this is breaking padding shorthand (8px 0)
-        // TODO: Refactor the css-to-rn converter to not use shorthand, this is unstable
+        // TODO: Refactor the filter, this is needed to due css-to-rn using shorthand
         writer.write(val.filter(i => typeof i === 'string').join('.'));
       // String values
       } else if (typeof val === 'string') {
@@ -139,14 +137,17 @@ export function writeProp(writer: CodeBlockWriter, prop: string, value: unknown)
 function writeExpandedBorderProps(writer: CodeBlockWriter, value: unknown) {
   if (Array.isArray(value)) {
     const [width, style, color] = value;
-    const val = isRuntimeVar(color) ? getRuntimeVar(color) : color;
     writer.writeLine(`borderWidth: ${width},`);
     writer.write(`borderStyle: `);
     writer.quote(style);
     writer.write(',');
     writer.newLine();
     writer.write(`borderColor: `);
-    writer.quote(val);
+    if (isRuntimeVar(color)) {
+      writer.write(getRuntimeVar(color));
+    } else {
+      writer.quote(color);
+    }
     writer.write(',');
     writer.newLine();
   } else {
@@ -170,16 +171,6 @@ function isRuntimeVar(value: any): value is RuntimeVariable {
 }
 
 function getRuntimeVar(runtime: RuntimeVariable) {
-  const variable = runtime.arguments[1][0]?.value;
-  switch (variable?.type) {
-    case 'rgb':
-      const {r,g,b,alpha} = variable;
-      if (alpha === 1) {
-        return `rgb(${r},${g},${b})`
-      } else {
-        return `rgba(${r},${g},${b},${alpha})`;
-      }
-    default:
-      return variable?.value ?? variable;
-  }
+  const variable = runtime.arguments[0];
+  return variable.slice(2).replace(/\-/g, '.');
 }

@@ -1,6 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import defaultReleaseConfig from 'config/release';
 import {F2RN_PROJECT_RELEASE} from 'config/env';
+import {getVariables} from 'backend/parser/lib/styles';
 import {PAGES_SPECIAL, VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
 import {createIdentifierConstant, titleCase} from 'common/string';
 import {generateToken} from 'common/random';
@@ -64,9 +65,12 @@ export function build(release: ProjectRelease) {
       const componentInfo: Record<string, ComponentInfo> = {};
       const assets = new Map<string, ComponentAsset>();
 
+      // Get CSS variables
+      const cssVars = await getVariables();
+
       for await (const component of exportNodes) {
         try {
-          const {bundle} = await generateBundle(component, config.state);
+          const {bundle} = await generateBundle(component, cssVars, config.state);
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
             componentInfo[bundle.key] = bundle.info;

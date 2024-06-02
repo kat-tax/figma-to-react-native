@@ -4,7 +4,10 @@ import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseN
 
 const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
-export default async function(component: ComponentNode): Promise<ParseData> {
+export default async function(
+  component: ComponentNode,
+  variables: string,
+): Promise<ParseData> {
   // Make sure component can be processed
   try {
     validate(component);
@@ -14,22 +17,18 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   }
 
   // Profile
-  //const _t1 = Date.now();
+  // const _t1 = Date.now();
 
   // Gather node data relative to conversion
   const data = crawl(component);
 
-  // DEBUG
-  if (component.parent.type === 'COMPONENT_SET') {
-    console.log(component.parent.name, data);
-  } else {
-    console.log(component.name, data);
-  }
+  // Debug
+  // console.log(component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name, data);
 
   // Generated styles and assets
   const [localState, stylesheet, {assetData, assetMap}] = await Promise.all([
     parser.getLocalState(),
-    parser.getStyleSheet(data.meta.styleNodes, data.variants),
+    parser.getStyleSheet(data.meta.styleNodes, variables, data.variants),
     parser.getAssets(data.meta.assetNodes),
   ]);
 

@@ -17,6 +17,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     if (!isValid(d.value.propertyId)) {
       return addWarning({type: 'IncompatibleNativeProperty', property: d.value.propertyId.property});
     }
+    console.log('unparsed', d.value.propertyId.property, d.value);
     return addStyleProp(
       d.value.propertyId.property,
       $.unparsed(d.value.value, {
@@ -125,15 +126,13 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'inset-inline-end':
       return addStyleProp(d.property, $.lengthPercentageOrAuto(d.value, options));
     case 'inset-block':
-      return handleStyleShorthand('inset-block', {
-        'inset-block-start': $.lengthPercentageOrAuto(d.value.blockStart, options),
-        'inset-block-end': $.lengthPercentageOrAuto(d.value.blockEnd, options),
-      });
+      addStyleProp('inset-block-start', $.lengthPercentageOrAuto(d.value.blockStart, options));
+      addStyleProp('inset-block-end', $.lengthPercentageOrAuto(d.value.blockEnd, options));
+      return;
     case 'inset-inline':
-      return handleStyleShorthand('inset-inline', {
-        'inset-block-start': $.lengthPercentageOrAuto(d.value.inlineStart, options),
-        'inset-block-end': $.lengthPercentageOrAuto(d.value.inlineEnd, options),
-      });
+      addStyleProp('inset-inline-start', $.lengthPercentageOrAuto(d.value.inlineStart, options));
+      addStyleProp('inset-inline-end', $.lengthPercentageOrAuto(d.value.inlineEnd, options));
+      return;
     case 'inset':
       handleStyleShorthand('inset', {
         top: $.lengthPercentageOrAuto(d.value.top, {
@@ -223,12 +222,10 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'border-end-end-radius':
       return addStyleProp(d.property, $.length(d.value[0], options));
     case 'border-radius':
-      handleStyleShorthand('border-radius', {
-        'border-bottom-left-radius': $.length(d.value.bottomLeft[0], options),
-        'border-bottom-right-radius': $.length(d.value.bottomRight[0], options),
-        'border-top-left-radius': $.length(d.value.topLeft[0], options),
-        'border-top-right-radius': $.length(d.value.topRight[0], options),
-      });
+      addStyleProp('border-bottom-left-radius', $.length(d.value.bottomLeft[0], options));
+      addStyleProp('border-bottom-right-radius', $.length(d.value.bottomRight[0], options));
+      addStyleProp('border-top-left-radius', $.length(d.value.topLeft[0], options));
+      addStyleProp('border-top-right-radius', $.length(d.value.topRight[0], options));
       return;
     case 'border-color':
       handleStyleShorthand('border-color', {
@@ -273,12 +270,10 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'border-style':
       return addStyleProp(d.property, $.borderStyle(d.value, options));
     case 'border-width':
-      handleStyleShorthand('border-width', {
-        'border-top-width': $.borderSideWidth(d.value.top, options),
-        'border-bottom-width': $.borderSideWidth(d.value.bottom, options),
-        'border-left-width': $.borderSideWidth(d.value.left, options),
-        'border-right-width': $.borderSideWidth(d.value.right, options),
-      });
+      addStyleProp('border-top-width', $.borderSideWidth(d.value.top, options));
+      addStyleProp('border-bottom-width', $.borderSideWidth(d.value.bottom, options));
+      addStyleProp('border-left-width', $.borderSideWidth(d.value.left, options));
+      addStyleProp('border-right-width', $.borderSideWidth(d.value.right, options));
       return;
     case 'border-block-color':
       addStyleProp('border-top-color', $.color(d.value.start, options));
@@ -297,10 +292,9 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
       addStyleProp('border-right-width', $.borderSideWidth(d.value.end, options));
       return;
     case 'border':
-      handleStyleShorthand('border', {
-        'border-width': $.borderSideWidth(d.value.width, options),
-        'border-style': $.borderStyle(d.value.style, options,),
-      });
+      addStyleProp('border-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp('border-style', $.borderStyle(d.value.style, options));
+      addStyleProp('border-color', $.color(d.value.color, options));
       return;
     case 'border-top':
       addStyleProp(d.property + '-color', $.color(d.value.color, options));
@@ -353,7 +347,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'flex-flow':
       addStyleProp('flexWrap', d.value.wrap);
       addStyleProp('flexDirection', d.value.direction);
-      break;
+      return;
     case 'flex-grow':
       return addStyleProp(d.property, d.value);
     case 'flex-shrink':
@@ -364,7 +358,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
       addStyleProp('flex-grow', d.value.grow);
       addStyleProp('flex-shrink', d.value.shrink);
       addStyleProp('flex-basis', $.lengthPercentageOrAuto(d.value.basis, options));
-      break;
+      return;
     case 'align-content':
       return addStyleProp(d.property, $.alignContent(d.value, options));
     case 'justify-content':
@@ -398,33 +392,26 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'margin-inline-end':
       return addStyleProp('margin-end', $.lengthPercentageOrAuto(d.value, options));
     case 'margin':
-      handleStyleShorthand('margin', {
-        'margin-top': $.size(d.value.top, options),
-        'margin-bottom': $.size(d.value.bottom, options),
-        'margin-left': $.size(d.value.left, options),
-        'margin-right': $.size(d.value.right, options),
-      });
+      addStyleProp('margin-top', $.size(d.value.top, options));
+      addStyleProp('margin-bottom', $.size(d.value.bottom, options));
+      addStyleProp('margin-left', $.size(d.value.left, options));
+      addStyleProp('margin-right', $.size(d.value.right, options));
       return;
     case 'margin-block':
-      handleStyleShorthand('margin-block', {
-        'margin-start': $.lengthPercentageOrAuto(d.value.blockStart, options),
-        'margin-end': $.lengthPercentageOrAuto(d.value.blockEnd, options),
-      });
+      addStyleProp('margin-start', $.lengthPercentageOrAuto(d.value.blockStart, options));
+      addStyleProp('margin-end', $.lengthPercentageOrAuto(d.value.blockEnd, options));
       return;
     case 'margin-inline':
-      handleStyleShorthand('margin-inline', {
-        'margin-start': $.lengthPercentageOrAuto(d.value.inlineStart, options),
-        'margin-end': $.lengthPercentageOrAuto(d.value.inlineEnd, options),
-      });
+      addStyleProp('margin-start', $.lengthPercentageOrAuto(d.value.inlineStart, options));
+      addStyleProp('margin-end', $.lengthPercentageOrAuto(d.value.inlineEnd, options));
       return;
     case 'padding':
-      handleStyleShorthand('padding', {
-        'padding-top': $.size(d.value.top, options),
-        'padding-left': $.size(d.value.left, options),
-        'padding-right': $.size(d.value.right, options),
-        'padding-bottom': $.size(d.value.bottom, options),
-      });
-      break;
+      console.log('[padding]', d.value);
+      addStyleProp('padding-top', $.size(d.value.top, options));
+      addStyleProp('padding-bottom', $.size(d.value.bottom, options));
+      addStyleProp('padding-left', $.size(d.value.left, options));
+      addStyleProp('padding-right', $.size(d.value.right, options));
+      return;
     case 'padding-top':
       return addStyleProp(d.property, $.size(d.value, options));
     case 'padding-bottom':
@@ -442,16 +429,12 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'padding-inline-end':
       return addStyleProp('padding-end', $.lengthPercentageOrAuto(d.value, options));
     case 'padding-block':
-      handleStyleShorthand('padding-block', {
-        'padding-start': $.lengthPercentageOrAuto(d.value.blockStart, options),
-        'padding-end': $.lengthPercentageOrAuto(d.value.blockEnd, options),
-      });
+      addStyleProp('padding-start', $.lengthPercentageOrAuto(d.value.blockStart, options));
+      addStyleProp('padding-end', $.lengthPercentageOrAuto(d.value.blockEnd, options));
       return;
     case 'padding-inline':
-      handleStyleShorthand('padding-inline', {
-        'padding-start': $.lengthPercentageOrAuto(d.value.inlineStart, options),
-        'padding-end': $.lengthPercentageOrAuto(d.value.inlineEnd, options),
-      });
+      addStyleProp('padding-start', $.lengthPercentageOrAuto(d.value.inlineStart, options));
+      addStyleProp('padding-end', $.lengthPercentageOrAuto(d.value.inlineEnd, options));
       return;
     case 'font-weight':
       return addStyleProp(d.property, $.fontWeight(d.value, options));
@@ -492,7 +475,6 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'animation':
       return addAnimationProp(d.property, d.value);
     case 'transform': {
-      console.log('transform', d.value, $.transform);
       return addStyleProp(d.property, $.transform(d.value, options));
     }
     case 'translate':

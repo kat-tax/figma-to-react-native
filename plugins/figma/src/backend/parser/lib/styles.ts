@@ -1,6 +1,7 @@
 import {emit, once} from '@create-figma-plugin/utilities';
 import {diff} from 'deep-object-diff';
 import {F2RN_STYLEGEN_API} from 'config/env';
+import {getColor} from './colors';
 
 import type {EventStyleGenReq, EventStyleGenRes} from 'types/events';
 import type {ParseStyleSheet, ParseVariantData} from 'types/parse';
@@ -10,7 +11,11 @@ let _remoteStyleGenOnly = false;
 type StyleSheet = Record<string, StyleClass>;
 type StyleClass = {[key: string]: string};
 
-export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantData): Promise<ParseStyleSheet> {
+export async function getStyleSheet(
+  nodes: Set<string>,
+  cssVars: string,
+  variants?: ParseVariantData,
+): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
   let css: StyleSheet = {};
   for await (const id of nodes) {
@@ -38,10 +43,12 @@ export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantD
   }
 
   // Convert CSS
+  css['*'] = {':root': cssVars};
   const output = await convertStyles(css);
   
   // Build Stylesheet
-  const stylesheet: ParseStyleSheet = {};
+  const stylesheet:ParseStyleSheet = {};
+
   for (const key in output) {
     const style = output[key]?.style;
     if (style) {
@@ -61,6 +68,34 @@ export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantD
   }
 
   return stylesheet;
+}
+
+export async function getVariables(): Promise<string> {
+  const variables = await figma.variables.getLocalVariablesAsync();
+  const getVal = (v: Variable) => {
+    const value = Object.values(v.valuesByMode)[0];
+    switch (typeof value) {
+      case 'object': {
+        if ('type' in value) {
+          return getVal(figma.variables.getVariableById(value.id));
+        } else if ('r' in value) {
+          const {r, g, b} = value;
+          if ('a' in value) {
+            const {a} = value;
+            return getColor({r, g, b}, a);
+          }
+          return getColor({r, g, b});
+        }
+      }
+      default: {
+        return value;
+      }
+    }
+  };
+
+  return variables.map(v => v?.codeSyntax?.WEB
+    ? `${v.codeSyntax.WEB.slice(4,-1)}: ${getVal(v)};`
+    : null).filter(Boolean).join('\n');
 }
 
 async function convertStyles(css: StyleSheet): Promise<Record<string, any>> {

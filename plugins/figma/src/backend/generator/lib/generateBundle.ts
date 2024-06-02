@@ -33,6 +33,7 @@ const emptyBundle: ComponentData = {
 
 export async function generateBundle(
   node: ComponentNode,
+  cssVars: string,
   settings: ProjectSettings,
 ): Promise<ComponentData> {
   // No node, return empty bundle
@@ -62,7 +63,7 @@ export async function generateBundle(
   }
 
   // Normal component, parse figma data
-  const data = await parseFigmaComponent(node);
+  const data = await parseFigmaComponent(node, cssVars);
 
   // No data, return empty bundle
   if (!data) return emptyBundle;

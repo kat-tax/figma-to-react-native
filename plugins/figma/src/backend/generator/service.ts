@@ -1,8 +1,9 @@
 import {emit} from '@create-figma-plugin/utilities';
+import {getVariables} from 'backend/parser/lib/styles';
 import {getAllIconComponents} from 'backend/importer/icons';
-import {getComponentTargets, getComponentTarget, getComponentInfo, getVariableCollectionModes, getPage} from 'backend/parser/lib';
-import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
+import {getComponentTargets, getComponentTarget, getComponentInfo, getVariableCollectionModes} from 'backend/parser/lib';
 import {areMapsEqual, areSetsEqual} from 'common/assert';
+import {createIdentifierCamel} from 'common/string';
 import {wait} from 'common/delay';
 import * as config from 'backend/utils/config';
 
@@ -148,6 +149,9 @@ export async function compile(
   let _loaded = 0;
   let _cached = false;
 
+  // Get CSS variables
+  const cssVars = await getVariables();
+
   // Iterate over all components, fill roster, info, and total
   for await (const component of components) {
     const info = getComponentInfo(component);
@@ -171,7 +175,7 @@ export async function compile(
     wait(1);
     try {
       // Compile component
-      const res = await bundle(component, config.state, skipCache);
+      const res = await bundle(component, cssVars, config.state, skipCache);
 
       // Derive data
       const {id, key, info, links, icons, assets} = res.bundle;
@@ -221,6 +225,7 @@ export async function compile(
 
 export async function bundle(
   node: ComponentNode,
+  cssVars: string,
   settings: ProjectSettings,
   skipCache?: boolean,
 ) {
@@ -251,7 +256,7 @@ export async function bundle(
 
   //console.log('[cache/hit]', node.name);
 
-  const bundle: ComponentData = await generateBundle(node, instanceSettings);
+  const bundle: ComponentData = await generateBundle(node, cssVars, instanceSettings);
   _cache[node.key] = bundle;
 
   return {bundle, cached: false};
