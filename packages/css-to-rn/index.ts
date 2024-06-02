@@ -84,12 +84,10 @@ export async function cssToReactNative(
  * @param data - The object to transform to CSS
  */
 export function buildCSS(data: {[s: string]: {[s: string]: unknown}}) {
-  let css = '';
-  const vars = data['*'][':root'];
+  let css = `:root {\n${data['*'][':root']}\n}\n\n`;
   delete data['*'];
   for (const [id, styles] of Object.entries(data)) {
     css += `._${id.replace(/\:/g, '-')} { `;
-    css += `\n${vars}\n`;
     for (const [prop, value] of Object.entries(styles)) {
       // TODO: break this normalization out
       const _prop = prop === 'background' ? 'background-color' : prop;
