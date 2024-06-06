@@ -94,12 +94,12 @@ export function writePropComponent(
 
   // Determine instance
   const instance = node.type === 'INSTANCE' ? node : node.instances
-    .find(i => i.componentPropertyReferences.mainComponent === propKey);
+    .find(i => i?.componentPropertyReferences?.mainComponent === propKey);
 
   // Look for visibility prop on this instance swap
-  if (typeof props[instance.componentPropertyReferences.visible] !== 'undefined') {
+  if (typeof props[instance?.componentPropertyReferences?.visible] !== 'undefined') {
     // If visible is false, return an empty string so not prop (k=v) is written
-    if ((props[instance.componentPropertyReferences.visible] as any)?.value === false)
+    if ((props[instance?.componentPropertyReferences?.visible] as any)?.value === false)
       return ['', [info.name, info.path]];
   }
 

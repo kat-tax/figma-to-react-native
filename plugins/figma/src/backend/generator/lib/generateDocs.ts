@@ -9,12 +9,15 @@ export function generateDocs(component: ComponentInfo, settings: ProjectSettings
   const writer = new CodeBlockWriter(settings?.writer);
 
   // Imports
-  writer.writeLine(':::imports');
-  writer.blankLine();
-  writePropsImports(writer, component.propDefs);
-  writer.blankLine();
-  writer.writeLine(':::');
-  writer.blankLine();
+  const imports = writePropsImports(new CodeBlockWriter(settings?.writer), component.propDefs);
+  if (imports) {
+    writer.writeLine(':::imports');
+    writer.blankLine();
+    writer.write(imports);
+    writer.blankLine();
+    writer.writeLine(':::');
+    writer.blankLine();
+  }
 
   // Header
   writer.writeLine(':::header:::');

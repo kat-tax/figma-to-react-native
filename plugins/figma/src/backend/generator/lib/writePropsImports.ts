@@ -15,6 +15,9 @@ export function writePropsImports(
   const components = getComponentImports(propDefs);
   let hasIconImport = false;
 
+  // No imports, return null
+  if (components.length === 0) return null;
+
   // Loop through sub-components, import each one
   if (components.length > 0) {
     components.forEach(node => {

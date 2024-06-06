@@ -100,19 +100,14 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Enable inspect mode when the user holds down the control/meta key
   useEffect(() => {
     if (!src) return;
-    const onKeydown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.key === 'Meta')
-        inspectApp(true);
-    };
-    const onKeyup = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.key === 'Meta')
-        inspectApp(false);
-    };
-    addEventListener('keydown', onKeydown);
-    addEventListener('keyup', onKeyup);
+    const valKeyEvent = (e: KeyboardEvent) => e.ctrlKey || e.key === 'Meta' || e.key === 'Shift';
+    const onKeyDown = (e: KeyboardEvent) => valKeyEvent(e) && inspectApp(true);
+    const onKeyUp = (e: KeyboardEvent) => valKeyEvent(e) && inspectApp(false);
+    addEventListener('keydown', onKeyDown);
+    addEventListener('keyup', onKeyUp);
     return () => {
-      removeEventListener('keydown', onKeydown);
-      removeEventListener('keyup', onKeyup);
+      removeEventListener('keydown', onKeyDown);
+      removeEventListener('keyup', onKeyUp);
     };
   }, [src]);
 
