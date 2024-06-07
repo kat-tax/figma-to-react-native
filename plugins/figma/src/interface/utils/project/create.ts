@@ -2,7 +2,7 @@
 // - fix component folders (lowercase + use sections for categories)
 
 import {fs} from '@zip.js/zip.js';
-import {F2RN_EXO_REPO_ZIP} from 'config/consts';
+import {F2RN_EXO_REPO_ZIP, F2RN_EXO_PROXY_URL} from 'config/consts';
 
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
@@ -13,7 +13,7 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   
   // Import EXO
   const zip = new fs.FS();
-  const src = 'https://corsproxy.io/?' + encodeURIComponent(F2RN_EXO_REPO_ZIP + '?_c=' + Math.random());
+  const src = F2RN_EXO_PROXY_URL + encodeURIComponent(F2RN_EXO_REPO_ZIP + '?_c=' + Math.random());
   const tpl = (await zip.importHttpContent(src))[0] as ZipDirectoryEntry;
 
   // Root

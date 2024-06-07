@@ -2,7 +2,7 @@ import * as Y from 'yjs';
 import {WebrtcProvider} from 'y-webrtc';
 // import {createYjsProvider} from '@y-sweet/client';
 //import {TiptapCollabProvider} from '@hocuspocus/provider';
-//import {TIPTAP_APP_ID} from 'config/env';
+//import {TIPTAP_APP_ID} from 'config/consts';
 
 export const doc = new Y.Doc();
 
