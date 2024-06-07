@@ -52,13 +52,15 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
 
   // Docs
   const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
-  docs.children.forEach(child => zip.remove(child));
   docs.addText('start/index.mdx', docIndexTemplate);
 
   // Storybook
   const sb = guides.getChildByName('storybook') as ZipDirectoryEntry;
   zip.remove(sb.getChildByName('get started.mdx'));
   sb.addText('get started.mdx', [
+    `import {Meta} from \'@storybook/blocks\';`,
+    `<Meta title="Get Started"/>`,
+    ``,
     `# ${pkgName || 'project'}`,
     ``,
     `#### ${pkgVersion || '0.0.1'}`,
