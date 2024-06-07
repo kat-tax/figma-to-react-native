@@ -47,7 +47,9 @@ function writeMetaData(writer: CodeBlockWriter, component: ComponentInfo) {
   writer.write('const meta: Meta<typeof Component> = ').inlineBlock(() => {
     writer.write('title:');
     writer.space();
-    writer.quote(`${component.page.name}/${component.section.name}/${component.name}`);
+    writer.quote(component.section
+      ? `${component.page.name}/${component.section.name}/${component.name}`
+      : `${component.page.name}/${component.name}`);
     writer.write(',');
     writer.newLine();
     writer.writeLine('component: Component,');
