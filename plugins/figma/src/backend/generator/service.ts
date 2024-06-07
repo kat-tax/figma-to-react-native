@@ -236,7 +236,7 @@ export async function bundle(
       return {bundle: _cache[node.key], cached: true};
     }
     // Disk cache
-    const data = false // node.getSharedPluginData('f2rn', 'data');
+    const data = node.getSharedPluginData('f2rn', 'data');
     if (data) {
       try {
         const bundle = JSON.parse(data) as ComponentData;

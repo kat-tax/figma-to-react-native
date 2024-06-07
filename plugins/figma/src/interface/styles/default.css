@@ -72,9 +72,10 @@ html, body {
 
 iframe {
   border: 0;
-  height: 100%;
   width: 100%;
+  height: calc(100% + 41px);
   margin-top: -41px;
+  padding-top: 41px;
 }
 
 #create-figma-plugin {

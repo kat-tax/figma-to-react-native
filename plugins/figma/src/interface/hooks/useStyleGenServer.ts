@@ -8,6 +8,6 @@ export function useStyleGenServer() {
   useEffect(() => on<EventStyleGenReq>('STYLE_GEN_REQ', async (css) => {
     const stylesheet = await cssToReactNative(buildCSS(css));
     emit<EventStyleGenRes>('STYLE_GEN_RES', stylesheet);
-    console.log('[stylegen]', css, stylesheet)
+    // console.log('[stylegen]', css, stylesheet)
   }), []);
 }
