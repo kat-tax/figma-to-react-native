@@ -71,7 +71,7 @@ export async function writeImports(
 
   // Package Imports
   writeImport('react', flags.react);
-  writeImport('react-native-unistyles', flags.unistyles);
+  writeImport('styles', flags.unistyles);
   writeImport('react-exo/variants', flags.exoVariants);
   writeImport('react-native', flags.reactNative);
   writeImport('react-exo/icon', flags.exoIcon);

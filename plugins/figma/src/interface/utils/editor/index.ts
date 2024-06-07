@@ -4,7 +4,7 @@ import schema from 'interface/schemas/user/schema.json';
 import * as $ from 'interface/store';
 
 import imports from './lib/imports';
-import AutoTypings from './lib/AutoTypings';
+import typings from './lib/typings';
 import Constraints from './lib/Constraints';
 import Experimental from './lib/Experimental';
 
@@ -105,7 +105,7 @@ export function initSettingsSchema(monaco: Monaco) {
 
 export function initComponentEditor(editor: Editor, monaco: Monaco, onTriggerGPT: () => void) {
   console.log('[init editor]', editor, monaco);
-  AutoTypings.init(monaco, editor);
+  typings.init(monaco, editor);
   Experimental.init(monaco, editor, onTriggerGPT);
   return Constraints.init(monaco, editor);
 }

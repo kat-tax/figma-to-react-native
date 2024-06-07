@@ -1,14 +1,14 @@
 // @ts-nocheck
 
 import {AppRegistry} from 'react-native';
-import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
+import {UnistylesRuntime, UnistylesRegistry} from 'styles';
 import {Logtail} from '@logtail/browser';
 import {themes, breakpoints} from 'theme';
 
 type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
 type AppBreakpoints = typeof breakpoints;
 
-declare module 'react-native-unistyles' {
+declare module 'styles' {
   export interface UnistylesBreakpoints extends AppBreakpoints {}
   export interface UnistylesThemes extends AppThemes {}
 }
