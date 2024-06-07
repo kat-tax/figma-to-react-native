@@ -16,7 +16,14 @@ export function writeStateHooks(
   localState?.forEach(([name, value]) => {
     const getName = createIdentifierCamel(name);
     const setName = createIdentifierCamel(`set_${name}`);
-    writer.writeLine(`const [${getName}, ${setName}] = useState(${value});`);
+    writer.write(`const [${getName}, ${setName}] = useState(`);
+    if (typeof value === 'string') {
+      writer.quote(value);
+    } else {
+      writer.write(value.toString());
+    }
+    writer.write(');');
+    writer.newLine();
     flags.react.useState = true;
   });
 }
