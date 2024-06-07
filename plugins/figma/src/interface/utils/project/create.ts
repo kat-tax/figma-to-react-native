@@ -1,6 +1,3 @@
-// TODO:
-// - fix component folders (lowercase + use sections for categories)
-
 import {fs} from '@zip.js/zip.js';
 import {F2RN_EXO_REPO_ZIP, F2RN_EXO_PROXY_URL} from 'config/consts';
 
@@ -52,6 +49,7 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
 
   // Docs
   const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
+  zip.remove(docs.getChildByName('start'));
   docs.addText('start/index.mdx', docIndexTemplate);
 
   // Storybook
