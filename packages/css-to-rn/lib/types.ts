@@ -7,8 +7,6 @@ export type CssToReactNativeOptions = {
 
 export interface ExtractRuleOptions extends CssToReactNativeOptions {
   declarations: Map<string, ExtractedStyle | ExtractedStyle[]>;
-  rootVariables?: VariableRecord;
-  universalVariables?: VariableRecord;
 }
 
 export type RuntimeValue = {
@@ -24,21 +22,7 @@ export type ExtractedStyleValue =
   | ExtractedStyleValue[]
   | (() => ExtractedStyleValue);
 
-export type ExtractedStyle = {
-  isDynamic?: boolean;
-  variables?: Record<string, ExtractedStyleValue>;
-  prop?: [string, string | true];
-  style: Record<string, ExtractedStyleValue>;
-  requiresLayout?: boolean;
-  warnings?: ExtractionWarning[];
-};
-
-export type StyleMeta = {
-  alreadyProcessed?: true;
-  variableProps?: Set<string>;
-  variables?: Record<string, ExtractedStyleValue>;
-  requiresLayout?: boolean;
-};
+export type ExtractedStyle = Record<string, ExtractedStyleValue>;
 
 export type StyleSheetRegisterOptions = {
   declarations?: Record<string, ExtractedStyle | ExtractedStyle[]>;
@@ -107,7 +91,6 @@ export interface ParseDeclarationOptions {
   inlineRem?: number | false;
   addStyleProp: AddStyleProp;
   addWarning: AddWarning;
-  requiresLayout: () => void;
   handleStyleShorthand: HandleStyleShorthand;
 }
 
@@ -119,10 +102,6 @@ export interface ParseDeclarationOptionsWithValueWarning extends ParseDeclaratio
 export type AddStyleProp = (
   property: string,
   value: unknown,
-  options?: {
-    shortHand?: boolean;
-    append?: boolean;
-  },
 ) => void;
 
 export type AddWarning = (

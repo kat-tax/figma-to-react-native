@@ -1,12 +1,10 @@
 import * as config from 'backend/utils/config';
-import {getVariables} from 'backend/parser/lib/styles';
 import {bundle as generateBundle} from './service';
 import {generateTheme} from './lib/generateTheme';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];
-  const cssVars = await getVariables();
-  const {bundle} = await generateBundle(node, cssVars, config.state);
+  const {bundle} = await generateBundle(node, config.state);
   const {code} = (await generateTheme(config.state)).themes;
   return bundle.code ? [
     {

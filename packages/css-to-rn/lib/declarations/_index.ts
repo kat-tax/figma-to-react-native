@@ -26,6 +26,5 @@ export {default as textAlign} from './text-align';
 export {default as textDecorationLine} from './text-decoration-line';
 export {default as textDecorationStyle} from './text-decoration-style';
 export {default as textShadow} from './text-shadow';
-export {default as transform} from './transform';
 export {default as unparsed} from './unparsed';
 export {default as verticalAlign} from './vertical-align';

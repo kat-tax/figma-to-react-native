@@ -44,7 +44,6 @@ export async function cssToReactNative(
   };
 
   // Use LightningCSS to traverse the CSS AST
-  // and extract style declarations
   transform({
     // This is ignored, but required
     filename: 'style.css',
@@ -59,10 +58,8 @@ export async function cssToReactNative(
     },
   });
 
-  // Convert the extracted style declarations from maps to objects and return them
-  return {
-    declarations: Object.fromEntries(extractOptions.declarations),
-  };
+  // Return the extracted style declarations
+  return Object.fromEntries(extractOptions.declarations);
 }
 
 /**
@@ -71,8 +68,7 @@ export async function cssToReactNative(
  * @param data - The object to transform to CSS
  */
 export function buildCSS(data: {[s: string]: {[s: string]: unknown}}) {
-  let css = `:root {\n${data['*'][':root']}\n}\n\n`;
-  delete data['*'];
+  let css = '';
   for (const [id, styles] of Object.entries(data)) {
     css += `._${id.replace(/\:/g, '-')} { `;
     for (const [prop, value] of Object.entries(styles)) {

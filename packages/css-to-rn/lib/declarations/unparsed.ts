@@ -3,24 +3,20 @@ import parseColor from './color';
 import parseLength from './length';
 import parseDimension from './dimension';
 
-import {invalidIdent} from '../val';
 import {round} from '../utils';
+import {invalidIdent} from '../val';
 
 import type {TokenOrValue} from 'lightningcss-wasm';
 import type {ParseDeclarationOptionsWithValueWarning} from '../types';
 
 type UnparsedInput = TokenOrValue | TokenOrValue[] | string | number | undefined;
-type UnparsedOutput = string | number | object | undefined;
-
+type UnparsedOutput = UnparsedOutputValue | UnparsedOutputValue[];
+type UnparsedOutputValue = string | number | object | undefined;
 /**
  * When the CSS cannot be parsed (often due to a runtime condition like a CSS variable)
  * This function best efforts parsing it into a function that we can evaluate at runtime
  */
-export default (tokenOrValue: UnparsedInput, options: ParseDeclarationOptionsWithValueWarning): UnparsedOutput => {
-  return parseUnparsed(tokenOrValue, options);
-}
-
-function parseUnparsed(tokenOrValue: UnparsedInput, options: ParseDeclarationOptionsWithValueWarning): UnparsedOutput {
+export default function parse(tokenOrValue: UnparsedInput, options: ParseDeclarationOptionsWithValueWarning): UnparsedOutput {
   if (tokenOrValue === undefined) {
     return;
   }
@@ -34,7 +30,7 @@ function parseUnparsed(tokenOrValue: UnparsedInput, options: ParseDeclarationOpt
   }
 
   if (Array.isArray(tokenOrValue)) {
-    return reduceParseUnparsed(tokenOrValue, options, true);
+    return reduceParseUnparsed(tokenOrValue, options);
   }
 
   switch (tokenOrValue.type) {
@@ -48,7 +44,7 @@ function parseUnparsed(tokenOrValue: UnparsedInput, options: ParseDeclarationOpt
             round(value.r * 255),
             round(value.g * 255),
             round(value.b * 255),
-            parseUnparsed(tokenOrValue.value.alpha, options),
+            parse(tokenOrValue.value.alpha, options),
           ],
         };
       } else {
@@ -59,7 +55,7 @@ function parseUnparsed(tokenOrValue: UnparsedInput, options: ParseDeclarationOpt
             value.h,
             value.s,
             value.l,
-            parseUnparsed(tokenOrValue.value.alpha, options),
+            parse(tokenOrValue.value.alpha, options),
           ],
         };
       }
@@ -187,16 +183,13 @@ function parseUnparsed(tokenOrValue: UnparsedInput, options: ParseDeclarationOpt
 function reduceParseUnparsed(
   tokenOrValues: TokenOrValue[],
   options: ParseDeclarationOptionsWithValueWarning,
-  allowUnwrap = false,
 ) {
   const result = tokenOrValues
-    .flatMap((tokenOrValue) => parseUnparsed(tokenOrValue, options))
+    .flatMap((tokenOrValue) => parse(tokenOrValue, options))
     .filter((v) => v !== undefined);
 
   if (result.length === 0) {
     return undefined;
-  } else if (result.length === 1 && allowUnwrap) {
-    return result[0];
   } else {
     return result;
   }
@@ -221,7 +214,7 @@ function unparsedKnownShorthand(
     return {
       type: 'runtime',
       name,
-      arguments: [parseUnparsed(tokenOrValue, options)],
+      arguments: [parse(tokenOrValue, options)],
     };
   });
 }

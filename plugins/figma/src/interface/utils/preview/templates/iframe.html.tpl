@@ -64,6 +64,7 @@
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap">
+    <script src="http://localhost:8097"></script>
   </head>
   <body>
     <div id="previewer"></div>

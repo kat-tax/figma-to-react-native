@@ -88,73 +88,41 @@ export function writeProps(writer: CodeBlockWriter,props: string[], slug: string
   writer.writeLine('},');
 }
 
-export function writeProp(writer: CodeBlockWriter, prop: string, value: unknown) {
-  // Expand shorthand props
-  // TODO: Refactor the css-to-rn converter to not use shorthand, this is unstable
-  if (prop === 'border') {
-    writeExpandedBorderProps(writer, value);
+export function writeProp(writer: CodeBlockWriter, prop: string, val: unknown) {
+  writer.write(`${prop}: `);
+  // Undefined values
+  if (typeof val === 'undefined' || val === 'unset') {
+    writer.quote('unset')
+    writer.write(' as any');
   } else {
-    writer.write(`${prop}: `);
-    // Undefined values
-    if (typeof value === 'undefined' || value === 'unset') {
-      writer.quote('unset')
-      writer.write(' as any');
-    } else {
-      const val = isRuntimeVar(value) ? getRuntimeVar(value) : value;
-      // Number values
-      if (typeof val === 'number') {
-        // Hack: font weight needs to be a string
-        if (prop === 'fontWeight') {
-          writer.quote(val.toString());
-        // Round numbers from figma
-        } else {
-          writer.write(Number.isInteger(val)
-            ? val.toString()
-            : parseFloat(val.toFixed(5)).toString()
-          );
-        }
-      // Code syntax array (variables)
-      } else if (Array.isArray(val)) {
-        // TODO: Refactor the filter, this is needed to due css-to-rn using shorthand
-        writer.write(val.filter(i => typeof i === 'string').join('.'));
-      // String values
-      } else if (typeof val === 'string') {
-        if (val.startsWith('theme.')) {
-          writer.write(val);
-        } else {
-          writer.quote(val);
-        }
-      // Unknown value
+    const value = isRuntimeVar(val) ? getRuntimeVar(val) : val;
+    // Number values
+    if (typeof value === 'number') {
+      // Hack: font weight needs to be a string
+      if (prop === 'fontWeight') {
+        writer.quote(value.toString());
+      // Round numbers from figma
       } else {
-        writer.write(JSON.stringify(val));
+        writer.write(Number.isInteger(value)
+          ? value.toString()
+          : parseFloat(value.toFixed(5)).toString()
+        );
       }
-    }
-    writer.write(',');
-    writer.newLine();
-  }
-}
-
-function writeExpandedBorderProps(writer: CodeBlockWriter, value: unknown) {
-  if (Array.isArray(value)) {
-    const [width, style, color] = value;
-    writer.writeLine(`borderWidth: ${width},`);
-    writer.write(`borderStyle: `);
-    writer.quote(style);
-    writer.write(',');
-    writer.newLine();
-    writer.write(`borderColor: `);
-    if (isRuntimeVar(color)) {
-      writer.write(getRuntimeVar(color));
+    // String values
+    } else if (typeof value === 'string') {
+      // Theme values
+      if (value.startsWith('theme.')) {
+        writer.write(value);
+      } else {
+        writer.quote(value);
+      }
+    // Unknown value
     } else {
-      writer.quote(color);
+      writer.write(JSON.stringify(value));
     }
-    writer.write(',');
-    writer.newLine();
-  } else {
-    writer.writeLine(`borderWidth: 'unset' as any,`);
-    writer.writeLine(`borderStyle: 'unset' as any,`);
-    writer.writeLine(`borderColor: 'unset' as any,`);
   }
+  writer.write(',');
+  writer.newLine();
 }
 
 type RuntimeVariable = {
@@ -170,7 +138,7 @@ function isRuntimeVar(value: any): value is RuntimeVariable {
     && value.arguments.length === 2;
 }
 
-function getRuntimeVar(runtime: RuntimeVariable) {
+function getRuntimeVar(runtime: any) {
   const variable = runtime.arguments[0];
   return variable.slice(2).replace(/\-/g, '.');
 }

@@ -332,7 +332,8 @@ async function getFontVariables(key: string, ns: string): Promise<{names: string
 }
 
 function setVariableCodeSyntax(variable: Variable, namespace: string) {
-  const id = `var(--theme-${namespace}-${createIdentifierCamel(variable.name)})`;
+  const name = createIdentifierCamel(variable.name);
+  const id = `var(--theme-${namespace}-${name})`;
   if (!isReadOnly && variable.codeSyntax?.WEB !== id) {
     variable.setVariableCodeSyntax('WEB', id);
   }

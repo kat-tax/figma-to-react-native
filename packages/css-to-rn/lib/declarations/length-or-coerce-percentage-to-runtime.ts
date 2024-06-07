@@ -9,7 +9,6 @@ export default (
   options: ParseDeclarationOptionsWithValueWarning,
 ) => {
   if (value.type === 'percentage') {
-    options.requiresLayout();
     return {
       type: 'runtime',
       name: runtimeName,

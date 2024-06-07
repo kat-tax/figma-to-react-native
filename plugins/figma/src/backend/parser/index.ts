@@ -6,7 +6,6 @@ const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', '
 
 export default async function(
   component: ComponentNode,
-  variables: string,
 ): Promise<ParseData> {
   // Make sure component can be processed
   try {
@@ -28,7 +27,7 @@ export default async function(
   // Generated styles and assets
   const [localState, stylesheet, {assetData, assetMap}] = await Promise.all([
     parser.getLocalState(),
-    parser.getStyleSheet(data.meta.styleNodes, variables, data.variants),
+    parser.getStyleSheet(data.meta.styleNodes, data.variants),
     parser.getAssets(data.meta.assetNodes),
   ]);
 

@@ -13,7 +13,6 @@ type StyleClass = {[key: string]: string};
 
 export async function getStyleSheet(
   nodes: Set<string>,
-  cssVars: string,
   variants?: ParseVariantData,
 ): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
@@ -43,16 +42,14 @@ export async function getStyleSheet(
   }
 
   // Convert CSS
-  css['*'] = {':root': cssVars};
   const output = await convertStyles(css);
   
   // Build Stylesheet
-  const stylesheet:ParseStyleSheet = {};
+  const stylesheet: ParseStyleSheet = {};
 
   for (const key in output) {
-    const style = output[key]?.style;
+    const style = output[key];
     if (style) {
-      const id = key.slice(1).replace(/\-/g, ':');
       const props = {};
       for (const k in style) {
         if (k === 'display' && style[k] === 'flex') {
@@ -63,39 +60,11 @@ export async function getStyleSheet(
           props[k] = style[k];
         }
       }
-      stylesheet[id] = props;
+      stylesheet[key] = props;
     }
   }
 
   return stylesheet;
-}
-
-export async function getVariables(): Promise<string> {
-  const variables = await figma.variables.getLocalVariablesAsync();
-  const getVal = (v: Variable) => {
-    const value = Object.values(v.valuesByMode)[0];
-    switch (typeof value) {
-      case 'object': {
-        if ('type' in value) {
-          return getVal(figma.variables.getVariableById(value.id));
-        } else if ('r' in value) {
-          const {r, g, b} = value;
-          if ('a' in value) {
-            const {a} = value;
-            return getColor({r, g, b}, a);
-          }
-          return getColor({r, g, b});
-        }
-      }
-      default: {
-        return value;
-      }
-    }
-  };
-
-  return variables.map(v => v?.codeSyntax?.WEB
-    ? `${v.codeSyntax.WEB.slice(4,-1)}: ${getVal(v)};`
-    : null).filter(Boolean).join('\n');
 }
 
 async function convertStyles(css: StyleSheet): Promise<Record<string, any>> {
@@ -121,9 +90,9 @@ async function convertStylesLocal(css: StyleSheet): Promise<Record<string, any>>
         _remoteStyleGenOnly = true;
         reject(new Error('STYLE_GEN_TIMEOUT'));
       }, 5000);
-      once<EventStyleGenRes>('STYLE_GEN_RES', async (stylesheet) => {
+      once<EventStyleGenRes>('STYLE_GEN_RES', async (declarations) => {
         clearTimeout(timeout);
-        resolve(stylesheet.declarations);
+        resolve(declarations);
       });
       emit<EventStyleGenReq>('STYLE_GEN_REQ', css);
     } catch (e) {

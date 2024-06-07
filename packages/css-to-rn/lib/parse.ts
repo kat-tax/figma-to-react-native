@@ -1,141 +1,99 @@
 import * as $ from './declarations/_index';
 import {isValid, validPropertiesLoose} from './val';
 
-import type {Declaration} from 'lightningcss-wasm';
+import type {Declaration, TokenOrValue} from 'lightningcss-wasm';
 import type {ParseDeclarationOptions} from './types';
 
-export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) {
-  const {addStyleProp, addWarning, handleStyleShorthand} = opts;
+export function parseDeclaration(declaration: Declaration, options: ParseDeclarationOptions) {
+  const {addStyleProp, addWarning, handleStyleShorthand} = options;
+  const {property, value} = declaration;
 
-  if (d.property === 'unparsed') {
-    if (!isValid(d.value.propertyId)) {
-      return addWarning({type: 'IncompatibleNativeProperty', property: d.value.propertyId.property});
-    }
-    console.log('unparsed', d.value.propertyId.property, d.value);
-    return addStyleProp(
-      d.value.propertyId.property,
-      $.unparsed(d.value.value, {
-        ...opts,
-        addFunctionValueWarning(value: any) {
-          return addWarning({type: 'IncompatibleNativeFunctionValue', property: d.value.propertyId.property, value});
-        },
-        addValueWarning(value: any) {
-          return addWarning({type: 'IncompatibleNativeValue', property: d.value.propertyId.property, value});
-        },
-      }),
-    );
-  } else if (d.property === 'custom') {
-    const property = d.value.name;
-    if (
-      validPropertiesLoose.has(property) ||
-      property.startsWith('--') ||
-      property.startsWith('-rn-')
-    ) {
-      return addStyleProp(
-        property,
-        $.unparsed(d.value.value, {
-          ...opts,
-          addValueWarning(value: any) {
-            return addWarning({type: 'IncompatibleNativeValue', property, value});
-          },
-          addFunctionValueWarning(value: any) {
-            return addWarning({type: 'IncompatibleNativeFunctionValue', property, value});
-          },
-        }),
-      );
-    } else {
-      return addWarning({type: 'IncompatibleNativeProperty', property: d.value.name});
-    }
+  if (property === 'unparsed') {
+    return parseUnparsedProperty(declaration, options);
+  } else if (property === 'custom') {
+    return parseCustomProperty(declaration, options);
   }
 
-  const options = {
-    ...opts,
-    addValueWarning(value: any) {
-      return addWarning({type: 'IncompatibleNativeValue', property: d.property, value});
-    },
-    addFunctionValueWarning(value: any) {
-      return addWarning({type: 'IncompatibleNativeFunctionValue', property: d.property, value});
-    },
-  };
-
-  const addInvalidProperty = () => {
-    return addWarning({type: 'IncompatibleNativeProperty', property: d.property});
-  };
-
-  if (!isValid(d)) {
-    return addInvalidProperty();
+  if (!isValid(declaration)) {
+    return addWarning({type: 'IncompatibleNativeProperty', property});
   }
 
-  switch (d.property) {
+  const opts = {
+    ...options,
+    addValueWarning: (v: any) => addWarning({type: 'IncompatibleNativeValue', property, value: v}),
+    addFunctionValueWarning: (v: any) => addWarning({type: 'IncompatibleNativeFunctionValue', property, value: v}),
+  };
+
+  switch (property) {
     case 'background-color':
-      return addStyleProp(d.property, $.color(d.value, options));
+      return addStyleProp(property, $.color(value, opts));
     case 'opacity':
-      return addStyleProp(d.property, d.value);
+      return addStyleProp(property, value);
     case 'color':
-      return addStyleProp(d.property, $.color(d.value, options));
+      return addStyleProp(property, $.color(value, opts));
     case 'display':
-      return addStyleProp(d.property, $.display(d.value, options));
+      return addStyleProp(property, $.display(value, opts));
     case 'width':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'height':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'min-width':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'min-height':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'max-width':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'max-height':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'block-size':
-      return addStyleProp('width', $.size(d.value, options));
+      return addStyleProp('width', $.size(value, opts));
     case 'inline-size':
-      return addStyleProp('height', $.size(d.value, options));
+      return addStyleProp('height', $.size(value, opts));
     case 'min-block-size':
-      return addStyleProp('min-width', $.size(d.value, options));
+      return addStyleProp('min-width', $.size(value, opts));
     case 'min-inline-size':
-      return addStyleProp('min-height', $.size(d.value, options));
+      return addStyleProp('min-height', $.size(value, opts));
     case 'max-block-size':
-      return addStyleProp('max-width', $.size(d.value, options));
+      return addStyleProp('max-width', $.size(value, opts));
     case 'max-inline-size':
-      return addStyleProp('max-height', $.size(d.value, options));
+      return addStyleProp('max-height', $.size(value, opts));
     case 'overflow':
-      return addStyleProp(d.property, $.overflow(d.value.x, options));
+      return addStyleProp(property, $.overflow(value.x, opts));
     case 'position':
-      const value: any = (d as any).value.type;
-      if (value === "absolute" || value === "relative") {
-        return addStyleProp(d.property, value);
+      const pos: any = (declaration as any).value.type;
+      if (pos === 'absolute' || pos === 'relative') {
+        return addStyleProp(property, pos);
       } else {
-        options.addValueWarning(value);
+        opts.addValueWarning(pos);
       }
       return;
     case 'top':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'bottom':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'left':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'right':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'inset-block-start':
-      return addStyleProp(d.property, $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp(property, $.lengthPercentageOrAuto(value, opts));
     case 'inset-block-end':
-      return addStyleProp(d.property, $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp(property, $.lengthPercentageOrAuto(value, opts));
     case 'inset-inline-start':
-      return addStyleProp( d.property, $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp( property, $.lengthPercentageOrAuto(value, opts));
     case 'inset-inline-end':
-      return addStyleProp(d.property, $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp(property, $.lengthPercentageOrAuto(value, opts));
     case 'inset-block':
-      addStyleProp('inset-block-start', $.lengthPercentageOrAuto(d.value.blockStart, options));
-      addStyleProp('inset-block-end', $.lengthPercentageOrAuto(d.value.blockEnd, options));
+      addStyleProp('inset-block-start', $.lengthPercentageOrAuto(value.blockStart, opts));
+      addStyleProp('inset-block-end', $.lengthPercentageOrAuto(value.blockEnd, opts));
       return;
     case 'inset-inline':
-      addStyleProp('inset-inline-start', $.lengthPercentageOrAuto(d.value.inlineStart, options));
-      addStyleProp('inset-inline-end', $.lengthPercentageOrAuto(d.value.inlineEnd, options));
+      addStyleProp('inset-inline-start', $.lengthPercentageOrAuto(value.inlineStart, opts));
+      addStyleProp('inset-inline-end', $.lengthPercentageOrAuto(value.inlineEnd, opts));
       return;
     case 'inset':
       handleStyleShorthand('inset', {
-        top: $.lengthPercentageOrAuto(d.value.top, {
+        top: $.lengthPercentageOrAuto(value.top, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'top', value});
@@ -144,7 +102,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
             addWarning({type: 'IncompatibleNativeFunctionValue', property: 'top', value});
           },
         }),
-        bottom: $.lengthPercentageOrAuto(d.value.bottom, {
+        bottom: $.lengthPercentageOrAuto(value.bottom, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'bottom', value});
@@ -153,7 +111,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
             addWarning({type: 'IncompatibleNativeFunctionValue', property: 'bottom', value});
           },
         }),
-        left: $.lengthPercentageOrAuto(d.value.left, {
+        left: $.lengthPercentageOrAuto(value.left, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'left', value});
@@ -162,7 +120,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
             addWarning({type: 'IncompatibleNativeFunctionValue', property: 'left', value});
           },
         }),
-        right: $.lengthPercentageOrAuto(d.value.right, {
+        right: $.lengthPercentageOrAuto(value.right, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'right', value});
@@ -174,62 +132,62 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
       });
       return;
     case 'border-top-color':
-      return addStyleProp(d.property, $.color(d.value, options));
+      return addStyleProp(property, $.color(value, opts));
     case 'border-bottom-color':
-      return addStyleProp(d.property, $.color(d.value, options));
+      return addStyleProp(property, $.color(value, opts));
     case 'border-left-color':
-      return addStyleProp(d.property, $.color(d.value, options));
+      return addStyleProp(property, $.color(value, opts));
     case 'border-right-color':
-      return addStyleProp(d.property, $.color(d.value, options));
+      return addStyleProp(property, $.color(value, opts));
     case 'border-block-start-color':
-      return addStyleProp('border-top-color', $.color(d.value, options));
+      return addStyleProp('border-top-color', $.color(value, opts));
     case 'border-block-end-color':
-      return addStyleProp('border-bottom-color', $.color(d.value, options));
+      return addStyleProp('border-bottom-color', $.color(value, opts));
     case 'border-inline-start-color':
-      return addStyleProp('border-left-color', $.color(d.value, options));
+      return addStyleProp('border-left-color', $.color(value, opts));
     case 'border-inline-end-color':
-      return addStyleProp('border-right-color', $.color(d.value, options));
+      return addStyleProp('border-right-color', $.color(value, opts));
     case 'border-top-width':
-      return addStyleProp(d.property, $.borderSideWidth(d.value, options));
+      return addStyleProp(property, $.borderSideWidth(value, opts));
     case 'border-bottom-width':
-      return addStyleProp(d.property, $.borderSideWidth(d.value, options));
+      return addStyleProp(property, $.borderSideWidth(value, opts));
     case 'border-left-width':
-      return addStyleProp(d.property, $.borderSideWidth(d.value, options));
+      return addStyleProp(property, $.borderSideWidth(value, opts));
     case 'border-right-width':
-      return addStyleProp(d.property, $.borderSideWidth(d.value, options));
+      return addStyleProp(property, $.borderSideWidth(value, opts));
     case 'border-block-start-width':
-      return addStyleProp('border-top-width', $.borderSideWidth(d.value, options));
+      return addStyleProp('border-top-width', $.borderSideWidth(value, opts));
     case 'border-block-end-width':
-      return addStyleProp('border-bottom-width', $.borderSideWidth(d.value, options));
+      return addStyleProp('border-bottom-width', $.borderSideWidth(value, opts));
     case 'border-inline-start-width':
-      return addStyleProp('border-left-width', $.borderSideWidth(d.value, options));
+      return addStyleProp('border-left-width', $.borderSideWidth(value, opts));
     case 'border-inline-end-width':
-      return addStyleProp('border-right-width', $.borderSideWidth(d.value, options));
+      return addStyleProp('border-right-width', $.borderSideWidth(value, opts));
     case 'border-top-left-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-top-right-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-bottom-left-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-bottom-right-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-start-start-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-start-end-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-end-start-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-end-end-radius':
-      return addStyleProp(d.property, $.length(d.value[0], options));
+      return addStyleProp(property, $.length(value[0], opts));
     case 'border-radius':
-      addStyleProp('border-bottom-left-radius', $.length(d.value.bottomLeft[0], options));
-      addStyleProp('border-bottom-right-radius', $.length(d.value.bottomRight[0], options));
-      addStyleProp('border-top-left-radius', $.length(d.value.topLeft[0], options));
-      addStyleProp('border-top-right-radius', $.length(d.value.topRight[0], options));
+      addStyleProp('border-bottom-left-radius', $.length(value.bottomLeft[0], opts));
+      addStyleProp('border-bottom-right-radius', $.length(value.bottomRight[0], opts));
+      addStyleProp('border-top-left-radius', $.length(value.topLeft[0], opts));
+      addStyleProp('border-top-right-radius', $.length(value.topRight[0], opts));
       return;
     case 'border-color':
       handleStyleShorthand('border-color', {
-        'border-top-color': $.color(d.value.top, {
+        'border-top-color': $.color(value.top, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'border-top-color', value});
@@ -238,7 +196,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
             addWarning({type: 'IncompatibleNativeFunctionValue', property: 'border-top-color', value});
           },
         }),
-        'border-bottom-color': $.color(d.value.bottom, {
+        'border-bottom-color': $.color(value.bottom, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'border-bottom-color', value});
@@ -247,7 +205,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
             addWarning({type: 'IncompatibleNativeFunctionValue', property: 'border-bottom-color', value});
           },
         }),
-        'border-left-color': $.color(d.value.left, {
+        'border-left-color': $.color(value.left, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'border-left-color', value});
@@ -256,7 +214,7 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
             addWarning({type: 'IncompatibleNativeFunctionValue', property: 'border-left-color', value});
           },
         }),
-        'border-right-color': $.color(d.value.right, {
+        'border-right-color': $.color(value.right, {
           ...options,
           addValueWarning(value: any) {
             addWarning({type: 'IncompatibleNativeValue', property: 'border-right-color', value});
@@ -268,202 +226,236 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
       });
       return;
     case 'border-style':
-      return addStyleProp(d.property, $.borderStyle(d.value, options));
+      return addStyleProp(property, $.borderStyle(value, opts));
     case 'border-width':
-      addStyleProp('border-top-width', $.borderSideWidth(d.value.top, options));
-      addStyleProp('border-bottom-width', $.borderSideWidth(d.value.bottom, options));
-      addStyleProp('border-left-width', $.borderSideWidth(d.value.left, options));
-      addStyleProp('border-right-width', $.borderSideWidth(d.value.right, options));
+      addStyleProp('border-top-width', $.borderSideWidth(value.top, opts));
+      addStyleProp('border-bottom-width', $.borderSideWidth(value.bottom, opts));
+      addStyleProp('border-left-width', $.borderSideWidth(value.left, opts));
+      addStyleProp('border-right-width', $.borderSideWidth(value.right, opts));
       return;
     case 'border-block-color':
-      addStyleProp('border-top-color', $.color(d.value.start, options));
-      addStyleProp('border-bottom-color', $.color(d.value.end, options));
+      addStyleProp('border-top-color', $.color(value.start, opts));
+      addStyleProp('border-bottom-color', $.color(value.end, opts));
       return;
     case 'border-block-width':
-      addStyleProp('border-top-width', $.borderSideWidth(d.value.start, options));
-      addStyleProp('border-bottom-width', $.borderSideWidth(d.value.end, options));
+      addStyleProp('border-top-width', $.borderSideWidth(value.start, opts));
+      addStyleProp('border-bottom-width', $.borderSideWidth(value.end, opts));
       return;
     case 'border-inline-color':
-      addStyleProp('border-left-color', $.color(d.value.start, options));
-      addStyleProp('border-right-color', $.color(d.value.end, options));
+      addStyleProp('border-left-color', $.color(value.start, opts));
+      addStyleProp('border-right-color', $.color(value.end, opts));
       return;
     case 'border-inline-width':
-      addStyleProp('border-left-width', $.borderSideWidth(d.value.start, options));
-      addStyleProp('border-right-width', $.borderSideWidth(d.value.end, options));
+      addStyleProp('border-left-width', $.borderSideWidth(value.start, opts));
+      addStyleProp('border-right-width', $.borderSideWidth(value.end, opts));
       return;
     case 'border':
-      addStyleProp('border-width', $.borderSideWidth(d.value.width, options));
-      addStyleProp('border-style', $.borderStyle(d.value.style, options));
-      addStyleProp('border-color', $.color(d.value.color, options));
+      addStyleProp('border-width', $.borderSideWidth(value.width, opts));
+      addStyleProp('border-style', $.borderStyle(value.style, opts));
+      addStyleProp('border-color', $.color(value.color, opts));
       return;
     case 'border-top':
-      addStyleProp(d.property + '-color', $.color(d.value.color, options));
-      addStyleProp(d.property + '-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp(property + '-color', $.color(value.color, opts));
+      addStyleProp(property + '-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-bottom':
-      addStyleProp(d.property + '-color', $.color(d.value.color, options));
-      addStyleProp(d.property + '-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp(property + '-color', $.color(value.color, opts));
+      addStyleProp(property + '-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-left':
-      addStyleProp(d.property + '-color', $.color(d.value.color, options));
-      addStyleProp(d.property + '-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp(property + '-color', $.color(value.color, opts));
+      addStyleProp(property + '-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-right':
-      addStyleProp(d.property + '-color', $.color(d.value.color, options));
-      addStyleProp(d.property + '-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp(property + '-color', $.color(value.color, opts));
+      addStyleProp(property + '-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-block':
-      addStyleProp('border-top-color', $.color(d.value.color, options));
-      addStyleProp('border-bottom-color', $.color(d.value.color, options));
-      addStyleProp('border-top-width', $.borderSideWidth(d.value.width, options));
-      addStyleProp('border-bottom-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp('border-top-color', $.color(value.color, opts));
+      addStyleProp('border-bottom-color', $.color(value.color, opts));
+      addStyleProp('border-top-width', $.borderSideWidth(value.width, opts));
+      addStyleProp('border-bottom-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-block-start':
-      addStyleProp('border-top-color', $.color(d.value.color, options));
-      addStyleProp('border-top-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp('border-top-color', $.color(value.color, opts));
+      addStyleProp('border-top-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-block-end':
-      addStyleProp('border-bottom-color', $.color(d.value.color, options));
-      addStyleProp('border-bottom-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp('border-bottom-color', $.color(value.color, opts));
+      addStyleProp('border-bottom-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-inline':
-      addStyleProp('border-left-color', $.color(d.value.color, options));
-      addStyleProp('border-right-color', $.color(d.value.color, options));
-      addStyleProp('border-left-width', $.borderSideWidth(d.value.width, options));
-      addStyleProp('border-right-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp('border-left-color', $.color(value.color, opts));
+      addStyleProp('border-right-color', $.color(value.color, opts));
+      addStyleProp('border-left-width', $.borderSideWidth(value.width, opts));
+      addStyleProp('border-right-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-inline-start':
-      addStyleProp('border-left-color', $.color(d.value.color, options));
-      addStyleProp('border-left-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp('border-left-color', $.color(value.color, opts));
+      addStyleProp('border-left-width', $.borderSideWidth(value.width, opts));
       return;
     case 'border-inline-end':
-      addStyleProp('border-right-color', $.color(d.value.color, options));
-      addStyleProp('border-right-width', $.borderSideWidth(d.value.width, options));
+      addStyleProp('border-right-color', $.color(value.color, opts));
+      addStyleProp('border-right-width', $.borderSideWidth(value.width, opts));
       return;
     case 'flex-direction':
-      return addStyleProp(d.property, d.value);
+      return addStyleProp(property, value);
     case 'flex-wrap':
-      return addStyleProp(d.property, d.value);
+      return addStyleProp(property, value);
     case 'flex-flow':
-      addStyleProp('flexWrap', d.value.wrap);
-      addStyleProp('flexDirection', d.value.direction);
+      addStyleProp('flexWrap', value.wrap);
+      addStyleProp('flexDirection', value.direction);
       return;
     case 'flex-grow':
-      return addStyleProp(d.property, d.value);
+      return addStyleProp(property, value);
     case 'flex-shrink':
-      return addStyleProp(d.property, d.value);
+      return addStyleProp(property, value);
     case 'flex-basis':
-      return addStyleProp(d.property, $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp(property, $.lengthPercentageOrAuto(value, opts));
     case 'flex':
-      addStyleProp('flex-grow', d.value.grow);
-      addStyleProp('flex-shrink', d.value.shrink);
-      addStyleProp('flex-basis', $.lengthPercentageOrAuto(d.value.basis, options));
+      addStyleProp('flex-grow', value.grow);
+      addStyleProp('flex-shrink', value.shrink);
+      addStyleProp('flex-basis', $.lengthPercentageOrAuto(value.basis, opts));
       return;
     case 'align-content':
-      return addStyleProp(d.property, $.alignContent(d.value, options));
+      return addStyleProp(property, $.alignContent(value, opts));
     case 'justify-content':
-      return addStyleProp( d.property, $.justifyContent(d.value, options));
+      return addStyleProp( property, $.justifyContent(value, opts));
     case 'align-self':
-      return addStyleProp(d.property, $.alignSelf(d.value, options));
+      return addStyleProp(property, $.alignSelf(value, opts));
     case 'align-items':
-      return addStyleProp(d.property, $.alignItems(d.value, options));
+      return addStyleProp(property, $.alignItems(value, opts));
     case 'row-gap':
-      return addStyleProp('row-gap', $.gap(d.value, options));
+      return addStyleProp('row-gap', $.gap(value, opts));
     case 'column-gap':
-      return addStyleProp('row-gap', $.gap(d.value, options));
+      return addStyleProp('row-gap', $.gap(value, opts));
     case 'gap':
-      addStyleProp('row-gap', $.gap(d.value.row, options));
-      addStyleProp('column-gap', $.gap(d.value.column, options));
+      addStyleProp('row-gap', $.gap(value.row, opts));
+      addStyleProp('column-gap', $.gap(value.column, opts));
       return;
     case 'margin-top':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'margin-bottom':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'margin-left':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'margin-right':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'margin-block-start':
-      return addStyleProp('margin-start', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('margin-start', $.lengthPercentageOrAuto(value, opts));
     case 'margin-block-end':
-      return addStyleProp('margin-end', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('margin-end', $.lengthPercentageOrAuto(value, opts));
     case 'margin-inline-start':
-      return addStyleProp('margin-start', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('margin-start', $.lengthPercentageOrAuto(value, opts));
     case 'margin-inline-end':
-      return addStyleProp('margin-end', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('margin-end', $.lengthPercentageOrAuto(value, opts));
     case 'margin':
-      addStyleProp('margin-top', $.size(d.value.top, options));
-      addStyleProp('margin-bottom', $.size(d.value.bottom, options));
-      addStyleProp('margin-left', $.size(d.value.left, options));
-      addStyleProp('margin-right', $.size(d.value.right, options));
+      addStyleProp('margin-top', $.size(value.top, opts));
+      addStyleProp('margin-bottom', $.size(value.bottom, opts));
+      addStyleProp('margin-left', $.size(value.left, opts));
+      addStyleProp('margin-right', $.size(value.right, opts));
       return;
     case 'margin-block':
-      addStyleProp('margin-start', $.lengthPercentageOrAuto(d.value.blockStart, options));
-      addStyleProp('margin-end', $.lengthPercentageOrAuto(d.value.blockEnd, options));
+      addStyleProp('margin-start', $.lengthPercentageOrAuto(value.blockStart, opts));
+      addStyleProp('margin-end', $.lengthPercentageOrAuto(value.blockEnd, opts));
       return;
     case 'margin-inline':
-      addStyleProp('margin-start', $.lengthPercentageOrAuto(d.value.inlineStart, options));
-      addStyleProp('margin-end', $.lengthPercentageOrAuto(d.value.inlineEnd, options));
+      addStyleProp('margin-start', $.lengthPercentageOrAuto(value.inlineStart, opts));
+      addStyleProp('margin-end', $.lengthPercentageOrAuto(value.inlineEnd, opts));
       return;
     case 'padding':
-      console.log('[padding]', d.value);
-      addStyleProp('padding-top', $.size(d.value.top, options));
-      addStyleProp('padding-bottom', $.size(d.value.bottom, options));
-      addStyleProp('padding-left', $.size(d.value.left, options));
-      addStyleProp('padding-right', $.size(d.value.right, options));
+      addStyleProp('padding-top', $.size(value.top, opts));
+      addStyleProp('padding-left', $.size(value.left, opts));
+      addStyleProp('padding-bottom', $.size(value.bottom, opts));
+      addStyleProp('padding-right', $.size(value.right, opts));
       return;
     case 'padding-top':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'padding-bottom':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'padding-left':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'padding-right':
-      return addStyleProp(d.property, $.size(d.value, options));
+      return addStyleProp(property, $.size(value, opts));
     case 'padding-block-start':
-      return addStyleProp('padding-start', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('padding-start', $.lengthPercentageOrAuto(value, opts));
     case 'padding-block-end':
-      return addStyleProp('padding-end', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('padding-end', $.lengthPercentageOrAuto(value, opts));
     case 'padding-inline-start':
-      return addStyleProp('padding-start', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('padding-start', $.lengthPercentageOrAuto(value, opts));
     case 'padding-inline-end':
-      return addStyleProp('padding-end', $.lengthPercentageOrAuto(d.value, options));
+      return addStyleProp('padding-end', $.lengthPercentageOrAuto(value, opts));
     case 'padding-block':
-      addStyleProp('padding-start', $.lengthPercentageOrAuto(d.value.blockStart, options));
-      addStyleProp('padding-end', $.lengthPercentageOrAuto(d.value.blockEnd, options));
+      addStyleProp('padding-start', $.lengthPercentageOrAuto(value.blockStart, opts));
+      addStyleProp('padding-end', $.lengthPercentageOrAuto(value.blockEnd, opts));
       return;
     case 'padding-inline':
-      addStyleProp('padding-start', $.lengthPercentageOrAuto(d.value.inlineStart, options));
-      addStyleProp('padding-end', $.lengthPercentageOrAuto(d.value.inlineEnd, options));
+      addStyleProp('padding-start', $.lengthPercentageOrAuto(value.inlineStart, opts));
+      addStyleProp('padding-end', $.lengthPercentageOrAuto(value.inlineEnd, opts));
       return;
     case 'font-weight':
-      return addStyleProp(d.property, $.fontWeight(d.value, options));
+      return addStyleProp(property, $.fontWeight(value, opts));
     case 'font-size':
-      return addStyleProp(d.property, $.fontSize(d.value, options));
+      return addStyleProp(property, $.fontSize(value, opts));
     case 'font-family':
-      return addStyleProp(d.property, $.fontFamily(d.value));
+      return addStyleProp(property, $.fontFamily(value));
     case 'font-style':
-      return addStyleProp(d.property, $.fontStyle(d.value, options));
+      return addStyleProp(property, $.fontStyle(value, opts));
     case 'font-variant-caps':
-      return addStyleProp(d.property, $.fontVariantCaps(d.value, options));
+      return addStyleProp(property, $.fontVariantCaps(value, opts));
     case 'line-height':
-      return addStyleProp(d.property, $.lineHeight(d.value, options));
+      return addStyleProp(property, $.lineHeight(value, opts));
     case 'font':
-      addStyleProp(d.property + '-family', $.fontFamily(d.value.family));
-      addStyleProp('line-height', $.lineHeight(d.value.lineHeight, options));
-      addStyleProp(d.property + '-size', $.fontSize(d.value.size, options));
-      addStyleProp(d.property + '-style', $.fontStyle(d.value.style, options));
-      addStyleProp(d.property + '-variant', $.fontVariantCaps(d.value.variantCaps, options));
-      addStyleProp(d.property + '-weight', $.fontWeight(d.value.weight, options));
+      addStyleProp(property + '-family', $.fontFamily(value.family));
+      addStyleProp('line-height', $.lineHeight(value.lineHeight, opts));
+      addStyleProp(property + '-size', $.fontSize(value.size, opts));
+      addStyleProp(property + '-style', $.fontStyle(value.style, opts));
+      addStyleProp(property + '-variant', $.fontVariantCaps(value.variantCaps, opts));
+      addStyleProp(property + '-weight', $.fontWeight(value.weight, opts));
       return;
     case 'vertical-align':
-      return addStyleProp(d.property, $.verticalAlign(d.value, options));
+      return addStyleProp(property, $.verticalAlign(value, opts));
+    case 'text-transform':
+      return addStyleProp(property, value.case);
+    case 'letter-spacing':
+      if (value.type !== 'normal') {
+        return addStyleProp(property, $.length(value.value, opts));
+      }
+      return;
+    case 'text-decoration-line':
+      return addStyleProp(property, $.textDecorationLine(value, opts));
+    case 'text-decoration-color':
+      return addStyleProp(property, $.color(value, opts));
+    case 'text-decoration':
+      addStyleProp('text-decoration-color', $.color(value.color, opts));
+      addStyleProp('text-decoration-line', $.textDecorationLine(value.line, opts));
+      return;
+    case 'text-shadow':
+      return $.textShadow(value, addStyleProp, opts);
+    case 'z-index':
+      if (value.type === 'integer') {
+        addStyleProp(property, $.length(value.value, opts));
+      } else {
+        addWarning({type: 'IncompatibleNativeValue', property, value});
+      }
+      return;
+    case 'text-decoration-style':
+      return addStyleProp(property, $.textDecorationStyle(value, opts));
+    case 'text-align':
+      return addStyleProp(property, $.textAlign(value, opts));
+    case 'box-shadow':
+      return addStyleProp(property, $.boxShadow(value, opts));
+    case 'aspect-ratio':
+      return addStyleProp(property, $.aspectRatio(value));
+    case 'container-type':
+    case 'container-name':
+    case 'container':
+      return addWarning({type: 'IncompatibleNativeValue', property, value});
     case 'transition-property':
     case 'transition-duration':
     case 'transition-delay':
     case 'transition-timing-function':
     case 'transition':
-      return;
     case 'animation-duration':
     case 'animation-timing-function':
     case 'animation-iteration-count':
@@ -473,74 +465,11 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
     case 'animation-fill-mode':
     case 'animation-name':
     case 'animation':
-      return;
-    case 'transform': {
-      return addStyleProp(d.property, $.transform(d.value, options));
-    }
+    case 'transform':
     case 'translate':
-      return addStyleProp(
-        'transform',
-        [
-          {translateX: d.value.x},
-          {translateY: d.value.y},
-        ],
-        {append: true},
-      );
     case 'rotate':
-      return addStyleProp(
-        'transform',
-        [
-          {rotateX: d.value.x},
-          {rotateY: d.value.y},
-          {rotateY: d.value.z},
-        ],
-        {append: true},
-      );
     case 'scale':
-      return addStyleProp(
-        'transform',
-        [
-          {scaleX: $.length(d.value.x, options)},
-          {scaleY: $.length(d.value.y, options)},
-        ],
-        {append: true},
-      );
-    case 'text-transform':
-      return addStyleProp(d.property, d.value.case);
-    case 'letter-spacing':
-      if (d.value.type !== 'normal') {
-        return addStyleProp(d.property, $.length(d.value.value, options));
-      }
-      return;
-    case 'text-decoration-line':
-      return addStyleProp(d.property, $.textDecorationLine(d.value, options));
-    case 'text-decoration-color':
-      return addStyleProp(d.property, $.color(d.value, options));
-    case 'text-decoration':
-      addStyleProp('text-decoration-color', $.color(d.value.color, options));
-      addStyleProp('text-decoration-line', $.textDecorationLine(d.value.line, options));
-      return;
-    case 'text-shadow':
-      return $.textShadow(d.value, addStyleProp, options);
-    case 'z-index':
-      if (d.value.type === 'integer') {
-        addStyleProp(d.property, $.length(d.value.value, options));
-      } else {
-        addWarning({type: 'IncompatibleNativeValue', property: d.property, value: d.value});
-      }
-      return;
-    case 'text-decoration-style':
-      return addStyleProp(d.property, $.textDecorationStyle(d.value, options));
-    case 'text-align':
-      return addStyleProp(d.property, $.textAlign(d.value, options));
-    case 'box-shadow':
-      return addStyleProp(d.property, $.boxShadow(d.value, options));
-    case 'aspect-ratio':
-      return addStyleProp(d.property, $.aspectRatio(d.value));
-    case 'container-type':
-    case 'container-name':
-    case 'container':
-      return addWarning({type: 'IncompatibleNativeValue', property: d.property, value: d.value});
+      return; // Note: animations are handled separately
     default: {
       /**
        * This is used to know when lightningcss has added a new property and we need to add it to the
@@ -548,7 +477,92 @@ export function parseDeclaration(d: Declaration, opts: ParseDeclarationOptions) 
        *
        * If your build fails here, its because you have a newer version of lightningcss installed.
        */
-      d satisfies never;
+      declaration satisfies never;
     }
+  }
+}
+
+function parseUnparsedProperty(declaration: Declaration, options: ParseDeclarationOptions) {
+  if (declaration.property !== 'unparsed') return;
+
+  const {addStyleProp, addWarning} = options;
+  const {propertyId, value} = declaration.value;
+  const {property} = propertyId;
+
+  if (!isValid(propertyId)) {
+    return addWarning({type: 'IncompatibleNativeProperty', property});
+  }
+
+  const opts = {
+    ...options,
+    addValueWarning: (v: any) => addWarning({type: 'IncompatibleNativeValue', property, value: v}),
+    addFunctionValueWarning: (v: any) => addWarning({type: 'IncompatibleNativeFunctionValue', property, value: v}),
+  };
+
+  const getValues = (value: TokenOrValue[]) => {
+    const values = $.unparsed(value, opts);
+    return Array.isArray(values) ? values : [values];
+  };
+
+  switch (property) {
+    case 'margin': {
+      const [top, left, bottom, right] = getValues(value);
+      if (top && right === undefined && bottom === undefined && left === undefined)
+        return addStyleProp('margin', top);
+      addStyleProp('margin-top', top);
+      addStyleProp('margin-bottom', bottom ?? top);
+      addStyleProp('margin-left', left);
+      addStyleProp('margin-right', right ?? left);
+      return;
+    }
+    case 'padding': {
+      const [top, left, bottom, right] = getValues(value);
+      if (top && right === undefined && bottom === undefined && left === undefined)
+        return addStyleProp('padding', top);
+      addStyleProp('padding-top', top);
+      addStyleProp('padding-left', left);
+      addStyleProp('padding-bottom', bottom ?? top);
+      addStyleProp('padding-right', right ?? left);
+      return;
+    }
+    case 'gap': {
+      const [row, column] = getValues(value);
+      if (row && column === undefined || row === column)
+        return addStyleProp('gap', row);
+      addStyleProp('row-gap', row);
+      addStyleProp('column-gap', column);
+      return;
+    }
+    case 'border': {
+      const [width, style, color] = getValues(value);
+      addStyleProp('border-width', width);
+      if (style)
+        addStyleProp('border-style', style);
+      if (color)
+        addStyleProp('border-color', color);
+      return;
+    }
+    default: {
+      return addStyleProp(property, getValues(value)[0]);
+    }
+  }
+}
+
+function parseCustomProperty(declaration: Declaration, options: ParseDeclarationOptions) {
+  if (declaration.property !== 'custom') return;
+  const {addStyleProp, addWarning} = options;
+  const property = declaration.value.name;
+  const value = declaration.value.value;
+  const opts = {
+    ...options,
+    addValueWarning: (v: any) => addWarning({type: 'IncompatibleNativeValue', property, value: v}),
+    addFunctionValueWarning: (v: any) => addWarning({type: 'IncompatibleNativeFunctionValue', property, value: v}),
+  };
+
+  const validPrefixes = ['--', '-rn-'];
+  if (validPropertiesLoose.has(property) || validPrefixes.some(v => property.startsWith(v))) {
+    return addStyleProp(property, $.unparsed(value, opts));
+  } else {
+    return addWarning({type: 'IncompatibleNativeProperty', property});
   }
 }

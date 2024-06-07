@@ -68,24 +68,20 @@ function addDeclaration(
   style: ExtractedStyle,
   declarations: ExtractRuleOptions['declarations'],
 ) {
-  const existing = declarations.get(className);
-
+  const name = className.slice(1).replace(/\-/g, ':');
+  const existing = declarations.get(name);
   if (Array.isArray(existing)) {
     existing.push(style);
   } else if (existing) {
-    declarations.set(className, [existing, style]);
+    declarations.set(name, [existing, style]);
   } else {
-    declarations.set(className, style);
+    declarations.set(name, style);
   }
-}
-
-interface GetExtractedStyleOptions extends ExtractRuleOptions {
-  requiresLayout?: () => void;
 }
 
 function getExtractedStyles(
   declarationBlock: LightningCSS.DeclarationBlock<LightningCSS.Declaration>,
-  options: GetExtractedStyleOptions,
+  options: ExtractRuleOptions,
 ): ExtractedStyle[] {
   const extractedStyles: ExtractedStyle[] = [];
 
@@ -109,48 +105,17 @@ function getExtractedStyles(
 
 function declarationsToStyle(
   declarations: LightningCSS.Declaration[],
-  options: GetExtractedStyleOptions,
+  options: ExtractRuleOptions,
 ): ExtractedStyle {
-  const extractedStyle: ExtractedStyle = {
-    style: {},
-  };
+  const extractedStyle: ExtractedStyle = {};
 
-  /*
-   * Adds a style property to the rule record.
-   *
-   * The shorthand option handles if the style came from a long or short hand property
-   * E.g. `margin` is a shorthand property for `margin-top`, `margin-bottom`, `margin-left` and `margin-right`
-   *
-   * The `append` option allows the same property to be added multiple times
-   * E.g. `transform` accepts an array of transforms
-   */
-  function addStyleProp(property: string, value: any, {append = false} = {}) {
-    if (value === undefined) {
-      return;
-    }
-
-    if (property.startsWith('--')) {
-      return addVariable(property, value);
-    }
-
-    property = kebabToCamelCase(property);
-
-    const style = extractedStyle.style;
-
-    if (append) {
-      const styleValue = style[property];
-      if (Array.isArray(styleValue)) {
-        styleValue.push(...value);
-      } else {
-        style[property] = [value];
-      }
-    } else {
-      style[property] = value;
-    }
-
-    if (isRuntimeValue(value)) {
-      extractedStyle.isDynamic = true;
-    }
+  /** Adds a style property to the rule record */
+  function addStyleProp(property: string, value: any) {
+    if (value === undefined) return;
+    const prop = kebabToCamelCase(property);
+    extractedStyle[prop] = isRuntimeValue(value)
+      ? getRuntimeVar(value)
+      : value;
   }
 
   function handleStyleShorthand(
@@ -166,11 +131,6 @@ function declarationsToStyle(
     }
   }
 
-  function addVariable(property: string, value: any) {
-    extractedStyle.variables ??= {};
-    extractedStyle.variables[property] = value;
-  }
-
   function addWarning(warning: ExtractionWarning): undefined {
     const warningRegexArray = options.ignorePropertyWarningRegex;
 
@@ -182,20 +142,12 @@ function declarationsToStyle(
       if (match) return;
     }
 
-    extractedStyle.warnings ??= [];
-    extractedStyle.warnings.push(warning);
-
     console.warn(warning);
-  }
-
-  function requiresLayout() {
-    extractedStyle.requiresLayout = true;
   }
 
   const parseDeclarationOptions: ParseDeclarationOptions = {
     addStyleProp,
     handleStyleShorthand,
-    requiresLayout,
     addWarning,
     ...options,
   };
@@ -205,6 +157,11 @@ function declarationsToStyle(
   }
 
   return extractedStyle;
+}
+
+function getRuntimeVar(runtime: any) {
+  const variable = runtime.arguments[0];
+  return variable.slice(2).replace(/\-/g, '.');
 }
 
 function isRuntimeValue(value: unknown): value is RuntimeValue {
