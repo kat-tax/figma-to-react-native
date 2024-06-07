@@ -43,6 +43,7 @@
     "@logtail/browser": "^0.4.19",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-tabs": "^1.0.4",
+    "@radix-ui/react-menubar": "^1.0.4",
     "@supabase/supabase-js": "^2.39.7",
     "@uidotdev/usehooks": "^2.4.1",
     "@y-sweet/client": "^0.1.0",

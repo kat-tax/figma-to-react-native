@@ -102,7 +102,8 @@ export function setComponentStory(key: string, code: string) {
 }
 
 export function getComponentDocs(key: string) {
-  return doc.getText(`docs::${key}`);
+  const text = doc.getText(`docs::${key}`);
+  return text.toString();
 }
 
 export function setComponentDocs(key: string, code: string) {

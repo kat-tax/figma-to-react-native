@@ -1,7 +1,6 @@
 import {Fragment} from 'react';
 import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {MonacoBinding} from 'interface/utils/editor/lib/MonacoBinding';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import MonacoReact from '@monaco-editor/react';
 
@@ -16,6 +15,7 @@ interface ComponentDocsProps {
 
 export function ComponentDocs(props: ComponentDocsProps) {
   const $componentInfo = $.components.get(props.componentKey);
+  const docs = $.getComponentDocs(props.componentKey);
   return (
     <Fragment>
       {!$componentInfo &&
@@ -24,17 +24,10 @@ export function ComponentDocs(props: ComponentDocsProps) {
       <MonacoReact
         language="mdx"
         path={`${F2RN_EDITOR_NS}${$componentInfo?.path}.docs.mdx`}
+        value={docs.toString()}
         theme={props.options?.theme}
-        options={{...props.options}}
+        options={{...props.options, readOnly: true}}
         loading={<LoadingIndicator/> as JSX.Element}
-        onMount={(editor) => {
-          new MonacoBinding(
-            $.getComponentDocs(props.componentKey),
-            editor.getModel(),
-            new Set([editor]),
-            $.provider.awareness,
-          );
-        }}
       />
     </Fragment>
   );
