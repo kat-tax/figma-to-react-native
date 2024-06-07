@@ -114,13 +114,21 @@ export async function writeImports(
     assets
       .sort((a, b) => a[1].name.localeCompare(b[1].name))
       .forEach(([_id, asset]) => {
-        writer.write(`import ${asset.name} from`);
-        writer.space();
-        const base = `assets/${asset.isVector ? 'svg' : 'img'}`;
-        const path = `${base}/${asset.name.toLowerCase()}.${asset.isVector ? 'svg' : 'png'}`;
-        writer.quote(path);
-        writer.write(';');
-        writer.newLine();
+        const [assetType] = asset.rawName.split('|');
+        switch (assetType.trim().toLowerCase()) {
+          case 'lottie':
+          case 'rive':
+            return;
+          default:
+            writer.write(`import ${asset.name} from`);
+            writer.space();
+            const base = `assets/${asset.isVector ? 'svg' : 'img'}`;
+            const path = `${base}/${asset.name.toLowerCase()}.${asset.isVector ? 'svg' : 'png'}`;
+            writer.quote(path);
+            writer.write(';');
+            writer.newLine();
+            break;
+        }
       });
     writer.blankLineIfLastNot();
   }
