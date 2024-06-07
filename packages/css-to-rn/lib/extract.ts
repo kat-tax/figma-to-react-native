@@ -7,7 +7,7 @@ import type {
   RuntimeValue,
   ExtractedStyle,
   ExtractionWarning,
-  ExtractRuleOptions,
+  ExtractedOutput,
 } from './types';
 
 /**
@@ -19,7 +19,7 @@ import type {
  */
 export function extractRule(
   rule: LightningCSS.Rule,
-  extractOptions: ExtractRuleOptions,
+  extractOptions: ExtractedOutput,
   partialStyle: Partial<ExtractedStyle> = {},
 ) {
   // Check the rule's type to determine which extraction function to call
@@ -52,10 +52,8 @@ export function extractRule(
 function setStyleForSelectorList(
   extractedStyle: ExtractedStyle,
   selectorList: LightningCSS.SelectorList,
-  options: ExtractRuleOptions,
+  declarations: ExtractedOutput,
 ) {
-  const {declarations} = options;
-
   for (const selector of normalizeSelectors(selectorList)) {
     const style = {...extractedStyle};
     const {className} = selector;
@@ -66,7 +64,7 @@ function setStyleForSelectorList(
 function addDeclaration(
   className: string,
   style: ExtractedStyle,
-  declarations: ExtractRuleOptions['declarations'],
+  declarations: ExtractedOutput,
 ) {
   const name = className.slice(1).replace(/\-/g, ':');
   const existing = declarations.get(name);
@@ -81,7 +79,7 @@ function addDeclaration(
 
 function getExtractedStyles(
   declarationBlock: LightningCSS.DeclarationBlock<LightningCSS.Declaration>,
-  options: ExtractRuleOptions,
+  options: ExtractedOutput,
 ): ExtractedStyle[] {
   const extractedStyles: ExtractedStyle[] = [];
 
@@ -105,7 +103,7 @@ function getExtractedStyles(
 
 function declarationsToStyle(
   declarations: LightningCSS.Declaration[],
-  options: ExtractRuleOptions,
+  options: ExtractedOutput,
 ): ExtractedStyle {
   const extractedStyle: ExtractedStyle = {};
 
@@ -132,16 +130,6 @@ function declarationsToStyle(
   }
 
   function addWarning(warning: ExtractionWarning): undefined {
-    const warningRegexArray = options.ignorePropertyWarningRegex;
-
-    if (warningRegexArray) {
-      const match = warningRegexArray.some((regex) =>
-        new RegExp(regex).test(warning.property),
-      );
-
-      if (match) return;
-    }
-
     console.warn(warning);
   }
 

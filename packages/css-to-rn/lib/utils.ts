@@ -1,12 +1,12 @@
-export function round(number: number) {
-  return Math.round((number + Number.EPSILON) * 100) / 100;
-}
-
 export function kebabToCamelCase(str: string) {
   if (str.startsWith('-rn-')) {
     str = str.slice('-rn-'.length);
   }
   return str.replace(/-./g, (x) => x[1].toUpperCase());
+}
+
+export function round(number: number) {
+  return Math.round((number + Number.EPSILON) * 100) / 100;
 }
 
 export function allEqual(...params: unknown[]) {

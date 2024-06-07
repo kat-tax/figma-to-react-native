@@ -2,9 +2,8 @@ import init, {transform} from 'lightningcss-wasm';
 import {extractRule} from './lib/extract';
 
 import type * as LightningCSS from 'lightningcss-wasm';
-import type {CssToReactNativeOptions, StyleSheetRegisterOptions, ExtractRuleOptions} from './lib/types';
+import type {StyleSheetOutput, ExtractedOutput} from './lib/types';
 
-export type {CssToReactNativeOptions};
 
 let _loading = false;
 let _loaded = false;
@@ -22,10 +21,7 @@ async function initWASM() {
  * @param options - (Optional) Options for the conversion process
  * @returns An object containing the extracted style declarations
  */
-export async function cssToReactNative(
-  code: string,
-  options: CssToReactNativeOptions = {},
-): Promise<StyleSheetRegisterOptions> {
+export async function cssToReactNative(code: string): Promise<StyleSheetOutput> {
   if (_loading) {
     // TODO: use barrier instead of throwing
     throw new Error(
@@ -37,11 +33,8 @@ export async function cssToReactNative(
     await initWASM();
   }
 
-  // These will by mutated by `extractRule`
-  const extractOptions: ExtractRuleOptions = {
-    ...options,
-    declarations: new Map(),
-  };
+  // This will by mutated by `extractRule`
+  const extract: ExtractedOutput = new Map();
 
   // Use LightningCSS to traverse the CSS AST
   transform({
@@ -51,7 +44,7 @@ export async function cssToReactNative(
     visitor: {
       Rule(rule: LightningCSS.Rule) {
         // Extract the style declarations from the current rule
-        extractRule(rule, extractOptions);
+        extractRule(rule, extract);
         // We have processed this rule, so now delete it from the AST
         return [];
       },
@@ -59,7 +52,7 @@ export async function cssToReactNative(
   });
 
   // Return the extracted style declarations
-  return Object.fromEntries(extractOptions.declarations);
+  return Object.fromEntries(extract);
 }
 
 /**
