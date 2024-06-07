@@ -1,5 +1,5 @@
 import {AutoTypings} from 'monaco-editor-auto-typings/custom-editor';
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 
 import type {SourceCache} from 'monaco-editor-auto-typings/custom-editor';
 import type {Monaco, Editor} from 'interface/utils/editor';

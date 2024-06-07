@@ -1,4 +1,4 @@
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 import {emit} from '@create-figma-plugin/utilities';
 import schema from 'interface/schemas/user/schema.json';
 import * as $ from 'interface/store';

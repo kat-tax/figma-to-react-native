@@ -1,4 +1,5 @@
 import * as config from 'backend/utils/config';
+
 import {bundle as generateBundle} from './service';
 import {generateTheme} from './lib/generateTheme';
 

@@ -1,15 +1,17 @@
 import CodeBlockWriter from 'code-block-writer';
 import parseFigmaComponent from 'backend/parser';
-import {getComponentInfo} from 'backend/parser/lib';
-import {createIdentifierPascal} from 'common/string';
-import {writePropsAttributes} from './writePropsAttributes';
-import {writePropsImports} from './writePropsImports';
-import {generateComponent} from './generateComponent';
+
+import * as string from 'common/string';
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
+
+import {generateNatives} from '../lib/natives';
 import {generateIndex} from './generateIndex';
 import {generateDocs} from './generateDocs';
 import {generateStory} from './generateStory';
-import {generateNatives} from '../lib/natives';
-import {PAGES_SPECIAL} from './consts';
+import {generateComponent} from './generateComponent';
+import {writePropsAttributes} from './writePropsAttributes';
+import {writePropsImports} from './writePropsImports';
 
 import type {ComponentData, ComponentLinks} from 'types/component';
 import type {ProjectSettings} from 'types/settings';
@@ -19,15 +21,15 @@ const emptyBundle: ComponentData = {
   key: '',
   props: '',
   imports: '',
-  code: '',
   index: '',
+  code: '',
   story: '',
   docs: '',
   width: 0,
   height: 0,
   links: {},
-  assets: null,
   icons: [],
+  assets: null,
   info: null,
 };
 
@@ -39,13 +41,13 @@ export async function generateBundle(
   if (!node) return emptyBundle;
 
   // Get component info
-  const component = getComponentInfo(node);
+  const component = parser.getComponentInfo(node);
 
   // No target, return empty bundle
   if (!component.target) return emptyBundle;
 
   // Generate exo natives (if any)
-  const isExo = component.page.name === PAGES_SPECIAL.LIBRARY;
+  const isExo = component.page.name === consts.PAGES_SPECIAL.LIBRARY;
   const exo = generateNatives();
 
   // Native component
@@ -71,7 +73,7 @@ export async function generateBundle(
   const links: ComponentLinks = {};
   links[component.name] = component.target.id;
   Object.entries(data.meta.components).forEach((c: any) => {
-    links[createIdentifierPascal(c[1][0].name)] = c[0];
+    links[string.createIdentifierPascal(c[1][0].name)] = c[0];
   });
 
   // Return bundle

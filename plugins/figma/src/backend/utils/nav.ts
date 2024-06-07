@@ -1,13 +1,13 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {getSelectedComponent} from 'backend/parser/lib';
-import {F2RN_NAVIGATE} from 'config/env';
+import * as parser from 'backend/parser/lib';
+import * as consts from 'config/consts';
 
 import type {AppPages} from 'types/app';
 import type {EventSelectComponent, EventSelectVariant} from 'types/events';
 
 export async function loadCurrentPage(): Promise<AppPages | null> {
   try {
-    return await figma.clientStorage.getAsync(F2RN_NAVIGATE);
+    return await figma.clientStorage.getAsync(consts.F2RN_NAVIGATE);
   } catch (e) {
     return null;
   }
@@ -15,7 +15,7 @@ export async function loadCurrentPage(): Promise<AppPages | null> {
 
 export async function saveCurrentPage(page: AppPages) {
   try {
-    return figma.clientStorage.setAsync(F2RN_NAVIGATE, page);
+    return figma.clientStorage.setAsync(consts.F2RN_NAVIGATE, page);
   } catch (e) {
     return false;
   }
@@ -23,7 +23,7 @@ export async function saveCurrentPage(page: AppPages) {
 
 export function targetSelectedComponent() {
   if (!figma.currentPage.selection.length) return;
-  const component = getSelectedComponent();
+  const component = parser.getSelectedComponent();
   if (!component) return;
   const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
   const masterNode = (isVariant ? component?.parent : component) as ComponentNode;

@@ -1,5 +1,5 @@
 import {blake2sHex} from 'blakejs';
-import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
+import * as string from 'common/string';
 
 import type {ParseAssetData} from 'types/parse';
 
@@ -36,8 +36,8 @@ export async function getAssets(nodes: Set<string>): Promise<{
           && node.findAllWithCriteria({types: ['EMBED']})?.length > 0);
       
       const identifier = isVector
-        ? createIdentifierPascal(node.name)
-        : createIdentifierCamel(node.name);
+        ? string.createIdentifierPascal(node.name)
+        : string.createIdentifierCamel(node.name);
 
       if (isVector) {
         vectors[node.name] = 1 + (vectors[node.name] || 0);

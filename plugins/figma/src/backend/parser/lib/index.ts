@@ -9,6 +9,9 @@ export {
 } from './colors';
 
 export {
+  isNodeVisible,
+  isNodeIcon,
+  getIconData,
   getComponentInfo,
   getComponentPropName,
   getComponentInstanceInfo,
@@ -16,12 +19,6 @@ export {
   getComponentPressReaction,
   sortComponentProps,
   sortComponentPropsDef,
-} from './components';
-
-export {
-  isNodeVisible,
-  isNodeIcon,
-  getIconData,
 } from './node';
 
 export {

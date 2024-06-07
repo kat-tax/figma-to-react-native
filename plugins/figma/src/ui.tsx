@@ -7,7 +7,7 @@ import {on, emit} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'react';
 import {useWindowResize, render} from 'figma-ui';
 import {init, auth, ErrorBoundary} from 'interface/telemetry';
-import {F2RN_UI_WIDTH_MIN} from 'config/env';
+import {F2RN_UI_WIDTH_MIN} from 'config/consts';
 import {App} from 'interface/App';
 import * as $ from 'interface/store';
 

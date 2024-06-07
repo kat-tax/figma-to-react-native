@@ -3,7 +3,7 @@ import {Fragment} from 'react';
 import {LoadingIndicator} from 'figma-ui';
 import {MonacoBinding} from 'interface/utils/editor/lib/MonacoBinding';
 import {ThemePicker} from 'interface/base/ThemePicker';
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 
 import * as $ from 'interface/store';
 

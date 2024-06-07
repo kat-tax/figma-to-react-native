@@ -2,7 +2,7 @@
 // - fix component folders (lowercase + use sections for categories)
 
 import {fs} from '@zip.js/zip.js';
-import {F2RN_EXO_REPO_ZIP} from 'config/env';
+import {F2RN_EXO_REPO_ZIP} from 'config/consts';
 
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';

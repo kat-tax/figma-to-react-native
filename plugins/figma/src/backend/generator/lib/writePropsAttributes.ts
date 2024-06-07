@@ -1,6 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal, escapeBacktick, createIdentifier} from 'common/string';
+
 import * as parser from 'backend/parser/lib';
+import * as string from 'common/string';
 
 export function writePropsAttributes(
   writer: CodeBlockWriter,
@@ -57,11 +58,11 @@ export function writeProp(
   // Text props k={v} and gets quotes escaped
   } else if (prop.type === 'TEXT') {
     writer.writeLine(v.includes('${') || v.includes('"')
-      ? `${k}={\`${escapeBacktick(v)}\`}`
+      ? `${k}={\`${string.escapeBacktick(v)}\`}`
       : `${k}="${v}"`);
   // Variants are sanitized for invalid identifier chars
   } else if (prop.type === 'VARIANT') {
-    writer.writeLine(`${k}="${createIdentifier(v)}"`);
+    writer.writeLine(`${k}="${string.createIdentifier(v)}"`);
   // Instance swap (JSX tag as prop value)
   } else if (prop.type === 'INSTANCE_SWAP') {
     writePropComponent(writer, propId, k, v, props, excludeTestIds);
@@ -113,7 +114,7 @@ export function writePropComponent(
   );
 
   // Write component prop
-  const tagName = !isIcon ? createIdentifierPascal(info.name) : 'Icon';
+  const tagName = !isIcon ? string.createIdentifierPascal(info.name) : 'Icon';
   writer.writeLine(`${propName}={`);
   writer.indent(() => {
     writer.writeLine(`<${tagName}${jsxProps}/>`);

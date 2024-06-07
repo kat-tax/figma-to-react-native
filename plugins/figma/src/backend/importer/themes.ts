@@ -1,13 +1,13 @@
-import {titleCase} from 'common/string';
-import {getVariables, getVariableCollection} from 'backend/parser/lib';
-import {VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
+import * as string from 'common/string';
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
 
 import type {ThemeColor, ThemeRadius, ThemePreset} from 'types/themes';
 
 export async function importTheme(color: ThemeColor, radius: ThemeRadius) {
   const preset = getPresetTokens(color);
   await createTheme(preset);
-  figma.notify(`${titleCase(color)} theme created`, {
+  figma.notify(`${string.titleCase(color)} theme created`, {
     timeout: 3000,
   });
 }
@@ -49,14 +49,14 @@ async function createVariableTheme(preset: ThemePreset): Promise<{
   const createdThemeVars: Record<string, boolean> = {};
 
   // Try to find existing collections
-  let theme = await getVariableCollection(VARIABLE_COLLECTIONS.THEMES);
-  let palette = await getVariableCollection(VARIABLE_COLLECTIONS.SCALE_COLORS);
+  let theme = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.THEMES);
+  let palette = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.SCALE_COLORS);
 
   // Try to create palette collection if does not exist
   // Note: this will be a Figma pay-walled feature after public beta
   if (!palette) {
     try {
-      palette = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.SCALE_COLORS);
+      palette = figma.variables.createVariableCollection(consts.VARIABLE_COLLECTIONS.SCALE_COLORS);
       palette.renameMode(palette.defaultModeId, 'Default');
     } catch (e) {
       throw new Error(e);
@@ -67,7 +67,7 @@ async function createVariableTheme(preset: ThemePreset): Promise<{
   // Note: this will be a Figma pay-walled feature after public beta
   if (!theme) {
     try {
-      theme = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.THEMES);
+      theme = figma.variables.createVariableCollection(consts.VARIABLE_COLLECTIONS.THEMES);
     } catch (e) {
       throw new Error(e);
     }
@@ -87,7 +87,7 @@ async function createVariableTheme(preset: ThemePreset): Promise<{
 
   // Look for preset palette variables
   {
-    const variables = await getVariables(palette.variableIds);
+    const variables = await parser.getVariables(palette.variableIds);
     const presetVars = Object.keys(preset.colors);
     for (const vars of variables) {
       if (presetVars.includes(vars.name))
@@ -97,7 +97,7 @@ async function createVariableTheme(preset: ThemePreset): Promise<{
 
   // Look for preset theme variables
   {
-    const variables = await getVariables(theme.variableIds);
+    const variables = await parser.getVariables(theme.variableIds);
     const presetVars = Object.keys(colorMapping.light);
     for (const vars of variables) {
       if (presetVars.includes(vars.name))

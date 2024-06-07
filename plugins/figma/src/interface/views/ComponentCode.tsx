@@ -4,7 +4,7 @@ import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {MonacoBinding} from 'interface/utils/editor/lib/MonacoBinding';
 import {initComponentEditor} from 'interface/utils/editor';
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 import * as $ from 'interface/store';
 
 import type {Monaco, Editor} from 'interface/utils/editor';

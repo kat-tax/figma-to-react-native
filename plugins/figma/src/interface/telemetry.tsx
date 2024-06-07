@@ -1,6 +1,6 @@
 import {Component} from 'react';
 import {Logtail} from '@logtail/browser';
-import {LOGTAIL_TOKEN} from 'config/env';
+import {LOGTAIL_TOKEN} from 'config/consts';
 
 const NS = '[F->RN]';
 const LT = new Logtail(LOGTAIL_TOKEN);

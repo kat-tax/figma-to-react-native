@@ -1,6 +1,7 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierCamel} from 'common/string';
 import {diff} from 'deep-object-diff';
+
+import * as string from 'common/string';
 
 import type {ImportFlags} from './writeImports';
 import type {ParseData} from 'types/parse';
@@ -29,7 +30,7 @@ export async function writeStyleSheet(
               }
             }
             if (diffStyles && Object.keys(diffStyles).length > 0) {
-              const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
+              const className = string.createIdentifierCamel(`root_${key}`.split(', ').join('_'));
               writeStyle(writer, className, diffStyles);
             }
           }
@@ -54,7 +55,7 @@ export async function writeStyleSheet(
                 }
               }
               if (diffStyles && Object.keys(diffStyles).length > 0) {
-                const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+                const className = string.createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
                 writeStyle(writer, className, diffStyles);
               }
             }
@@ -77,7 +78,7 @@ export async function writeStyleSheet(
             // TODO: Workaround to prevent placeholder from overriding instance icons
             if (childVariantIconData.name.includes(':placeholder'))
               delete childVariantIconData.name;
-            const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+            const className = string.createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
             writeStyle(writer, className, diff(childIconData, childVariantIconData));
           });
         }

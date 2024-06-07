@@ -15,3 +15,25 @@ export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const LOGTAIL_TOKEN = '3hRzjtVJTBk6BDFt3pSjjKam';
 
 export const TIPTAP_APP_ID = '0X9LNVMR';
+
+export const PAGES_SPECIAL = {
+  LIBRARY: 'Library',
+  ICONS: 'Icons',
+  TESTS: 'Tests',
+} as const;
+
+export const VARIABLE_COLLECTIONS = {
+  // Main
+  APP_CONFIG: 'App Config',
+  BREAKPOINTS: 'Breakpoints',
+  LOCALES: 'Locales',
+  THEMES: 'Themes',
+  FONTS: 'Fonts',
+  // Scales
+  SCALE_DISPLAY: '[Scale: Display]',
+  SCALE_COLORS: '[Scale: Colors]',
+  SCALE_FONTS: '[Scale: Fonts]',
+  // State
+  STATE_LOCAL: '[State: Local]',
+  STATE_REDUX: '[State: Redux]',
+} as const;

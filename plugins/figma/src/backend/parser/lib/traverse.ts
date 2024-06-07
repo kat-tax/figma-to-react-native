@@ -1,4 +1,4 @@
-import {PAGES_SPECIAL} from 'backend/generator/lib/consts';
+import * as consts from 'config/consts';
 
 // Return the selected component
 export function getSelectedComponent(): ComponentNode {
@@ -13,7 +13,7 @@ export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentN
   const components = new Set<ComponentNode>();
   for (const node of nodes) {
     const component = getComponentTarget(node);
-    if (component && getPage(component)?.name !== PAGES_SPECIAL.ICONS) {
+    if (component && getPage(component)?.name !== consts.PAGES_SPECIAL.ICONS) {
       components.add(component);
     }
   }

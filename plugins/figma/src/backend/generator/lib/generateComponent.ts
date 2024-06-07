@@ -1,10 +1,11 @@
 import CodeBlockWriter from 'code-block-writer';
-import {getVariableCollection} from 'backend/parser/lib';
+
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
 
 import {writeImports} from './writeImports';
 import {writeFunction} from './writeFunction';
 import {writeStyleSheet} from './writeStyleSheet';
-import {VARIABLE_COLLECTIONS} from './consts';
 
 import type {ImportFlags} from './writeImports';
 import type {ProjectSettings} from 'types/settings';
@@ -28,10 +29,10 @@ export async function generateComponent(data: ParseData, settings: ProjectSettin
     useStylesTheme: false,
   };
 
-  let language = await getVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
+  let language = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.LOCALES);
   if (!language) {
     try {
-      language = figma.variables.createVariableCollection(VARIABLE_COLLECTIONS.LOCALES);
+      language = figma.variables.createVariableCollection(consts.VARIABLE_COLLECTIONS.LOCALES);
     } catch (e) {}
   }
 

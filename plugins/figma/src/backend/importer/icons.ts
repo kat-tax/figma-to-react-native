@@ -1,7 +1,7 @@
-import {wait} from 'common/delay';
-import {titleCase} from 'common/string';
-import {focusNode, getVariables, getVariableCollection} from 'backend/parser/lib';
-import {VARIABLE_COLLECTIONS, PAGES_SPECIAL} from 'backend/generator/lib/consts';
+import * as delay from 'common/delay';
+import * as string from 'common/string';
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
 
 const SVG_SIZE = 16;
 const SVG_PROPS = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 256 256"`;
@@ -13,10 +13,10 @@ export async function importIcons(setName: string, icons: Record<string, string>
   const columns = 15;
 
   // Create page
-  let page = figma.root.children.find(p => p.name === PAGES_SPECIAL.ICONS);
+  let page = figma.root.children.find(p => p.name === consts.PAGES_SPECIAL.ICONS);
   if (!page) {
     page = figma.createPage();
-    page.name = PAGES_SPECIAL.ICONS;
+    page.name = consts.PAGES_SPECIAL.ICONS;
     figma.root.appendChild(page);
   // Page exists, remove all children
   } else {
@@ -60,12 +60,12 @@ export async function importIcons(setName: string, icons: Record<string, string>
   page.appendChild(frame);
 
   // Focus frame
-  figma.notify(`Importing ${titleCase(setName)} Icons...`, {
+  figma.notify(`Importing ${string.titleCase(setName)} Icons...`, {
     timeout: 3000,
     button: {
       text: 'View',
       action: () => {
-        focusNode(frame.id)
+        parser.focusNode(frame.id)
       },
     }
   });
@@ -90,12 +90,12 @@ export async function createIcons(
   variable?: Variable,
 ) {
   const batch = 5;
-  const delay = 5;
+  const ms = 5;
   let i = 0;
 
   for await (const [name, svg] of Object.entries(icons)) {
     if (i++ % batch === 0)
-      await wait(delay);
+      await delay.wait(ms);
   
     // Create icon component
     const component = figma.createComponent();
@@ -154,9 +154,9 @@ export async function getVariableTokens(): Promise<{
 }> {
   let background: Variable;
   let foreground: Variable;
-  const theme = await getVariableCollection(VARIABLE_COLLECTIONS.THEMES);
+  const theme = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.THEMES);
   if (theme) {
-    const variables = await getVariables(theme.variableIds);
+    const variables = await parser.getVariables(theme.variableIds);
     for (const variable of variables) {
       if (variable.name === COLOR_BACKGROUND)
         background = variable;
@@ -170,7 +170,7 @@ export async function getVariableTokens(): Promise<{
 }
 
 export function getAllIconComponents() {
-  const iconPage = figma.root?.children?.find(p => p.name === PAGES_SPECIAL.ICONS);
+  const iconPage = figma.root?.children?.find(p => p.name === consts.PAGES_SPECIAL.ICONS);
   const components = iconPage?.findAllWithCriteria({types: ['COMPONENT']});
   const icons = components?.filter(c => c.name.includes(':'));
   return icons;

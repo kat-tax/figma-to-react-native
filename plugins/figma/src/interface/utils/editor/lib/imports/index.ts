@@ -1,4 +1,4 @@
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 
 import env from './env.ts.tpl';
 import unistyles from './unistyles.ts.tpl';

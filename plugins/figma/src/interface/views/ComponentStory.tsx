@@ -1,7 +1,7 @@
 import {Fragment} from 'react';
 import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 import MonacoReact from '@monaco-editor/react';
 
 import * as $ from 'interface/store';

@@ -1,7 +1,5 @@
 import {emit, once} from '@create-figma-plugin/utilities';
-import {diff} from 'deep-object-diff';
-import {F2RN_STYLEGEN_API} from 'config/env';
-import {getColor} from './colors';
+import * as consts from 'config/consts';
 
 import type {EventStyleGenReq, EventStyleGenRes} from 'types/events';
 import type {ParseStyleSheet, ParseVariantData} from 'types/parse';
@@ -95,7 +93,7 @@ async function convertStylesLocal(css: StyleSheet): Promise<Record<string, any>>
 }
 
 async function convertStylesRemote(css: StyleSheet): Promise<Record<string, any>> {
-  const response = await fetch(F2RN_STYLEGEN_API, {
+  const response = await fetch(consts.F2RN_STYLEGEN_API, {
     body: JSON.stringify(css),
     method: 'POST',
     headers: {
@@ -103,8 +101,4 @@ async function convertStylesRemote(css: StyleSheet): Promise<Record<string, any>
     },
   });
   return await response.json();
-}
-
-function diffStyles(a: StyleClass, b: StyleClass) {
-  return diff(a, b) as StyleClass;
 }

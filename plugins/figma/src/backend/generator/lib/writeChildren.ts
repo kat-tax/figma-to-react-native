@@ -1,10 +1,12 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal} from 'common/string';
-import {round} from 'common/number';
 import {translate} from 'backend/utils/translate';
+
+import * as string from 'common/string';
+import * as number from 'common/number';
+import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
+
 import {writePropsAttributes} from './writePropsAttributes';
-import {PAGES_SPECIAL} from './consts';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
@@ -71,7 +73,7 @@ export function writeChild(
   const isSwap = Boolean(swapNodeProp);
   const isIcon = isInstance
     && child.node.name.includes(':')
-    && parser.getPage((child.node as InstanceNode).mainComponent)?.name === PAGES_SPECIAL.ICONS
+    && parser.getPage((child.node as InstanceNode).mainComponent)?.name === consts.PAGES_SPECIAL.ICONS
 
   // Icon node
   if (isIcon) {
@@ -101,7 +103,7 @@ export function writeChild(
       // Asset node
       } else {
         const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
-        const sizeProps = `width={${round(asset.width)}} height={${round(asset.height)}}`;
+        const sizeProps = `width={${number.round(asset.width)}} height={${number.round(asset.height)}}`;
         const animProps = assetProps?.length
           ? ' ' + assetProps.map(a => a.trim()).join(' ')
           : ' autoplay loop';
@@ -189,7 +191,7 @@ export function writeChild(
 
   // Create instance tag
   if (isInstance) {
-    jsxTag = createIdentifierPascal(instance.main.name);
+    jsxTag = string.createIdentifierPascal(instance.main.name);
     jsxTagWithProps = jsxTag + jsxProps;
     if (jsxTagWithProps.includes('<Icon'))
       state.flags.exoIcon.Icon = true;

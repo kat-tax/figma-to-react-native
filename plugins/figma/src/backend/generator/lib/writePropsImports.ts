@@ -1,11 +1,7 @@
-import {getComponentInfo, sortComponentProps} from 'backend/parser/lib';
-import {PAGES_SPECIAL} from './consts';
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
 
 import type CodeBlockWriter from 'code-block-writer';
-
-// TODO:
-// - handle assets
-// - replace implementations w/ this function
 
 export function writePropsImports(
   writer: CodeBlockWriter,
@@ -21,8 +17,8 @@ export function writePropsImports(
   // Loop through sub-components, import each one
   if (components.length > 0) {
     components.forEach(node => {
-      const component = getComponentInfo(node);
-      if (component.page.name === PAGES_SPECIAL.ICONS) {
+      const component = parser.getComponentInfo(node);
+      if (component.page.name === consts.PAGES_SPECIAL.ICONS) {
         hasIconImport = true;
         return;
       }
@@ -53,11 +49,11 @@ function getComponentImports(propDefs: ComponentPropertyDefinitions, components:
   if (props.length === 0) return components;
 
   // Look for components in props
-  props?.sort(sortComponentProps).forEach(([_key, prop]) => {
+  props?.sort(parser.sortComponentProps).forEach(([_key, prop]) => {
     const {type, defaultValue} = prop;
     if (type === 'INSTANCE_SWAP' && typeof defaultValue === 'string') {
       const node = figma.getNodeById(defaultValue);
-      const component = getComponentInfo(node);
+      const component = parser.getComponentInfo(node);
       components.push(node);
       if (component.propDefs) {
         return getComponentImports(component.propDefs, components);

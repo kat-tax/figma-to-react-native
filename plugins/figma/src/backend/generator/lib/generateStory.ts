@@ -1,8 +1,10 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal} from 'common/string';
+
+import * as parser from 'backend/parser/lib';
+import * as string from 'common/string';
+
 import {writePropsAttributes} from './writePropsAttributes';
 import {writePropsImports} from './writePropsImports';
-import * as parser from 'backend/parser/lib';
 
 import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
@@ -65,7 +67,7 @@ function writeStories(writer: CodeBlockWriter, component: ComponentInfo) {
   } else {
     let defaultVariant: string;
     component.target.children.forEach(child => {
-      const variant = createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
+      const variant = string.createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
       writer.write(`export const ${variant}: Story = `).inlineBlock(() => {
         if (!defaultVariant) defaultVariant = variant;
         if (variant === defaultVariant) {
@@ -100,7 +102,7 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
           const node = figma.getNodeById(value);
           const component = parser.getComponentInfo(node);
           const isIcon = parser.isNodeIcon(component.target);
-          const tagName = !isIcon ? createIdentifierPascal(component.name) : 'Icon';
+          const tagName = !isIcon ? string.createIdentifierPascal(component.name) : 'Icon';
           writer.write(`${name}: (`);
           writer.indent(() => {
             writer.write(`<${tagName}`);

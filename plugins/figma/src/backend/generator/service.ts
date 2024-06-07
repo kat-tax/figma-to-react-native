@@ -1,15 +1,16 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {getAllIconComponents} from 'backend/importer/icons';
-import {getComponentTargets, getComponentTarget, getComponentInfo, getVariableCollectionModes} from 'backend/parser/lib';
-import {areMapsEqual, areSetsEqual} from 'common/assert';
-import {createIdentifierCamel} from 'common/string';
-import {wait} from 'common/delay';
+
+import * as delay from 'common/delay';
+import * as assert from 'common/assert';
+import * as string from 'common/string';
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
 import * as config from 'backend/utils/config';
 
 import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
-import {VARIABLE_COLLECTIONS} from './lib/consts';
 
 import type {ComponentInfo, ComponentData, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
 import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons} from 'types/events';
@@ -21,7 +22,7 @@ let _lastThemeName = '';
 
 export async function watchComponents(targetComponent: () => void) {
   // Compile all components in background on init
-  const all = getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
+  const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
   if (all.size > 0) {
     const cached = await compile(all);
     if (cached) {
@@ -36,7 +37,7 @@ export async function watchComponents(targetComponent: () => void) {
   figma.on('documentchange', async (e) => {
     // console.log('[change]', e.documentChanges);
     // We need to get all components for the roster
-    const all = getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
+    const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
     // No components, do nothing
     if (all.size === 0) return;
     // Get all components that were updated
@@ -54,7 +55,7 @@ export async function watchComponents(targetComponent: () => void) {
       if (change.node.type === 'COMPONENT') {
         updates.push(change.node as SceneNode);
       } else {
-        const target = getComponentTarget(change.node as SceneNode);
+        const target = parser.getComponentTarget(change.node as SceneNode);
         if (target) {
           updates.push(target);
         }
@@ -65,7 +66,7 @@ export async function watchComponents(targetComponent: () => void) {
     if (updates.length === 0) return;
 
     // Get updated targets and compile
-    const update = getComponentTargets(updates);
+    const update = parser.getComponentTargets(updates);
     await compile(all, true, update);
     // console.log('[update]', Array.from(update));
   });
@@ -76,7 +77,7 @@ export async function watchTheme(settings: ProjectSettings) {
     const tokens = await generateTheme(settings);
     const {code, collection, hasStyles} = tokens.themes;
     const themeName = collection?.current
-      ? `${createIdentifierCamel(collection.current.name)}`
+      ? `${string.createIdentifierCamel(collection.current.name)}`
       : 'main';
     if (code === _lastThemeCode && themeName === _lastThemeName)
         return;
@@ -99,9 +100,9 @@ export async function watchIcons() {
     const list = new Set(icons?.map((i) => i.name));
     const map = new Map(icons?.map((i) => [i.name, i.id]));
 
-    if (areMapsEqual(map, _map)
-      && areSetsEqual(sets, _sets)
-      && areSetsEqual(list, _list))
+    if (assert.areMapsEqual(map, _map)
+      && assert.areSetsEqual(sets, _sets)
+      && assert.areSetsEqual(list, _list))
       return;
 
     _sets = sets;
@@ -122,7 +123,7 @@ export async function watchIcons() {
 export async function watchLocales() {
   let _lastLanguage = '';
   const updateLanguage = async () => {
-    const language = await getVariableCollectionModes(VARIABLE_COLLECTIONS.LOCALES);
+    const language = await parser.getVariableCollectionModes(consts.VARIABLE_COLLECTIONS.LOCALES);
     if (!language || !language.current) return;
     const name = language.current.name;
     if (name === _lastLanguage) return;
@@ -150,7 +151,7 @@ export async function compile(
 
   // Iterate over all components, fill roster, info, and total
   for await (const component of components) {
-    const info = getComponentInfo(component);
+    const info = parser.getComponentInfo(component);
     if (!info) continue;
     const {name, page, path, target} = info;
     const {id, key} = target;
@@ -168,7 +169,7 @@ export async function compile(
   const targets = updated || components;
   for await (const component of targets) {
     // Prevent UI from freezing
-    wait(1);
+    delay.wait(1);
     try {
       // Compile component
       const res = await bundle(component, config.state, skipCache);

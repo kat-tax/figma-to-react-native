@@ -1,5 +1,6 @@
-import {PAGES_SPECIAL} from 'backend/generator/lib/consts';
-import {focusNode, isNodeIcon} from 'backend/parser/lib';
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
+
 import {getIconComponentMap} from './icons';
 
 type ExoComponents = Record<string, {
@@ -52,10 +53,10 @@ export async function importComponents(iconSet: string) {
   }
 
   // Create "Native" page
-  let natives = figma.root.children.find(p => p.name === PAGES_SPECIAL.LIBRARY);
+  let natives = figma.root.children.find(p => p.name === consts.PAGES_SPECIAL.LIBRARY);
   if (!natives) {
     natives = figma.createPage();
-    natives.name = PAGES_SPECIAL.LIBRARY;
+    natives.name = consts.PAGES_SPECIAL.LIBRARY;
     figma.root.appendChild(natives);
   // Page exists, clear it
   // TODO: only clear preset natives
@@ -69,7 +70,7 @@ export async function importComponents(iconSet: string) {
     button: {
       text: 'View',
       action: () => {
-        focusNode(base.id);
+        parser.focusNode(base.id);
       }
     }
   });
@@ -153,7 +154,7 @@ async function replaceComponentSwaps(
       continue;
     // Not an icon swap
     const originNode = figma.getNodeById(value.defaultValue);
-    if (isNodeIcon(originNode))
+    if (parser.isNodeIcon(originNode))
       continue;
     // Find icon in local set first, fallback to global set
     const [originSet, originName] = originNode.name.split(':');

@@ -1,6 +1,17 @@
-import {createIdentifierCamel} from 'common/string';
+import * as string from 'common/string';
 
-type FillNodes = FrameNode | ComponentSetNode | ComponentNode | InstanceNode | VectorNode | StarNode | LineNode | EllipseNode | PolygonNode | RectangleNode | TextNode;
+type FillNodes = 
+  | ComponentSetNode
+  | ComponentNode
+  | InstanceNode
+  | FrameNode
+  | TextNode
+  | StarNode
+  | LineNode
+  | VectorNode
+  | EllipseNode
+  | RectangleNode
+  | PolygonNode
 
 export function getFillToken(node: FillNodes) {
   const placeholder = '"#000000"';
@@ -12,7 +23,7 @@ export function getFillToken(node: FillNodes) {
   if (fillVar?.codeSyntax?.WEB)
     return fillVar.codeSyntax.WEB.slice(6,-1).replace(/\-/g, '.');
   return fillVar && fillVar.resolvedType === 'COLOR'
-    ? `theme.colors.${createIdentifierCamel(fillVar.name)}`
+    ? `theme.colors.${string.createIdentifierCamel(fillVar.name)}`
     : `"${getColor(fill.color, fill.opacity)}"`
 }
 

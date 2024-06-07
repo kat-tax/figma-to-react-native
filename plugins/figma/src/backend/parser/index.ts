@@ -1,12 +1,11 @@
+import * as string from 'common/string';
 import * as parser from './lib';
-import {createIdentifierCamel} from 'common/string';
-import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData, ParseIconData} from 'types/parse';
+
+import type * as T from 'types/parse';
 
 const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
-export default async function(
-  component: ComponentNode,
-): Promise<ParseData> {
+export default async function(component: ComponentNode): Promise<T.ParseData> {
   // Make sure component can be processed
   try {
     validate(component);
@@ -65,8 +64,8 @@ export function crawl(node: ComponentNode) {
 function crawlChildren(
   nodes: readonly SceneNode[],
   dict?: Set<SceneNode>,
-  tree?: ParseNodeTree,
-  meta?: ParseMetaData,
+  tree?: T.ParseNodeTree,
+  meta?: T.ParseMetaData,
 ) {
   dict = dict || new Set();
   tree = tree || [];
@@ -191,28 +190,28 @@ function validate(component: ComponentNode) {
   return true;
 }
 
-function getRoot(node: ComponentNode): ParseRoot {
+function getRoot(node: ComponentNode): T.ParseRoot {
   return {node, slug: 'root', click: parser.getComponentCustomReaction(node)};
 }
 
-function getFrame(node: ComponentNode): ParseFrame {
+function getFrame(node: ComponentNode): T.ParseFrame {
   if (node.parent.type !== 'FRAME') return null;
   return {node: node.parent, slug: 'frame'};
 }
 
-function getChildren(nodes: Set<SceneNode>): ParseChild[] {
-  const children: ParseChild[] = [];
+function getChildren(nodes: Set<SceneNode>): T.ParseChild[] {
+  const children: T.ParseChild[] = [];
   for (const node of nodes) {
-    const id = createIdentifierCamel(node.name);
-    const ref = children.filter((c) => id === createIdentifierCamel(c.node.name)).length;
+    const id = string.createIdentifierCamel(node.name);
+    const ref = children.filter((c) => id === string.createIdentifierCamel(c.node.name)).length;
     const slug = ref > 0 ? `${id}${ref+1}` : id;
     children.push({node, slug});
   }
   return children;
 }
 
-function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
-  const variants: ParseVariantData = {
+function getVariants(root: ComponentNode, rootChildren: T.ParseChild[]) {
+  const variants: T.ParseVariantData = {
     mapping: {},
     classes: {},
     icons: {},

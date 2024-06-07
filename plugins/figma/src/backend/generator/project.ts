@@ -1,9 +1,9 @@
 import {emit} from '@create-figma-plugin/utilities';
 import defaultReleaseConfig from 'config/release';
-import {F2RN_PROJECT_RELEASE} from 'config/env';
-import {PAGES_SPECIAL, VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
-import {createIdentifierConstant, titleCase} from 'common/string';
-import {generateToken} from 'common/random';
+
+import * as random from 'common/random';
+import * as string from 'common/string';
+import * as consts from 'config/consts';
 import * as config from 'backend/utils/config';
 import * as parser from 'backend/parser/lib';
 
@@ -24,7 +24,7 @@ export function build(release: ProjectRelease) {
 
   // Save submitted project config to the document
   // except for the method & scope, those should be ephemeral
-  figma.root.setPluginData(F2RN_PROJECT_RELEASE, JSON.stringify({
+  figma.root.setPluginData(consts.F2RN_PROJECT_RELEASE, JSON.stringify({
     ...release,
     method: 'download',
     scope: 'document',
@@ -44,7 +44,7 @@ export function build(release: ProjectRelease) {
       exportNodes.forEach(node => {
         if (release.scope === 'document') {
           const pageName = parser.getPage(node).name;
-          if (pageName === PAGES_SPECIAL.TESTS) {
+          if (pageName === consts.PAGES_SPECIAL.TESTS) {
             exportNodes.delete(node);
           }
         }
@@ -92,8 +92,8 @@ export function build(release: ProjectRelease) {
       ]));
 
       const [collectionConfig, collectionLocales] = await Promise.all([
-        parser.getVariableCollection(VARIABLE_COLLECTIONS.APP_CONFIG),
-        parser.getVariableCollection(VARIABLE_COLLECTIONS.LOCALES),
+        parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.APP_CONFIG),
+        parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.LOCALES),
       ]);
 
       const [varsConfig, varsTranslations, modesLocales] = await Promise.all([
@@ -130,15 +130,15 @@ export function build(release: ProjectRelease) {
 export function loadConfig() {
   let release: ProjectRelease;
   try {
-    const rawConfig = figma.root.getPluginData(F2RN_PROJECT_RELEASE);
+    const rawConfig = figma.root.getPluginData(consts.F2RN_PROJECT_RELEASE);
     const parsedConfig = JSON.parse(rawConfig);
     release = parsedConfig;
   } catch (e) {}
   const loadedConfig = release || defaultReleaseConfig;
   // If docKey is empty, generate one and save immediately
   if (!loadedConfig.docKey) {
-    loadedConfig.docKey = generateToken(22);
-    figma.root.setPluginData(F2RN_PROJECT_RELEASE, JSON.stringify(loadedConfig));
+    loadedConfig.docKey = random.generateToken(22);
+    figma.root.setPluginData(consts.F2RN_PROJECT_RELEASE, JSON.stringify(loadedConfig));
   }
   emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', loadedConfig);
 }
@@ -151,8 +151,8 @@ function getAppConfig(
     const defaultMode = collection.defaultModeId;
     const defaultValue = cur.valuesByMode[defaultMode]?.toString().trim();
     const [_group, _key] = cur.name.includes('/') ? cur.name.split('/') : ['General', cur.name];
-    const group = titleCase(_group);
-    const key = createIdentifierConstant(_key);
+    const group = string.titleCase(_group);
+    const key = string.createIdentifierConstant(_key);
     if (!acc[group]) acc[group] = {};
     acc[group][key] = defaultValue;
     return acc;

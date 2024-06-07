@@ -1,9 +1,10 @@
-import {VARIABLE_COLLECTIONS} from 'backend/generator/lib/consts';
+import * as consts from 'config/consts';
 import {getVariableCollection} from './variables';
+
 import type {ParseLocalState} from 'types/parse';
 
 export async function getLocalState(): Promise<ParseLocalState> {
-  const state = await getVariableCollection(VARIABLE_COLLECTIONS.STATE_LOCAL);
+  const state = await getVariableCollection(consts.VARIABLE_COLLECTIONS.STATE_LOCAL);
   const localState: ParseLocalState = {};
   if (!state) return;
   for await (const id of state.variableIds) {

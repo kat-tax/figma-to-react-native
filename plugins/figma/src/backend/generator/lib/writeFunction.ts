@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
+import * as string from 'common/string';
 
 import {writePropsInterface} from './writePropsInterface';
 import {writeStateHooks} from './writeStateHooks';
@@ -22,13 +22,13 @@ export async function writeFunction(
   const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
   const masterNode = (isVariant ? data.root.node?.parent : data.root.node) as ComponentNode;
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
-  const name = createIdentifierPascal(masterNode.name);
+  const name = string.createIdentifierPascal(masterNode.name);
   const isIcon = name.startsWith('Icon');
 
   // Pressable data (on click -> open link set)
   const pressables = data.root?.click?.type === 'URL'
     ? data.root.click.url?.split(',')?.map(s => s?.trim()?.split('#'))?.map(([prop, label]) => {
-        const id = createIdentifierCamel(label && label !== 'root' && prop === 'onPress'
+        const id = string.createIdentifierCamel(label && label !== 'root' && prop === 'onPress'
           ? `${prop}_${label}`
           : prop
         );

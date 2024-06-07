@@ -2,7 +2,7 @@ import MonacoReact from '@monaco-editor/react';
 import {useMemo, useState, Fragment} from 'react';
 import {AutoForm} from 'uniforms-unstyled';
 import {LoadingIndicator} from 'figma-ui';
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 import {debounce} from 'common/delay';
 
 import schema from 'interface/schemas/project';
