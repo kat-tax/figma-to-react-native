@@ -38,6 +38,7 @@ export function writePropsAttributes(
     extraProps?.forEach(prop =>
       writer.writeLine(`${prop[0]}=${prop[1]}`));
   });
+
   return writer.toString();
 }
 
@@ -76,6 +77,7 @@ export function writePropComponent(
   componentId: string,
   props: ComponentPropertyDefinitions | ComponentProperties,
   excludeTestIds?: boolean,
+  returnOnlyProps?: boolean,
 ) {
   const node = figma.getNodeById(componentId) as ComponentNode | InstanceNode;
   const info = parser.getComponentInfo(node);
@@ -113,7 +115,13 @@ export function writePropComponent(
     jsxExtraProps,
   );
 
-  // Write component prop
+  // Write only props
+  if (returnOnlyProps) {
+    writer.write(jsxProps);
+    return;
+  }
+
+  // Write full component prop
   const tagName = !isIcon ? string.createIdentifierPascal(info.name) : 'Icon';
   writer.writeLine(`${propName}={`);
   writer.indent(() => {

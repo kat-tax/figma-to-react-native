@@ -1,6 +1,4 @@
 import CodeBlockWriter from 'code-block-writer';
-
-import {writePropsImports} from './writePropsImports';
 import {writePropsAttributes} from './writePropsAttributes';
 
 import type {ProjectSettings} from 'types/settings';
@@ -8,13 +6,21 @@ import type {ComponentInfo} from 'types/component';
 
 export function generateDocs(component: ComponentInfo, settings: ProjectSettings) {
   const writer = new CodeBlockWriter(settings?.writer);
+  const attrs = writePropsAttributes(
+    new CodeBlockWriter(settings?.writer),
+    component.propDefs,
+  );
 
   // Imports
-  const imports = writePropsImports(new CodeBlockWriter(settings?.writer), component.propDefs);
-  if (imports) {
+  const regex = /(?<=<)([A-Z][a-zA-Z0-9]*)/g;
+  const matches = attrs.match(regex);
+  const imports = Array.from(new Set(matches)).sort((a, b) => a.localeCompare(b));
+  if (imports.length) {
     writer.writeLine(':::imports');
     writer.blankLine();
-    writer.write(imports);
+    writer.write(`import {${component.name}, ${imports.join(', ')}} from `);
+    writer.quote('design');
+    writer.write(';');
     writer.blankLine();
     writer.writeLine(':::');
     writer.blankLine();
@@ -28,7 +34,7 @@ export function generateDocs(component: ComponentInfo, settings: ProjectSettings
   writer.writeLine(':::demo');
   writer.blankLine();
   writer.write(`<${component.name}`);
-  writer.write(writePropsAttributes(new CodeBlockWriter(settings?.writer), component.propDefs));
+  writer.write(attrs);
   writer.write('/>');
   writer.blankLine();
   writer.writeLine(':::');

@@ -3,7 +3,7 @@ import CodeBlockWriter from 'code-block-writer';
 import * as parser from 'backend/parser/lib';
 import * as string from 'common/string';
 
-import {writePropsAttributes} from './writePropsAttributes';
+import {writePropComponent} from './writePropsAttributes';
 import {writePropsImports} from './writePropsImports';
 
 import type {ProjectSettings} from 'types/settings';
@@ -102,16 +102,15 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo) {
         // Component
         } else if (type === 'INSTANCE_SWAP') {
           const node = figma.getNodeById(value);
-          const component = parser.getComponentInfo(node);
-          const isIcon = parser.isNodeIcon(component.target);
-          const tagName = !isIcon ? string.createIdentifierPascal(component.name) : 'Icon';
+          const swap = parser.getComponentInfo(node);
+          const isIcon = parser.isNodeIcon(swap.target);
+          const tagName = !isIcon ? string.createIdentifierPascal(swap.name) : 'Icon';
           writer.write(`${name}: (`);
           writer.indent(() => {
             writer.write(`<${tagName}`);
-            writer.write(writePropsAttributes(
-              new CodeBlockWriter(writer.getOptions()),
-              component.propDefs,
-            ));
+            const subwriter = new CodeBlockWriter(writer.getOptions());
+            writePropComponent(subwriter, key, name, value, swap.propDefs, true, true);
+            writer.write(subwriter.toString());
             writer.write('/>');
           });
           writer.write('),');
