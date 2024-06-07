@@ -3,7 +3,7 @@
 import {createRoot} from 'react-dom/client';
 import {useEffect, useState} from 'react';
 import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
-import {Inspector} from 'react-dev-inspector';
+import {Inspector} from 'preview-inspector';
 
 export default function Loader() {
   return (
