@@ -25,18 +25,10 @@ export async function getStyleSheet(
   // Generate CSS from variant mappings
   if (variants?.mapping) {
     for await (const id of Object.keys(variants.mapping)) {
-      for await (const [bid, vid] of Object.entries(variants.mapping[id])) {
+      for await (const [_, vid] of Object.entries(variants.mapping[id])) {
         const vnode = figma.getNodeById(vid);
         const vcss = await vnode.getCSSAsync();
-        const diff = diffStyles(css[bid], vcss);
-        for (const k in diff) {
-          if (diff[k] === undefined) {
-            diff[k] = 'unset';
-          }
-        }
-        if (diff && Object.keys(diff).length > 0) {
-          css[vid] = diff;
-        }
+        css[vid] = vcss;
       }
     }
   }
@@ -52,6 +44,7 @@ export async function getStyleSheet(
     if (style) {
       const props = {};
       for (const k in style) {
+        // TODO: handle this in css-to-rn
         if (k === 'display' && style[k] === 'flex') {
           if (!style['flexDirection']) {
             props['flexDirection'] = 'row';

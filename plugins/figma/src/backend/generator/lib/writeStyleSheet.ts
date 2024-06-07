@@ -14,17 +14,27 @@ export async function writeStyleSheet(
 
   writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
     // Root styles
-    writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
-    const rootVariants = data.variants?.classes?.root;
-    if (rootVariants) {
-      Object.keys(rootVariants).forEach(key => {
-        const classKey = rootVariants[key];
-        const classStyle = data.stylesheet[classKey];
-        if (classStyle) {
-          const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
-          writeStyle(writer, className, classStyle);
-        }
-      });
+    const rootStyles = data.stylesheet[data.root.node.id];
+    if (rootStyles) {
+      writeStyle(writer, 'root', rootStyles);
+      const rootVariants = data.variants?.classes?.root;
+      if (rootVariants) {
+        Object.keys(rootVariants).forEach(key => {
+          const rootVariantStyles = data.stylesheet[rootVariants[key]];
+          if (rootVariantStyles) {
+            const diffStyles = diff(rootStyles, rootVariantStyles);
+            for (const k in diffStyles) {
+              if (diffStyles[k] === undefined) {
+                diffStyles[k] = 'unset';
+              }
+            }
+            if (diffStyles && Object.keys(diffStyles).length > 0) {
+              const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
+              writeStyle(writer, className, diffStyles);
+            }
+          }
+        });
+      }
     }
 
     // Children styles
@@ -35,10 +45,18 @@ export async function writeStyleSheet(
         const childVariants = data.variants?.classes[child.slug];
         if (childVariants) {
           Object.keys(childVariants).forEach(key => {
-            const classStyle = data.stylesheet[childVariants[key]];
-            if (classStyle) {
-              const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
-              writeStyle(writer, className, classStyle);
+            const childVariantStyles = data.stylesheet[childVariants[key]];
+            if (childVariantStyles) {
+              const diffStyles = diff(childStyles, childVariantStyles);
+              for (const k in diffStyles) {
+                if (diffStyles[k] === undefined) {
+                  diffStyles[k] = 'unset';
+                }
+              }
+              if (diffStyles && Object.keys(diffStyles).length > 0) {
+                const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+                writeStyle(writer, className, diffStyles);
+              }
             }
           });
         }
@@ -49,14 +67,14 @@ export async function writeStyleSheet(
     for (const child of data.children) {
       const childIconData = data.meta.icons[child.node.id];
       if (childIconData) {
-        // TEMP: Workaround to prevent placeholder from overriding instance icons
+        // TODO: Workaround to prevent placeholder from overriding instance icons
         if (childIconData.name.includes(':placeholder'))
           delete childIconData.name;
         writeStyle(writer, child.slug, childIconData);
         const iconVariants = data.variants?.icons[child.slug];
         if (iconVariants) {
           Object.entries(iconVariants).forEach(([key, childVariantIconData]) => {
-            // TEMP: Workaround to prevent placeholder from overriding instance icons
+            // TODO: Workaround to prevent placeholder from overriding instance icons
             if (childVariantIconData.name.includes(':placeholder'))
               delete childVariantIconData.name;
             const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
