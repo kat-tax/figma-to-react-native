@@ -81,19 +81,31 @@ export async function writeImports(
   writeImport('@lingui/macro', flags.lingui);
 
   // Component Imports
+  const subwriter = new CodeBlockWriter(writer.getOptions());
   const components = Object.entries(data.meta.components);
   if (components.length > 0) {
     components
       .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
       .forEach(([_id, [node, _instance]]) => {
         const component = getComponentInfo(node);
-        writer.write(`import {${component.name}} from`);
-        writer.space();
-        writer.quote(component.path);
-        writer.write(';');
-        writer.newLine();
-        writePropsImports(writer, component.propDefs, flags.exoIcon.Icon);
+        subwriter.write(`import {${component.name}} from`);
+        subwriter.space();
+        subwriter.quote(component.path);
+        subwriter.write(';');
+        subwriter.newLine();
+        writePropsImports(subwriter, component.propDefs, flags.exoIcon.Icon);
       });
+    // Split import code by lines, remove duplicates
+    const subval = subwriter.toString();
+    if (subval.length > 0) {
+      const imports = new Set(subval.split('\n'));
+      writer.write(Array
+        .from(imports)
+        .filter(Boolean)
+        .sort(sortImports)
+        .join('\n'));
+      writer.newLine();
+    }
   }
 
   // Image & Vector Imports
@@ -121,3 +133,11 @@ export async function writeImports(
 
   writer.blankLineIfLastNot();
 }
+
+function sortImports(a: string, b: string) {
+  // Get import path (regex everything between ' or ")
+  const aPath = a.match(/'([^']+)'/)?.[1] ?? a.match(/"([^"]+)"/)?.[1];
+  const bPath = b.match(/'([^']+)'/)?.[1] ?? b.match(/"([^"]+)"/)?.[1];
+  return aPath.localeCompare(bPath);
+}
+
