@@ -56,8 +56,8 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   const sb = guides.getChildByName('storybook') as ZipDirectoryEntry;
   zip.remove(sb.getChildByName('get started.mdx'));
   sb.addText('get started.mdx', [
-    ` `,
     `import {Meta} from \'@storybook/blocks\';`,
+    ` `,
     `<Meta title="Get Started"/>`,
     ` `,
     `# ${pkgName || 'project'}`,
