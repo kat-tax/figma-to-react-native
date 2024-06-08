@@ -20,11 +20,12 @@ function init(monaco: Monaco, editor: Editor) {
     versions: {
       '@types/react': '17.0.2',
       '@types/prop-types': '15.7.11',
-      'styles': '2.7.2',
       'csstype': '3.1.3',
-      'react-exo': '0.10.15',
+      'react': '17.0.2',
       'react-native': '0.73.3',
       'react-native-svg': '15.0.0',
+      'react-exo': 'latest',
+      'styles': 'latest',
     },
     onError(error) {
       console.error('[at-error]', error);

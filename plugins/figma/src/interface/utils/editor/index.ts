@@ -17,6 +17,7 @@ export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
 
 export function initTypescript(monaco: Monaco, settings: UserSettings) {
+  const exo = `${F2RN_EDITOR_NS}node_modules/react-exo`;
   const ts = monaco.languages.typescript.typescriptDefaults;
   ts?.setInlayHintsOptions(settings.monaco.inlayHints);
   ts?.setDiagnosticsOptions(settings.monaco.diagnostics);
@@ -28,8 +29,9 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
     module: monaco.languages.typescript.ModuleKind.CommonJS,
     noEmit: true,
     paths: {
-      ['components/*']: [`${F2RN_EDITOR_NS}*`],
       ['theme']: [`${F2RN_EDITOR_NS}theme.ts`],
+      ['components/*']: [`${F2RN_EDITOR_NS}*`],
+      ['react-exo/*']: [`${exo}`],
     }
   });
 

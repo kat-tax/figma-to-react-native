@@ -6,9 +6,9 @@ export class SourceResolver implements SourceResolverBase {
     version: string | undefined,
     subPath: string | undefined
   ): Promise<string | undefined> {
-    return await this.resolveFile(
-      `https://unpkg.com/${resolvePackageAlias(packageName)}${version ? `@${version}` : ''}${subPath ? `/${subPath}` : ''}/package.json`
-    );
+    const url = `https://unpkg.com/${resolvePackageAlias(packageName)}${version ? `@${version}` : ''}${subPath ? `/${subPath}` : ''}/package.json`;
+    //console.log('[monaco/import/resolver/package]', packageName, url);
+    return await this.resolveFile(url);
   }
 
   public async resolveSourceFile(
@@ -16,12 +16,13 @@ export class SourceResolver implements SourceResolverBase {
     version: string | undefined,
     path: string
   ): Promise<string | undefined> {
-    return await this.resolveFile(`https://unpkg.com/${resolvePackageAlias(packageName)}${version ? `@${version}` : ''}/${path}`);
+    const url = `https://unpkg.com/${resolvePackageAlias(packageName)}${version ? `@${version}` : ''}/${path}`;
+    //console.log('[monaco/import/resolver/source]', packageName, url);
+    return await this.resolveFile(url);
   }
 
   private async resolveFile(url: string) {
-    const res = await fetch(url, { method: 'GET' });
-
+    const res = await fetch(url, {method: 'GET'});
     if (res.ok) {
       return await res.text();
     } else if (res.status === 404) {
@@ -37,6 +38,3 @@ function resolvePackageAlias(name: string) {
     ? 'react-native-unistyles'
     : name;
 }
-
-
-
