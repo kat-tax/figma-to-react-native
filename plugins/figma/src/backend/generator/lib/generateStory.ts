@@ -5,6 +5,7 @@ import * as string from 'common/string';
 
 import {writePropComponent} from './writePropsAttributes';
 import {writePropsImports} from './writePropsImports';
+import {sortImports} from './writeImports';
 
 import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
@@ -31,7 +32,18 @@ function writeImports(writer: CodeBlockWriter, component: ComponentInfo) {
   writer.newLine();
 
   // Import Prop Components (if any)
-  writePropsImports(writer, component.propDefs);
+  const iwriter = new CodeBlockWriter(writer.getOptions());
+  writePropsImports(iwriter, component.propDefs);
+  const ival = iwriter.toString();
+  if (ival.length > 0) {
+    const imports = new Set(ival.split('\n'));
+    writer.write(Array
+      .from(imports)
+      .filter(Boolean)
+      .sort(sortImports)
+      .join('\n'));
+    writer.newLine();
+  }
 
   // Boilerplate
   writer.write('import type {StoryObj, Meta} from');

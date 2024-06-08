@@ -143,7 +143,7 @@ export async function writeImports(
   writer.blankLineIfLastNot();
 }
 
-function sortImports(a: string, b: string) {
+export function sortImports(a: string, b: string) {
   // Get import path (regex everything between ' or ")
   const aPath = a.match(/'([^']+)'/)?.[1] ?? a.match(/"([^"]+)"/)?.[1];
   const bPath = b.match(/'([^']+)'/)?.[1] ?? b.match(/"([^"]+)"/)?.[1];
