@@ -1,7 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import parseFigmaComponent from 'backend/parser';
 
-import * as string from 'common/string';
 import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
@@ -69,11 +68,13 @@ export async function generateBundle(
   // No data, return empty bundle
   if (!data) return emptyBundle;
   
-  // Component links (TODO: use component.paths instead)
+  // Component links
   const links: ComponentLinks = {};
-  links[component.name] = component.target.id;
-  Object.entries(data.meta.components).forEach((c: any) => {
-    links[string.createIdentifierPascal(c[1][0].name)] = c[0];
+  const normalize = (path: string) => '/' + path.split('/').slice(1).join('/') + '.tsx';
+  links[normalize(component.path)] = component.target.id;
+  Object.values(data.meta.components).forEach(([node]) => {
+    const info = parser.getComponentInfo(node);
+    links[normalize(info.path)] = info.target.id;
   });
 
   // Return bundle

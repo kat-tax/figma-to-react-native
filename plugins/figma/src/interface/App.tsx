@@ -98,7 +98,7 @@ export function App(props: AppProps) {
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
       <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
       <Tab value="components">
-        <ProjectComponents {...{build, nav, iconSet, isReadOnly, hasIcons, hasStyles, searchMode, searchQuery}}/>
+        <ProjectComponents {...{nav, build, iconSet, isReadOnly, hasIcons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="icons">
         <ProjectIcons {...{icons, nav, build, isReadOnly, hasStyles, searchMode, searchQuery}}/>
@@ -110,7 +110,7 @@ export function App(props: AppProps) {
         <ProjectAssets {...{build, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="docs">
-        <ProjectDocs {...{build, nav, isReadOnly, searchQuery}}/>
+        <ProjectDocs {...{nav, build, isReadOnly, searchQuery}}/>
       </Tab>
       <Tab value="export">
         <ProjectExport {...{project, build}}/>
@@ -119,10 +119,10 @@ export function App(props: AppProps) {
         <ProjectSettings {...{options, monaco, settings}}/>
       </Tab>
       <Tab value="component/code">
-        <ComponentCode {...{componentKey, build, options, monaco}}/>
+        <ComponentCode {...{nav, componentKey, build, options, monaco}}/>
       </Tab>
       <Tab value="component/preview">
-        <ComponentPreview {...{componentKey, variant, build, theme, language, settings: settings.config}}/>
+        <ComponentPreview {...{nav, componentKey, build, variant, theme, language, settings: settings.config}}/>
       </Tab>
       <Tab value="component/story">
         <ComponentStory {...{componentKey, options, monaco}}/>

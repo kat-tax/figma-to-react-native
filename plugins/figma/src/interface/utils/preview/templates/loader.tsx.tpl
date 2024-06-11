@@ -8,7 +8,7 @@ import {Inspector} from 'preview-inspector';
 export default function Loader() {
   return (
     <TransformWrapper
-      smooth={false}
+      smooth
       initialPositionX={window.innerWidth / 2}
       initialPositionY={window.innerHeight * 2}
       doubleClick={{mode: 'reset'}}>
@@ -26,22 +26,22 @@ export function Preview() {
 
   useEffect(() => {
     const figma = (e: JSON) => {
-      const component = document.getElementById('component');
+      const el = document.getElementById('component');
       switch (e.data?.type) {
         case 'inspect':
           setInspect(e.data.enabled);
           break;
         case 'resize':
-          zoomToElement(component, 1, 0);
+          zoomToElement(el, 1, 0);
           break;
         case 'preview':
           setError(null);
           // Update frame
-          component.style.display = 'flex';
-          component.style.width = e.data.width ? e.data.width + 'px' : 'auto';
-          component.style.height = e.data.height ? e.data.height + 'px' : 'auto';
-          component.onmouseenter = () => setMouseInComponent(true);
-          component.onmouseleave = () => setMouseInComponent(false);
+          el.style.display = 'flex';
+          el.style.width = e.data.width ? e.data.width + 'px' : 'auto';
+          el.style.height = e.data.height ? e.data.height + 'px' : 'auto';
+          el.onmouseenter = () => setMouseInComponent(true);
+          el.onmouseleave = () => setMouseInComponent(false);
           // Update script
           const prev = document.getElementById('target');
           const next = document.createElement('script');
@@ -57,7 +57,7 @@ export function Preview() {
             setTimeout(() =>
               requestIdleCallback(() =>
                 requestAnimationFrame(() =>
-                  zoomToElement(component, 1, isInitLoad ? 0 : 150)
+                  zoomToElement(el, 1, isInitLoad ? 0 : 150)
                 )
               )
             , isInitLoad ? 500 : 0);
@@ -100,12 +100,24 @@ export function Preview() {
       }
       <Inspector
         active={hasInspect && isMouseInComponent}
-        onHoverElement={(e) => console.debug('[inspect]', e)}
+        onHoverElement={(e) => {
+          console.log('[hover]', e);
+        }}
         onInspectElement={(e) => {
-          const id = e?.fiber?.memoizedProps?.testID;
-          console.log(id, e);
-          if (id) {
-            parent.postMessage({type: 'focus', id});
+          console.log('[inspect]', e);
+          const {codeInfo, fiber} = e;
+          // TODO: Enable alternate mode (click to code)
+          if (false) {
+            if (codeInfo) {
+              const payload = {type: 'focus-code', codeInfo};
+              parent.postMessage(payload);
+            }
+          } else {
+            const nodeId = fiber?.memoizedProps?.['data-testid'];
+            if (nodeId) {
+              const payload = {type: 'focus-node', nodeId};
+              parent.postMessage(payload);
+            }
           }
         }}
       />

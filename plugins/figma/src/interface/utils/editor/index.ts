@@ -57,15 +57,20 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
-  const regexTestId = /testID=(?:"(\d+:\d+)"|{(props\.testID)})/;
-  const regexComponentName = /\/([^\/]+)\.[^.]+$/;
+  // Example 1: testID={props.testID ?? "1034:553"}
+  // Example 2: testID="1034:553"
+  const regexTestId = /testID=(?:"(\d+:\d+)"|{props\.testID \?\? "(\d+:\d+)"})/;
   return monaco.editor.registerEditorOpener({
     openCodeEditor(source, resource) {
       let nodeId: string | undefined;
       const base = `${resource.scheme}://${resource.authority}/`;
       if (base === F2RN_EDITOR_NS) {
-        // Search for component name in links
-        nodeId = links?.[resource.path?.match(regexComponentName)?.[1]];
+        // Foreign model, search for path in component links
+        const isOriginFile = resource.path !== source.getModel().uri.path;
+        if (isOriginFile) {
+          nodeId = links?.[resource.path];
+        }
+
         // Search for test ids if no component name found
         if (!nodeId) {
           const sel = source.getSelection();
@@ -73,10 +78,10 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
           for (let i = sel.startLineNumber; i <= sel.endLineNumber; i++) {
             const line = model?.getLineContent(i);
             const match = line?.match(regexTestId);
-            const [_, literal, prop] = match;
-            nodeId = prop
-              ? links?.[model.uri.path?.match(regexComponentName)?.[1]]
-              : literal;
+            if (match?.length) {
+              const [_, literal, prop] = match;
+              nodeId = prop ? links?.[model.uri.path] : literal;
+            }
           }
         }
       }
@@ -107,7 +112,7 @@ export function initSettingsSchema(monaco: Monaco) {
 
 export function initComponentEditor(editor: Editor, monaco: Monaco, onTriggerGPT: () => void) {
   console.log('[init editor]', editor, monaco);
-  typings.init(monaco, editor);
+  // typings.init(monaco, editor);
   Experimental.init(monaco, editor, onTriggerGPT);
   return Constraints.init(monaco, editor);
 }

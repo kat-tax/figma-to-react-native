@@ -1,3 +1,4 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
 import {init, preview} from 'interface/utils/preview';
@@ -5,21 +6,23 @@ import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as $ from 'interface/store';
 
 import type {ComponentBuild} from 'types/component';
+import type {EventFocusNode} from 'types/events';
 import type {UserSettings} from 'types/settings';
 import type {VariantData} from 'interface/hooks/useSelectedVariant';
+import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ComponentPreviewProps {
   componentKey: string,
   variant: VariantData,
   build: ComponentBuild,
-  theme: string,
-  language: string,
   settings: UserSettings,
+  language: string,
+  theme: string,
+  nav: Navigation,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {componentKey, theme, language, build, variant, settings} = props;
-  const [_node, setNode] = useState<string | null>(null);
+  const {componentKey, build, variant, theme, language, settings, nav} = props;
   const [src, setSrc] = useState('');
   const screen = useWindowSize();
   const iframe = useRef<HTMLIFrameElement>(null);
@@ -89,8 +92,19 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Handle focus events from inspect mode
   useEffect(() => {
     const onFocus = (e: any) => {
-      if (e.data?.type === 'focus') {
-        setNode(e.data.id || null);
+      switch (e.data?.type) {
+        case 'focus-node':
+          emit<EventFocusNode>('FOCUS', e.data.nodeId);
+          break;
+        case 'focus-code':
+          if (e.data?.codeInfo) {
+            props.nav.gotoTab('component/code');
+            props.nav.setCodeFocus({
+              lineNumber: parseInt(e.data?.codeInfo.lineNumber),
+              columnNumber: parseInt(e.data?.codeInfo.columnNumber),
+            });
+          }
+          break;
       }
     };
     addEventListener('message', onFocus);
@@ -116,6 +130,9 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       {!component &&
         <ScreenWarning message="Component not found"/>
       }
+      <div>
+        {JSON.stringify(variant)}
+      </div>
       <iframe
         ref={iframe}
         srcDoc={src}

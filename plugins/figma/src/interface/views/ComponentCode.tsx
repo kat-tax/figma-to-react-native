@@ -1,5 +1,6 @@
 import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
+import {Position} from 'monaco-editor';
 import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {MonacoBinding} from 'interface/utils/editor/lib/MonacoBinding';
@@ -7,15 +8,17 @@ import {initComponentEditor} from 'interface/utils/editor';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import * as $ from 'interface/store';
 
-import type {Monaco, Editor} from 'interface/utils/editor';
-import type {ComponentBuild} from 'types/component';
 import type {UserSettings} from 'types/settings';
+import type {ComponentBuild} from 'types/component';
+import type {Monaco, Editor} from 'interface/utils/editor';
+import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ComponentCodeProps {
   componentKey: string,
   build: ComponentBuild,
   options: UserSettings['monaco']['general'],
   monaco: Monaco,
+  nav: Navigation,
 }
 
 export function ComponentCode(props: ComponentCodeProps) {
@@ -94,6 +97,15 @@ export function ComponentCode(props: ComponentCodeProps) {
             new Set([e]),
             $.provider.awareness,
           );
+          const {lineNumber, columnNumber} = props.nav?.codeFocus || {};
+          if (lineNumber && columnNumber) {
+            const pos = new Position(lineNumber, columnNumber).toJSON();
+            if (Position.isIPosition(pos)) {
+              e.focus();
+              e.setPosition(pos);
+              e.revealPositionInCenter(pos, 0);
+            }
+          }
         }}
       />}
       {patch && <DiffEditor

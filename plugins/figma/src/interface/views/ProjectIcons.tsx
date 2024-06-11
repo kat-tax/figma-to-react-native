@@ -17,9 +17,9 @@ import type {ComponentBuild} from 'types/component';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ProjectIconsProps {
+  build: ComponentBuild,
   icons: ProjectIcons,
   nav: Navigation,
-  build: ComponentBuild,
   hasStyles: boolean,
   isReadOnly: boolean,
   searchMode: boolean,
