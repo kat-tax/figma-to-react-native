@@ -75,20 +75,26 @@ export async function create(
   // Design
   zip.remove(design.getChildByName('index.ts'));
   zip.remove(design.getChildByName('theme.ts'));
-  zip.remove(design.getChildByName('env.d.ts'));
-  zip.remove(design.getChildByName('package.json'));
   design.addText('index.ts', project.index);
   design.addText('theme.ts', project.theme);
-  design.addText('env.d.ts', designEnv(pkgName));
-  design.addText('package.json', JSON.stringify(
-    {
-      name: pkgName,
-      version: pkgVersion,
-      ...designPackageDefault,
-    },
-    null,
-    2,
-  ));
+
+  // Design (custom lib name)
+  // TODO: to finish support, replace package json files
+  // that reference design package
+  if (pkgName !== 'design') {
+    zip.remove(design.getChildByName('env.d.ts'));
+    zip.remove(design.getChildByName('package.json'));
+    design.addText('env.d.ts', designEnv(pkgName));
+    design.addText('package.json', JSON.stringify(
+      {
+        name: pkgName,
+        version: pkgVersion,
+        ...designPackageDefault,
+      },
+      null,
+      2,
+    ));
+  }
 
   // Assets
   if (release.includeAssets) {

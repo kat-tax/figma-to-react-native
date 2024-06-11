@@ -3,6 +3,7 @@ import {on} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
 import {upload} from 'interface/utils/project/upload';
 import {download} from 'interface/utils/project/download';
+import * as consts from 'config/consts';
 
 import type {EventProjectBuild} from 'types/events';
 
@@ -26,8 +27,7 @@ export function useProjectBuild(
         upload(project, info, config);
         break;
       case 'preview':
-        const url = 'http://127.0.0.1:5102'; // 'https://fig.run';
-        open(`${url}/#/${config.docKey}`);
+        open(`${consts.F2RN_PREVIEW_URL}/#/${config.docKey}`);
         break;
     }
     onSuccess();

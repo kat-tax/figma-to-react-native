@@ -137,9 +137,13 @@ export function build(release: ProjectRelease) {
 
       emit<EventProjectBuild>('PROJECT_BUILD', build, info, release, user);
       if (release.method === 'release') {
-        setTimeout(() => {
-          figma.openExternal(`http://localhost:3000/dashboard`);
-        }, 3000);
+        figma.notify(`Release published.`, {
+          timeout: 10000,
+          button: {
+            text: 'Open Dashboard',
+            action: () => figma.openExternal(`${consts.F2RN_SERVICE_URL}/dashboard`),
+          },
+        });
       }
     }, 500);
   } else {
