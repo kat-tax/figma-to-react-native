@@ -135,12 +135,11 @@ export function build(release: ProjectRelease) {
 
       // console.log('[project/build]', build, projectConfig);
 
+      emit<EventProjectBuild>('PROJECT_BUILD', build, info, release, user);
       if (release.method === 'release') {
         setTimeout(() => {
           figma.openExternal(`http://localhost:3000/dashboard`);
         }, 3000);
-      } else {
-        emit<EventProjectBuild>('PROJECT_BUILD', build, info, release, user);
       }
     }, 500);
   } else {

@@ -75,8 +75,8 @@ export async function create(
   // Design
   zip.remove(design.getChildByName('index.ts'));
   zip.remove(design.getChildByName('theme.ts'));
-  zip.remove(design.getChildByName('package.json'));
   zip.remove(design.getChildByName('env.d.ts'));
+  zip.remove(design.getChildByName('package.json'));
   design.addText('index.ts', project.index);
   design.addText('theme.ts', project.theme);
   design.addText('env.d.ts', designEnv(pkgName));
