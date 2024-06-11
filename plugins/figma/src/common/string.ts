@@ -1,4 +1,5 @@
 import _camelCase from 'lodash.camelcase';
+import _kebabCase from 'lodash.kebabcase';
 import _reserved from 'reserved';
 
 export function titleCase(input: string): string {
@@ -9,6 +10,10 @@ export function titleCase(input: string): string {
 
 export function camelCase(input: string): string {
   return _camelCase(input);
+}
+
+export function kebabCase(input: string): string {
+  return _kebabCase(input);
 }
 
 export function pascalCase(input: string): string {
@@ -25,6 +30,18 @@ export function escapeBacktick(input: string): string {
   return input.replace(/[\`]/g, '\\$&');
 }
 
+export function createPath(input: string): string {
+  // Trim whitespace
+  let identifier = input.trim();
+  // Strip invalid characters
+  identifier = identifier.replace(/[^a-zA-Z0-9\-$]/g, '-');
+  return identifier;
+}
+
+export function createPathKebab(input: string): string {
+  return createPath(kebabCase(input));
+}
+
 export function createIdentifier(input: string): string {
   // Trim whitespace
   let identifier = input.trim();
@@ -38,15 +55,14 @@ export function createIdentifier(input: string): string {
   return identifier;
 }
 
+export function createIdentifierConstant(input: string) {
+  return createIdentifier(constantCase(input));
+}
+
 export function createIdentifierPascal(input: string) {
   return createIdentifier(pascalCase(input));
 }
 
-// Create a variable identifier (camelcased)
 export function createIdentifierCamel(input: string) {
   return createIdentifier(camelCase(input));
-}
-
-export function createIdentifierConstant(input: string) {
-  return createIdentifier(constantCase(input));
 }

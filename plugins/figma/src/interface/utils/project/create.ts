@@ -4,7 +4,11 @@ import {F2RN_EXO_REPO_ZIP, F2RN_EXO_PROXY_URL} from 'config/consts';
 import type {ZipDirectoryEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 
-export async function create(project: ProjectBuild, info: ProjectInfo, release: ProjectRelease) {
+export async function create(
+  project: ProjectBuild,
+  info: ProjectInfo,
+  release: ProjectRelease,
+) {
   // Debug
   console.log('export', project, info, release);
   
@@ -14,7 +18,7 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   const tpl = (await zip.importHttpContent(src))[0] as ZipDirectoryEntry;
 
   // Root
-  tpl.rename(project.name);
+  tpl.rename('project');
 
   // Subfolders
   const guides = tpl.getChildByName('guides') as ZipDirectoryEntry;
@@ -22,10 +26,10 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
 
   // Info
   const linkDocs = info.appConfig?.['Web']?.['DOCS']?.toString();
-  const linkGithub = info.appConfig?.['Web']?.['GITHUB']?.toString();
   const linkFigma = info.appConfig?.['Web']?.['FIGMA']?.toString();
-  const pkgName = info.appConfig?.['Library']?.['PACKAGE_NAME']?.toString();
-  const pkgVersion = info.appConfig?.['Library']?.['PACKAGE_VERSION']?.toString();
+  const linkGithub = info.appConfig?.['Web']?.['GITHUB']?.toString();
+  const pkgVersion = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
+  const pkgName = info.appConfig?.['Design']?.['PACKAGE_NAME']?.toString();
 
   // Config
   zip.remove(tpl.getChildByName('config.yaml'));
@@ -71,8 +75,20 @@ export async function create(project: ProjectBuild, info: ProjectInfo, release: 
   // Design
   zip.remove(design.getChildByName('index.ts'));
   zip.remove(design.getChildByName('theme.ts'));
+  zip.remove(design.getChildByName('package.json'));
+  zip.remove(design.getChildByName('env.d.ts'));
   design.addText('index.ts', project.index);
   design.addText('theme.ts', project.theme);
+  design.addText('env.d.ts', designEnv(pkgName));
+  design.addText('package.json', JSON.stringify(
+    {
+      name: pkgName,
+      version: pkgVersion,
+      ...designPackageDefault,
+    },
+    null,
+    2,
+  ));
 
   // Assets
   if (release.includeAssets) {
@@ -163,4 +179,99 @@ You may now access the following dev servers:
 - **Docs**: http://localhost:6106
 - **Storybook**: http://localhost:6006
 :::
+`;
+
+const designPackageDefault = {
+  "type": "module",
+  "scripts": {
+    "dev": "conc -c 'auto' 'pnpm:*-dev'",
+    "build": "conc -c 'auto' -g 'pnpm:*-build'",
+
+    "web-dev": "vite dev  -c ../toolkit/bundler/gen/libs/design.web.js --port 6406",
+    "web-build": "vite build -c ../toolkit/bundler/gen/libs/design.web.js",
+
+    "native-dev": "vite dev  -c ../toolkit/bundler/gen/libs/design.native.js --port 6506",
+    "native-build": "vite build -c ../toolkit/bundler/gen/libs/design.native.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./gen/types/index.d.ts",
+      "import": "./gen/web/index.js",
+      "require": "./gen/native/index.js"
+    },
+    "./theme": {
+      "types": "./gen/types/theme.d.ts",
+      "import": "./gen/web/theme.js",
+      "require": "./gen/native/theme.js"
+    },
+    "./styles": {
+      "types": "./gen/types/styles.d.ts",
+      "import": "./gen/web/styles.js",
+      "require": "./gen/native/styles.js"
+    },
+    "./types": {
+      "types": "./env.d.ts"
+    }
+  },
+  "dependencies": {
+    "@lingui/core": "^4.10.0",
+    "@lingui/macro": "^4.10.0",
+    "@lingui/react": "^4.10.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-exo": "workspace:*",
+    "react-native": "^0.73.6",
+    "react-native-svg": "^15.1.0",
+    "react-native-unistyles": "^2.7.1",
+    "react-native-web": "^0.19.10",
+    "react-redux": "^9.1.2",
+    "vite-plugin-node-polyfills": "^0.21.0"
+  },
+  "devDependencies": {
+    "@storybook/react": "^8.0.8",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "bundler": "workspace:*",
+    "config": "workspace:*",
+    "typescript": "^5.3.2"
+  }
+}
+
+const designEnv = (pkgName: string) => `import type {AppThemes, AppBreakpoints} from './styles';
+import type {SvgProps} from 'react-native-svg';
+
+declare module '${pkgName}/styles' {
+  export interface UnistylesThemes extends AppThemes {}
+  export interface UnistylesBreakpoints extends AppBreakpoints {}
+}
+
+declare module 'design/styles' {
+  export interface UnistylesThemes extends AppThemes {}
+  export interface UnistylesBreakpoints extends AppBreakpoints {}
+}
+
+declare module 'styles' {
+  export interface UnistylesThemes extends AppThemes {}
+  export interface UnistylesBreakpoints extends AppBreakpoints {}
+}
+
+declare module '*.svg' {
+  const content: React.FC<SvgProps>;
+  export default content;
+}
+
+declare module '*.png' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.jpg' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.gif' {
+  const content: string;
+  export default content;
+}
 `;

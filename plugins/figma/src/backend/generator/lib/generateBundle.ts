@@ -91,9 +91,9 @@ export async function generateBundle(
     ),
     // Text
     code: await generateComponent(data, settings),
+    docs: await generateDocs(component, settings),
     index: generateIndex([component], settings, false),
     story: generateStory(component, settings),
-    docs: generateDocs(component, settings),
     // Rect
     width: data.frame ? data.frame.node.width : data.root.node.width,
     height: data.frame ? data.frame.node.height : data.root.node.height,

@@ -44,7 +44,10 @@ export function build(release: ProjectRelease) {
       exportNodes.forEach(node => {
         if (release.scope === 'document') {
           const pageName = parser.getPage(node).name;
-          if (pageName === consts.PAGES_SPECIAL.TESTS) {
+          if (pageName === consts.PAGES_SPECIAL.TESTS
+            || pageName === consts.PAGES_SPECIAL.LIBRARY
+            || pageName === consts.PAGES_SPECIAL.ICONS
+            || pageName === consts.PAGES_SPECIAL.NAVIGATION) {
             exportNodes.delete(node);
           }
         }
@@ -54,6 +57,8 @@ export function build(release: ProjectRelease) {
       exportNodes = parser.getComponentTargets(figma.currentPage.selection);
       break;
   }
+
+  let projectVersion = '';
 
   // Export components, if any
   if (exportNodes.size > 0) {
@@ -107,6 +112,17 @@ export function build(release: ProjectRelease) {
         locales: getLocales(modesLocales),
         translations: getTranslations(collectionLocales, varsTranslations, modesLocales),
       };
+      
+      if (release.method === 'release') {
+        const version = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
+        if (version) {
+          projectVersion = version;
+          const [major, minor, patch] = version.split('.').map(Number);
+          const newVersion = `${major}.${minor}.${patch + 1}`;
+          await setProjectVersion(newVersion);
+          info.appConfig['Design']['PACKAGE_VERSION'] = newVersion;
+        }
+      }
 
       const build: ProjectBuild = {
         components,
@@ -118,11 +134,21 @@ export function build(release: ProjectRelease) {
       };
 
       // console.log('[project/build]', build, projectConfig);
-      emit<EventProjectBuild>('PROJECT_BUILD', build, info, release, user);
+
+      if (release.method === 'release') {
+        setTimeout(() => {
+          figma.openExternal(`http://localhost:3000/dashboard`);
+        }, 3000);
+      } else {
+        emit<EventProjectBuild>('PROJECT_BUILD', build, info, release, user);
+      }
     }, 500);
   } else {
     emit<EventProjectBuild>('PROJECT_BUILD', null, null, release, user);
     figma.notify('No components found to export', {error: true});
+    if (projectVersion) {
+      setProjectVersion(projectVersion);
+    }
   }
 }
 
@@ -153,8 +179,9 @@ function getAppConfig(
     const [_group, _key] = cur.name.includes('/') ? cur.name.split('/') : ['General', cur.name];
     const group = string.titleCase(_group);
     const key = string.createIdentifierConstant(_key);
+    const val = key.startsWith('@') ? `"${defaultValue}"` : defaultValue;
     if (!acc[group]) acc[group] = {};
-    acc[group][key] = defaultValue;
+    acc[group][key] = val;
     return acc;
   }, {} as ProjectInfo['appConfig']);
 }
@@ -188,5 +215,18 @@ function getTranslations(
 
 function getLocaleData(locale: string) {
   return locale.split(' – ');
+}
+
+async function setProjectVersion(version: string) {
+  const config = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.APP_CONFIG);
+  if (config) {
+    const variables = await parser.getVariables(config.variableIds);
+    if (variables) {
+      const variable = variables.find(v => v.name === 'Design/Package Version');
+      if (variable) {
+        variable.setValueForMode(config.defaultModeId, version);
+      }
+    }
+  }
 }
 

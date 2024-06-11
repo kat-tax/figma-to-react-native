@@ -18,6 +18,7 @@ export const LOGTAIL_TOKEN = '3hRzjtVJTBk6BDFt3pSjjKam';
 export const TIPTAP_APP_ID = '0X9LNVMR';
 
 export const PAGES_SPECIAL = {
+  NAVIGATION: 'Navigation',
   LIBRARY: 'Library',
   ICONS: 'Icons',
   TESTS: 'Tests',

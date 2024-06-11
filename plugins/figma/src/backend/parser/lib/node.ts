@@ -46,11 +46,11 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
   const section = getSection(target);
   const page = getPage(target);
   const path = 'components/'
-    + string.createIdentifierCamel(page?.name?.toLowerCase() || 'common')
+    + string.createPathKebab(page?.name || 'common')
     + '/'
-    + string.createIdentifierCamel(section?.name?.toLowerCase() || 'base')
+    + string.createPathKebab(section?.name || 'base')
     + '/'
-    + string.createIdentifierCamel(target.name);
+    + string.createPathKebab(target.name);
   
   // Find the selected variant (if applicable)
   // TODO: fix this?, it should use the node target?
