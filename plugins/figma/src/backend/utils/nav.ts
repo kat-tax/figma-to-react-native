@@ -1,25 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import * as parser from 'backend/parser/lib';
-import * as consts from 'config/consts';
 
-import type {AppPages} from 'types/app';
 import type {EventSelectComponent, EventSelectVariant} from 'types/events';
-
-export async function loadCurrentPage(): Promise<AppPages | null> {
-  try {
-    return await figma.clientStorage.getAsync(consts.F2RN_NAVIGATE);
-  } catch (e) {
-    return null;
-  }
-}
-
-export async function saveCurrentPage(page: AppPages) {
-  try {
-    return figma.clientStorage.setAsync(consts.F2RN_NAVIGATE, page);
-  } catch (e) {
-    return false;
-  }
-}
 
 export function targetSelectedComponent() {
   if (!figma.currentPage.selection.length) return;

@@ -30,12 +30,12 @@ import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 
 import * as F from 'figma-ui';
 
-import type {AppPages, AppTabs} from 'types/app';
+import type {AppTabs} from 'types/app';
 
 interface AppProps {
-  startPage: AppPages | null,
-  isDevMode: boolean,
+  isReady: boolean,
   isVSCode: boolean,
+  isDevMode: boolean,
 }
 
 const tabs: AppTabs = {
@@ -57,7 +57,7 @@ const tabs: AppTabs = {
 };
 
 export function App(props: AppProps) {
-  const {isDevMode, isVSCode} = props;
+  const {isReady, isVSCode, isDevMode} = props;
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -72,10 +72,10 @@ export function App(props: AppProps) {
   const monaco = useEditor(settings.config, build.links);
   const nav = useNavigation(build);
 
-  const isReady = Boolean(props.startPage && project && monaco);
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
   const hasIcons = Boolean(icons?.list?.length);
+  const hasTabs = Boolean(isReady && project && monaco);
   const iconSet = icons.sets[0];
   const componentKey = build.roster[nav.component] ? nav.component: null;
   const options = {
@@ -94,7 +94,7 @@ export function App(props: AppProps) {
     }
   }, [componentKey, nav]);
 
-  return isReady ? (
+  return hasTabs ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
       <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
       <Tab value="components">

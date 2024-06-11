@@ -16,9 +16,6 @@ import * as drop from 'backend/utils/drop';
 import * as nav from 'backend/utils/nav';
 
 import type * as T from 'types/events';
-import type {AppPages} from 'types/app';
-
-let _page: AppPages = 'components';
 
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
@@ -48,13 +45,9 @@ export default async function() {
     // Load all pages into memory
     await figma.loadAllPagesAsync();
 
-    // Load current page from storage
-    _page = await nav.loadCurrentPage() || 'component/code';
-
     // Handle update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
-      nav.saveCurrentPage(page);
-      _page = page;
+      console.log('navigate', page);
     });
 
     // Handle update config from interface
@@ -109,7 +102,6 @@ export default async function() {
     // Send event to show interface (remove spinner)
     emit<T.EventAppStart>(
       'APP_START',
-      _page,
       figma.currentUser,
       mode.isVSCode,
       mode.isInspect,
@@ -129,6 +121,11 @@ export default async function() {
       nav.targetSelectedComponent();
       nav.targetSelectedComponentVariant();
     });
+
+    // If there is a selected component, target it on init
+    setTimeout(() => {
+      nav.targetSelectedComponent();
+    }, 1000);
 
     // Start generation services
     service.watchComponents(nav.targetSelectedComponent);

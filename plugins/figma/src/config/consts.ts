@@ -5,7 +5,6 @@ export const F2RN_EXO_PROXY_URL = 'https://gh-cors-proxy.ult.workers.dev/?url=';
 export const F2RN_EXO_REPO_ZIP = 'https://codeload.github.com/kat-tax/exo/zip/refs/heads/master';
 export const F2RN_EDITOR_NS = 'figma://preview/';
 
-export const F2RN_NAVIGATE = 'f2rn:navigate:1001';
 export const F2RN_SETTINGS_USER = 'f2rn:user:1001';
 export const F2RN_SETTINGS_PROJECT = 'f2rn:project:1001';
 export const F2RN_PROJECT_RELEASE = 'f2rn:release:1001';
