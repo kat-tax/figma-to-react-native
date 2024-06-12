@@ -99,6 +99,7 @@ export function ComponentCode(props: ComponentCodeProps) {
           if (lineNumber && columnNumber) {
             const pos = new Position(lineNumber, columnNumber).toJSON();
             if (Position.isIPosition(pos)) {
+              props.nav.setCodeFocus(null);
               e.focus();
               e.setPosition(pos);
               e.revealPositionInCenter(pos, 0);
