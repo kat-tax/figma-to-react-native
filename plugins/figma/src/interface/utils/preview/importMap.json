@@ -96,7 +96,7 @@
   "postcss-value-parser": "https://ga.jspm.io/npm:postcss-value-parser@4.2.0/lib/index.js",
   "prop-types": "https://ga.jspm.io/npm:prop-types@15.8.1/index.js",
   "picocolors": "https://ga.jspm.io/npm:picocolors@1.0.1/picocolors.browser.js",
-  "preview-inspector": "https://unpkg.com/preview-inspector@0.0.2/es/index.js",
+  "preview-inspector": "https://unpkg.com/preview-inspector@0.0.4/es/index.js",
   "react-dev-utils/launchEditorEndpoint": "https://ga.jspm.io/npm:react-dev-utils@12.0.1/launchEditorEndpoint.js",
   "react-inspector": "https://ga.jspm.io/npm:react-inspector@6.0.2/dist/index.mjs",
   "react-is": "https://ga.jspm.io/npm:react-is@16.13.1/index.js",
