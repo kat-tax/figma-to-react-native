@@ -107,7 +107,7 @@ export function Preview() {
           console.log('[inspect]', inspect);
           const {codeInfo, fiber} = inspect;
           // Enable alternate mode (click to code)
-          if (inspect?.pointer?.metaKey) {
+          if (inspect?.pointer?.altKey) {
             if (codeInfo) {
               const payload = {type: 'focus-code', codeInfo};
               parent.postMessage(payload);
