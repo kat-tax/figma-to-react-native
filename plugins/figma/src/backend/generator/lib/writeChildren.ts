@@ -103,7 +103,9 @@ export function writeChild(
       // Asset node
       } else {
         const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
-        const sizeProps = `width={${number.round(asset.width)}} height={${number.round(asset.height)}}`;
+        const width = number.round(asset.width);
+        const height = number.round(asset.height);
+        const sizeProps = `width={${width}} height={${height}}`;
         const animProps = assetProps?.length
           ? ' ' + assetProps.map(a => a.trim()).join(' ')
           : ' autoplay loop';
@@ -117,11 +119,13 @@ export function writeChild(
             state.flags.exoRive.Rive = true;
             break;
           default:
+            // TODO: isVideo detection is broken
             if (asset.isVideo) {
               writer.writeLine(`<Video url="${assetSource.trim()}" poster={${asset.name}} ${sizeProps}/>`);
               state.flags.exoVideo.Video = true;
             } else {
-              writer.writeLine(`<Image url={${asset.name}} ${sizeProps}/>`);
+              const extraProps = asset.thumbhash ? ` thumbhash="${asset.thumbhash}"` : '';
+              writer.writeLine(`<Image url={${asset.name}} ${sizeProps}${extraProps}/>`);
               state.flags.exoImage.Image = true;
             }
             break;

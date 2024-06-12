@@ -42,9 +42,9 @@ export type ParseVariantData = {
 export type ParseAssetData = Record<string, {
   name: string,
   hash: string,
-  embed: string,
   width: number,
   height: number,
+  thumbhash: string,
   bytes: Uint8Array | null,
   rawName: string,
   isVector?: boolean,

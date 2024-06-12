@@ -1,4 +1,5 @@
 import {blake2sHex} from 'blakejs';
+import {rgbaToThumbHash, byteArrayToBase64} from 'common/thumbhash';
 import * as string from 'common/string';
 
 import type {ParseAssetData} from 'types/parse';
@@ -21,9 +22,9 @@ export async function getAssets(nodes: Set<string>): Promise<{
 
   try {
     for await (const id of nodes) {
-      let embed: string;
       let count: number;
       let bytes: Uint8Array;
+      let thumbhash: string;
   
       const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin;
       
@@ -44,23 +45,24 @@ export async function getAssets(nodes: Set<string>): Promise<{
         hasVector = true;
         count = vectors[node.name];
         bytes = await node.exportAsync({format: 'SVG'});
-        embed = bytes
-          ? `data:image/svg+xml;base64,${figma.base64Encode(bytes)}`
-          : 'data:image/svg+xml;base64,<svg/>';
+        //embed = bytes
+        //  ? `data:image/svg+xml;base64,${figma.base64Encode(bytes)}`
+        //  : 'data:image/svg+xml;base64,<svg/>';
       } else {
+        //const thumbBytes = await node.exportAsync({format: 'PNG', constraint: {type: 'WIDTH', value: 100}});
+        //thumbhash = byteArrayToBase64(rgbaToThumbHash(100, 100, thumbBytes));
         rasters[node.name] = 1 + (rasters[node.name] || 0);
         hasRaster = true;
         count = rasters[node.name];
         bytes = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});
-        embed = bytes
-          ? `data:image/png;base64,${figma.base64Encode(bytes)}`
-          : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+        //embed = bytes
+        //  ? `data:image/png;base64,${figma.base64Encode(bytes)}`
+        //  : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
       }
 
       const rawName = node.name;
       const name = count > 1 ? `${identifier}${count}` : identifier;
-      const data = bytes || embed;
-      const hash = bytes ? blake2sHex(data) : '';
+      const hash = bytes ? blake2sHex(bytes) : '';
       const {width, height} = node;
       assetMap[id] = hash;
       assetData[id] = {
@@ -68,8 +70,8 @@ export async function getAssets(nodes: Set<string>): Promise<{
         height,
         name,
         hash,
-        embed,
         bytes,
+        thumbhash,
         rawName,
         isVector,
         isVideo,

@@ -30,10 +30,10 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
   let l_limit = hasAlpha ? 5 : 7 // Use fewer luminance bits if there's alpha
   let lx = max(1, round(l_limit * w / max(w, h)))
   let ly = max(1, round(l_limit * h / max(w, h)))
-  let l = [] // luminance
-  let p = [] // yellow - blue
-  let q = [] // red - green
-  let a = [] // alpha
+  let l: number[] = []; // Luminance
+  let p: number[] = []; // Yellow - Blue
+  let q: number[] = []; // Red - Green
+  let a: number[] = []; // Alpha
 
   // Convert the image from RGBA to LPQA (composite atop the average color)
   for (let i = 0, j = 0; i < w * h; i++, j += 4) {
@@ -48,7 +48,7 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
   }
 
   // Encode using the DCT into DC (constant) and normalized AC (varying) terms
-  let encodeChannel = (channel, nx, ny) => {
+  const encodeChannel = (channel: number[], nx: number, ny: number): [number, number[], number] => {
     let dc = 0, ac = [], scale = 0, fx = []
     for (let cy = 0; cy < ny; cy++) {
       for (let cx = 0; cx * ny < nx * (ny - cy); cx++) {
@@ -72,6 +72,7 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
         ac[i] = 0.5 + 0.5 / scale * ac[i]
     return [dc, ac, scale]
   }
+
   let [l_dc, l_ac, l_scale] = encodeChannel(l, max(3, lx), max(3, ly))
   let [p_dc, p_ac, p_scale] = encodeChannel(p, 3, 3)
   let [q_dc, q_ac, q_scale] = encodeChannel(q, 3, 3)
@@ -79,8 +80,8 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
 
   // Write the constants
   let isLandscape = w > h
-  let header24 = round(63 * l_dc) | (round(31.5 + 31.5 * p_dc) << 6) | (round(31.5 + 31.5 * q_dc) << 12) | (round(31 * l_scale) << 18) | (hasAlpha << 23)
-  let header16 = (isLandscape ? ly : lx) | (round(63 * p_scale) << 3) | (round(63 * q_scale) << 9) | (isLandscape << 15)
+  let header24 = round(63 * l_dc) | (round(31.5 + 31.5 * p_dc) << 6) | (round(31.5 + 31.5 * q_dc) << 12) | (round(31 * l_scale) << 18) | (hasAlpha as unknown as number << 23)
+  let header16 = (isLandscape ? ly : lx) | (round(63 * p_scale) << 3) | (round(63 * q_scale) << 9) | (isLandscape as unknown as number << 15)
   let hash = [header24 & 255, (header24 >> 8) & 255, header24 >> 16, header16 & 255, header16 >> 8]
   let ac_start = hasAlpha ? 6 : 5
   let ac_index = 0
@@ -91,4 +92,43 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
     for (let f of ac)
       hash[ac_start + (ac_index >> 1)] |= round(15 * f) << ((ac_index++ & 1) << 2)
   return new Uint8Array(hash)
+}
+
+/**
+ * Converts a bytearray into a base64 string without using btoa.
+ * @param byteArray - The bytearray to convert.
+ * @returns The base64 encoded string.
+ */
+export function byteArrayToBase64(byteArray: Uint8Array): string {
+  const base64Characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let result = '';
+  let i = 0;
+  const len = byteArray.length;
+
+  while (i < len) {
+      const bin1 = byteArray[i++] & 0xFF;
+      if (i === len) {
+          result += base64Characters.charAt(bin1 >> 2);
+          result += base64Characters.charAt((bin1 & 0x3) << 4);
+          result += '==';
+          break;
+      }
+
+      const bin2 = byteArray[i++] & 0xFF;
+      if (i === len) {
+          result += base64Characters.charAt(bin1 >> 2);
+          result += base64Characters.charAt(((bin1 & 0x3) << 4) | (bin2 >> 4));
+          result += base64Characters.charAt((bin2 & 0xF) << 2);
+          result += '=';
+          break;
+      }
+
+      const bin3 = byteArray[i++] & 0xFF;
+      result += base64Characters.charAt(bin1 >> 2);
+      result += base64Characters.charAt(((bin1 & 0x3) << 4) | (bin2 >> 4));
+      result += base64Characters.charAt(((bin2 & 0xF) << 2) | (bin3 >> 6));
+      result += base64Characters.charAt(bin3 & 0x3F);
+  }
+
+  return result;
 }
