@@ -113,7 +113,20 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           break;
         case 'focus-code':
           if (e.data?.codeInfo) {
-            nav.gotoTab('component/code');
+            const normalize = (p: string) => '/' + p.split('/').slice(1).join('/') + '.tsx';
+            const pathFocus = normalize(e.data?.codeInfo?.absolutePath);
+            const pathComponent = normalize(component?.path);
+            const nodeId = build.links?.[pathFocus] || e.data.nodeId;
+  
+            if (pathFocus !== pathComponent) {
+              emit<EventFocusNode>('FOCUS', nodeId);
+              setTimeout(() => {
+                nav.gotoTab('component/code');
+              }, 200);
+            } else {
+              nav.gotoTab('component/code');
+            }
+    
             nav.setCodeFocus({
               lineNumber: parseInt(e.data?.codeInfo.lineNumber),
               columnNumber: parseInt(e.data?.codeInfo.columnNumber),

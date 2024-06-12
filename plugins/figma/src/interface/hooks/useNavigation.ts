@@ -43,7 +43,6 @@ export function useNavigation(build: ComponentBuild): Navigation {
   useEffect(() => on<EventSelectComponent>('SELECT_COMPONENT', (key) => {
     if (build?.roster?.[key] !== undefined) {
       setComponent(key);
-      setCodeFocus(null);
       if (!isComponentTab(tab))
         setTab('component/code');
     }

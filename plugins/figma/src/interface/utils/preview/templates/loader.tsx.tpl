@@ -109,9 +109,17 @@ export function Preview() {
           // Enable alternate mode (click to code)
           if (inspect?.pointer?.altKey) {
             if (codeInfo) {
-              const payload = {type: 'focus-code', codeInfo};
-              parent.postMessage(payload);
+              if (codeInfo.absolutePath !== 'index.tsx') {
+                parent.postMessage({type: 'focus-code', codeInfo});
+              } else {
+                parent.postMessage({type: 'focus-code', codeInfo: {
+                  absolutePath: 'index.tsx',
+                  column: 1,
+                  line: 1,
+                }});
+              }
             }
+          // Default mode, focus Figma node
           } else {
             const nodeId = fiber?.memoizedProps?.['data-testid'];
             if (nodeId) {

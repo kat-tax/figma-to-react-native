@@ -70,7 +70,7 @@ export async function generateBundle(
   
   // Component links
   const links: ComponentLinks = {};
-  const normalize = (path: string) => '/' + path.split('/').slice(1).join('/') + '.tsx';
+  const normalize = (p: string) => '/' + p.split('/').slice(1).join('/') + '.tsx';
   links[normalize(component.path)] = component.target.id;
   Object.values(data.meta.components).forEach(([node]) => {
     const info = parser.getComponentInfo(node);
