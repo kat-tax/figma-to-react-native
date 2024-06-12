@@ -59,6 +59,16 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     ctx?.postMessage({type: 'inspect', enabled});
   }, []);
 
+  // Workaround to force the preview app to refresh
+  const forceRefresh = useCallback(() => {
+    requestAnimationFrame(() => {
+      document.body.style.width = '99%';
+      requestAnimationFrame(() => {
+        document.body.style.width = '100%';
+      });
+    });
+  }, []);
+
   // Render the loader when the settings change
   useEffect(initLoader, [settings]);
 
@@ -89,10 +99,15 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     ctx?.postMessage({type: 'variant', variant});
   }, [variant]);
 
-  // Handle focus events from inspect mode
+  // Handle events from the preview
   useEffect(() => {
     const onFocus = (e: any) => {
       switch (e.data?.type) {
+        // Force refresh
+        case 'refresh':
+          forceRefresh();
+          break;
+        // Inspect events
         case 'focus-node':
           emit<EventFocusNode>('FOCUS', e.data.nodeId);
           break;
@@ -130,9 +145,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       {!component &&
         <ScreenWarning message="Component not found"/>
       }
-      <div>
-        {JSON.stringify(variant)}
-      </div>
       <iframe
         ref={iframe}
         srcDoc={src}

@@ -37,7 +37,7 @@ window.__trans__ = (msg: string) => window.__messages__?.[window.__lang__]?.[msg
 __COMPONENT_IMPORTS__
 
 export function App() {
-  const [variant, setVariant] = React.useState(__COMPONENT_TAG__);
+  const [variant, setVariant] = React.useState({});
 
   React.useEffect(() => {
     const updateProps = (e: JSON) => {
@@ -52,8 +52,9 @@ export function App() {
           return;
         case 'variant':
           console.log('changed variant', e.data.variant);
-          const newRoot = React.cloneElement(variant, e.data.variant.props);
+          const newRoot = e.data.variant.props;
           setVariant(newRoot);
+          parent.postMessage({type: 'refresh'});
           return;
       }
     };
@@ -65,7 +66,7 @@ export function App() {
 
   return (
     <ErrorBoundary>
-      {variant}
+      {React.cloneElement(__COMPONENT_TAG__, variant)}
     </ErrorBoundary>
   )
 }
@@ -78,6 +79,7 @@ UnistylesRegistry
 AppRegistry.registerComponent('app', () => App);
 AppRegistry.runApplication('app', {
   rootTag: document.getElementById('component'),
+  mode: 'concurrent',
 });
 
 class ErrorBoundary extends React.Component {
