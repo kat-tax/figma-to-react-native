@@ -53,7 +53,6 @@ export type ComponentAsset = {
   hash: string,
   width: number,
   height: number,
-  embed: string,
   bytes: Uint8Array,
   isVector?: boolean,
 }

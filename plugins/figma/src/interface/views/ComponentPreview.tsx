@@ -51,7 +51,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       const name = component?.name;
       ctx?.postMessage({type: 'preview', bundle, name, width, height})
     });
-  }, [component, settings, props.build]);
+  }, [component, settings, build]);
 
   // Enable inspect mode in the app
   const inspectApp = useCallback((enabled: boolean) => {
@@ -113,8 +113,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           break;
         case 'focus-code':
           if (e.data?.codeInfo) {
-            props.nav.gotoTab('component/code');
-            props.nav.setCodeFocus({
+            nav.gotoTab('component/code');
+            nav.setCodeFocus({
               lineNumber: parseInt(e.data?.codeInfo.lineNumber),
               columnNumber: parseInt(e.data?.codeInfo.columnNumber),
             });

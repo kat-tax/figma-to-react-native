@@ -2,7 +2,6 @@
 
 import {useEffect, useRef} from 'react';
 import {domInspectAgent} from '../agent';
-import {gotoServerEditor} from '../utils';
 import {
   useHotkeyToggle,
   useEffectEvent,
@@ -30,6 +29,8 @@ export interface InspectParams<Element = HTMLElement> {
   codeInfo?: CodeInfo;
   /** react component name for dom element */
   name?: string;
+  /** pointer event that triggered hover / click */
+  pointer: PointerEvent;
 }
 
 export interface InspectorProps<Element> {
@@ -171,6 +172,7 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
       : undefined;
 
     onHoverElement({
+      pointer,
       element,
       fiber,
       codeInfo,
@@ -222,6 +224,7 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
 
     deactivate();
     onClickElement?.({
+      pointer,
       element,
       fiber,
       codeInfo,
@@ -230,15 +233,12 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
 
     if (fiber && codeInfo) {
       onInspectElement?.({
+        pointer,
         element,
         fiber,
         codeInfo,
         name: nameInfo?.name ?? '',
       });
-    }
-
-    if (codeInfo && !onInspectElement) {
-      gotoServerEditor(codeInfo);
     }
   })
 

@@ -100,14 +100,14 @@ export function Preview() {
       }
       <Inspector
         active={hasInspect && isMouseInComponent}
-        onHoverElement={(e) => {
-          console.log('[hover]', e);
+        onHoverElement={(inspect) => {
+          console.log('[hover]', inspect);
         }}
-        onInspectElement={(e) => {
-          console.log('[inspect]', e);
-          const {codeInfo, fiber} = e;
-          // TODO: Enable alternate mode (click to code)
-          if (false) {
+        onInspectElement={(inspect) => {
+          console.log('[inspect]', inspect);
+          const {codeInfo, fiber} = inspect;
+          // Enable alternate mode (click to code)
+          if (inspect?.pointer?.metaKey) {
             if (codeInfo) {
               const payload = {type: 'focus-code', codeInfo};
               parent.postMessage(payload);
