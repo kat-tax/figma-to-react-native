@@ -55,8 +55,6 @@ export function ComponentCode(props: ComponentCodeProps) {
         const model = props.monaco.editor.getModel(path);
         if (!model) {
           props.monaco.editor.createModel(code.toString(), 'typescript', path);
-        } else {
-          model.setValue(code.toString());
         }
       });
     }
