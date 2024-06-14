@@ -26,6 +26,7 @@ interface ComponentPreviewProps {
 
 export function ComponentPreview(props: ComponentPreviewProps) {
   const {componentKey, build, variant, theme, language, settings, nav} = props;
+  const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
   const [previewHover, setPreviewHover] = useState<[string, string] | null>(null);
   const [isInspect, setIsInspect] = useState(false);
@@ -35,7 +36,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
   const component = $.components.get(componentKey);
-  const previewBar = previewHover || previewFocused;
+  const previewBar = previewHover || previewFocused || previewDefault;
+  const pathComponent = string.componentPathNormalize(component?.path);
 
   // Helper to send messages to the iframe
   const post = useCallback((type: string, data: any) => {
@@ -111,7 +113,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Handle events from the loader and the app
   useEffect(() => {
     const onFocus = (e: any) => {
-      const pathComponent = string.componentPathNormalize(component?.path);
       switch (e.data?.type) {
         // Handle app loaded event
         case 'app:loaded': {
@@ -152,8 +153,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
           // Focus node in Figma (and subsequently the plugin UI)
           emit<EventFocusNode>('FOCUS', node);
-          // Set the persisted preview toolbar info
-          setPreviewFocused([path ?? pathComponent, `${code.line}:${code.column}`]);
+
           // Focus, but we're navigating to another file, wait for component to load
           if (path !== pathComponent) {
             setTimeout(() => nav.setCodeFocus(code), 200);
@@ -183,12 +183,14 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     };
   }, [src]);
 
-  // Update preview focus when cursor position changes
+  // Update preview default when cursor position changes
   useEffect(() => {
-    const pathComponent = string.componentPathNormalize(component?.path);
+    if (nav.codeFocus) return;
+    console.log('[preview default]', nav.cursorPos);
     const {line, column} = nav.cursorPos || {};
-    setPreviewFocused([pathComponent, `${line || 1}:${column || 1}`]);
-  }, [nav.cursorPos]);
+    setPreviewDefault([pathComponent, `${line || 1}:${column || 1}`]);
+    setPreviewFocused(null);
+  }, [nav.cursorPos, component]);
 
   return (
     <Fragment>
@@ -196,12 +198,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <ScreenWarning message="Component not found"/>
       }
       <div style={styles.header}>
-        <F.IconToggleButton
-          onValueChange={inspect}
-          value={isInspect}
-          style={{width: 40}}>
-          <F.IconTarget16/>
-        </F.IconToggleButton>
+        {isLoaded &&
+          <F.IconToggleButton onValueChange={inspect} value={isInspect} style={styles.button}>
+            <F.IconTarget16/>
+          </F.IconToggleButton>
+        }
         <div style={styles.bar}>
           <F.Text style={styles.path}>
             {previewBar ? previewBar[0] : ''}
@@ -209,10 +210,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <F.Muted style={styles.desc}>
             {previewBar ? previewBar[1] : ''}
           </F.Muted>
-        </div>
-        <F.IconButton onClick={() => reload()} style={{width: 40}}>
-          <F.IconSwap16/>
-        </F.IconButton>
+        </div>   
+        {isLoaded &&
+          <F.IconButton onClick={reload} style={styles.button}>
+            <F.IconSwap16/>
+          </F.IconButton>
+        }
       </div>
       {component && !isLoaded &&
         <div style={styles.loading}>
@@ -252,6 +255,9 @@ const styles = {
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  button: {
+    width: 40,
   },
   bar: {
     flex: 1,

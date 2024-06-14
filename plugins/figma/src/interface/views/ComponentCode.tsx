@@ -66,7 +66,9 @@ export function ComponentCode(props: ComponentCodeProps) {
       const {line, column} = props.nav.codeFocus || {};
       const pos = new Position(line, column).toJSON();
       if (Position.isIPosition(pos)) {
+        console.log('[code focus]', pos);
         props.nav.setCodeFocus(null);
+        props.nav.setCursorPos({line, column});
         editor.current?.focus();
         editor.current?.setPosition(pos);
         editor.current?.revealPositionInCenter(pos, 0);
@@ -103,13 +105,21 @@ export function ComponentCode(props: ComponentCodeProps) {
         onMount={(e, m) => {
           editor.current = e;
           constraint.current = initComponentEditor(e, m, handleGPT);
-          e.onDidChangeCursorPosition((e) => {
-            if (!props.nav.codeFocus) {
+          e.onDidChangeCursorPosition((event) => {
+            console.log('[changed cursor]', event);
+            if (props.nav.codeFocus) return;
+            if ((event?.source === 'mouse'
+              || event?.source === 'restoreState')) {
               props.nav.setCursorPos({
-                line: e.position.lineNumber,
-                column: e.position.column,
+                line: event.position.lineNumber,
+                column: event.position.column,
               });
             }
+          });
+          e.onDidChangeModel((event) => {
+            console.log('[changed model]', event);
+            props.nav.setCursorPos(null);
+            e.focus();
           });
           new MonacoBinding(
             $componentCode,

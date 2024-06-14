@@ -43,15 +43,15 @@ export function App() {
     const updateProps = (e: JSON) => {
       switch (e.data?.type) {
         case 'preview::theme':
-          console.log('changed theme', e.data.theme);
+          console.log('[changed theme]', e.data.theme);
           UnistylesRuntime.setTheme(e.data.theme);
           return;
         case 'preview::language':
-          console.log('changed language', e.data.language);
+          console.log('[changed language]', e.data.language);
           __lang__ = e.data.language;
           return;
         case 'preview::variant':
-          console.log('changed variant', e.data.variant);
+          console.log('[changed variant]', e.data.variant);
           const newRoot = e.data.variant.props;
           setVariant(newRoot);
           parent.postMessage({type: 'app:refresh'});

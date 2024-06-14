@@ -7,11 +7,11 @@ import type {AppPages} from 'types/app';
 
 export interface Navigation {
   tab: AppPages,
-  gotoTab: (value: AppPages) => void,
-  gotoOverview: () => void,
   component: string,
   codeFocus: {line: number, column: number} | null,
   cursorPos: {line: number, column: number} | null,
+  gotoTab: (value: AppPages) => void,
+  gotoOverview: () => void,
   setComponent: React.Dispatch<string>,
   setCodeFocus: React.Dispatch<{line: number, column: number} | null>,
   setCursorPos: React.Dispatch<{line: number, column: number} | null>,
@@ -50,11 +50,11 @@ export function useNavigation(build: ComponentBuild): Navigation {
 
   return {
     tab,
-    gotoTab,
-    gotoOverview,
     component,
     codeFocus,
     cursorPos,
+    gotoTab,
+    gotoOverview,
     setComponent,
     setCodeFocus,
     setCursorPos,
