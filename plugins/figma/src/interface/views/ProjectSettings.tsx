@@ -31,7 +31,7 @@ export function ProjectSettings(props: ProjectSettingsProps) {
             value={props.settings.raw}
             theme={props.options.theme}
             options={{...props.options, readOnly: false}}
-            loading={<LoadingIndicator/> as JSX.Element}
+            loading={<LoadingIndicator/>}
             onChange={value => {
               update(value);
             }}

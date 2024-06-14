@@ -27,7 +27,7 @@ export function ComponentStory(props: ComponentStoryProps) {
         value={story}
         theme={props.options?.theme}
         options={{...props.options, readOnly: true}}
-        loading={<LoadingIndicator/> as JSX.Element}
+        loading={<LoadingIndicator/>}
       />
     </Fragment>
   );

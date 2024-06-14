@@ -61,6 +61,7 @@
     "lodash.kebabcase": "^4.1.1",
     "monaco-editor": "^0.46.0",
     "monaco-editor-auto-typings": "^0.4.5",
+    "re-resizable": "^6.9.17",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-photo-album": "^2.3.1",

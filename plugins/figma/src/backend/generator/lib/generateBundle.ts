@@ -2,6 +2,7 @@ import CodeBlockWriter from 'code-block-writer';
 import parseFigmaComponent from 'backend/parser';
 
 import * as consts from 'config/consts';
+import * as string from 'common/string';
 import * as parser from 'backend/parser/lib';
 
 import {generateNatives} from '../lib/natives';
@@ -70,11 +71,10 @@ export async function generateBundle(
   
   // Component links
   const links: ComponentLinks = {};
-  const normalize = (p: string) => '/' + p.split('/').slice(1).join('/') + '.tsx';
-  links[normalize(component.path)] = component.target.id;
+  links[string.componentPathNormalize(component.path)] = component.target.id;
   Object.values(data.meta.components).forEach(([node]) => {
     const info = parser.getComponentInfo(node);
-    links[normalize(info.path)] = info.target.id;
+    links[string.componentPathNormalize(info.path)] = info.target.id;
   });
 
   // Return bundle

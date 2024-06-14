@@ -66,3 +66,28 @@ export function createIdentifierPascal(input: string) {
 export function createIdentifierCamel(input: string) {
   return createIdentifier(camelCase(input));
 }
+
+export function componentPathNormalize(
+  path: string,
+  includeExt: boolean = false,
+  includeRoot: boolean = false,
+): string {
+  if (!path) return '';
+  // Ensure path starts with a slash
+  if (!path.startsWith('/'))
+    path = '/' + path;
+  // Ensure path starts with /components if includeRoot is true
+  if (includeRoot && !path.startsWith('/components'))
+    path = '/components' + (path.startsWith('/') ? '' : '/') + path;
+  // Remove /components from the path if includeRoot is false
+  if (!includeRoot && path.startsWith('/components'))
+    path = '/' + path.split('/').slice(2).join('/')
+  // Add .tsx extension if includeExt is true and path does not have it
+  if (includeExt && !path.endsWith('.tsx'))
+    path += '.tsx';
+  // Remove .tsx extension if includeExt is false and path has it
+  if (!includeExt && path.endsWith('.tsx'))
+    path = path.slice(0, -4);
+  return path;
+}
+

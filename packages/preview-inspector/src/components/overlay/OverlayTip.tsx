@@ -136,17 +136,10 @@ export class InspectorOverlayTip extends LitElement {
         <div class='inspector-tip-title' >
           &lrm;${this.title}&lrm;
         </div>
-
-        <div
-          class='inspector-tip-info'
-          style=${this.infoStyle}
-        >
-          &lrm;${this.info}&lrm;
-        </div>
       </div>
       <div class='inspector-tip-separator'></div>
       <div class='inspector-tip-size' >
-        ${this.width}px × ${this.height}px
+        ${this.width} × ${this.height}
       </div>
     `;
   }
@@ -158,15 +151,14 @@ export class InspectorOverlayTip extends LitElement {
       display: var(--inspector-overlay-tip-display, none);
       top: var(--inspector-overlay-tip-top, 0);
       left: var(--inspector-overlay-tip-left, 0);
-
       flex-flow: row nowrap;
       align-items: center;
-      border-radius: 4px;
-      padding: 4px 12px;
-      background-color: #333740;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-      font-size: 12px;
-      font-weight: bold;
+      border-radius: 2px;
+      padding: 0px 4px;
+      background-color: #9747ff;
+      font-family: Inter, sans-serif;
+      font-feature-settings: 'liga' 1, 'calt' 1;
+      font-size: 11px;
       line-height: 1;
       white-space: nowrap;
       max-width: 97vw;
@@ -181,17 +173,17 @@ export class InspectorOverlayTip extends LitElement {
     }
 
     .inspector-tip-separator {
-      width: 0;
+      width: 0px;
       flex: 0 0 auto;
-      border-right: 1px solid #aaaaaa;
-      margin-inline: 12px;
-      height: 40px;
+      border-right: 1px solid rgb(255 255 255 / 40%);
+      margin-inline: 6px;
+      height: 11px;
     }
 
     .inspector-tip-title, .inspector-tip-info {
       max-width: 750px;
       margin-block: 4px;
-      color: #ee78e6;
+      color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -204,14 +196,14 @@ export class InspectorOverlayTip extends LitElement {
       text-align: left;
     }
     .inspector-tip-title {
-      font-size: 16px;
+      font-size: 11px;
     }
     .inspector-tip-info {
-      font-size: 14px;
+      font-size: 9px;
     }
     .inspector-tip-size {
       flex: 0 0 auto;
-      color: #d7d7d7;
+      color: #fff;
     }
   `;
 }

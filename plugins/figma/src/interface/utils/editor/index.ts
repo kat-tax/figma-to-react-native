@@ -1,4 +1,5 @@
 import {F2RN_EDITOR_NS} from 'config/consts';
+import {componentPathNormalize} from 'common/string';
 import {emit} from '@create-figma-plugin/utilities';
 import schema from 'interface/schemas/user/schema.json';
 import * as $ from 'interface/store';
@@ -68,7 +69,7 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
         // Foreign model, search for path in component links
         const isOriginFile = resource.path !== source.getModel().uri.path;
         if (isOriginFile) {
-          nodeId = links?.[resource.path];
+          nodeId = links?.[componentPathNormalize(resource.path)];
         }
 
         // Search for test ids if no component name found
@@ -80,7 +81,7 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
             const match = line?.match(regexTestId);
             if (match?.length) {
               const [_, literal, prop] = match;
-              nodeId = prop ? links?.[model.uri.path] : literal;
+              nodeId = prop ? links?.[componentPathNormalize(model.uri.path)] : literal;
             }
           }
         }

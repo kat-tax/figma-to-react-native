@@ -60,6 +60,20 @@ export function ComponentCode(props: ComponentCodeProps) {
     }
   }, [props.build]);
 
+  // Consume code focus from navigation
+  useEffect(() => {
+    if (props.nav.codeFocus) {
+      const {lineNumber, columnNumber} = props.nav.codeFocus || {};
+      const pos = new Position(lineNumber, columnNumber).toJSON();
+      if (Position.isIPosition(pos)) {
+        props.nav.setCodeFocus(null);
+        editor.current?.focus();
+        editor.current?.setPosition(pos);
+        editor.current?.revealPositionInCenter(pos, 0);
+      }
+    }
+  }, [props.nav.codeFocus]);
+
   // Update editor constraints on target change
   /*useEffect(() => {
     if (constraint.current) {
@@ -84,7 +98,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         language="typescript"
         theme={props.options?.theme}
         options={{...props.options}}
-        loading={<LoadingIndicator/> as JSX.Element}
+        loading={<LoadingIndicator/>}
         path={`${F2RN_EDITOR_NS}${$componentInfo?.path.split('/').slice(1).join('/')}.tsx`}
         onMount={(e, m) => {
           editor.current = e;
@@ -95,23 +109,13 @@ export function ComponentCode(props: ComponentCodeProps) {
             new Set([e]),
             $.provider.awareness,
           );
-          const {lineNumber, columnNumber} = props.nav?.codeFocus || {};
-          if (lineNumber && columnNumber) {
-            const pos = new Position(lineNumber, columnNumber).toJSON();
-            if (Position.isIPosition(pos)) {
-              props.nav.setCodeFocus(null);
-              e.focus();
-              e.setPosition(pos);
-              e.revealPositionInCenter(pos, 0);
-            }
-          }
         }}
       />}
       {patch && <DiffEditor
         language="typescript"
         theme={props.options?.theme}
         options={{...props.options}}
-        loading={<LoadingIndicator/> as JSX.Element}
+        loading={<LoadingIndicator/>}
         original={$componentCode.toString()}
         modified={patch}
         originalModelPath={`${F2RN_EDITOR_NS}${$componentInfo?.path.split('/').slice(1).join('/')}.tsx`}

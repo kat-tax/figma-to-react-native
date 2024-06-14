@@ -212,13 +212,9 @@ export const getElementInspect = (element: HTMLElement): {
     fiberName = getFiberName(namedFiber?.return);
   }
 
-  const title = (fiberName && !(fiberName === nodeName))
-    ? `${nodeName} in <${fiberName}>`
-    : nodeName;
-
   return {
     fiber: referenceFiber,
-    name: fiberName || nodeName,
-    title,
+    name: nodeName,
+    title: fiberName || nodeName,
   };
 }

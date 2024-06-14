@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import {Resizable} from 're-resizable';
 
 import {NavBar} from 'interface/base/NavBar';
 import {Tabs, Tab} from 'interface/base/Tabs';
@@ -50,7 +51,6 @@ const tabs: AppTabs = {
   ],
   component: [
     'component/code',
-    'component/preview',
     'component/story',
     'component/docs',
   ],
@@ -60,6 +60,7 @@ export function App(props: AppProps) {
   const {isReady, isVSCode, isDevMode} = props;
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [lastResize, setLastResize] = useState(0);
 
   const isDark = useDarkMode();
   const build = useBuild();
@@ -119,10 +120,26 @@ export function App(props: AppProps) {
         <ProjectSettings {...{options, monaco, settings}}/>
       </Tab>
       <Tab value="component/code">
-        <ComponentCode {...{nav, componentKey, build, options, monaco}}/>
-      </Tab>
-      <Tab value="component/preview">
-        <ComponentPreview {...{nav, componentKey, build, variant, theme, language, settings: settings.config}}/>
+        <div style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          overflow: 'hidden',
+          flexDirection:'column-reverse',
+        }}>
+          <Resizable
+            minWidth="100%"
+            minHeight="30px"
+            maxHeight="90%"
+            defaultSize={{width: '100%', height: '50%'}}
+            onResize={() => setLastResize(Date.now())}
+            enable={{top: true, bottom: false, left: false, right: false}}>
+            <ComponentPreview {...{nav, componentKey, build, variant, lastResize, theme, language, settings: settings.config}}/>
+          </Resizable>
+          <div style={{display: 'flex', flex: 1, height: '0%'}}>
+            <ComponentCode {...{nav, componentKey, build, options, monaco}}/>
+          </div>
+        </div>
       </Tab>
       <Tab value="component/story">
         <ComponentStory {...{componentKey, options, monaco}}/>

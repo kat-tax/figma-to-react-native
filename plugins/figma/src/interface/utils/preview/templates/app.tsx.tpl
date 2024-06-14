@@ -42,26 +42,27 @@ export function App() {
   React.useEffect(() => {
     const updateProps = (e: JSON) => {
       switch (e.data?.type) {
-        case 'theme':
+        case 'preview::theme':
           console.log('changed theme', e.data.theme);
           UnistylesRuntime.setTheme(e.data.theme);
           return;
-        case 'language':
+        case 'preview::language':
           console.log('changed language', e.data.language);
           __lang__ = e.data.language;
           return;
-        case 'variant':
+        case 'preview::variant':
           console.log('changed variant', e.data.variant);
           const newRoot = e.data.variant.props;
           setVariant(newRoot);
-          parent.postMessage({type: 'refresh'});
+          parent.postMessage({type: 'app:refresh'});
           return;
       }
     };
     // Note: do not use addEventListener, cleanup doesn't always work
     // due to how the app is reloaded in the loader
     window.onmessage = updateProps;
-    return () => window.onmessage = null;
+    parent.postMessage({type: 'app:loaded'});
+    return () => (window.onmessage = null);
   }, []);
 
   return (
@@ -104,7 +105,7 @@ class ErrorBoundary extends React.Component {
     this.setState({components});
     logtail.error(error, components);
     logtail.flush();
-    postMessage({type: 'component::error', error, info}, '*');
+    postMessage({type: 'app::error', error, info}, '*');
   }
 
   render() {

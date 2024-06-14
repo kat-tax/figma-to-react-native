@@ -27,7 +27,7 @@ export function ComponentDocs(props: ComponentDocsProps) {
         value={docs.toString()}
         theme={props.options?.theme}
         options={{...props.options, readOnly: true}}
-        loading={<LoadingIndicator/> as JSX.Element}
+        loading={<LoadingIndicator/>}
       />
     </Fragment>
   );

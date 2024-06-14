@@ -24,17 +24,25 @@ export function Preview() {
   const [hasInspect, setInspect] = useState(false);
   const [isMouseInComponent, setMouseInComponent] = useState(false);
 
+  const inspectHandler = (type: 'hover' | 'inspect') => (data: any) => {
+    const {codeInfo, fiber} = data;
+    const nodeId = fiber?.memoizedProps?.['data-testid'];
+    console.log('codeInfo: ', codeInfo, 'nodeId: ', nodeId);
+    const debug = codeInfo?.absolutePath === 'index.tsx' ? null : codeInfo;
+    parent.postMessage({type: `loader::${type}`, nodeId, debug});
+  };
+
   useEffect(() => {
     const figma = (e: JSON) => {
       const el = document.getElementById('component');
       switch (e.data?.type) {
-        case 'inspect':
+        case 'preview::inspect':
           setInspect(e.data.enabled);
           break;
-        case 'resize':
-          zoomToElement(el, 1, 0);
+        case 'preview::resize':
+          zoomToElement(el, 1, 25);
           break;
-        case 'preview':
+        case 'preview::load':
           setError(null);
           // Update frame
           el.style.display = 'flex';
@@ -68,7 +76,7 @@ export function Preview() {
 
     const component = (e: JSON) => {
       switch (e.data?.type) {
-        case 'component::error':
+        case 'app::error':
           setError({
             stack: e.data?.error?.stack,
             components: e.data?.info?.componentStack,
@@ -100,34 +108,8 @@ export function Preview() {
       }
       <Inspector
         active={hasInspect && isMouseInComponent}
-        onHoverElement={(inspect) => {
-          console.log('[hover]', inspect);
-        }}
-        onInspectElement={(inspect) => {
-          console.log('[inspect]', inspect);
-          const {codeInfo, fiber} = inspect;
-          // Enable alternate mode (click to code)
-          if (inspect?.pointer?.altKey) {
-            if (codeInfo) {
-              if (codeInfo.absolutePath !== 'index.tsx') {
-                parent.postMessage({type: 'focus-code', codeInfo});
-              } else {
-                parent.postMessage({type: 'focus-code', codeInfo: {
-                  absolutePath: 'index.tsx',
-                  column: 1,
-                  line: 1,
-                }});
-              }
-            }
-          // Default mode, focus Figma node
-          } else {
-            const nodeId = fiber?.memoizedProps?.['data-testid'];
-            if (nodeId) {
-              const payload = {type: 'focus-node', nodeId};
-              parent.postMessage(payload);
-            }
-          }
-        }}
+        onHoverElement={inspectHandler('hover')}
+        onInspectElement={inspectHandler('inspect')}
       />
     </TransformComponent>
   );

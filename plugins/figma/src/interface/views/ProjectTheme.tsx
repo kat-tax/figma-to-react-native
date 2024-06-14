@@ -22,7 +22,7 @@ export function ProjectTheme(props: ProjectThemeProps) {
           path={`${F2RN_EDITOR_NS}theme.ts`}
           theme={props.options.theme}
           options={{...props.options, readOnly: true}}
-          loading={<LoadingIndicator/> as JSX.Element}
+          loading={<LoadingIndicator/>}
           onMount={(editor) => {
             new MonacoBinding(
               $.getProjectTheme(),
