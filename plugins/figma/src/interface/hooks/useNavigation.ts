@@ -7,21 +7,21 @@ import type {AppPages} from 'types/app';
 
 export interface Navigation {
   tab: AppPages,
-  component: string,
-  codeFocus: {lineNumber: number, columnNumber: number} | null,
   gotoTab: (value: AppPages) => void,
   gotoOverview: () => void,
+  component: string,
+  codeFocus: {line: number, column: number} | null,
+  cursorPos: {line: number, column: number} | null,
   setComponent: React.Dispatch<string>,
-  setCodeFocus: React.Dispatch<{lineNumber: number, columnNumber: number} | null>,
+  setCodeFocus: React.Dispatch<{line: number, column: number} | null>,
+  setCursorPos: React.Dispatch<{line: number, column: number} | null>,
 }
 
 export function useNavigation(build: ComponentBuild): Navigation {
   const [tab, setTab] = useState<AppPages>('components');
   const [component, setComponent] = useState<string | null>(null);
-  const [codeFocus, setCodeFocus] = useState<{
-    lineNumber: number,
-    columnNumber: number,
-  } | null>(null);
+  const [codeFocus, setCodeFocus] = useState<{line: number, column: number} | null>(null);
+  const [cursorPos, setCursorPos] = useState<{line: number, column: number} | null>(null);
 
   const isComponentTab = (tab: AppPages) => {
     return tab.startsWith('component/');
@@ -50,11 +50,13 @@ export function useNavigation(build: ComponentBuild): Navigation {
 
   return {
     tab,
-    component,
-    codeFocus,
     gotoTab,
     gotoOverview,
+    component,
+    codeFocus,
+    cursorPos,
     setComponent,
     setCodeFocus,
+    setCursorPos,
   };
 }

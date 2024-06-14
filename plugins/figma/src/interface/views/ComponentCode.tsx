@@ -63,8 +63,8 @@ export function ComponentCode(props: ComponentCodeProps) {
   // Consume code focus from navigation
   useEffect(() => {
     if (props.nav.codeFocus) {
-      const {lineNumber, columnNumber} = props.nav.codeFocus || {};
-      const pos = new Position(lineNumber, columnNumber).toJSON();
+      const {line, column} = props.nav.codeFocus || {};
+      const pos = new Position(line, column).toJSON();
       if (Position.isIPosition(pos)) {
         props.nav.setCodeFocus(null);
         editor.current?.focus();
@@ -103,6 +103,14 @@ export function ComponentCode(props: ComponentCodeProps) {
         onMount={(e, m) => {
           editor.current = e;
           constraint.current = initComponentEditor(e, m, handleGPT);
+          e.onDidChangeCursorPosition((e) => {
+            if (!props.nav.codeFocus) {
+              props.nav.setCursorPos({
+                line: e.position.lineNumber,
+                column: e.position.column,
+              });
+            }
+          });
           new MonacoBinding(
             $componentCode,
             e.getModel(),

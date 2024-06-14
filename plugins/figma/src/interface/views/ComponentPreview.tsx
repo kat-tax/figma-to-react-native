@@ -66,21 +66,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   }, [component, settings, build]);
 
   // Reload the iframe command
-  const actionReload = useCallback(() => {
+  const reload = useCallback(() => {
     iframe.current?.contentWindow?.location.reload();
   }, []);
 
-  // Enable inspect mode in the app
-  const actionInspect = useCallback((enabled: boolean) => {
-    setIsInspect(enabled);
-    post('preview::inspect', {enabled});
-    if (!enabled) {
-      setPreviewHover(null);
-    }
-  }, []);
-
   // Workaround to force the preview app to refresh
-  const actionRefresh = useCallback(() => {
+  const refresh = useCallback(() => {
     if (!iframe.current) return;
     requestAnimationFrame(() => {
       iframe.current.style.width = '99%';
@@ -88,6 +79,15 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         iframe.current.style.width = '100%';
       });
     });
+  }, []);
+
+  // Enable inspect mode in the app
+  const inspect = useCallback((enabled: boolean) => {
+    setIsInspect(enabled);
+    post('preview::inspect', {enabled});
+    if (!enabled) {
+      setPreviewHover(null);
+    }
   }, []);
 
   // Render the loader when the settings change
@@ -121,7 +121,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
         // Force refresh
         case 'app:refresh': {
-          actionRefresh();
+          refresh();
           break;
         }
 
@@ -131,14 +131,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             ? string.componentPathNormalize(e.data.debug?.absolutePath)
             : Object.entries(build.links).find(([_,i]) => i === e.data?.nodeId)[0];
           const code = {
-            lineNumber: parseInt(e.data.debug?.lineNumber) || 1,
-            columnNumber: parseInt(e.data.debug?.columnNumber) || 1,
+            line: parseInt(e.data.debug?.lineNumber) || 1,
+            column: parseInt(e.data.debug?.columnNumber) || 1,
           };
-          // Set the temporary preview toolbar info
-          setPreviewHover([
-            path ?? pathComponent,
-            `${code.lineNumber}:${code.columnNumber}`,
-          ]);
+          setPreviewHover([path ?? pathComponent, `${code.line}:${code.column}`]);
           break;
         }
 
@@ -150,23 +146,18 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             : Object.entries(build.links).find(([_,i]) => i === e.data?.nodeId)[0];
           const node = e.data?.nodeId || build.links?.[path];
           const code = {
-            lineNumber: parseInt(e.data.debug?.lineNumber) || 1,
-            columnNumber: parseInt(e.data.debug?.columnNumber) || 1,
+            line: parseInt(e.data.debug?.lineNumber) || 1,
+            column: parseInt(e.data.debug?.columnNumber) || 1,
           };
 
           // Focus node in Figma (and subsequently the plugin UI)
           emit<EventFocusNode>('FOCUS', node);
-
           // Set the persisted preview toolbar info
-          setPreviewFocused([
-            path ?? pathComponent,
-            `${code.lineNumber}:${code.columnNumber}`,
-          ]);
-
-          // Set code to focus when editor loads
-          // If we're navigating to another file, wait for the component tab
+          setPreviewFocused([path ?? pathComponent, `${code.line}:${code.column}`]);
+          // Focus, but we're navigating to another file, wait for component to load
           if (path !== pathComponent) {
             setTimeout(() => nav.setCodeFocus(code), 200);
+          // Focus editor immediately
           } else {
             nav.setCodeFocus(code);
           }
@@ -182,8 +173,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   useEffect(() => {
     if (!src) return;
     const valKeyEvent = (e: KeyboardEvent) => e.ctrlKey || e.key === 'Alt' || e.key === 'Meta' || e.key === 'Shift';
-    const onKeyDown = (e: KeyboardEvent) => valKeyEvent(e) && actionInspect(true);
-    const onKeyUp = (e: KeyboardEvent) => valKeyEvent(e) && actionInspect(false);
+    const onKeyDown = (e: KeyboardEvent) => valKeyEvent(e) && inspect(true);
+    const onKeyUp = (e: KeyboardEvent) => valKeyEvent(e) && inspect(false);
     addEventListener('keydown', onKeyDown);
     addEventListener('keyup', onKeyUp);
     return () => {
@@ -192,6 +183,13 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     };
   }, [src]);
 
+  // Update preview focus when cursor position changes
+  useEffect(() => {
+    const pathComponent = string.componentPathNormalize(component?.path);
+    const {line, column} = nav.cursorPos || {};
+    setPreviewFocused([pathComponent, `${line || 1}:${column || 1}`]);
+  }, [nav.cursorPos]);
+
   return (
     <Fragment>
       {!component &&
@@ -199,7 +197,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       }
       <div style={styles.header}>
         <F.IconToggleButton
-          onValueChange={actionInspect}
+          onValueChange={inspect}
           value={isInspect}
           style={{width: 40}}>
           <F.IconTarget16/>
@@ -212,7 +210,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             {previewBar ? previewBar[1] : ''}
           </F.Muted>
         </div>
-        <F.IconButton onClick={() => actionReload()} style={{width: 40}}>
+        <F.IconButton onClick={() => reload()} style={{width: 40}}>
           <F.IconSwap16/>
         </F.IconButton>
       </div>
