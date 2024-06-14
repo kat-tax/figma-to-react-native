@@ -109,6 +109,7 @@ export function ComponentCode(props: ComponentCodeProps) {
             console.log('[changed cursor]', event);
             if (props.nav.codeFocus) return;
             if ((event?.source === 'mouse'
+              || event?.source === 'keyboard'
               || event?.source === 'restoreState')) {
               props.nav.setCursorPos({
                 line: event.position.lineNumber,
