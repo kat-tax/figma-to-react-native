@@ -61,7 +61,10 @@ export async function writeImports(
 ) {
   // Import template
   const writeImport = (name: string, props: Record<string, boolean>, isType?: boolean) => {
-    const names = Object.entries(props).map(([k, f]) => f && k).filter(Boolean);
+    const names = Object.entries(props)
+      .map(([k, f]) => f && k)
+      .filter(Boolean)
+      .sort((a, b) => b.localeCompare(a));
     if (!names.length) return;
     writer.write(`import ${isType ? 'type ' : ''}{${names.join(', ')}} from`);
     writer.space();
