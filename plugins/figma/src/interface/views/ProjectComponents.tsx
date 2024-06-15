@@ -215,7 +215,7 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
             ? 'Error'
             : hasUnsavedChanges
               ? 'Modified'
-              : '/' + path.replace('components/', '')
+              : path.split('/').slice(2, -1).join('/')
         }
         icon={hasError
           ? <F.IconWarning16 color="danger"/>
