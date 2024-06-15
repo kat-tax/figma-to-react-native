@@ -210,11 +210,11 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
           : undefined
         }
         description={loading
-          ? 'Loading...'
+          ? 'loading...'
           : hasError
-            ? 'Error'
+            ? 'error'
             : hasUnsavedChanges
-              ? 'Modified'
+              ? 'modified'
               : path.split('/').slice(2, -1).join('/')
         }
         icon={hasError
