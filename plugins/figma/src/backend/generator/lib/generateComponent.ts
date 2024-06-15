@@ -20,7 +20,7 @@ export async function generateComponent(data: ParseData, settings: ProjectSettin
     reactNativeTypes: {},
     unistyles: {},
     lingui: {},
-    exoVariants: {},
+    exoUtils: {},
     exoIcon: {},
     exoImage: {},
     exoVideo: {},

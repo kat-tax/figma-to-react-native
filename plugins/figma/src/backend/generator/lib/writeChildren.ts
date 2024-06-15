@@ -78,15 +78,15 @@ export function writeChild(
   // Icon node
   if (isIcon) {
     const icon = getIconProp(slug, isRootPressable);
-    state.flags.reactNative.StyleSheet = true;
     // Swap icon, override props for this instance
     if (isSwap) {
-      state.flags.react.cloneElement = true;
-      const statement = `cloneElement(props.${swapNodeProp}, StyleSheet.flatten(${icon}))`;
+      state.flags.exoUtils.createIcon = true;
+      const statement = `createIcon(props.${swapNodeProp}, ${icon})`;
       writer.writeLine((isConditional ? '' : '{') + statement + (isConditional ? '' : '}'));
     // Explicit icon, use Icon component directly
     } else {
       state.flags.exoIcon.Icon = true;
+      state.flags.reactNative.StyleSheet = true;
       writer.writeLine(`<Icon {...StyleSheet.flatten(${icon})}/>`);
     }
     return;

@@ -17,7 +17,7 @@ export function writeStyleHooks(
   const destructure = flags.useStylesTheme ? '{styles, theme}' : '{styles}';
 
   // Import flags
-  flags.exoVariants.useVariants = hasStyles || hasIcons;
+  flags.exoUtils.useVariants = hasStyles || hasIcons;
   flags.unistyles.useStyles = true;
 
   // No variants

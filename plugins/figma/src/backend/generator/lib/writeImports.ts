@@ -46,8 +46,9 @@ export interface ImportFlags {
   exoRive: {
     Rive?: boolean,
   },
-  exoVariants: {
+  exoUtils: {
     useVariants?: boolean,
+    createIcon?: boolean,
   },
   // Hook destructuring
   useStylesTheme: boolean,
@@ -72,7 +73,7 @@ export async function writeImports(
   // Package Imports
   writeImport('react', flags.react);
   writeImport('styles', flags.unistyles);
-  writeImport('react-exo/variants', flags.exoVariants);
+  writeImport('react-exo/utils', flags.exoUtils);
   writeImport('react-native', flags.reactNative);
   writeImport('react-exo/icon', flags.exoIcon);
   writeImport('react-exo/image', flags.exoImage);

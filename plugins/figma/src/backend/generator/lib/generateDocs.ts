@@ -17,7 +17,7 @@ export async function generateDocs(component: ComponentInfo, settings: ProjectSe
   // Imports
   const regex = /(?<=<)([A-Z][a-zA-Z0-9]*)/g;
   const matches = attrs.match(regex);
-  const hasIcon = matches.includes('Icon');
+  const hasIcon = matches?.includes('Icon');
   const imports = Array.from(new Set(matches))
     .sort((a, b) => a.localeCompare(b))
     .filter(i => i !== 'Icon');
