@@ -40,8 +40,10 @@ export async function writeFunction(
   const isPressable = pressables !== null
     && pressables.find(e => e[1] === 'root' || !e[1]) !== undefined;
 
-  writePropsInterface(writer, flags, propDefs, name, pressables, isPressable, isIcon);
-  writeTSDoc(writer, masterNode);
+  const docWriter = new CodeBlockWriter(settings.writer);
+  const tsdoc = writeTSDoc(docWriter, masterNode);
+  writePropsInterface(writer, flags, tsdoc, propDefs, name, pressables, isPressable, isIcon);
+  if (tsdoc?.value) writer.write(tsdoc.value);
 
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
     const code = getComponentCode(flags, data, settings, language, masterNode, pressables, isPressable);

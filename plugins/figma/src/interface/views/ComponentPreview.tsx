@@ -203,11 +203,13 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <ScreenWarning message="Component not found"/>
       }
       <div style={styles.header}>
-        {isLoaded &&
-          <F.IconToggleButton onValueChange={inspect} value={isInspect} style={styles.button}>
-            <F.IconTarget16/>
-          </F.IconToggleButton>
-        }
+        <F.IconToggleButton
+          onValueChange={inspect}
+          disabled={!isLoaded}
+          value={isInspect}
+          style={styles.button}>
+          <F.IconTarget16/>
+        </F.IconToggleButton>
         <div style={styles.bar}>
           <F.Text style={styles.path}>
             {previewBar ? previewBar[0] : ''}
@@ -216,11 +218,9 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             {previewBar ? previewBar[1] : ''}
           </F.Muted>
         </div>   
-        {isLoaded &&
-          <F.IconButton onClick={reload} style={styles.button}>
-            <F.IconSwap16/>
-          </F.IconButton>
-        }
+        <F.IconButton onClick={reload} style={styles.button}>
+          <F.IconSwap16/>
+        </F.IconButton>
       </div>
       {component && !isLoaded &&
         <div style={styles.loading}>

@@ -3,11 +3,13 @@ import CodeBlockWriter from 'code-block-writer';
 import * as parser from 'backend/parser/lib';
 import * as string from 'common/string';
 
+import type {TSDocInfo} from './writeTSDoc';
 import type {ImportFlags} from './writeImports';
 
 export function writePropsInterface(
   writer: CodeBlockWriter,
   flags: ImportFlags,
+  tsdoc: TSDocInfo,
   propDefs: ComponentPropertyDefinitions,
   componentName: string,
   pressables: string[][],
@@ -36,6 +38,10 @@ export function writePropsInterface(
         : prop.type === 'TEXT'
           ? 'string'
           : prop.type.toLowerCase();
+    // Write prop doc (if any)
+    if (tsdoc?.properties?.[propName]) {
+      propLines.push(`/** ${tsdoc.properties[propName]} */`);
+    }
     // Record prop
     propLines.push(`${propName}${isConditional ? '?' : ''}: ${propType},`);
     // Record variant
