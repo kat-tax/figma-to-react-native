@@ -66,7 +66,7 @@ export function ComponentCode(props: ComponentCodeProps) {
       const {line, column} = props.nav.codeFocus || {};
       const pos = new Position(line, column).toJSON();
       if (Position.isIPosition(pos)) {
-        console.log('[code focus]', pos);
+        // console.log('[code focus]', pos);
         props.nav.setCodeFocus(null);
         props.nav.setCursorPos({line, column});
         editor.current?.focus();
@@ -106,7 +106,7 @@ export function ComponentCode(props: ComponentCodeProps) {
           editor.current = e;
           constraint.current = initComponentEditor(e, m, handleGPT);
           e.onDidChangeCursorPosition((event) => {
-            console.log('[changed cursor]', event);
+            // console.log('[changed cursor]', event);
             if (props.nav.codeFocus) return;
             if ((event?.source === 'mouse'
               || event?.source === 'keyboard'
@@ -117,8 +117,12 @@ export function ComponentCode(props: ComponentCodeProps) {
               });
             }
           });
-          e.onDidChangeModel((event) => {
-            console.log('[changed model]', event);
+          e.onDidChangeModelContent((event) => {
+            console.log('[changed model content]', event);
+            props.nav.setLastEditorRev(event.versionId);
+          });
+          e.onDidChangeModel((_event) => {
+            // console.log('[changed model]', event);
             props.nav.setCursorPos(null);
             e.focus();
           });

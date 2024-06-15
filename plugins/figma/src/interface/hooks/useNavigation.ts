@@ -10,11 +10,13 @@ export interface Navigation {
   component: string,
   codeFocus: {line: number, column: number} | null,
   cursorPos: {line: number, column: number} | null,
+  lastEditorRev: number,
   gotoTab: (value: AppPages) => void,
   gotoOverview: () => void,
   setComponent: React.Dispatch<string>,
   setCodeFocus: React.Dispatch<{line: number, column: number} | null>,
   setCursorPos: React.Dispatch<{line: number, column: number} | null>,
+  setLastEditorRev: React.Dispatch<number>,
 }
 
 export function useNavigation(build: ComponentBuild): Navigation {
@@ -22,6 +24,7 @@ export function useNavigation(build: ComponentBuild): Navigation {
   const [component, setComponent] = useState<string | null>(null);
   const [codeFocus, setCodeFocus] = useState<{line: number, column: number} | null>(null);
   const [cursorPos, setCursorPos] = useState<{line: number, column: number} | null>(null);
+  const [lastEditorRev, setLastEditorRev] = useState<number>(0);
 
   const isComponentTab = (tab: AppPages) => {
     return tab.startsWith('component/');
@@ -53,10 +56,12 @@ export function useNavigation(build: ComponentBuild): Navigation {
     component,
     codeFocus,
     cursorPos,
+    lastEditorRev,
     gotoTab,
     gotoOverview,
     setComponent,
     setCodeFocus,
     setCursorPos,
+    setLastEditorRev,
   };
 }

@@ -43,9 +43,11 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
-    const entries = _entries.map(([key, item]) => ({...item, key}));
+    const entries = _entries
+      .sort((a, b) => a[1].path.localeCompare(b[1].path))
+      .map(([key, item]) => ({...item, key}));
     return new Fzf(entries, {
-      selector: (item) => `${item.page}/${item.name}`,
+      selector: (item) => `${item.path}/${item.name}`,
       tiebreakers: [byLengthAsc],
       forward: false,
     });
@@ -168,7 +170,7 @@ interface ProjectPageComponentProps {
 }
 
 function ProjectPageComponent(props: ProjectPageComponentProps) {
-  const {id, name, page, preview, loading} = props.entry.item;
+  const {id, name, page, path, preview, loading} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const hasUnsavedChanges = false;
   const hasError = false;
@@ -213,7 +215,7 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
             ? 'Error'
             : hasUnsavedChanges
               ? 'Modified'
-              : ''
+              : '/' + path.replace('components/', '')
         }
         icon={hasError
           ? <F.IconWarning16 color="danger"/>

@@ -26,7 +26,7 @@ export function writePropsInterface(
     const isBoolean = prop.type === 'BOOLEAN';
     const isVariant = prop.type === 'VARIANT';
     const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
-    const isConditional = isBoolean || isVariant || isInstanceSwap;
+    const isConditional = isBoolean || isInstanceSwap;
     // Prop metadata
     const propName = parser.getComponentPropName(key);
     const propType: string = isVariant

@@ -17,17 +17,28 @@ export async function generateDocs(component: ComponentInfo, settings: ProjectSe
   // Imports
   const regex = /(?<=<)([A-Z][a-zA-Z0-9]*)/g;
   const matches = attrs.match(regex);
-  const imports = Array.from(new Set(matches)).sort((a, b) => a.localeCompare(b));
-  if (imports.length) {
-    writer.writeLine(':::imports');
-    writer.blankLine();
-    writer.write(`import {${component.name}, ${imports.join(', ')}} from `);
-    writer.quote(pkgName);
+  const hasIcon = matches.includes('Icon');
+  const imports = Array.from(new Set(matches))
+    .sort((a, b) => a.localeCompare(b))
+    .filter(i => i !== 'Icon');
+  const identifier = imports.length
+    ? `${component.name}, ${imports.join(', ')}`
+    : component.name;
+
+  writer.writeLine(':::imports');
+  writer.blankLine();
+  writer.write(`import {${identifier}} from `);
+  writer.quote(pkgName);
+  writer.write(';');
+  if (hasIcon) {
+    writer.newLine();
+    writer.write('import {Icon} from ');
+    writer.quote('react-exo/icon');
     writer.write(';');
-    writer.blankLine();
-    writer.writeLine(':::');
-    writer.blankLine();
   }
+  writer.blankLine();
+  writer.writeLine(':::');
+  writer.blankLine();
 
   // Header
   writer.writeLine(':::header:::');

@@ -27,7 +27,7 @@ export function Preview() {
   const inspectHandler = (type: 'hover' | 'inspect') => (data: any) => {
     const {codeInfo, fiber} = data;
     const nodeId = fiber?.memoizedProps?.['data-testid'];
-    console.log('codeInfo: ', codeInfo, 'nodeId: ', nodeId);
+    console.log('[inspect]', {codeInfo, nodeId});
     const debug = codeInfo?.absolutePath === 'index.tsx' ? null : codeInfo;
     parent.postMessage({type: `loader::${type}`, nodeId, debug});
   };

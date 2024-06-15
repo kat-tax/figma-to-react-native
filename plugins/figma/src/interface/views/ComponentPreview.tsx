@@ -98,6 +98,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Render the app when the component or settings change
   useEffect(initApp, [component, settings]);
 
+  // Rebuild app when editor content changes
+  useEffect(() => {
+    if (nav.lastEditorRev) initApp();
+  }, [nav.lastEditorRev]);
+
   // Update the preview dimensions when screen or component change
   useEffect(() => post('preview::resize', {}), [screen, props.lastResize]);
 
@@ -186,7 +191,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Update preview default when cursor position changes
   useEffect(() => {
     if (nav.codeFocus) return;
-    console.log('[preview default]', nav.cursorPos);
+    //console.log('[preview default]', nav.cursorPos);
     const {line, column} = nav.cursorPos || {};
     setPreviewDefault([pathComponent, `${line || 1}:${column || 1}`]);
     setPreviewFocused(null);

@@ -85,7 +85,6 @@ export async function writeStyleSheet(
   });
   writer.write('));');
   writer.newLine();
-  writer.blankLine();
   return flags;
 }
 

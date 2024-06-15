@@ -112,7 +112,7 @@ export function initSettingsSchema(monaco: Monaco) {
 }
 
 export function initComponentEditor(editor: Editor, monaco: Monaco, onTriggerGPT: () => void) {
-  console.log('[init editor]', editor, monaco);
+  // console.log('[init editor]', editor, monaco);
   typings.init(monaco, editor);
   Experimental.init(monaco, editor, onTriggerGPT);
   return Constraints.init(monaco, editor);

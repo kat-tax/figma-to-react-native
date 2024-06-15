@@ -10,7 +10,7 @@ export async function create(
   release: ProjectRelease,
 ) {
   // Debug
-  console.log('export', project, info, release);
+  console.log('[export]', project, info, release);
   
   // Import EXO
   const zip = new fs.FS();
