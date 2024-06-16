@@ -72,6 +72,7 @@ export function writePropsInterface(
     }
     // Test ID
     if (!isRootPressable) {
+      writer.writeLine(`/** Used to locate this view in end-to-end tests. */`);
       writer.writeLine(`testID?: string,`);
     }
   });
