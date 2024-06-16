@@ -9,13 +9,13 @@ import * as $ from 'interface/store';
 import type {UserSettings} from 'types/settings';
 
 interface ComponentDocsProps {
-  componentKey: string;
+  compKey: string;
   options: UserSettings['monaco']['general'];
 }
 
 export function ComponentDocs(props: ComponentDocsProps) {
-  const $componentInfo = $.components.get(props.componentKey);
-  const docs = $.getComponentDocs(props.componentKey);
+  const $componentInfo = $.components.get(props.compKey);
+  const docs = $.getComponentDocs(props.compKey);
   return (
     <Fragment>
       {!$componentInfo &&

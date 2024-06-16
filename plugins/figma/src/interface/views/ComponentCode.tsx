@@ -14,7 +14,7 @@ import type {Monaco, Editor} from 'interface/utils/editor';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ComponentCodeProps {
-  componentKey: string,
+  compKey: string,
   build: ComponentBuild,
   options: UserSettings['monaco']['general'],
   monaco: Monaco,
@@ -26,8 +26,8 @@ export function ComponentCode(props: ComponentCodeProps) {
   const constraint = useRef<any>(null);
   const editor = useRef<Editor>(null);
 
-  const $componentInfo = $.components.get(props.componentKey);
-  const $componentCode = $.getComponentCode(props.componentKey);
+  const $componentInfo = $.components.get(props.compKey);
+  const $componentCode = $.getComponentCode(props.compKey);
 
   // GPT triggered by user
   const handleGPT = useCallback(async () => {
@@ -38,7 +38,7 @@ export function ComponentCode(props: ComponentCodeProps) {
       },
       body: JSON.stringify({
         code: $componentCode.toString(),
-        image: props.build.roster[props.componentKey].preview,
+        image: props.build.roster[props.compKey].preview,
       }),
     });
     const output = await response.text();

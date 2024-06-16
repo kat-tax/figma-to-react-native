@@ -9,15 +9,15 @@ import * as F from 'figma-ui';
 
 import type {ComponentBuild} from 'types/component';
 import type {EventFocusNode} from 'types/events';
-import type {UserSettings} from 'types/settings';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {VariantData} from 'interface/hooks/useSelectedVariant';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ComponentPreviewProps {
-  componentKey: string,
+  compKey: string,
   variant: VariantData,
   build: ComponentBuild,
-  settings: UserSettings,
+  settings: SettingsData,
   lastResize: number,
   language: string,
   theme: string,
@@ -25,7 +25,7 @@ interface ComponentPreviewProps {
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {componentKey, build, variant, theme, language, settings, nav} = props;
+  const {compKey, build, variant, theme, language, nav} = props;
   const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
   const [previewHover, setPreviewHover] = useState<[string, string] | null>(null);
@@ -35,7 +35,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const screen = useWindowSize();
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
-  const component = $.components.get(componentKey);
+
+  // Derived data
+  const settings = props.settings.config;
+  const component = $.components.get(compKey);
   const previewBar = previewHover || previewFocused || previewDefault;
   const pathComponent = string.componentPathNormalize(component?.path);
 

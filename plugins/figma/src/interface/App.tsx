@@ -1,8 +1,8 @@
 import {useState, useEffect} from 'react';
-import {Resizable} from 're-resizable';
 
 import {NavBar} from 'interface/base/NavBar';
 import {Tabs, Tab} from 'interface/base/Tabs';
+import {DualPanel} from 'interface/base/DualPanel';
 
 import {ProjectComponents} from 'interface/views/ProjectComponents';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
@@ -78,7 +78,7 @@ export function App(props: AppProps) {
   const hasIcons = Boolean(icons?.list?.length);
   const hasTabs = Boolean(isReady && project && monaco);
   const iconSet = icons.sets[0];
-  const componentKey = build.roster[nav.component] ? nav.component: null;
+  const compKey = build.roster[nav.component] ? nav.component: null;
   const options = {
     ...settings.config.monaco.general,
     tabSize: settings.config.writer.indentNumberOfSpaces,
@@ -90,19 +90,19 @@ export function App(props: AppProps) {
 
   // Go to overview when viewing a component that doesn't exist
   useEffect(() => {
-    if (!componentKey && nav.component) {
+    if (!compKey && nav.component) {
       nav.gotoOverview();
     }
-  }, [componentKey, nav]);
+  }, [compKey, nav]);
 
   return hasTabs ? (
     <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
       <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
       <Tab value="components">
-        <ProjectComponents {...{nav, build, iconSet, isReadOnly, hasIcons, hasStyles, searchMode, searchQuery}}/>
+        <ProjectComponents {...{nav, build, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="icons">
-        <ProjectIcons {...{icons, nav, build, isReadOnly, hasStyles, searchMode, searchQuery}}/>
+        <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="theme">
         <ProjectTheme {...{options, monaco, hasStyles}}/>
@@ -120,32 +120,17 @@ export function App(props: AppProps) {
         <ProjectSettings {...{options, monaco, settings}}/>
       </Tab>
       <Tab value="component/code">
-        <div style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          overflow: 'hidden',
-          flexDirection:'column-reverse',
-        }}>
-          <Resizable
-            minWidth="100%"
-            minHeight="30px"
-            maxHeight="90%"
-            defaultSize={{width: '100%', height: '50%'}}
-            onResize={() => setLastResize(Date.now())}
-            enable={{top: true, bottom: false, left: false, right: false}}>
-            <ComponentPreview {...{nav, componentKey, build, variant, lastResize, theme, language, settings: settings.config}}/>
-          </Resizable>
-          <div style={{display: 'flex', flex: 1, height: '0%'}}>
-            <ComponentCode {...{nav, componentKey, build, options, monaco}}/>
-          </div>
-        </div>
+        <DualPanel
+          primary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
+          secondary={<ComponentCode {...{nav, compKey, build, options, monaco}}/>}
+          onResize={() => setLastResize(Date.now())}
+        />
       </Tab>
       <Tab value="component/story">
-        <ComponentStory {...{componentKey, options, monaco}}/>
+        <ComponentStory {...{compKey, options, monaco}}/>
       </Tab>
       <Tab value="component/docs">
-        <ComponentDocs {...{componentKey, options, monaco}}/>
+        <ComponentDocs {...{compKey, options, monaco}}/>
       </Tab>
     </Tabs>
   ) : (
