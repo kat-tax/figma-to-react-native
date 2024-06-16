@@ -64,7 +64,7 @@ export async function writeImports(
     const names = Object.entries(props)
       .map(([k, f]) => f && k)
       .filter(Boolean)
-      .sort((a, b) => b.localeCompare(a));
+      .sort((a, b) => b?.localeCompare(a));
     if (!names.length) return;
     writer.write(`import ${isType ? 'type ' : ''}{${names.join(', ')}} from`);
     writer.space();
@@ -90,7 +90,7 @@ export async function writeImports(
   const components = Object.entries(data.meta.components);
   if (components.length > 0) {
     components
-      .sort((a, b) => a[1][0].name.localeCompare(b[1][0].name))
+      .sort((a, b) => a[1][0].name?.localeCompare(b[1][0].name))
       .forEach(([_id, [node, _instance]]) => {
         const component = parser.getComponentInfo(node);
         subwriter.write(`import {${component.name}} from`);
@@ -117,7 +117,7 @@ export async function writeImports(
   const assets = Object.entries(data.assetData);
   if (assets.length > 0) {
     assets
-      .sort((a, b) => a[1].name.localeCompare(b[1].name))
+      .sort((a, b) => a[1].name?.localeCompare(b[1].name))
       .forEach(([_id, asset]) => {
         const [assetType] = asset.rawName.split('|');
         switch (assetType.trim().toLowerCase()) {
@@ -151,6 +151,6 @@ export function sortImports(a: string, b: string) {
   // Get import path (regex everything between ' or ")
   const aPath = a.match(/'([^']+)'/)?.[1] ?? a.match(/"([^"]+)"/)?.[1];
   const bPath = b.match(/'([^']+)'/)?.[1] ?? b.match(/"([^"]+)"/)?.[1];
-  return aPath.localeCompare(bPath);
+  return aPath?.localeCompare(bPath);
 }
 

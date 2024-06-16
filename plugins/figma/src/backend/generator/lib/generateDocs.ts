@@ -19,7 +19,7 @@ export async function generateDocs(component: ComponentInfo, settings: ProjectSe
   const matches = attrs.match(regex);
   const hasIcon = matches?.includes('Icon');
   const imports = Array.from(new Set(matches))
-    .sort((a, b) => a.localeCompare(b))
+    .sort((a, b) => a?.localeCompare(b))
     .filter(i => i !== 'Icon');
   const identifier = imports.length
     ? `${component.name}, ${imports.join(', ')}`

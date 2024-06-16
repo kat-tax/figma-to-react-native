@@ -49,7 +49,7 @@ export function NavBar(props: NavBarProps) {
 
   const menuComponent: Array<F.DropdownOption> = Object
     .entries(props.build.roster)
-    .sort(([,a], [,b]) => a.name.localeCompare(b.name))
+    .sort(([,a], [,b]) => a.name?.localeCompare(b.name))
     .map(([name, component]) => ({
       value: name,
       text: component.name,

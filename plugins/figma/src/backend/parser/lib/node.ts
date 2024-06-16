@@ -100,7 +100,7 @@ export function sortComponentProps(a: any, b: any) {
     return -1;
   // Otherwise sort alphabetically
   } else {
-    return a[0].localeCompare(b[0]);
+    return a[0]?.localeCompare(b[0]);
   }
 }
 
@@ -112,7 +112,7 @@ export function sortComponentPropsDef(a: any, b: any) {
     return isCondA ? 1 : -1;
   // Sort by type alphabetically if different
   if (a[1].type !== b[1].type)
-    return a[1].type.localeCompare(b[1].type);
+    return a[1].type?.localeCompare(b[1].type);
   // Otherwise sort prop name alphabetically
-  return a[0].localeCompare(b[0]);
+  return a[0]?.localeCompare(b[0]);
 }

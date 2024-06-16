@@ -44,7 +44,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
     const entries = _entries
-      .sort((a, b) => a[1].path.localeCompare(b[1].path))
+      .sort((a, b) => a[1].path?.localeCompare(b[1].path))
       .map(([key, item]) => ({...item, key}));
     return new Fzf(entries, {
       selector: (item) => `${item.path}/${item.name}`,
