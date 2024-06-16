@@ -22,6 +22,8 @@ interface ComponentCodeProps {
 }
 
 export function ComponentCode(props: ComponentCodeProps) {
+  const [componentPath, setComponentPath] = useState<string>();
+  const [patchPath, setPatchPath] = useState<string>();
   const [patch, setPatch] = useState<string>('');
   const constraint = useRef<any>(null);
   const editor = useRef<Editor>(null);
@@ -44,6 +46,15 @@ export function ComponentCode(props: ComponentCodeProps) {
     const output = await response.text();
     setPatch(output);
   }, [$componentCode, props.build]);
+
+  // Update component path when info changes
+  useEffect(() => {
+    if ($componentInfo) {
+      console.log('[component path]', $componentInfo.path);
+      setComponentPath(`${F2RN_EDITOR_NS}${$componentInfo.path.split('/').slice(1).join('/')}.tsx`);
+      setPatchPath(`${F2RN_EDITOR_NS}patch/${$componentInfo.path.split('/').slice(1).join('/')}.tsx`);
+    }
+  }, [$componentInfo]);
 
   // Update component dependencies on new build
   useEffect(() => {
@@ -101,7 +112,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         theme={props.options?.theme}
         options={{...props.options}}
         loading={<LoadingIndicator/>}
-        path={`${F2RN_EDITOR_NS}${$componentInfo?.path.split('/').slice(1).join('/')}.tsx`}
+        path={componentPath}
         onMount={(e, m) => {
           editor.current = e;
           constraint.current = initComponentEditor(e, m, handleGPT);
@@ -141,8 +152,8 @@ export function ComponentCode(props: ComponentCodeProps) {
         loading={<LoadingIndicator/>}
         original={$componentCode.toString()}
         modified={patch}
-        originalModelPath={`${F2RN_EDITOR_NS}${$componentInfo?.path.split('/').slice(1).join('/')}.tsx`}
-        modifiedModelPath={`${F2RN_EDITOR_NS}patch/${$componentInfo?.path}.tsx`}
+        modifiedModelPath={patchPath}
+        originalModelPath={componentPath}
         keepCurrentOriginalModel={true}
         keepCurrentModifiedModel={false}
       />}
