@@ -1,7 +1,7 @@
 export const F2RN_UI_WIDTH_MIN = 300;
 
 export const F2RN_STYLEGEN_API = 'https://f2rn.deno.dev';
-export const F2RN_EXO_PROXY_URL = 'https://gh-cors-proxy.ult.workers.dev/?url=';
+export const F2RN_EXO_PROXY_URL = 'https://cors-proxy.ult.workers.dev/?url=';
 export const F2RN_EXO_REPO_ZIP = 'https://codeload.github.com/kat-tax/exo/zip/refs/heads/master';
 export const F2RN_EDITOR_NS = 'figma://preview/';
 

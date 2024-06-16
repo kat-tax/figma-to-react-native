@@ -234,6 +234,7 @@ const designPackageDefault = {
     "vite-plugin-node-polyfills": "^0.21.0"
   },
   "devDependencies": {
+    "@storybook/blocks": "^8.0.10",
     "@storybook/react": "^8.0.8",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
