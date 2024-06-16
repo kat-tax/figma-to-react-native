@@ -1,6 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment} from 'react';
-import {Toolbar, ToolbarButton} from '@blocknote/react';
 
 import type {EventFocusNode} from 'types/events';
 
@@ -49,7 +48,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
 
   return (
     <Fragment>
-      <Toolbar>
+      {/* <Toolbar>
         {Object.entries(NodeToolbarActions)
         .map(([name, action]: [string, NodeToolbarActions]) => {
           return (
@@ -62,7 +61,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
             </ToolbarButton>
           )
         })}
-      </Toolbar>
+      </Toolbar> */}
     </Fragment>
   );
 }

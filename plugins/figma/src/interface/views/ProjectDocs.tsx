@@ -1,5 +1,5 @@
 import {useState, useMemo, useEffect} from 'react';
-import {useBlockNote, BlockNoteView} from '@blocknote/react';
+import {useBlockNote, BlockNoteViewRaw} from '@blocknote/react';
 import {Fzf, byLengthAsc} from 'fzf';
 
 import {TextCollabDots} from 'interface/base/TextCollabDots';
@@ -214,7 +214,7 @@ function ProjectDocEditor(props: ProjectDocEditorProps) {
   });
   return (
     <F.Stack className="editor" space="extraLarge">
-      <BlockNoteView
+      <BlockNoteViewRaw
         editor={editor}
         theme={"dark"}
       />
