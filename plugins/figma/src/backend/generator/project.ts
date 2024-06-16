@@ -102,8 +102,8 @@ export function build(release: ProjectRelease) {
       ]);
 
       const [varsConfig, varsTranslations, modesLocales] = await Promise.all([
-        parser.getVariables(collectionConfig.variableIds),
-        parser.getVariables(collectionLocales.variableIds),
+        parser.getVariables(collectionConfig?.variableIds),
+        parser.getVariables(collectionLocales?.variableIds),
         parser.getVariableCollectionModes(collectionLocales),
       ]);
       

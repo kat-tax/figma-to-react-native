@@ -18,6 +18,7 @@ export async function getVariableCollectionModes(collection: string | VariableCo
 }
 
 export async function getVariables(ids: string[]) {
+  if (!ids) return [];
   return await Promise.all(ids.map(id =>
     figma.variables.getVariableByIdAsync(id)));
 }
