@@ -126,8 +126,8 @@ export function ProjectExport(props: ProjectExportProps) {
             disabled={isExporting}
             options={[
               {children: 'Download', value: 'download'},
-              {children: 'Preview', value: 'preview', disabled: true},
-              {children: 'Release', value: 'release', disabled: true},
+              {children: 'Preview', value: 'preview'},
+              {children: 'Release', value: 'release'},
             ]}
           />
           <F.VerticalSpace space="large"/>
