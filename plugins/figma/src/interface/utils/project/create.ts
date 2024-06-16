@@ -187,15 +187,14 @@ You may now access the following dev servers:
 :::
 `;
 
+// TODO: this is not maintainable (instead read contents, extend w/ new values, write back)
 const designPackageDefault = {
   "type": "module",
   "scripts": {
-    "dev": "conc -c 'auto' 'pnpm:*-dev'",
-    "build": "conc -c 'auto' -g 'pnpm:*-build'",
-
-    "web-dev": "vite dev  -c ../toolkit/bundler/gen/libs/design.web.js --port 6406",
-    "web-build": "vite build -c ../toolkit/bundler/gen/libs/design.web.js",
-
+    "dev": "conc -c 'auto' 'pnpm:*:dev'",
+    "build": "conc -c 'auto' -g 'pnpm:*:build'",
+    "web:dev": "vite dev  -c ../toolkit/bundler/gen/libs/design.web.js --port 6406",
+    "web:build": "vite build -c ../toolkit/bundler/gen/libs/design.web.js",
     "native-dev": "vite dev  -c ../toolkit/bundler/gen/libs/design.native.js --port 6506",
     "native-build": "vite build -c ../toolkit/bundler/gen/libs/design.native.js"
   },
