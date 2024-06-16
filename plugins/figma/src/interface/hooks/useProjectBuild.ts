@@ -1,8 +1,9 @@
 import {useEffect} from 'react';
 import {on} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
-import {upload} from 'interface/utils/export/upload';
-import {download} from 'interface/utils/export/download';
+import {upload} from 'interface/utils/project/upload';
+import {download} from 'interface/utils/project/download';
+import * as consts from 'config/consts';
 
 import type {EventProjectBuild} from 'types/events';
 
@@ -11,7 +12,7 @@ export function useProjectBuild(
   onError: () => void,
   setExportCount: React.Dispatch<number>,
 ): void {
-  useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, config, user) => {
+  useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, info, config, user) => {
     if (project === null) {
       onError();
       return;
@@ -20,14 +21,13 @@ export function useProjectBuild(
     const components = project.components.length;
     switch (config.method) {
       case 'download':
-        download(project, config);
+        download(project, info, config);
         break;
       case 'release':
-        upload(project, config);
+        upload(project, info, config);
         break;
       case 'preview':
-        const url = 'http://127.0.0.1:5102'; // 'https://fig.run';
-        open(`${url}/#/${config.docKey}`);
+        open(`${consts.F2RN_PREVIEW_URL}/#/${config.docKey}`);
         break;
     }
     onSuccess();

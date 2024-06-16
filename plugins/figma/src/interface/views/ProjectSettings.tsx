@@ -2,7 +2,7 @@ import MonacoReact from '@monaco-editor/react';
 import {useMemo, useState, Fragment} from 'react';
 import {AutoForm} from 'uniforms-unstyled';
 import {LoadingIndicator} from 'figma-ui';
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
 import {debounce} from 'common/delay';
 
 import schema from 'interface/schemas/project';
@@ -31,7 +31,7 @@ export function ProjectSettings(props: ProjectSettingsProps) {
             value={props.settings.raw}
             theme={props.options.theme}
             options={{...props.options, readOnly: false}}
-            loading={<LoadingIndicator/> as JSX.Element}
+            loading={<LoadingIndicator/>}
             onChange={value => {
               update(value);
             }}

@@ -1,26 +1,37 @@
 import CodeBlockWriter from 'code-block-writer';
-import {createIdentifierCamel} from 'common/string';
+import {diff} from 'deep-object-diff';
 
-import type {ParseData} from 'types/parse';
+import * as string from 'common/string';
+
 import type {ImportFlags} from './writeImports';
+import type {ParseData} from 'types/parse';
 
-export function writeStyleSheet(
+export async function writeStyleSheet(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   data: ParseData,
-): ImportFlags {
+): Promise<ImportFlags> {
   flags.unistyles.createStyleSheet = true;
+
   writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
     // Root styles
-    writeStyle(writer, 'root', data.stylesheet[data.root.node.id]);
+    const rootStyles = data.stylesheet[data.root.node.id];
+    writeStyle(writer, 'root', rootStyles);
     const rootVariants = data.variants?.classes?.root;
     if (rootVariants) {
       Object.keys(rootVariants).forEach(key => {
-        const classKey = rootVariants[key];
-        const classStyle = data.stylesheet[classKey];
-        if (classStyle) {
-          const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
-          writeStyle(writer, className, classStyle);
+        const rootVariantStyles = data.stylesheet[rootVariants[key]];
+        if (rootVariantStyles) {
+          const diffStyles = diff(rootStyles, rootVariantStyles);
+          for (const k in diffStyles) {
+            if (diffStyles[k] === undefined) {
+              diffStyles[k] = 'unset';
+            }
+          }
+          if (diffStyles && Object.keys(diffStyles).length > 0) {
+            const className = string.createIdentifierCamel(`root_${key}`.split(', ').join('_'));
+            writeStyle(writer, className, diffStyles);
+          }
         }
       });
     }
@@ -33,11 +44,40 @@ export function writeStyleSheet(
         const childVariants = data.variants?.classes[child.slug];
         if (childVariants) {
           Object.keys(childVariants).forEach(key => {
-            const classStyle = data.stylesheet[childVariants[key]];
-            if (classStyle) {
-              const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
-              writeStyle(writer, className, classStyle);
+            const childVariantStyles = data.stylesheet[childVariants[key]];
+            if (childVariantStyles) {
+              const diffStyles = diff(childStyles, childVariantStyles);
+              for (const k in diffStyles) {
+                if (diffStyles[k] === undefined) {
+                  diffStyles[k] = 'unset';
+                }
+              }
+              if (diffStyles && Object.keys(diffStyles).length > 0) {
+                const className = string.createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+                writeStyle(writer, className, diffStyles);
+              }
             }
+          });
+        }
+      }
+    }
+
+    // Children icon props
+    for (const child of data.children) {
+      const childIconData = data.meta.icons[child.node.id];
+      if (childIconData) {
+        // TODO: Workaround to prevent placeholder from overriding instance icons
+        if (childIconData.name.includes(':placeholder'))
+          delete childIconData.name;
+        writeStyle(writer, child.slug, childIconData);
+        const iconVariants = data.variants?.icons[child.slug];
+        if (iconVariants) {
+          Object.entries(iconVariants).forEach(([key, childVariantIconData]) => {
+            // TODO: Workaround to prevent placeholder from overriding instance icons
+            if (childVariantIconData.name.includes(':placeholder'))
+              delete childVariantIconData.name;
+            const className = string.createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+            writeStyle(writer, className, diff(childIconData, childVariantIconData));
           });
         }
       }
@@ -45,77 +85,76 @@ export function writeStyleSheet(
   });
   writer.write('));');
   writer.newLine();
-  writer.blankLine();
   return flags;
 }
 
 export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
   const props = styles && Object.keys(styles);
-  if (props.length > 0) {
-    writeProps(props, writer, slug, styles);
+  if (props?.length > 0) {
+    writeProps(writer, props, slug, styles);
   }
 }
 
-export function writeProps(props: string[], writer: CodeBlockWriter, slug: string, styles: any) {
+export function writeProps(writer: CodeBlockWriter,props: string[], slug: string, styles: any) {
   writer.write(`${slug}: {`).indent(() => {
     props.forEach(prop => {
-      writeProp(prop, styles[prop], writer);
+      writeProp(writer, prop, styles[prop]);
     });
   });
   writer.writeLine('},');
 }
 
-export function writeProp(
-  prop: string,
-  value: any,
-  writer: CodeBlockWriter,
-) {
-  // Expand shorthand props
-  // TODO: shouldn't be done here, can't diff this way
-  if (prop === 'border') {
-    if (Array.isArray(value)) {
-      const [width, style, color] = value;
-      const colorVal = color?.type === 'runtime' && color?.name === 'var'
-        ? `theme.colors.${createIdentifierCamel(color.arguments[0])}`
-        : color;
-      writer.writeLine(`borderWidth: ${width},`);
-      writer.write(`borderStyle: `);
-      writer.quote(style);
-      writer.write(',');
-      writer.writeLine(`borderColor: ${colorVal},`);
-    } else {
-      writer.writeLine(`borderWidth: 'unset' as any,`);
-      writer.writeLine(`borderStyle: 'unset' as any,`);
-      writer.writeLine(`borderColor: 'unset' as any,`);
-    }
-  // Other props
+export function writeProp(writer: CodeBlockWriter, prop: string, val: unknown) {
+  writer.write(`${prop}: `);
+  // Undefined values
+  if (typeof val === 'undefined' || val === 'unset') {
+    writer.quote('unset')
+    writer.write(' as any');
   } else {
-    writer.write(`${prop}: `);
-    // Undefined values
-    if (typeof value === 'undefined' || value === 'unset') {
-      writer.quote('unset')
-      writer.write(' as any');
+    const value = isRuntimeVar(val) ? getRuntimeVar(val) : val;
     // Number values
-    } else if (typeof value === 'number') {
-      writer.write(Number.isInteger(value)
-        ? value.toString()
-        : parseFloat(value.toFixed(5)).toString()
-      );
-    // Theme values (local styles)
-    } else if (typeof value === 'string' && value.startsWith('theme.')) {
-      writer.write(value);
-    // Runtime values (variables)
-    } else if (value?.type === 'runtime' && value?.name === 'var') {
-      writer.write('theme.colors.' + createIdentifierCamel(value.arguments[0]));
+    if (typeof value === 'number') {
+      // Hack: font weight needs to be a string
+      if (prop === 'fontWeight') {
+        writer.quote(value.toString());
+      // Round numbers from figma
+      } else {
+        writer.write(Number.isInteger(value)
+          ? value.toString()
+          : parseFloat(value.toFixed(5)).toString()
+        );
+      }
     // String values
     } else if (typeof value === 'string') {
-      writer.quote(value);
-    // Object values
+      // Theme values
+      if (value.startsWith('theme.')) {
+        writer.write(value);
+      } else {
+        writer.quote(value);
+      }
+    // Unknown value
     } else {
       writer.write(JSON.stringify(value));
-      //writer.write(JSON.stringify(value));
     }
-    writer.write(',');
-    writer.newLine();
   }
+  writer.write(',');
+  writer.newLine();
+}
+
+type RuntimeVariable = {
+  type: 'runtime',
+  name: 'var',
+  arguments: [string, any],
+}
+
+function isRuntimeVar(value: any): value is RuntimeVariable {
+  return value?.type === 'runtime'
+    && value?.name === 'var'
+    && Array.isArray(value?.arguments)
+    && value.arguments.length === 2;
+}
+
+function getRuntimeVar(runtime: any) {
+  const variable = runtime.arguments[0];
+  return variable.slice(2).replace(/\-/g, '.');
 }

@@ -8,19 +8,27 @@ import type {AppPages} from 'types/app';
 export interface Navigation {
   tab: AppPages,
   component: string,
-  setComponent: React.Dispatch<string>,
-  gotoOverview: () => void,
+  codeFocus: {line: number, column: number} | null,
+  cursorPos: {line: number, column: number} | null,
+  lastEditorRev: number,
   gotoTab: (value: AppPages) => void,
+  gotoOverview: () => void,
+  setComponent: React.Dispatch<string>,
+  setCodeFocus: React.Dispatch<{line: number, column: number} | null>,
+  setCursorPos: React.Dispatch<{line: number, column: number} | null>,
+  setLastEditorRev: React.Dispatch<number>,
 }
 
-export function useNavigation(build: ComponentBuild) {
+export function useNavigation(build: ComponentBuild): Navigation {
   const [tab, setTab] = useState<AppPages>('components');
   const [component, setComponent] = useState<string | null>(null);
+  const [codeFocus, setCodeFocus] = useState<{line: number, column: number} | null>(null);
+  const [cursorPos, setCursorPos] = useState<{line: number, column: number} | null>(null);
+  const [lastEditorRev, setLastEditorRev] = useState<number>(0);
 
-  const isComponentTab = (tab: AppPages) =>
-       tab === 'code'
-    || tab === 'preview'
-    || tab === 'story';
+  const isComponentTab = (tab: AppPages) => {
+    return tab.startsWith('component/');
+  };
 
   const gotoOverview = () => {
     setTab('components');
@@ -39,15 +47,21 @@ export function useNavigation(build: ComponentBuild) {
     if (build?.roster?.[key] !== undefined) {
       setComponent(key);
       if (!isComponentTab(tab))
-        setTab('code');
+        setTab('component/code');
     }
   }), [build, tab]);
 
   return {
     tab,
     component,
-    setComponent,
-    gotoOverview,
+    codeFocus,
+    cursorPos,
+    lastEditorRev,
     gotoTab,
+    gotoOverview,
+    setComponent,
+    setCodeFocus,
+    setCursorPos,
+    setLastEditorRev,
   };
 }

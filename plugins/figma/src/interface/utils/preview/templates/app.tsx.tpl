@@ -1,19 +1,17 @@
 // @ts-nocheck
 
 import {AppRegistry} from 'react-native';
-import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
-import {Icon} from 'react-native-exo';
+import {UnistylesRuntime, UnistylesRegistry} from 'styles';
 import {Logtail} from '@logtail/browser';
 import {themes, breakpoints} from 'theme';
 
 type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
 type AppBreakpoints = typeof breakpoints;
 
-declare module 'react-native-unistyles' {
+declare module 'styles' {
   export interface UnistylesBreakpoints extends AppBreakpoints {}
   export interface UnistylesThemes extends AppThemes {}
 }
-
 
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 const initialTheme = '__CURRENT_THEME__';
@@ -36,36 +34,40 @@ window.__messages__ = {
 window.__lang__ = initialLanguage;
 window.__trans__ = (msg: string) => window.__messages__?.[window.__lang__]?.[msg] || msg;
 
-__COMPONENT_DEF__
+__COMPONENT_IMPORTS__
 
 export function App() {
-  const [variant, setVariant] = React.useState(__COMPONENT_REF__);
+  const [variant, setVariant] = React.useState({});
 
   React.useEffect(() => {
     const updateProps = (e: JSON) => {
       switch (e.data?.type) {
-        case 'theme':
-          console.log('changed theme', e.data.theme);
+        case 'preview::theme':
+          // console.log('[changed theme]', e.data.theme);
           UnistylesRuntime.setTheme(e.data.theme);
           return;
-        case 'language':
-          console.log('changed language', e.data.language);
+        case 'preview::language':
+          // console.log('[changed language]', e.data.language);
           __lang__ = e.data.language;
           return;
-        case 'variant':
-          console.log('changed variant', e.data.variant);
-          const newRoot = React.cloneElement(variant, e.data.variant.props);
+        case 'preview::variant':
+          // console.log('[changed variant]', e.data.variant);
+          const newRoot = e.data.variant.props;
           setVariant(newRoot);
+          parent.postMessage({type: 'app:refresh'});
           return;
       }
     };
-    addEventListener('message', updateProps);
-    return () => removeEventListener('message', updateProps);
+    // Note: do not use addEventListener, cleanup doesn't always work
+    // due to how the app is reloaded in the loader
+    window.onmessage = updateProps;
+    parent.postMessage({type: 'app:loaded'});
+    return () => (window.onmessage = null);
   }, []);
 
   return (
     <ErrorBoundary>
-      {variant}
+      {React.cloneElement(__COMPONENT_TAG__, variant)}
     </ErrorBoundary>
   )
 }
@@ -78,6 +80,7 @@ UnistylesRegistry
 AppRegistry.registerComponent('app', () => App);
 AppRegistry.runApplication('app', {
   rootTag: document.getElementById('component'),
+  mode: 'concurrent',
 });
 
 class ErrorBoundary extends React.Component {
@@ -102,7 +105,7 @@ class ErrorBoundary extends React.Component {
     this.setState({components});
     logtail.error(error, components);
     logtail.flush();
-    postMessage({type: 'component::error', error, info}, '*');
+    postMessage({type: 'app::error', error, info}, '*');
   }
 
   render() {

@@ -15,7 +15,8 @@ const ENTRY_POINT = '/index.tsx';
 interface PreviewOptions {
   tag: string,
   name: string,
-  props: string,
+  path: string,
+  imports: string,
   theme: string,
   language: string,
   settings: UserSettings,
@@ -23,7 +24,7 @@ interface PreviewOptions {
 }
 
 export async function preview(options: PreviewOptions) {
-  const {tag, name, props, theme, language, settings, build} = options;
+  const {tag, name, path, imports, theme, language, settings, build} = options;
 
   // Virtual filesystem
   const files: Map<string, string | Uint8Array> = new Map();
@@ -32,9 +33,8 @@ export async function preview(options: PreviewOptions) {
   for (const [key, component] of Object.entries(build.roster)) {
     try {
       const contents = $.getComponentCode(key);
-      const path = `/components/${component.name}`;
       const code = contents.toString();
-      files.set(path, code);
+      files.set('/' + component.path, code);
       if (name === component.name) {
         console.debug('[preview]', tag);
       }
@@ -48,8 +48,8 @@ export async function preview(options: PreviewOptions) {
   for (const asset of Object.values(build.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
-      const folder = asset.isVector ? 'svgs' : 'images';
-      const path = `/assets/${folder}/${asset.name}.${ext}`;
+      const folder = asset.isVector ? 'svg' : 'img';
+      const path = `/assets/${folder}/${asset.name.toLowerCase()}.${ext}`;
       files.set(path, asset.bytes);
     } catch (e) {
       notify(e, `Failed to build preview asset: ${asset.name}`);
@@ -64,8 +64,8 @@ export async function preview(options: PreviewOptions) {
     files.set(ENTRY_POINT, previewApp
       .replace('__CURRENT_THEME__', theme)
       .replace('__CURRENT_LANGUAGE__', language)
-      .replace('__COMPONENT_DEF__', getImports(name, props))
-      .replace('__COMPONENT_REF__', tag));
+      .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n` + imports)
+      .replace('__COMPONENT_TAG__', tag));
     return await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
   } catch (e) {
     notify(e, 'Failed to build preview app');
@@ -87,16 +87,4 @@ export async function init(settings: UserSettings) {
   } catch(e) {
     notify(e, 'Failed to build preview loader');
   }
-}
-
-function getImports(name: string, props: string) {
-  const regex = /<\s*([a-zA-Z][^\s>\/]*)[^>]*>/g;
-  const swaps = Array
-    .from(props.matchAll(regex), match => match[1])
-    .filter(swap => swap !== 'Icon');
-  const imports = [
-    `import {${name}} from 'components/${name}';`,
-    ...swaps?.map(swap => `import {${swap}} from 'components/${swap}';`),
-  ];
-  return imports.join('\n');
 }

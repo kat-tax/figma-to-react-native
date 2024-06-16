@@ -1,6 +1,5 @@
 import {useState, useMemo, useEffect} from 'react';
-import {useBlockNote, BlockNoteView} from '@blocknote/react';
-import {BlockNoteEditor} from '@blocknote/core';
+import {useBlockNote, BlockNoteViewRaw} from '@blocknote/react';
 import {Fzf, byLengthAsc} from 'fzf';
 
 import {TextCollabDots} from 'interface/base/TextCollabDots';
@@ -10,8 +9,9 @@ import {ScreenInfo} from 'interface/base/ScreenInfo';
 import * as F from 'figma-ui';
 import * as $ from 'interface/store';
 
-import type {Navigation} from 'interface/hooks/useNavigation';
+import type {BlockNoteEditor} from '@blocknote/core';
 import type {ComponentBuild} from 'types/component';
+import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ProjectDocsProps {
   nav: Navigation,
@@ -214,7 +214,7 @@ function ProjectDocEditor(props: ProjectDocEditorProps) {
   });
   return (
     <F.Stack className="editor" space="extraLarge">
-      <BlockNoteView
+      <BlockNoteViewRaw
         editor={editor}
         theme={"dark"}
       />

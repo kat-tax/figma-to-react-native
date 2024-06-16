@@ -13,7 +13,7 @@ export function ThemePicker() {
   const [isGenerating, setGenerating] = useState(false);
 
   const initialForm: ThemePickerForm = {
-    color: 'zinc',
+    color: 'Zinc',
     radius: '0.5',
   };
 
@@ -32,7 +32,7 @@ export function ThemePicker() {
     <F.Container space="medium" style={{maxWidth: 340, margin: '0 auto'}}>
       <F.VerticalSpace space="large"/>
       <Fragment>
-        <F.Bold>Color</F.Bold>
+        <F.Bold>Presets</F.Bold>
         <div className="theme-picker-colors">
           <F.VerticalSpace space="small"/>
           <F.RadioButtons
@@ -40,24 +40,24 @@ export function ThemePicker() {
             onValueChange={(v: ThemeColor) => form.setFormState(v, 'color')}
             disabled={isGenerating}
             options={[
-              {value: 'zinc', children: <F.Text>Zinc</F.Text>},
-              {value: 'slate', children: <F.Text>Slate</F.Text>},
-              {value: 'stone', children: <F.Text>Stone</F.Text>},
-              {value: 'gray', children: <F.Text>Gray</F.Text>},
-              {value: 'neutral', children: <F.Text>Neutral</F.Text>},
-              {value: 'red', children: <F.Text>Red</F.Text>},
-              {value: 'rose', children: <F.Text>Rose</F.Text>},
-              {value: 'orange', children: <F.Text>Orange</F.Text>},
-              {value: 'green', children: <F.Text>Green</F.Text>},
-              {value: 'blue', children: <F.Text>Blue</F.Text>},
-              {value: 'yellow', children: <F.Text>Yellow</F.Text>},
-              {value: 'violet', children: <F.Text>Violet</F.Text>},
+              {value: 'Zinc', children: <F.Text>Zinc</F.Text>},
+              {value: 'Slate', children: <F.Text>Slate</F.Text>},
+              {value: 'Stone', children: <F.Text>Stone</F.Text>},
+              {value: 'Grey', children: <F.Text>Grey</F.Text>},
+              {value: 'Neutral', children: <F.Text>Neutral</F.Text>},
+              {value: 'Red', children: <F.Text>Red</F.Text>},
+              {value: 'Rose', children: <F.Text>Rose</F.Text>},
+              {value: 'Orange', children: <F.Text>Orange</F.Text>},
+              {value: 'Green', children: <F.Text>Green</F.Text>},
+              {value: 'Blue', children: <F.Text>Blue</F.Text>},
+              {value: 'Yellow', children: <F.Text>Yellow</F.Text>},
+              {value: 'Violet', children: <F.Text>Violet</F.Text>},
             ]}
           />
         </div>
         <F.VerticalSpace space="extraLarge"/>
       </Fragment>
-      <Fragment>
+      {/*<Fragment>
         <F.Bold>Radius</F.Bold>
         <F.VerticalSpace space="small"/>
         <F.SegmentedControl
@@ -74,7 +74,7 @@ export function ThemePicker() {
         />
         <F.VerticalSpace space="extraLarge"/>
         <F.VerticalSpace space="small"/>
-      </Fragment>
+      </Fragment>*/}
       <Fragment>
         <F.Button
           fullWidth

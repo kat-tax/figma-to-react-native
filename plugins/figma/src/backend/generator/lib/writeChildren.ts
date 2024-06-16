@@ -1,87 +1,70 @@
 import CodeBlockWriter from 'code-block-writer';
-import {encodeUTF8} from 'backend/encoder';
-import {blake2sHex} from 'blakejs';
-import {createIdentifierPascal} from 'common/string';
-import {
-  getPage,
-  getPropsJSX,
-  getPropName,
-  getFillToken,
-  getInstanceInfo,
-  getCustomReaction,
-  getCollectionByName,
-  // getPressReaction,
-} from 'backend/parser/lib';
+import {translate} from 'backend/utils/translate';
+
+import * as string from 'common/string';
+import * as number from 'common/number';
+import * as consts from 'config/consts';
+import * as parser from 'backend/parser/lib';
+
+import {writePropsAttributes} from './writePropsAttributes';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
-
-export function writeChildren(
-  writer: CodeBlockWriter,
+type WriteChildrenState = {
   flags: ImportFlags,
   data: ParseData,
   settings: ProjectSettings,
-  children: ParseNodeTree,
-  getStyleProp: StylePrefixMapper,
+  language: VariableCollection,
   pressables?: string[][],
-) {
-  let language = getCollectionByName('Language');
-  if (!language) {
-    try {
-      language = figma.variables.createVariableCollection('Language');
-    } catch (e) {}
-  }
+  getStyleProp: StylePrefixMapper,
+  getIconProp: StylePrefixMapper,
+}
 
-  const state = {writer, flags, data, language, settings, pressables, getStyleProp};
-  children.forEach(child => {
-    const slug = data.children?.find(c => c.node === child.node)?.slug;
-    const pressId = pressables?.find(e => e?.[1] === slug)?.[2];
+export function writeChildren(
+  writer: CodeBlockWriter,
+  children: ParseNodeTree,
+  state: WriteChildrenState,
+) {
+  for (const child of children) {
+    const slug = state.data.children?.find(c => c.node === child.node)?.slug;
+    const pressId = state.pressables?.find(e => e?.[1] === slug)?.[2];
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
     const masterNode = isVariant ? child.node.parent : child.node;
     const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
     const isPressable = Boolean(pressId);
     const isConditional = Boolean(propRefs?.visible);
     if (isPressable)
-      flags.reactNative.Pressable = true;
-    writer.conditionalWriteLine(isConditional, `{props.${getPropName(propRefs?.visible)} && `);
+      state.flags.reactNative.Pressable = true;
+    writer.conditionalWriteLine(isConditional, `{props.${parser.getComponentPropName(propRefs?.visible)} && `);
     writer.withIndentationLevel((isConditional ? 1 : 0) + writer.getIndentationLevel(), () => {
       writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressId}}>`);
       writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-        writeChild(child, slug, isConditional, state);
+        writeChild(writer, child, slug, isConditional, state);
       });
       writer.conditionalWriteLine(isPressable, `</Pressable>`);
     });
     writer.conditionalWriteLine(isConditional, `}`);
-  });
+  }
 }
 
-function writeChild(
+export function writeChild(
+  writer: CodeBlockWriter,
   child: ParseNodeTreeItem,
   slug: string,
   isConditional: boolean,
-  state: {
-    writer: CodeBlockWriter,
-    flags: ImportFlags,
-    data: ParseData,
-    settings: ProjectSettings,
-    language?: VariableCollection,
-    pressables?: string[][],
-    getStyleProp: StylePrefixMapper,
-  },
+  state: WriteChildrenState,
 ) {
-  const {writer, data, settings, pressables, getStyleProp} = state;
+  const {data, settings, pressables, getStyleProp, getIconProp} = state;
 
   // Derived data
-  const testID = ` testID="${child.node.id}"`;
   const propRefs = child.node.componentPropertyReferences;
-  const instance = getInstanceInfo(child.node as InstanceNode);
-  const reaction = getCustomReaction(instance.node);
+  const instance = parser.getComponentInstanceInfo(child.node as InstanceNode);
+  const reaction = parser.getComponentCustomReaction(instance.node);
   // TODO: const pressable = getPressReaction(instance.node);
-  const swapNodeProp = getPropName(propRefs?.mainComponent);
-  const jsxBaseProps = getPropsJSX(instance.node.componentProperties, data.colorsheet, data.meta.includes);
+  const swapNodeProp = parser.getComponentPropName(propRefs?.mainComponent);
   const hasCustomProps = reaction?.type === 'URL';
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
@@ -90,31 +73,21 @@ function writeChild(
   const isSwap = Boolean(swapNodeProp);
   const isIcon = isInstance
     && child.node.name.includes(':')
-    && getPage((child.node as InstanceNode).mainComponent)?.name === 'Icons'
+    && parser.getPage((child.node as InstanceNode).mainComponent)?.name === consts.PAGES_SPECIAL.ICONS
 
   // Icon node
   if (isIcon) {
-    const iconVector = instance.node.children?.find(c => c.type === 'VECTOR') as VectorNode;
-    const iconColor = getFillToken(iconVector);
-    const variantFills = data.variants?.fills?.[slug];
-    const hasVariant = data.variants && variantFills && !!Object.values(variantFills);
-    const fillToken = hasVariant ? `vcolors.${slug}` : iconColor;
-    const dynamic = isRootPressable && hasVariant ? '(e)' : '';
-    const style = `{color: ${fillToken}${dynamic}}`;
+    const icon = getIconProp(slug, isRootPressable);
     // Swap icon, override props for this instance
     if (isSwap) {
-      state.flags.react.cloneElement = true;
-      const statement = `cloneElement(props.${swapNodeProp}, `;
-      writer.write((isConditional ? '' : '{') + statement).inlineBlock(() => {
-        writer.writeLine(`style: ${style},`);
-        writer.writeLine(`size: ${child.node.width},`);
-      });
-      writer.write(')' + (isConditional ? '' : '}'));
-      writer.newLine();
+      state.flags.exoUtils.createIcon = true;
+      const statement = `createIcon(props.${swapNodeProp}, ${icon})`;
+      writer.writeLine((isConditional ? '' : '{') + statement + (isConditional ? '' : '}'));
     // Explicit icon, use Icon component directly
     } else {
-      writer.writeLine(`<Icon icon="${child.node.name}" size={${child.node.width}} style={${style}}/>`);
-      state.flags.exo.Icon = true;
+      state.flags.exoIcon.Icon = true;
+      state.flags.reactNative.StyleSheet = true;
+      writer.writeLine(`<Icon {...StyleSheet.flatten(${icon})}/>`);
     }
     return;
   }
@@ -127,12 +100,36 @@ function writeChild(
       if (asset.isVector) {
         const vectorTag = '<' + asset.name + '/>'
         writer.writeLine(vectorTag);
-      // Raster node
+      // Asset node
       } else {
-        const uri = asset.name;
-        const style = `{width: ${asset.width}, height: ${asset.height}}`;
-        writer.writeLine(`<Image source={{uri: ${uri}}} style={${style}} resizeMode="cover"/>`);
-        state.flags.reactNative.Image = true;
+        const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
+        const width = number.round(asset.width);
+        const height = number.round(asset.height);
+        const sizeProps = `width={${width}} height={${height}}`;
+        const animProps = assetProps?.length
+          ? ' ' + assetProps.map(a => a.trim()).join(' ')
+          : ' autoplay loop';
+        switch (assetType.trim().toLowerCase()) {
+          case 'lottie':
+            writer.writeLine(`<Lottie url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
+            state.flags.exoLottie.Lottie = true;
+            break;
+          case 'rive':
+            writer.writeLine(`<Rive url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
+            state.flags.exoRive.Rive = true;
+            break;
+          default:
+            // TODO: isVideo detection is broken
+            if (asset.isVideo) {
+              writer.writeLine(`<Video url="${assetSource.trim()}" poster={${asset.name}} ${sizeProps}/>`);
+              state.flags.exoVideo.Video = true;
+            } else {
+              const extraProps = asset.thumbhash ? ` thumbhash="${asset.thumbhash}"` : '';
+              writer.writeLine(`<Image url={${asset.name}} ${sizeProps}${extraProps}/>`);
+              state.flags.exoImage.Image = true;
+            }
+            break;
+        }
       }
     } else {
       writer.writeLine(`<View/>`);
@@ -150,11 +147,12 @@ function writeChild(
   // Normal node
   let jsxTag: string;
   let jsxTagWithProps: string;
-  let jsxCustomProps = '';
+  let jsxStyleProp: string;
+  let jsxExtraProps: Array<[string, string]> = [];
 
   // Custom props (via prototype interaction)
   if (hasCustomProps) {
-    jsxCustomProps = reaction.url
+    jsxExtraProps = reaction.url
       ?.split(',')
       ?.map(p => p.trim())
       ?.map(p => {
@@ -163,32 +161,48 @@ function writeChild(
         if (relation.length === 2) {
           const [k, v] = relation;
           if (k && v) {
-            return ` ${getPropName(k)}={props.${getPropName(v)}}`;
+            return [
+              `${parser.getComponentPropName(k)}`,
+              `{props.${parser.getComponentPropName(v)}}`,
+            ] as [string, string];
           }
         }
         // Purely custom input (raw k=v)
         const custom = p?.split('=');
         if (custom.length === 1 && custom[0])
-          return ' ' + custom[0];
+          return [custom[0], ''] as [string, string];
         if (custom.length === 2 && custom[1])
-          return ' ' + custom.join('=');
+          return [custom[0], custom[1]] as [string, string];
         // Invalid input
-        return '';
-      })?.join('');
+        return null as [string, string];
+      })
+      .filter(Boolean);
   }
+
+  // Styles prop
+  if (!isInstance && slug) {
+    jsxStyleProp = `${getStyleProp(slug, isRootPressable)}`;
+  }
+
+  // Component props
+  const jsxProps = writePropsAttributes(
+    new CodeBlockWriter(state.settings.writer),
+    instance.node.componentProperties,
+    instance.node.id,
+    jsxStyleProp,
+    jsxExtraProps,
+  );
 
   // Create instance tag
   if (isInstance) {
-    jsxTag = createIdentifierPascal(instance.main.name);
-    jsxTagWithProps = jsxTag + jsxCustomProps + jsxBaseProps + testID;
+    jsxTag = string.createIdentifierPascal(instance.main.name);
+    jsxTagWithProps = jsxTag + jsxProps;
     if (jsxTagWithProps.includes('<Icon'))
-      state.flags.exo.Icon = true;
+      state.flags.exoIcon.Icon = true;
   // Create primitive tag
   } else {
-    // Determine if root node is wrapped in a pressable
-    const styles = slug ? ` style={${getStyleProp(slug, isRootPressable)}}` : '';
-    jsxTag = getReactNativeTag(child.node.type);
-    jsxTagWithProps = jsxTag + styles + jsxCustomProps + jsxBaseProps + testID;
+    jsxTag = getTagName(child.node.type);
+    jsxTagWithProps = jsxTag + jsxProps;
     state.flags.reactNative[jsxTag] = true;
   }
 
@@ -198,47 +212,72 @@ function writeChild(
     return;
   }
 
+  // Text properties
+  const textPropId = propRefs?.characters;
+  const textPropName = textPropId ? parser.getComponentPropName(textPropId) : null;
+  const textPropValue = textPropName
+    ? `props.${textPropName}`
+    : (child.node as TextNode).characters || '';
+
+  // Text input detected
+  if (child.node.type === 'TEXT'
+    && child.node.name.toLowerCase().startsWith('textinput')
+    && child.node.name.includes('|')) {
+    const [_, type, value, ...extra] = child.node.name.split('|');
+    state.flags.reactNative.TextInput = true;
+    writer.write('<TextInput').indent(() => {
+      writer.writeLine(`style={${getStyleProp(slug, isRootPressable)}}`);
+      writer.writeLine(`testID="${child.node.id}"`);
+      // Type (none, text, decimal, numeric, tel, search, email, url)
+      writer.writeLine(`inputMode="${type.trim().toLowerCase()}"`);
+      // Default value
+      // TODO: support state
+      writer.writeLine(`defaultValue={${value.trim()}}`);
+      // Placeholder (props value)
+      if (textPropValue.startsWith('props.')) {
+        writer.writeLine(`placeholder={${textPropValue}}`);
+      // Placeholder (explict), translate
+      } else if (settings?.addTranslate) {
+        state.flags.lingui.t = true;
+        translate(state.language, textPropValue);
+        writer.writeLine(`placeholder={t\`${textPropValue}\`}`);
+      } else {
+        writer.writeLine(`placeholder={\`${textPropValue}}\``);
+      }
+      state.flags.useStylesTheme = true;
+      writer.writeLine(`placeholderTextColor={${parser.getFillToken(child.node as TextNode)}}`);
+      extra?.forEach(p => p && writer.writeLine(p.trim()));
+    });
+    writer.write(`/>`);
+    return;
+  }
+
   // Child nodes, open tag and write children
   writer.write(`<${jsxTagWithProps}>`).indent(() => {
     switch (jsxTag) {
       case 'View':
-        writeChildren(
-          writer,
-          state.flags,
+        writeChildren(writer, child.children, {
           data,
           settings,
-          child.children,
-          getStyleProp,
           pressables,
-        );
+          flags: state.flags,
+          language: state.language,
+          getStyleProp,
+          getIconProp,
+        });
         break;
       case 'Text':
-        const propId = propRefs?.characters;
-        const propName = propId ? getPropName(propId) : null;
-        const propValue = propName
-          ? `props.${propName}`
-          : (child.node as TextNode).characters || '';
-        if (propValue.startsWith('props.')) {
-          writer.write(`{${propValue}}`);
+        // Component property string
+        if (textPropValue.startsWith('props.')) {
+          writer.write(`{${textPropValue}}`);
+        // Explicit string
         } else {
           if (settings?.addTranslate) {
             state.flags.lingui.Trans = true;
-            writer.write('<Trans>{`' + propValue + '`}</Trans>');
-            if (state.language) {
-              const {id, defaultModeId} = state.language;
-              try {
-                const bytes = encodeUTF8(propValue);
-                const hash = blake2sHex(bytes);
-                if (!figma.variables.getLocalVariables().find(e => e.name === hash)) {
-                  const entry = figma.variables.createVariable(hash, id, 'STRING');
-                  entry.setValueForMode(defaultModeId, propValue);
-                }
-              } catch (e) {
-                console.log(`Unable to create language ${propValue}`, e);
-              }
-            }
+            translate(state.language, textPropValue);
+            writer.write('<Trans>{`' + textPropValue + '`}</Trans>');
           } else {
-            writer.write(`{\`${propValue}\`}`);
+            writer.write(`{\`${textPropValue}\`}`);
           }
         }
         break;
@@ -249,7 +288,7 @@ function writeChild(
   writer.writeLine(`</${jsxTag}>`);
 }
 
-function getReactNativeTag(type: string): 'View' | 'Text' | 'Image' {
+function getTagName(type: string): 'View' | 'Text' | 'Image' {
   switch (type) {
     case 'TEXT':
       return 'Text';

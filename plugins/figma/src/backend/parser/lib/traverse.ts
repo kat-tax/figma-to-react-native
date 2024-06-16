@@ -1,3 +1,5 @@
+import * as consts from 'config/consts';
+
 // Return the selected component
 export function getSelectedComponent(): ComponentNode {
   const {selection} = figma.currentPage;
@@ -11,7 +13,7 @@ export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentN
   const components = new Set<ComponentNode>();
   for (const node of nodes) {
     const component = getComponentTarget(node);
-    if (component && getPage(component)?.name !== 'Icons') {
+    if (component && getPage(component)?.name !== consts.PAGES_SPECIAL.ICONS) {
       components.add(component);
     }
   }
@@ -83,24 +85,15 @@ export function getComponentParent(node: SceneNode): ComponentNode {
   return null;
 }
 
-export function getCollectionModes(collectionName: string) {
-  // Find the variable collection
-  const theme = getCollectionByName(collectionName);
-  if (!theme) return null;
-  // Find the current mode
-  const component = figma.currentPage.findAllWithCriteria({types: ['COMPONENT']})?.pop();
-  const current = component?.resolvedVariableModes?.[theme.id];
-  return {
-    current: theme.modes.find(m => m.modeId === current),
-    default: theme.modes.find(m => m.modeId === theme.defaultModeId),
-    modes: theme.modes,
-  };
-}
-
-export function getCollectionByName(collectionName: string) {
-  const collections = figma.variables.getLocalVariableCollections();
-  const collection = collections?.find(c => c.name === collectionName);
-  return collection;
+// Find the section of a node
+export function getSection(node: BaseNode): SectionNode {
+  let target: BaseNode = node;
+  if (!target) return null;
+  while (target.type !== 'SECTION') {
+    target = target.parent;
+    if (!target) return null;
+  }
+  return target;
 }
 
 // Get the page of a node
@@ -111,4 +104,18 @@ export function getPage(node: BaseNode): PageNode {
     if (!node) return null;
   }
   return node;
+}
+
+// Focus a node (and go to the page it's on)
+export async function focusNode(id: string) {
+  try {
+    const node = figma.getNodeById(id);
+    if (node) {
+      const page = getPage(node);
+      if (page && figma.currentPage !== page)
+        await figma.setCurrentPageAsync(page);
+      figma.currentPage.selection = [node as SceneNode];
+      figma.viewport.scrollAndZoomIntoView([node]);
+    }
+  } catch (e) {}
 }

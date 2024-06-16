@@ -14,7 +14,7 @@ export function throttle(func: Function, delay: number) {
   return function (...args: any[]) {
     lastArgs = args;
     if (!timeout) {
-      timeout = setTimeout(execute, delay);
+      timeout = setTimeout(execute, delay) as unknown as number;
     }
   };
 }

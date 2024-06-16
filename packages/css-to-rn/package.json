@@ -5,9 +5,5 @@
   "private": true,
   "dependencies": {
     "lightningcss-wasm": "^1.22.1"
-  },
-  "devDependencies": {
-    "@types/react-native": "^0.73.0",
-    "react-native": "^0.73.1"
   }
 }

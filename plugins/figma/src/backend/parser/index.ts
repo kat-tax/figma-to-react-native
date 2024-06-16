@@ -1,12 +1,11 @@
-import {getInstanceInfo, getCustomReaction, isNodeVisible, isNodeIcon} from 'backend/parser/lib';
-import {getAssets, getStyleSheet, getColorSheet, validate} from './lib';
-import {createIdentifierCamel} from 'common/string';
+import * as string from 'common/string';
+import * as parser from './lib';
 
-import type {ParseData, ParseRoot, ParseFrame, ParseChild, ParseMetaData, ParseNodeTree, ParseVariantData} from 'types/parse';
+import type * as T from 'types/parse';
 
-const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'SECTION', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
+const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
 
-export default async function(component: ComponentNode): Promise<ParseData> {
+export default async function(component: ComponentNode): Promise<T.ParseData> {
   // Make sure component can be processed
   try {
     validate(component);
@@ -21,20 +20,23 @@ export default async function(component: ComponentNode): Promise<ParseData> {
   // Gather node data relative to conversion
   const data = crawl(component);
 
+  // Debug
+  // console.log(component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name, data);
+
   // Generated styles and assets
-  const [stylesheet, colorsheet, {assetData, assetMap}] = await Promise.all([
-    getStyleSheet(data.meta.styleNodes, data.variants),
-    getColorSheet(data.meta.assetNodes, data.variants),
-    getAssets(data.meta.assetNodes),
+  const [localState, stylesheet, {assetData, assetMap}] = await Promise.all([
+    parser.getLocalState(),
+    parser.getStyleSheet(data.meta.styleNodes, data.variants),
+    parser.getAssets(data.meta.assetNodes),
   ]);
 
   // Profile
   // console.log(`[fig/parse/main] ${Date.now() - _t1}ms`, data, stylesheet);
 
-  return {...data, stylesheet, colorsheet, assetData, assetMap};
+  return {...data, localState, stylesheet, assetData, assetMap};
 }
 
-function crawl(node: ComponentNode) {
+export function crawl(node: ComponentNode) {
   // const _t1 = Date.now();
   const {dict, tree, meta} = crawlChildren(node.children);
 
@@ -62,8 +64,8 @@ function crawl(node: ComponentNode) {
 function crawlChildren(
   nodes: readonly SceneNode[],
   dict?: Set<SceneNode>,
-  tree?: ParseNodeTree,
-  meta?: ParseMetaData,
+  tree?: T.ParseNodeTree,
+  meta?: T.ParseMetaData,
 ) {
   dict = dict || new Set();
   tree = tree || [];
@@ -73,31 +75,55 @@ function crawlChildren(
     iconsUsed: new Set(),
     components: {},
     includes: {},
+    icons: {},
   };
   
   for (const node of nodes) {
     // Skip nodes that are not visible and not conditionally rendered
-    if (!isNodeVisible(node)) continue;
+    if (!parser.isNodeVisible(node)) continue;
+
+    // Node types
+    const isInstance = node.type === 'INSTANCE';
+    const isVector = node.type === 'VECTOR';
+    const isIcon = parser.isNodeIcon(node);
+
+    // Node states
+    const hasAsset = (node.isAsset && !isInstance) || isVector;
+    const hasStyle = NODES_WITH_STYLES.includes(node.type) && !node.isAsset;
 
     // Record asset nodes to be exported, nothing further is needed
-    const isInstance = node.type === 'INSTANCE';
-    const isAsset = (node.isAsset && !isInstance) || node.type === 'VECTOR';
-    if (isAsset) {
+    if (hasAsset) {
       meta.assetNodes.add(node.id);
       dict.add(node);
       tree.push({node});
       continue;
     }
 
-    // Record nodes with styles
-    if (NODES_WITH_STYLES.includes(node.type) && !node.isAsset) {
+    // Record nodes with styles, css will be extracted & converted later
+    if (hasStyle) {
       meta.styleNodes.add(node.id);
+    }
+
+    // Record icon color and size
+    if (isIcon) {
+      const iconData = parser.getIconData(node);
+      meta.iconsUsed.add(iconData.name);
+      meta.icons[node.id] = iconData;
     }
 
     // Handle other nodes
     switch (node.type) {
+      case 'TEXT':
+        dict.add(node);
+        tree.push({node});
+        break;
+      case 'RECTANGLE':
+        dict.add(node);
+        tree.push({node});
+        break;
       // Container, recurse
       case 'FRAME':
+      case 'GROUP':
       case 'COMPONENT':
         const sub = crawlChildren(node.children, dict, [], meta);
         meta.components = {...meta.components, ...sub.meta.components};
@@ -109,12 +135,12 @@ function crawlChildren(
         break;
       // Instance swap
       case 'INSTANCE':
-        const info = getInstanceInfo(node);
+        const info = parser.getComponentInstanceInfo(node);
         if (info.propName) {
           meta.includes[info.main.id] = [info.main, node];
         } else {
           // Record subcomponent
-          if (!isNodeIcon(info.main)) {
+          if (!parser.isNodeIcon(info.main)) {
             meta.components[info.main.id] = [info.main, node];
           }
 
@@ -131,7 +157,7 @@ function crawlChildren(
                   swapInvisible = true;
               }
               // If swap componet is icon, no need to import, just record the name
-              if (isNodeIcon(swapComponent)) {
+              if (parser.isNodeIcon(swapComponent)) {
                 meta.iconsUsed.add(swapComponent.name);
               // If swap component not invisible, add to import list
               } else if (!swapInvisible) {
@@ -143,44 +169,52 @@ function crawlChildren(
         dict.add(node);
         tree.push({node});
         break;
-      case 'TEXT':
-        dict.add(node);
-        tree.push({node});
-        break;
-      case 'RECTANGLE':
-        dict.add(node);
-        tree.push({node});
     }
   }
 
   return {dict, tree, meta};
 }
 
-function getRoot(node: ComponentNode): ParseRoot {
-  return {node, slug: 'root', click: getCustomReaction(node)};
+function validate(component: ComponentNode) {
+  // Sanity check
+  if (!component || component.type !== 'COMPONENT') {
+    throw new Error(`Component not found.`);
+  }
+
+  // Disallow certain nodes
+  if (component.findAllWithCriteria({types: ['SECTION']}).length > 0) {
+    throw new Error(`Sections cannot be inside a component. Convert them to a frame.`);
+  }
+
+  // Good to go!
+  return true;
 }
 
-function getFrame(node: ComponentNode): ParseFrame {
+function getRoot(node: ComponentNode): T.ParseRoot {
+  return {node, slug: 'root', click: parser.getComponentCustomReaction(node)};
+}
+
+function getFrame(node: ComponentNode): T.ParseFrame {
   if (node.parent.type !== 'FRAME') return null;
   return {node: node.parent, slug: 'frame'};
 }
 
-function getChildren(nodes: Set<SceneNode>): ParseChild[] {
-  const children: ParseChild[] = [];
+function getChildren(nodes: Set<SceneNode>): T.ParseChild[] {
+  const children: T.ParseChild[] = [];
   for (const node of nodes) {
-    const id = createIdentifierCamel(node.name);
-    const ref = children.filter((c) => id === createIdentifierCamel(c.node.name)).length;
+    const id = string.createIdentifierCamel(node.name);
+    const ref = children.filter((c) => id === string.createIdentifierCamel(c.node.name)).length;
     const slug = ref > 0 ? `${id}${ref+1}` : id;
     children.push({node, slug});
   }
   return children;
 }
 
-function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
-  const variants: ParseVariantData = {
+function getVariants(root: ComponentNode, rootChildren: T.ParseChild[]) {
+  const variants: T.ParseVariantData = {
     mapping: {},
     classes: {},
-    fills: {},
+    icons: {},
   };
 
   if (!root || !root.variantProperties)
@@ -208,28 +242,21 @@ function getVariants(root: ComponentNode, rootChildren: ParseChild[]) {
       for (const child of children) {
         if (!child || !child.node) continue;
 
-        // Find matching base node
-        const childId = createIdentifierCamel(child?.node.name);
-        const baseNode = rootChildren.find((c) =>
-          createIdentifierCamel(c?.node.name) === childId
-          && c?.node.type === child?.node.type
-        );
-
-        // Map variant child nodes
+        // Map node to base node
+        const baseNode = rootChildren.find((c) => c.slug === child.slug);
         variants.mapping[variant.id][baseNode?.node.id] = child?.node.id;
   
-        // Node with fills
-        if (child?.node?.isAsset) {
-          if (!variants.fills[childId])
-            variants.fills[childId] = {};
-          variants.fills[childId][variant.name] = child?.node.id;
+        // Icon node
+        if (parser.isNodeIcon(child.node)) {
+          if (!variants.icons[child.slug]) variants.icons[child.slug] = {};
+          const iconData = parser.getIconData(child.node);
+          variants.icons[child.slug][variant.name] = iconData;
         }
 
-        // Node with styles
+        // Styled node
         if (NODES_WITH_STYLES.includes(child?.node.type)) {
-          if (!variants.classes[childId])
-            variants.classes[childId] = {};
-          variants.classes[childId][variant.name] = child?.node.id;
+          if (!variants.classes[child.slug]) variants.classes[child.slug] = {};
+          variants.classes[child.slug][variant.name] = child?.node.id;
         }
       }
     }

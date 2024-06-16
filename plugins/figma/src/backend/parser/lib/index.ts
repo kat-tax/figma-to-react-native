@@ -1,36 +1,46 @@
-export {validate} from './validate';
-export {getAssets} from './assets';
-export {getStyleSheet} from './styles';
+export {
+  getAssets,
+} from './assets';
 
 export {
-  getColorSheet,
   getFillToken,
   getTopFill,
   getColor,
 } from './colors';
 
 export {
-  focusNode,
-  isNodeIcon,
   isNodeVisible,
-  getInstanceInfo,
-  getCustomReaction,
-  getPressReaction,
+  isNodeIcon,
+  getIconData,
+  getComponentInfo,
+  getComponentPropName,
+  getComponentInstanceInfo,
+  getComponentCustomReaction,
+  getComponentPressReaction,
+  sortComponentProps,
+  sortComponentPropsDef,
 } from './node';
 
 export {
-  getPropName,
-  getPropsJSX,
-  sortProps,
-  sortPropsDef,
-} from './props';
+  getStyleSheet,
+} from './styles';
+
+export {
+  getLocalState,
+} from './state';
 
 export {
   getSelectedComponent,
   getComponentTargets,
   getComponentTarget,
   getComponentParent,
-  getCollectionModes,
-  getCollectionByName,
+  getSection,
   getPage,
+  focusNode,
 } from './traverse';
+
+export {
+  getVariables,
+  getVariableCollection,
+  getVariableCollectionModes,
+} from './variables';

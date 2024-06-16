@@ -18,7 +18,7 @@ export function ProjectAssets(props: ProjectAssetsProps) {
     if (!props?.build?.assets) return;
     const list = Object.values(props.build.assets).map(asset => ({
       alt: asset.name,
-      src: asset.embed,
+      src: '', //asset.url,
       width: asset.width,
       height: asset.height,
     }));

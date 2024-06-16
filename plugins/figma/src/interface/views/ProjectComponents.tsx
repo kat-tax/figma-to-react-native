@@ -1,3 +1,4 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {getComponentCode} from 'interface/store';
@@ -5,12 +6,11 @@ import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {emit} from '@create-figma-plugin/utilities';
 
 import * as F from 'figma-ui';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
-import type {ComponentBuild, ComponentEntry} from 'types/component';
+import type {ComponentBuild, ComponentRosterEntry} from 'types/component';
 import type {EventNotify, EventFocusNode, EventProjectImportComponents} from 'types/events';
 
 interface ProjectComponentsProps {
@@ -30,7 +30,7 @@ type ProjectComponentIndex = Record<
 >
 
 type ProjectComponentEntry = {
-  item: ComponentEntry,
+  item: ComponentRosterEntry & {key: string},
   positions: Set<number>,
 }
 
@@ -42,9 +42,12 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   
   const index = useMemo(() => {
-    const entries = hasComponents ? Object.values(props.build?.roster) : [];
+    const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
+    const entries = _entries
+      .sort((a, b) => a[1].path.localeCompare(b[1].path))
+      .map(([key, item]) => ({...item, key}));
     return new Fzf(entries, {
-      selector: (item) => `${item.page}/${item.name}`,
+      selector: (item) => `${item.path}/${item.name}`,
       tiebreakers: [byLengthAsc],
       forward: false,
     });
@@ -53,7 +56,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   // Import EXO components
   const importComponents = async () => {
     if (!props.hasStyles) {
-      props.nav.gotoTab('tokens');
+      props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing EXO');
       return;
     }
@@ -139,7 +142,6 @@ interface ProjectPageGroupProps {
 
 function ProjectPageGroup(props: ProjectPageGroupProps) {
   const [isExpanded, setExpanded] = useState<boolean>(true);
-
   if (!props?.entries?.length) return null;
 
   return (
@@ -168,7 +170,7 @@ interface ProjectPageComponentProps {
 }
 
 function ProjectPageComponent(props: ProjectPageComponentProps) {
-  const {id, name, page, preview, loading} = props.entry.item;
+  const {id, name, page, path, preview, loading} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const hasUnsavedChanges = false;
   const hasError = false;
@@ -208,12 +210,12 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
           : undefined
         }
         description={loading
-          ? 'Loading...'
+          ? 'loading...'
           : hasError
-            ? 'Error'
+            ? 'error'
             : hasUnsavedChanges
-              ? 'Modified'
-              : ''
+              ? 'modified'
+              : path.split('/').slice(2, -1).join('/')
         }
         icon={hasError
           ? <F.IconWarning16 color="danger"/>

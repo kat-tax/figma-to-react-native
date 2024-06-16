@@ -28,12 +28,23 @@ export function useBuild(): ComponentBuild {
       $.setComponentCode(component.key, component.code);
       $.setComponentIndex(component.key, component.index);
       $.setComponentStory(component.key, component.story);
+      $.setComponentDocs(component.key, component.docs);
       Object.values(build.assets).forEach(asset =>
         $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes));
-      const {id, key, name, page, props, width, height} = component;
-      $.components.set(component.key, {id, key, name, page, props, width, height});
+      const {id, key, info, props, imports, width, height} = component;
+      const {name, page, path} = info;
+      $.components.set(component.key, {
+        id,
+        key,
+        name,
+        path,
+        imports,
+        props,
+        width,
+        height,
+        page: page.name,
+      });
     });
-    // console.log('[build]', component.name, newBuild);
   }), []);
 
   return build;

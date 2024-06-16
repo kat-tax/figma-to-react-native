@@ -11,18 +11,18 @@ export type ThemeRadius =
   | '1.0';
 
 export type ThemeColor =
-  | 'zinc'
-  | 'slate'
-  | 'stone'
-  | 'gray'
-  | 'neutral'
-  | 'red'
-  | 'rose'
-  | 'orange'
-  | 'green'
-  | 'blue'
-  | 'yellow'
-  | 'violet';
+  | 'Zinc'
+  | 'Slate'
+  | 'Stone'
+  | 'Grey'
+  | 'Neutral'
+  | 'Red'
+  | 'Rose'
+  | 'Orange'
+  | 'Green'
+  | 'Blue'
+  | 'Yellow'
+  | 'Violet';
 
 export interface ThemePreset {
   colors: Record<string, RGB>,

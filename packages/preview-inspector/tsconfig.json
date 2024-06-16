@@ -1,0 +1,22 @@
+{
+  "include": [
+    "src",
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "es",
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "noEmit": false,
+    "types": [
+      "node",
+    ],
+  },
+}

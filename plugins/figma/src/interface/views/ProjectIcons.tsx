@@ -17,9 +17,9 @@ import type {ComponentBuild} from 'types/component';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ProjectIconsProps {
+  build: ComponentBuild,
   icons: ProjectIcons,
   nav: Navigation,
-  build: ComponentBuild,
   hasStyles: boolean,
   isReadOnly: boolean,
   searchMode: boolean,
@@ -73,7 +73,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   // Import icons from Iconify into Figma
   const importIcons = async (prefix: string, name: string) => {
     if (!props.hasStyles) {
-      props.nav.gotoTab('tokens');
+      props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
       return;
     }
@@ -138,8 +138,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
   return (
     <Fragment>
       <VirtuosoGrid
-        overscan={200}
         style={{height: '100%'}}       
+        overscan={200}
         totalCount={list.length}
         itemContent={i => (
           <Fragment>
@@ -160,7 +160,7 @@ interface IconListItemProps {
 }
 
 function IconListItem(props: IconListItemProps) {
-  const tag = `<Icon icon="${props.icon}"/>`;
+  const tag = `<Icon name="${props.icon}"/>`;
   return (
     <F.IconButton
       title={props.icon}

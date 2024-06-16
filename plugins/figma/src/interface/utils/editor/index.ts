@@ -1,10 +1,11 @@
-import {F2RN_EDITOR_NS} from 'config/env';
+import {F2RN_EDITOR_NS} from 'config/consts';
+import {componentPathNormalize} from 'common/string';
 import {emit} from '@create-figma-plugin/utilities';
 import schema from 'interface/schemas/user/schema.json';
 import * as $ from 'interface/store';
 
 import imports from './lib/imports';
-import AutoTypings from './lib/AutoTypings';
+import typings from './lib/typings';
 import Constraints from './lib/Constraints';
 import Experimental from './lib/Experimental';
 
@@ -17,6 +18,7 @@ export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
 
 export function initTypescript(monaco: Monaco, settings: UserSettings) {
+  const exo = `${F2RN_EDITOR_NS}node_modules/react-exo`;
   const ts = monaco.languages.typescript.typescriptDefaults;
   ts?.setInlayHintsOptions(settings.monaco.inlayHints);
   ts?.setDiagnosticsOptions(settings.monaco.diagnostics);
@@ -28,8 +30,9 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
     module: monaco.languages.typescript.ModuleKind.CommonJS,
     noEmit: true,
     paths: {
-      ['components/*']: [`${F2RN_EDITOR_NS}*`],
       ['theme']: [`${F2RN_EDITOR_NS}theme.ts`],
+      ['components/*']: [`${F2RN_EDITOR_NS}*`],
+      ['react-exo/*']: [`${exo}`],
     }
   });
 
@@ -55,15 +58,20 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
-  const regexTestId = /testID=(?:"(\d+:\d+)"|{(props\.testID)})/;
-  const regexComponentName = /\/([^\/]+)\.[^.]+$/;
+  // Example 1: testID={props.testID ?? "1034:553"}
+  // Example 2: testID="1034:553"
+  const regexTestId = /testID=(?:"(\d+:\d+)"|{props\.testID \?\? "(\d+:\d+)"})/;
   return monaco.editor.registerEditorOpener({
     openCodeEditor(source, resource) {
       let nodeId: string | undefined;
       const base = `${resource.scheme}://${resource.authority}/`;
       if (base === F2RN_EDITOR_NS) {
-        // Search for component name in links
-        nodeId = links?.[resource.path?.match(regexComponentName)?.[1]];
+        // Foreign model, search for path in component links
+        const isOriginFile = resource.path !== source.getModel().uri.path;
+        if (isOriginFile) {
+          nodeId = links?.[componentPathNormalize(resource.path)];
+        }
+
         // Search for test ids if no component name found
         if (!nodeId) {
           const sel = source.getSelection();
@@ -71,10 +79,10 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
           for (let i = sel.startLineNumber; i <= sel.endLineNumber; i++) {
             const line = model?.getLineContent(i);
             const match = line?.match(regexTestId);
-            const [_, literal, prop] = match;
-            nodeId = prop
-              ? links?.[model.uri.path?.match(regexComponentName)?.[1]]
-              : literal;
+            if (match?.length) {
+              const [_, literal, prop] = match;
+              nodeId = prop ? links?.[componentPathNormalize(model.uri.path)] : literal;
+            }
           }
         }
       }
@@ -104,8 +112,8 @@ export function initSettingsSchema(monaco: Monaco) {
 }
 
 export function initComponentEditor(editor: Editor, monaco: Monaco, onTriggerGPT: () => void) {
-  console.log('[init editor]', editor, monaco);
-  AutoTypings.init(monaco, editor);
+  // console.log('[init editor]', editor, monaco);
+  typings.init(monaco, editor);
   Experimental.init(monaco, editor, onTriggerGPT);
   return Constraints.init(monaco, editor);
 }

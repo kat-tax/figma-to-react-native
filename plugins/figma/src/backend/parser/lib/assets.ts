@@ -1,5 +1,6 @@
 import {blake2sHex} from 'blakejs';
-import {createIdentifierCamel, createIdentifierPascal} from 'common/string';
+import {rgbaToThumbHash, byteArrayToBase64} from 'common/thumbhash';
+import * as string from 'common/string';
 
 import type {ParseAssetData} from 'types/parse';
 
@@ -21,44 +22,60 @@ export async function getAssets(nodes: Set<string>): Promise<{
 
   try {
     for await (const id of nodes) {
-      let embed: string;
       let count: number;
       let bytes: Uint8Array;
+      let thumbhash: string;
   
       const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin;
       
       const isVector = VECTOR_NODE_TYPES.includes(node.type)
         || (node.findAllWithCriteria
           && node.findAllWithCriteria({types: VECTOR_NODE_TYPES})?.length > 0);
+
+      const isVideo = node.type === 'EMBED'
+        || (node.findAllWithCriteria
+          && node.findAllWithCriteria({types: ['EMBED']})?.length > 0);
       
       const identifier = isVector
-        ? createIdentifierPascal(node.name)
-        : createIdentifierCamel(node.name);
+        ? string.createIdentifierPascal(node.name)
+        : string.createIdentifierCamel(node.name);
 
       if (isVector) {
         vectors[node.name] = 1 + (vectors[node.name] || 0);
         hasVector = true;
         count = vectors[node.name];
         bytes = await node.exportAsync({format: 'SVG'});
-        embed = bytes
-          ? `data:image/svg+xml;base64,${figma.base64Encode(bytes)}`
-          : 'data:image/svg+xml;base64,<svg/>';
+        //embed = bytes
+        //  ? `data:image/svg+xml;base64,${figma.base64Encode(bytes)}`
+        //  : 'data:image/svg+xml;base64,<svg/>';
       } else {
+        //const thumbBytes = await node.exportAsync({format: 'PNG', constraint: {type: 'WIDTH', value: 100}});
+        //thumbhash = byteArrayToBase64(rgbaToThumbHash(100, 100, thumbBytes));
         rasters[node.name] = 1 + (rasters[node.name] || 0);
         hasRaster = true;
         count = rasters[node.name];
         bytes = await node.exportAsync({format: 'PNG', constraint: {type: 'SCALE', value: 2}});
-        embed = bytes
-          ? `data:image/png;base64,${figma.base64Encode(bytes)}`
-          : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+        //embed = bytes
+        //  ? `data:image/png;base64,${figma.base64Encode(bytes)}`
+        //  : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
       }
 
+      const rawName = node.name;
       const name = count > 1 ? `${identifier}${count}` : identifier;
-      const data = bytes || embed;
-      const hash = bytes ? blake2sHex(data) : '';
+      const hash = bytes ? blake2sHex(bytes) : '';
       const {width, height} = node;
-      assetData[id] = {width, height, name, hash, embed, bytes, isVector};
       assetMap[id] = hash;
+      assetData[id] = {
+        width,
+        height,
+        name,
+        hash,
+        bytes,
+        thumbhash,
+        rawName,
+        isVector,
+        isVideo,
+      };
     }
   } catch (err) {
     console.error('[assets] Failed to convert', err);

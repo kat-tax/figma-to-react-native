@@ -2,6 +2,7 @@
   "name": "figma-ui",
   "type": "module",
   "private": true,
+  "sideEffects": false,
   "files": [
     "lib"
   ],
@@ -19,6 +20,13 @@
     "build:copy-misc": "tsx scripts/copy-misc.ts",
     "build:js": "tsc --build",
     "clean": "rimraf --glob '*.log' lib 'src/**/*.css.d.ts' tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@types/invariant": "^2.2.37",
+    "@types/lodash": "^4.14.202",
+    "invariant": "^2.2.4",
+    "lodash": "^4.17.21",
+    "uniforms": "4.0.0-alpha.5"
   },
   "devDependencies": {
     "@sindresorhus/slugify": "^2.2.1",
@@ -39,13 +47,5 @@
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
-  },
-  "sideEffects": false,
-  "dependencies": {
-    "@types/invariant": "^2.2.37",
-    "@types/lodash": "^4.14.202",
-    "invariant": "^2.2.4",
-    "lodash": "^4.17.21",
-    "uniforms": "4.0.0-alpha.5"
   }
 }

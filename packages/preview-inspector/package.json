@@ -1,0 +1,41 @@
+{
+  "name": "preview-inspector",
+  "version": "0.0.7",
+  "module": "es/index.js",
+  "types": "es/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@floating-ui/core": "^1.6.0",
+    "@types/react-reconciler": "^0.28.8",
+    "hotkeys-js": "^3.12.2",
+    "lit": "^2.8.0",
+    "picocolors": "1.0.0",
+    "react-dev-utils": "12.0.1"
+  },
+  "peerDependencies": {
+    "react": ">=16.14.0"
+  },
+  "devDependencies": {
+    "@radix-ui/react-label": "2.0.2",
+    "@radix-ui/react-slot": "1.0.2",
+    "@radix-ui/react-switch": "1.0.3",
+    "@types/node": "16.18.7",
+    "@types/react": "18.0.26",
+    "@types/react-dev-utils": "9.0.11",
+    "@types/react-dom": "18.0.9",
+    "@types/react-reconciler": "0.28.0",
+    "autoprefixer": "10.4.14",
+    "class-variance-authority": "0.6.1",
+    "clsx": "1.2.1",
+    "postcss": "8.4.26",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "rxjs": "7.8.1",
+    "tailwindcss": "3.3.3",
+    "ts-node": "10.9.1",
+    "typescript": "5.2.2"
+  }
+}

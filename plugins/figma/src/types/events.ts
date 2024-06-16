@@ -2,8 +2,8 @@ import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {UserSettings} from 'types/settings';
 import type {ThemeColor, ThemeRadius} from 'types/themes';
-import type {ProjectBuild, ProjectRelease} from 'types/project';
 import type {ComponentData, ComponentBuild} from 'types/component';
+import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 
 /* General */
 
@@ -31,7 +31,7 @@ export interface EventAppReady extends EventHandler {
 
 export interface EventAppStart extends EventHandler {
   name: 'APP_START';
-  handler: (page: AppPages, user: User, vscode: boolean, readonly: boolean) => void;
+  handler: (user: User, vscode: boolean, readonly: boolean) => void;
 }
 
 export interface EventAppNavigate extends EventHandler {
@@ -77,7 +77,7 @@ export interface DropComponentHandler extends EventHandler {
 
 export interface EventProjectBuild extends EventHandler {
   name: 'PROJECT_BUILD';
-  handler: (project: ProjectBuild | null, config: ProjectRelease, user: User) => void;
+  handler: (project: ProjectBuild | null, info: ProjectInfo | null, config: ProjectRelease, user: User) => void;
 }
 
 export interface EventProjectTheme extends EventHandler {

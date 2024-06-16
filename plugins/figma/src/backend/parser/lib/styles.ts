@@ -1,6 +1,5 @@
 import {emit, once} from '@create-figma-plugin/utilities';
-import {diff} from 'deep-object-diff';
-import {F2RN_STYLEGEN_API} from 'config/env';
+import * as consts from 'config/consts';
 
 import type {EventStyleGenReq, EventStyleGenRes} from 'types/events';
 import type {ParseStyleSheet, ParseVariantData} from 'types/parse';
@@ -10,7 +9,10 @@ let _remoteStyleGenOnly = false;
 type StyleSheet = Record<string, StyleClass>;
 type StyleClass = {[key: string]: string};
 
-export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantData): Promise<ParseStyleSheet> {
+export async function getStyleSheet(
+  nodes: Set<string>,
+  variants?: ParseVariantData,
+): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
   let css: StyleSheet = {};
   for await (const id of nodes) {
@@ -21,18 +23,10 @@ export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantD
   // Generate CSS from variant mappings
   if (variants?.mapping) {
     for await (const id of Object.keys(variants.mapping)) {
-      for await (const [bid, vid] of Object.entries(variants.mapping[id])) {
+      for await (const [_, vid] of Object.entries(variants.mapping[id])) {
         const vnode = figma.getNodeById(vid);
         const vcss = await vnode.getCSSAsync();
-        const diff = diffStyles(css[bid], vcss);
-        for (const k in diff) {
-          if (diff[k] === undefined) {
-            diff[k] = 'unset';
-          }
-        }
-        if (diff && Object.keys(diff).length > 0) {
-          css[vid] = diff;
-        }
+        css[vid] = vcss;
       }
     }
   }
@@ -42,12 +36,13 @@ export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantD
   
   // Build Stylesheet
   const stylesheet: ParseStyleSheet = {};
+
   for (const key in output) {
-    const style = output[key]?.style;
+    const style = output[key];
     if (style) {
-      const id = key.slice(1).replace(/\-/g, ':');
       const props = {};
       for (const k in style) {
+        // TODO: handle this in css-to-rn
         if (k === 'display' && style[k] === 'flex') {
           if (!style['flexDirection']) {
             props['flexDirection'] = 'row';
@@ -56,7 +51,7 @@ export async function getStyleSheet(nodes: Set<string>, variants?: ParseVariantD
           props[k] = style[k];
         }
       }
-      stylesheet[id] = props;
+      stylesheet[key] = props;
     }
   }
 
@@ -86,9 +81,9 @@ async function convertStylesLocal(css: StyleSheet): Promise<Record<string, any>>
         _remoteStyleGenOnly = true;
         reject(new Error('STYLE_GEN_TIMEOUT'));
       }, 5000);
-      once<EventStyleGenRes>('STYLE_GEN_RES', async (stylesheet) => {
+      once<EventStyleGenRes>('STYLE_GEN_RES', async (declarations) => {
         clearTimeout(timeout);
-        resolve(stylesheet.declarations);
+        resolve(declarations);
       });
       emit<EventStyleGenReq>('STYLE_GEN_REQ', css);
     } catch (e) {
@@ -98,7 +93,7 @@ async function convertStylesLocal(css: StyleSheet): Promise<Record<string, any>>
 }
 
 async function convertStylesRemote(css: StyleSheet): Promise<Record<string, any>> {
-  const response = await fetch(F2RN_STYLEGEN_API, {
+  const response = await fetch(consts.F2RN_STYLEGEN_API, {
     body: JSON.stringify(css),
     method: 'POST',
     headers: {
@@ -106,8 +101,4 @@ async function convertStylesRemote(css: StyleSheet): Promise<Record<string, any>
     },
   });
   return await response.json();
-}
-
-function diffStyles(a: StyleClass, b: StyleClass) {
-  return diff(a, b) as StyleClass;
 }

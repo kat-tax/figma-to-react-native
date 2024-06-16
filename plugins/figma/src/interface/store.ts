@@ -2,7 +2,7 @@ import * as Y from 'yjs';
 import {WebrtcProvider} from 'y-webrtc';
 // import {createYjsProvider} from '@y-sweet/client';
 //import {TiptapCollabProvider} from '@hocuspocus/provider';
-//import {TIPTAP_APP_ID} from 'config/env';
+//import {TIPTAP_APP_ID} from 'config/consts';
 
 export const doc = new Y.Doc();
 
@@ -23,7 +23,9 @@ export const components = doc.getMap<{
   key: string,
   name: string,
   page: string,
+  path: string,
   props: string,
+  imports: string,
   width: number,
   height: number,
 }>('components');
@@ -88,13 +90,24 @@ export function setComponentIndex(key: string, code: string) {
   text.insert(0, code);
 }
 
+export function getComponentStory(key: string) {
+  const text = doc.getText(`story::${key}`);
+  return text.toString();
+}
+
 export function setComponentStory(key: string, code: string) {
   const text = doc.getText(`story::${key}`);
   text.delete(0, text.length)
   text.insert(0, code);
 }
 
-export function getComponentStory(key: string) {
-  const text = doc.getText(`story::${key}`);
+export function getComponentDocs(key: string) {
+  const text = doc.getText(`docs::${key}`);
   return text.toString();
+}
+
+export function setComponentDocs(key: string, code: string) {
+  const text = doc.getText(`docs::${key}`);
+  text.delete(0, text.length)
+  text.insert(0, code);
 }

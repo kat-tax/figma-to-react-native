@@ -3,31 +3,18 @@
 import {createRoot} from 'react-dom/client';
 import {useEffect, useState} from 'react';
 import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
-import {Inspector} from 'react-dev-inspector';
+import {Inspector} from 'preview-inspector';
 
 export default function Loader() {
   return (
     <TransformWrapper
-      smooth={false}
+      smooth
       initialPositionX={window.innerWidth / 2}
       initialPositionY={window.innerHeight * 2}
       doubleClick={{mode: 'reset'}}>
       <Preview/>
     </TransformWrapper>
   );
-}
-
-export function StackTrace(error: string, components: string) {
-  return (
-    <div>
-      <pre style={{color: 'red'}}>
-        {this.state.stacktrace?.toString()}
-      </pre>
-      <pre style={{color: 'red'}}>
-        {this.state.components?.toString()}
-      </pre>
-    </div>
-  )
 }
 
 export function Preview() {
@@ -37,24 +24,32 @@ export function Preview() {
   const [hasInspect, setInspect] = useState(false);
   const [isMouseInComponent, setMouseInComponent] = useState(false);
 
+  const inspectHandler = (type: 'hover' | 'inspect') => (data: any) => {
+    const {codeInfo, fiber} = data;
+    const nodeId = fiber?.memoizedProps?.['data-testid'];
+    console.log('[inspect]', {codeInfo, nodeId});
+    const debug = codeInfo?.absolutePath === 'index.tsx' ? null : codeInfo;
+    parent.postMessage({type: `loader::${type}`, nodeId, debug});
+  };
+
   useEffect(() => {
     const figma = (e: JSON) => {
-      const component = document.getElementById('component');
+      const el = document.getElementById('component');
       switch (e.data?.type) {
-        case 'inspect':
+        case 'preview::inspect':
           setInspect(e.data.enabled);
           break;
-        case 'resize':
-          zoomToElement(component, 1, 0);
+        case 'preview::resize':
+          zoomToElement(el, 1, 25);
           break;
-        case 'preview':
+        case 'preview::load':
           setError(null);
           // Update frame
-          component.style.display = 'flex';
-          component.style.width = e.data.width ? e.data.width + 'px' : 'auto';
-          component.style.height = e.data.height ? e.data.height + 'px' : 'auto';
-          component.onmouseenter = () => setMouseInComponent(true);
-          component.onmouseleave = () => setMouseInComponent(false);
+          el.style.display = 'flex';
+          el.style.width = e.data.width ? e.data.width + 'px' : 'auto';
+          el.style.height = e.data.height ? e.data.height + 'px' : 'auto';
+          el.onmouseenter = () => setMouseInComponent(true);
+          el.onmouseleave = () => setMouseInComponent(false);
           // Update script
           const prev = document.getElementById('target');
           const next = document.createElement('script');
@@ -70,7 +65,7 @@ export function Preview() {
             setTimeout(() =>
               requestIdleCallback(() =>
                 requestAnimationFrame(() =>
-                  zoomToElement(component, 1, isInitLoad ? 0 : 150)
+                  zoomToElement(el, 1, isInitLoad ? 0 : 150)
                 )
               )
             , isInitLoad ? 500 : 0);
@@ -81,7 +76,7 @@ export function Preview() {
 
     const component = (e: JSON) => {
       switch (e.data?.type) {
-        case 'component::error':
+        case 'app::error':
           setError({
             stack: e.data?.error?.stack,
             components: e.data?.info?.componentStack,
@@ -100,6 +95,7 @@ export function Preview() {
 
   return (
     <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
+      <div id="component"></div>
       {error &&
         <div>
           <pre style={{color: 'red'}}>
@@ -110,17 +106,10 @@ export function Preview() {
           </pre>
         </div>
       }
-      <div id="component"></div>
       <Inspector
         active={hasInspect && isMouseInComponent}
-        onHoverElement={(e) => console.debug('[inspect]', e)}
-        onInspectElement={(e) => {
-          const id = e?.fiber?.memoizedProps?.testID;
-          console.log(id, e);
-          if (id) {
-            parent.postMessage({type: 'focus', id});
-          }
-        }}
+        onHoverElement={inspectHandler('hover')}
+        onInspectElement={inspectHandler('inspect')}
       />
     </TransformComponent>
   );

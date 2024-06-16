@@ -18,7 +18,7 @@ async function generateIndexTs(globs: Array<string>, outputPath: string): Promis
     `!${outputPath}`,
     '!**/form/**', // TODO: temporary
     '!**/*.d.ts',
-    '!**/*.stories.tsx',
+    '!**/*.story.tsx',
   ]);
 
   const used: Record<string, true> = {};
