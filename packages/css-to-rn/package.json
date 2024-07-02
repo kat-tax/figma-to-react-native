@@ -1,5 +1,5 @@
 {
-  "name": "css-to-rn",
+  "name": "css-to-react-native",
   "version": "0.0.1",
   "main": "index.ts",
   "type": "module",
