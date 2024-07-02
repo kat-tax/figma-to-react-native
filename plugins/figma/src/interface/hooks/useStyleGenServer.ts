@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {on, emit} from '@create-figma-plugin/utilities';
-import {cssToReactNative, buildCSS} from 'css-to-rn';
+import {cssToReactNative, buildCSS} from '@kat.tax/css-to-rn';
 
 import type {EventStyleGenReq, EventStyleGenRes} from 'types/events';
 
