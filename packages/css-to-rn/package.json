@@ -1,5 +1,5 @@
 {
-  "name": "css-to-react-native",
+  "name": "@kat.tax/css-to-rn",
   "version": "0.0.1",
   "main": "index.ts",
   "type": "module",
