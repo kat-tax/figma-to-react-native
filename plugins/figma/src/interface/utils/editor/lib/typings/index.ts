@@ -27,7 +27,7 @@ function init(monaco: Monaco, editor: Editor) {
       'react-native': '0.73.3',
       'react-native-svg': '15.0.0',
       'react-exo': '0.17.1',
-      'styles': '2.7.2',
+      'react-native-unistyles': '2.7.2',
     },
     onError(error) {
       console.error('[at-error]', error);

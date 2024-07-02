@@ -31,6 +31,7 @@ import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 
 import * as F from 'figma-ui';
 
+import type {Theme} from 'monacopilot';
 import type {AppTabs} from 'types/app';
 
 interface AppProps {
@@ -79,10 +80,12 @@ export function App(props: AppProps) {
   const hasTabs = Boolean(isReady && project && monaco);
   const iconSet = icons.sets[0];
   const compKey = build.roster[nav.component] ? nav.component: null;
-  const options = {
+
+  // Monaco options
+  const editorTheme: Theme = isDark ? 'codesandbox-dark' : 'light';
+  const editorOptions = {
     ...settings.config.monaco.general,
     tabSize: settings.config.writer.indentNumberOfSpaces,
-    theme: isDark ? 'vs-dark' : 'vs',
   };
 
   // Start style gen server
@@ -105,7 +108,7 @@ export function App(props: AppProps) {
         <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
       </Tab>
       <Tab value="theme">
-        <ProjectTheme {...{options, monaco, hasStyles}}/>
+        <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
       </Tab>
       <Tab value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>
@@ -117,20 +120,20 @@ export function App(props: AppProps) {
         <ProjectExport {...{project, build}}/>
       </Tab>
       <Tab value="settings">
-        <ProjectSettings {...{options, monaco, settings}}/>
+        <ProjectSettings {...{monaco, settings, editorOptions, editorTheme}}/>
       </Tab>
       <Tab value="component/code">
         <DualPanel
           primary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
-          secondary={<ComponentCode {...{nav, compKey, build, options, monaco}}/>}
+          secondary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme}}/>}
           onResize={() => setLastResize(Date.now())}
         />
       </Tab>
       <Tab value="component/story">
-        <ComponentStory {...{compKey, options, monaco}}/>
+        <ComponentStory {...{compKey, monaco, editorOptions, editorTheme}}/>
       </Tab>
       <Tab value="component/docs">
-        <ComponentDocs {...{compKey, options, monaco}}/>
+        <ComponentDocs {...{compKey, monaco, editorOptions,editorTheme}}/>
       </Tab>
     </Tabs>
   ) : (

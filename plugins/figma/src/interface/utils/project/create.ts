@@ -82,9 +82,7 @@ export async function create(
   // TODO: to finish support, replace package json files
   // that reference design package
   if (pkgName !== 'design') {
-    zip.remove(design.getChildByName('env.d.ts'));
     zip.remove(design.getChildByName('package.json'));
-    design.addText('env.d.ts', designEnv(pkgName));
     design.addText('package.json', JSON.stringify(
       {
         name: pkgName,
@@ -242,42 +240,3 @@ const designPackageDefault = {
     "typescript": "^5.3.2"
   }
 }
-
-const designEnv = (pkgName: string) => `import type {AppThemes, AppBreakpoints} from './styles';
-import type {SvgProps} from 'react-native-svg';
-
-declare module '${pkgName}/styles' {
-  export interface UnistylesThemes extends AppThemes {}
-  export interface UnistylesBreakpoints extends AppBreakpoints {}
-}
-
-declare module 'design/styles' {
-  export interface UnistylesThemes extends AppThemes {}
-  export interface UnistylesBreakpoints extends AppBreakpoints {}
-}
-
-declare module 'styles' {
-  export interface UnistylesThemes extends AppThemes {}
-  export interface UnistylesBreakpoints extends AppBreakpoints {}
-}
-
-declare module '*.svg' {
-  const content: React.FC<SvgProps>;
-  export default content;
-}
-
-declare module '*.png' {
-  const content: string;
-  export default content;
-}
-
-declare module '*.jpg' {
-  const content: string;
-  export default content;
-}
-
-declare module '*.gif' {
-  const content: string;
-  export default content;
-}
-`;

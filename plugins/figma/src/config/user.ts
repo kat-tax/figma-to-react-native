@@ -11,6 +11,8 @@ const user: UserSettings = {
   monaco: {
     general: {
       lineNumbers: 'off',
+      wordWrap: 'off',
+      fontSize: 11,
       minimap: {enabled: false},
       padding: {top: 10},
     }

@@ -1,4 +1,4 @@
-import MonacoReact from '@monaco-editor/react';
+import MonacoReact from 'monacopilot';
 import {useMemo, useState, Fragment} from 'react';
 import {AutoForm} from 'uniforms-unstyled';
 import {LoadingIndicator} from 'figma-ui';
@@ -7,15 +7,17 @@ import {debounce} from 'common/delay';
 
 import schema from 'interface/schemas/project';
 
+import type {Theme} from 'monacopilot';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {UserSettings} from 'types/settings';
 
 const _path = `${F2RN_EDITOR_NS}settings.json`;
 
 interface ProjectSettingsProps {
-  settings: SettingsData;
-  options: UserSettings['monaco']['general'];
   monaco: any;
+  settings: SettingsData;
+  editorOptions: UserSettings['monaco']['general'];
+  editorTheme: Theme;
 }
 
 export function ProjectSettings(props: ProjectSettingsProps) {
@@ -29,8 +31,8 @@ export function ProjectSettings(props: ProjectSettingsProps) {
             language="json"
             path={_path}
             value={props.settings.raw}
-            theme={props.options.theme}
-            options={{...props.options, readOnly: false}}
+            theme={props.editorTheme}
+            options={{...props.editorOptions, readOnly: false}}
             loading={<LoadingIndicator/>}
             onChange={value => {
               update(value);

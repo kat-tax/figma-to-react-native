@@ -1,5 +1,5 @@
 import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
-import MonacoReact, {DiffEditor} from '@monaco-editor/react';
+import MonacoReact, {DiffEditor} from 'monacopilot';
 import {Position} from 'monaco-editor';
 import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
@@ -8,17 +8,19 @@ import {initComponentEditor} from 'interface/utils/editor';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import * as $ from 'interface/store';
 
+import type {Theme} from 'monacopilot';
 import type {UserSettings} from 'types/settings';
 import type {ComponentBuild} from 'types/component';
 import type {Monaco, Editor} from 'interface/utils/editor';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ComponentCodeProps {
-  compKey: string,
-  build: ComponentBuild,
-  options: UserSettings['monaco']['general'],
   monaco: Monaco,
+  compKey: string,
   nav: Navigation,
+  build: ComponentBuild,
+  editorOptions: UserSettings['monaco']['general'],
+  editorTheme: Theme,
 }
 
 export function ComponentCode(props: ComponentCodeProps) {
@@ -109,8 +111,8 @@ export function ComponentCode(props: ComponentCodeProps) {
       }
       {!patch && <MonacoReact
         language="typescript"
-        theme={props.options?.theme}
-        options={{...props.options}}
+        theme={props.editorTheme}
+        options={{...props.editorOptions}}
         loading={<LoadingIndicator/>}
         path={componentPath}
         onMount={(e, m) => {
@@ -147,8 +149,8 @@ export function ComponentCode(props: ComponentCodeProps) {
       />}
       {patch && <DiffEditor
         language="typescript"
-        theme={props.options?.theme}
-        options={{...props.options}}
+        theme={props.editorTheme}
+        options={{...props.editorOptions}}
         loading={<LoadingIndicator/>}
         original={$componentCode.toString()}
         modified={patch}

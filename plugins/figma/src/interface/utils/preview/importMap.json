@@ -107,7 +107,7 @@
   "scheduler": "https://ga.jspm.io/npm:scheduler@0.23.0/dev.index.js",
   "styleq": "https://ga.jspm.io/npm:styleq@0.1.3/dist/styleq.js",
   "styleq/transform-localize-style": "https://ga.jspm.io/npm:styleq@0.1.3/transform-localize-style.js",
-  "styles": "https://unpkg.com/react-native-unistyles@2.7.2/lib/module/index.js",
+  "react-native-unistyles": "https://unpkg.com/react-native-unistyles@2.7.2/lib/module/index.js",
   "tslib": "https://ga.jspm.io/npm:tslib@2.6.2/tslib.es6.mjs",
   "use-callback-ref": "https://ga.jspm.io/npm:use-callback-ref@1.3.0/dist/es2015/index.js",
   "use-sidecar": "https://ga.jspm.io/npm:use-sidecar@1.1.2/dist/es2015/index.js",
