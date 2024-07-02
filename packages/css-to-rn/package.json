@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "main": "index.ts",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "lightningcss-wasm": "^1.22.1"
   }
