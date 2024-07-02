@@ -1,8 +1,8 @@
 {
   "name": "css-to-rn",
+  "version": "0.0.1",
   "main": "index.ts",
   "type": "module",
-  "private": true,
   "dependencies": {
     "lightningcss-wasm": "^1.22.1"
   }
