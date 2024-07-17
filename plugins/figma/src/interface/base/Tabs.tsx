@@ -16,7 +16,7 @@ export function Tabs(props: TabsProps) {
 }
 
 interface BarProps extends TabsListProps {
-  children: JSX.Element[],
+  children: React.ReactNode,
 }
 
 export function Bar(props: BarProps) {
