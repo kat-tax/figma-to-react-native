@@ -14,7 +14,7 @@ export async function create(
   
   // Import EXO
   const zip = new fs.FS();
-  const src = F2RN_EXO_PROXY_URL + encodeURIComponent(F2RN_EXO_REPO_ZIP + '?_c=' + Math.random());
+  const src = F2RN_EXO_PROXY_URL + encodeURIComponent(`${F2RN_EXO_REPO_ZIP}?_c=${Math.random()}`);
   const tpl = (await zip.importHttpContent(src))[0] as ZipDirectoryEntry;
 
   // Root
@@ -25,25 +25,25 @@ export async function create(
   const design = tpl.getChildByName('design') as ZipDirectoryEntry;
 
   // Info
-  const linkDocs = info.appConfig?.['Web']?.['DOCS']?.toString();
-  const linkFigma = info.appConfig?.['Web']?.['FIGMA']?.toString();
-  const linkGithub = info.appConfig?.['Web']?.['GITHUB']?.toString();
-  const pkgVersion = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
-  const pkgName = info.appConfig?.['Design']?.['PACKAGE_NAME']?.toString();
+  const linkDocs = info.appConfig?.Web?.DOCS?.toString();
+  const linkFigma = info.appConfig?.Web?.FIGMA?.toString();
+  const linkGithub = info.appConfig?.Web?.GITHUB?.toString();
+  const pkgVersion = info.appConfig?.Design?.PACKAGE_VERSION?.toString();
+  const pkgName = info.appConfig?.Design?.PACKAGE_NAME?.toString();
 
   // Config
   zip.remove(tpl.getChildByName('config.yaml'));
   tpl.addText('config.yaml', Object.entries(info.appConfig)
-  .map(([group, section]) => `# ${group}\n` + Object.entries(section)
-    .map(([key, value]) => `${key}: ${value}`).join('\n'))
-  .join('\n\n'));
+    .map(([group, section]) =>
+      `# ${group}\n ${Object.entries(section).map(([key, value]) =>
+        `${key}: ${value}`).join('\n')}`).join('\n\n'));
 
   // Locales
   zip.remove(tpl.getChildByName('locales.ts'));
   tpl.addText('locales.ts', [
-    `/** Supported languages **/`,
-    ``,
-    `export type Locales = keyof typeof locales;`,
+    '/** Supported languages **/',
+    '',
+    'export type Locales = keyof typeof locales;',
     `export const sourceLocale: Locales = "${info.locales.source}";`,
     `export const locales = ${JSON.stringify(info.locales.all.reduce((acc, [key, value]) => {
       acc[key] = value;
@@ -61,11 +61,11 @@ export async function create(
   zip.remove(sb.getChildByName('get started.mdx'));
   sb.addText('get started.mdx', [
     `import {Meta} from \'@storybook/blocks\';`,
-    ` `,
+    ' ',
     `<Meta title="Get Started"/>`,
-    ` `,
+    ' ',
     `# ${pkgName || 'project'}`,
-    ` `,
+    ' ',
     `#### ${pkgVersion || '0.0.1'}`,
     linkDocs && `- [Documentation](${linkDocs})`,
     linkGithub && `- [GitHub](${linkGithub})`,
@@ -97,22 +97,22 @@ export async function create(
   // Assets
   if (release.includeAssets) {
     const added = new Set();
-    project.assets.forEach(([name, isVector, bytes]) => {
+    for (const [name, isVector, bytes] of project.assets) {
       const ext = isVector ? 'svg' : 'png';
       const type = isVector ? 'svg' : 'img';
       const mime = isVector ? 'image/svg+xml' : 'image/png';
       const blob = new Blob([bytes], {type: mime});
       const path = `assets/${type}/${name.toLowerCase()}.${ext}`;
       if (added.has(path)) return;
-      let category = design.getChildByName(`assets/${type}`);
+      const category = design.getChildByName(`assets/${type}`);
       if (category) zip.remove(category);
       design.addBlob(path, blob);
       added.add(path);
-    });
+    }
   }
 
   // Components
-  project.components.forEach(([path, name, index, code, story, docs]) => {
+  for (const [path, name, index, code, story, docs] of project.components) {
     const component = design.addDirectory(path);
     if (index)
       component.addText('index.ts', index);
@@ -122,7 +122,7 @@ export async function create(
       component.addText(`${name}.story.tsx`, story);
     if (docs)
       component.addText(`${name}.docs.mdx`, docs);
-  });
+  }
 
   // Export
   return zip.exportBlob();

@@ -175,5 +175,3 @@ declare module 'react-native' {
     userSelect?: 'all' | 'auto' | 'contain' | 'none' | 'text';
   }
 }
-
-export {};

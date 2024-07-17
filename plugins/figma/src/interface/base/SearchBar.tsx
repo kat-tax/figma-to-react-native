@@ -22,7 +22,7 @@ export function SearchBar(props: SearchBarProps) {
           }
         }}
       />
-      {!Boolean(props.searchQuery) &&                    
+      {!props.searchQuery &&                    
         <IconButton
           style={{margin: '5px 6.5px'}}
           onClick={() => props.setSearchMode(false)}>

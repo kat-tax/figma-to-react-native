@@ -26,10 +26,6 @@ export function useNavigation(build: ComponentBuild): Navigation {
   const [cursorPos, setCursorPos] = useState<{line: number, column: number} | null>(null);
   const [lastEditorRev, setLastEditorRev] = useState<number>(0);
 
-  const isComponentTab = (tab: AppPages) => {
-    return tab.startsWith('component/');
-  };
-
   const gotoOverview = () => {
     setTab('components');
     setComponent(null);
@@ -38,7 +34,7 @@ export function useNavigation(build: ComponentBuild): Navigation {
 
   const gotoTab = (value: AppPages) => {
     setTab(value);
-    if (!isComponentTab(value))
+    if (!value.startsWith('component/'))
       setComponent(null);
     emit<EventAppNavigate>('APP_NAVIGATE', value);
   };
@@ -46,7 +42,7 @@ export function useNavigation(build: ComponentBuild): Navigation {
   useEffect(() => on<EventSelectComponent>('SELECT_COMPONENT', (key) => {
     if (build?.roster?.[key] !== undefined) {
       setComponent(key);
-      if (!isComponentTab(tab))
+      if (!tab.startsWith('component/'))
         setTab('component/code');
     }
   }), [build, tab]);

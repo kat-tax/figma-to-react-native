@@ -4,8 +4,8 @@ import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as string from 'common/string';
-import * as $ from 'interface/store';
 import * as F from 'figma-ui';
+import * as $ from 'store';
 
 import type {ComponentBuild} from 'types/component';
 import type {EventFocusNode} from 'types/events';
@@ -66,7 +66,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     const {name, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
     preview({tag, name, path, imports, theme, language, settings, build}).then(bundle => {
-      post('preview::load', {bundle, name, width, height});
+      post('preview::load', {bundle, name, width, height, theme});
     });
   }, [component, settings, build]);
 

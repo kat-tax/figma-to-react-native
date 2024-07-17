@@ -23,13 +23,9 @@ export class SourceResolver implements SourceResolverBase {
 
   private async resolveFile(url: string) {
     const res = await fetch(url, {method: 'GET'});
-    if (res.ok) {
-      return await res.text();
-    } else if (res.status === 404) {
-      return '';
-    } else {
-      throw Error(`Error other than 404 while fetching from Unpkg at ${url}`);
-    }
+    if (res.ok) return await res.text();
+    if (res.status === 404) return '';
+    throw Error(`Error other than 404 while fetching from Unpkg at ${url}`);
   }
 }
 

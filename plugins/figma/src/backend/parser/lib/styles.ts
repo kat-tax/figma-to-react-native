@@ -14,7 +14,7 @@ export async function getStyleSheet(
   variants?: ParseVariantData,
 ): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
-  let css: StyleSheet = {};
+  const css: StyleSheet = {};
   for await (const id of nodes) {
     const node = figma.getNodeById(id);
     css[id] = await node.getCSSAsync();

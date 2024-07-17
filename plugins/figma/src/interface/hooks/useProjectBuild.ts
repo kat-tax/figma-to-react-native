@@ -12,11 +12,8 @@ export function useProjectBuild(
   onError: () => void,
   setExportCount: React.Dispatch<number>,
 ): void {
-  useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, info, config, user) => {
-    if (project === null) {
-      onError();
-      return;
-    }
+  useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, info, config) => {
+    if (project === null) return onError();
     const assets = project.assets.length;
     const components = project.components.length;
     switch (config.method) {
@@ -33,5 +30,5 @@ export function useProjectBuild(
     onSuccess();
     setExportCount(components);
     log(`export_${config.method}_complete`, {components, assets});
-  }), []);
+  }), [onSuccess, onError, setExportCount]);
 }

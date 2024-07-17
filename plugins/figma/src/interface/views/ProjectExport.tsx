@@ -37,7 +37,7 @@ const tips = {
 
   • Optimize vectors and compress images`,
 
-  submit: `Start exporting your components`,
+  submit: "Start exporting your components",
 };
 
 interface ProjectExportProps {
@@ -92,25 +92,33 @@ export function ProjectExport(props: ProjectExportProps) {
       {isExporting &&
         <F.Banner icon={<F.IconCheckCircle32/>}>
           {isReleasing 
-            ? `Publishing, please wait...`
+            ? 'Publishing, please wait...'
             : `Exporting ${form.formState.scope}, please wait...`
           }
         </F.Banner>
       }
       {false &&
         <F.Banner icon={<F.IconWarning32/>} variant="warning">
-          {`The Project Key entered is invalid. `}
-          <a href="https://figma-to-react-native.com/dashboard" target="_blank" style={{color: '#000'}}>
-            {`Click here for your key`}
+          {'The Project Key entered is invalid. '}
+          <a
+            href="https://figma-to-react-native.com/dashboard"
+            target="_blank"
+            rel="noreferrer"
+            style={{color: '#000'}}>
+            {'Click here for your key'}
           </a>
           {`. Please consider supporting the project if you don't have a subscription.`}
         </F.Banner>
       }
       {false &&
         <F.Banner icon={<F.IconStar32/>} variant="warning">
-          {`This plugin is free to use, but please consider supporting the project and unlock additional features! `}
-          <a href="https://figma-to-react-native.com" target="_blank" style={{color: '#000'}}>
-            {`Click here to get started`}
+          {'This plugin is free to use, but please consider supporting the project and unlock additional features! '}
+          <a
+            href="https://figma-to-react-native.com"
+            target="_blank"
+            rel="noreferrer"
+            style={{color: '#000'}}>
+            {'Click here to get started'}
           </a>
         </F.Banner>
       }
@@ -154,7 +162,11 @@ export function ProjectExport(props: ProjectExportProps) {
           <div title={tips.apiKey}>
             <F.Inline style={{display: 'flex', alignItems: 'center'}}>
               <F.Bold>Project Key</F.Bold>
-              <a href="http://figma-to-react-native.com/dashboard" target="_blank" style={{marginLeft: '4px'}}>
+              <a
+                href="http://figma-to-react-native.com/dashboard"
+                target="_blank"
+                rel="noreferrer"
+                style={{marginLeft: '4px'}}>
                 <F.IconCircleHelp16 color="brand"/>
               </a>
             </F.Inline>

@@ -1,6 +1,6 @@
 import {bundle} from 'syn-bundler';
 import {notify} from 'interface/telemetry';
-import * as $ from 'interface/store';
+import * as $ from 'store';
 
 import importMap from './importMap.json';
 import iframe from './templates/iframe.html.tpl';
@@ -32,9 +32,9 @@ export async function preview(options: PreviewOptions) {
   // Add components to filesystem
   for (const [key, component] of Object.entries(build.roster)) {
     try {
-      const contents = $.getComponentCode(key);
-      const code = contents.toString();
-      files.set('/' + component.path, code);
+      const contents = $.component.code(key);
+      const code = contents.get().toString();
+      files.set(`/${component.path}`, code);
       if (name === component.name) {
         console.debug('[preview]', tag);
       }
@@ -60,11 +60,11 @@ export async function preview(options: PreviewOptions) {
   // Build preview app
   const previewApp = atob(app.toString());
   try {
-    files.set('/theme', $.getProjectTheme().toString());
+    files.set('/theme', $.projectTheme.get().toString());
     files.set(ENTRY_POINT, previewApp
       .replace('__CURRENT_THEME__', theme)
       .replace('__CURRENT_LANGUAGE__', language)
-      .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n` + imports)
+      .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n${imports}`)
       .replace('__COMPONENT_TAG__', tag));
     return await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
   } catch (e) {

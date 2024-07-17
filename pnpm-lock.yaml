@@ -283,17 +283,17 @@ importers:
   plugins/figma:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.14.1
-        version: 0.14.1
+        specifier: ^0.14.5
+        version: 0.14.5
       '@blocknote/react':
-        specifier: ^0.14.1
-        version: 0.14.1(@tiptap/pm@2.4.0)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^0.14.6
+        version: 0.14.6(@tiptap/pm@2.4.0)(react-dom@18.2.0)(react@18.2.0)
       '@create-figma-plugin/utilities':
         specifier: ^3.1.0
         version: 3.1.0
       '@hocuspocus/provider':
-        specifier: ^2.13.2
-        version: 2.13.2(y-protocols@1.0.6)(yjs@13.6.16)
+        specifier: ^2.13.5
+        version: 2.13.5(y-protocols@1.0.6)(yjs@13.6.18)
       '@iconify/react':
         specifier: ^4.1.1
         version: 4.1.1(react@18.2.0)
@@ -310,17 +310,20 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0)(react@18.2.0)
       '@supabase/supabase-js':
-        specifier: ^2.43.4
-        version: 2.43.4
+        specifier: ^2.44.4
+        version: 2.44.4
       '@uidotdev/usehooks':
         specifier: ^2.4.1
         version: 2.4.1(react-dom@18.2.0)(react@18.2.0)
       '@y-sweet/client':
-        specifier: ^0.1.0
-        version: 0.1.0(yjs@13.6.16)
+        specifier: ^0.1.2
+        version: 0.1.2(yjs@13.6.18)
       '@y-sweet/react':
-        specifier: ^0.1.0
-        version: 0.1.0(react@18.2.0)(yjs@13.6.16)
+        specifier: ^0.1.2
+        version: 0.1.2(react@18.2.0)(yjs@13.6.18)
+      '@y-sweet/sdk':
+        specifier: ^0.1.2
+        version: 0.1.2
       '@zip.js/zip.js':
         specifier: ^2.7.45
         version: 2.7.45
@@ -370,11 +373,11 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       react-photo-album:
-        specifier: ^2.3.1
-        version: 2.3.1(react@18.2.0)
+        specifier: ^2.4.1
+        version: 2.4.1(react@18.2.0)
       react-virtuoso:
-        specifier: ^4.7.1
-        version: 4.7.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.7.12
+        version: 4.7.12(react-dom@18.2.0)(react@18.2.0)
       reserved:
         specifier: ^0.1.2
         version: 0.1.2
@@ -392,13 +395,13 @@ importers:
         version: 4.0.0-alpha.5(react@18.2.0)
       y-protocols:
         specifier: ^1.0.6
-        version: 1.0.6(yjs@13.6.16)
+        version: 1.0.6(yjs@13.6.18)
       y-webrtc:
         specifier: ^10.3.0
-        version: 10.3.0(yjs@13.6.16)
+        version: 10.3.0(yjs@13.6.18)
       yjs:
-        specifier: ^13.6.16
-        version: 13.6.16
+        specifier: ^13.6.18
+        version: 13.6.18
     devDependencies:
       '@esbuild-plugins/node-modules-polyfill':
         specifier: ^0.2.2
@@ -512,8 +515,8 @@ packages:
     dependencies:
       regenerator-runtime: 0.14.1
 
-  /@blocknote/core@0.14.1:
-    resolution: {integrity: sha512-VUrbGiARmKhSorLpXYee0VIhtVO3T3KxJM04UvIC2UwzW+J1z9LAShR5EYAfKHFbgPPqZ5y6gcH29Yu9pSeNgw==}
+  /@blocknote/core@0.14.5:
+    resolution: {integrity: sha512-Z1BIA3Pf+ZYPHzQ9gSAAtaYkWpuTLX8jTEVNoexx/JVMAC+t0R8LE9xLS2RaiC0/NNNhNvz8kWmkVxa1m+HbsA==}
     dependencies:
       '@tiptap/core': 2.4.0(@tiptap/pm@2.4.0)
       '@tiptap/extension-bold': 2.4.0(@tiptap/core@2.4.0)
@@ -551,20 +554,20 @@ packages:
       remark-stringify: 10.0.3
       unified: 10.1.2
       uuid: 8.3.2
-      y-prosemirror: 1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.16)
-      y-protocols: 1.0.6(yjs@13.6.16)
-      yjs: 13.6.16
+      y-prosemirror: 1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.18)
+      y-protocols: 1.0.6(yjs@13.6.18)
+      yjs: 13.6.18
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@blocknote/react@0.14.1(@tiptap/pm@2.4.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-Wj4fNkDhtBmvtkGixzF8qesJMKGkrNWx3WGgg2WEyVusjhwx7DwatVmU92dvQ3rbz+VZDkrXZFKtcgxo3dMOFw==}
+  /@blocknote/react@0.14.6(@tiptap/pm@2.4.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-j5BOwhmS90FIFeF4q7SG0JiC4oOTQY6PHF0O7Wxr6qx1cQIXwuXufnzf38BvTZzH6yH0ezZY3fGIm1T6dFWF9A==}
     peerDependencies:
       react: ^18
       react-dom: ^18
     dependencies:
-      '@blocknote/core': 0.14.1
+      '@blocknote/core': 0.14.5
       '@floating-ui/react': 0.26.8(react-dom@18.2.0)(react@18.2.0)
       '@tiptap/core': 2.4.0(@tiptap/pm@2.4.0)
       '@tiptap/react': 2.4.0(@tiptap/core@2.4.0)(@tiptap/pm@2.4.0)(react-dom@18.2.0)(react@18.2.0)
@@ -572,7 +575,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-icons: 5.2.1(react@18.2.0)
-      use-prefers-color-scheme: 1.1.3(react@18.2.0)
     transitivePeerDependencies:
       - '@tiptap/pm'
       - supports-color
@@ -1049,24 +1051,24 @@ packages:
     resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
     dev: false
 
-  /@hocuspocus/common@2.13.2:
-    resolution: {integrity: sha512-NMsXx/Dl9xu1KlhNbGzLYLOjKtUOVmU+zA/br+EA4DhNDEtGWvHAmqY5r9SBTr2mGtGJagt+GEqZydSzBUFj4g==}
+  /@hocuspocus/common@2.13.5:
+    resolution: {integrity: sha512-8D9FzhZFlt0WsgXw5yT2zwSxi6z9d4V2vUz6co2vo3Cj+Y2bvGZsdDiTvU/MerGcCLME5k/w6PwLPojLYH/4pg==}
     dependencies:
       lib0: 0.2.94
     dev: false
 
-  /@hocuspocus/provider@2.13.2(y-protocols@1.0.6)(yjs@13.6.16):
-    resolution: {integrity: sha512-Pi+b8gcXHomSDRzohbmVW4dwo5OIqEBoLVrsuEG/pCCS13gBAeUCKCxfrl0q5XCNhK1nu3/j6UW9lxuExqiY+g==}
+  /@hocuspocus/provider@2.13.5(y-protocols@1.0.6)(yjs@13.6.18):
+    resolution: {integrity: sha512-G3S0OiFSYkmbOwnbhV7FyJs4OBqB/+1YT9c44Ujux1RKowGm5H8+0p3FUHfXwd/3v9V0jE+E1FnFKoGonJSQwA==}
     peerDependencies:
       y-protocols: ^1.0.6
       yjs: ^13.6.8
     dependencies:
-      '@hocuspocus/common': 2.13.2
+      '@hocuspocus/common': 2.13.5
       '@lifeomic/attempt': 3.0.3
       lib0: 0.2.94
-      ws: 8.15.1
-      y-protocols: 1.0.6(yjs@13.6.16)
-      yjs: 13.6.16
+      ws: 8.18.0
+      y-protocols: 1.0.6(yjs@13.6.18)
+      yjs: 13.6.18
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -1987,14 +1989,14 @@ packages:
     dependencies:
       escape-string-regexp: 5.0.0
 
-  /@supabase/auth-js@2.64.2:
-    resolution: {integrity: sha512-s+lkHEdGiczDrzXJ1YWt2y3bxRi+qIUnXcgkpLSrId7yjBeaXBFygNjTaoZLG02KNcYwbuZ9qkEIqmj2hF7svw==}
+  /@supabase/auth-js@2.64.4:
+    resolution: {integrity: sha512-9ITagy4WP4FLl+mke1rchapOH0RQpf++DI+WSG2sO1OFOZ0rW3cwAM0nCrMOxu+Zw4vJ4zObc08uvQrXx590Tg==}
     dependencies:
       '@supabase/node-fetch': 2.6.15
     dev: false
 
-  /@supabase/functions-js@2.3.1:
-    resolution: {integrity: sha512-QyzNle/rVzlOi4BbVqxLSH828VdGY1RElqGFAj+XeVypj6+PVtMlD21G8SDnsPQDtlqqTtoGRgdMlQZih5hTuw==}
+  /@supabase/functions-js@2.4.1:
+    resolution: {integrity: sha512-8sZ2ibwHlf+WkHDUZJUXqqmPvWQ3UHN0W30behOJngVh/qHHekhJLCFbh0AjkE9/FqqXtf9eoVvmYgfCLk5tNA==}
     dependencies:
       '@supabase/node-fetch': 2.6.15
     dev: false
@@ -2006,14 +2008,14 @@ packages:
       whatwg-url: 5.0.0
     dev: false
 
-  /@supabase/postgrest-js@1.15.2:
-    resolution: {integrity: sha512-9/7pUmXExvGuEK1yZhVYXPZnLEkDTwxgMQHXLrN5BwPZZm4iUCL1YEyep/Z2lIZah8d8M433mVAUEGsihUj5KQ==}
+  /@supabase/postgrest-js@1.15.8:
+    resolution: {integrity: sha512-YunjXpoQjQ0a0/7vGAvGZA2dlMABXFdVI/8TuVKtlePxyT71sl6ERl6ay1fmIeZcqxiuFQuZw/LXUuStUG9bbg==}
     dependencies:
       '@supabase/node-fetch': 2.6.15
     dev: false
 
-  /@supabase/realtime-js@2.9.5:
-    resolution: {integrity: sha512-TEHlGwNGGmKPdeMtca1lFTYCedrhTAv3nZVoSjrKQ+wkMmaERuCe57zkC5KSWFzLYkb5FVHW8Hrr+PX1DDwplQ==}
+  /@supabase/realtime-js@2.10.2:
+    resolution: {integrity: sha512-qyCQaNg90HmJstsvr2aJNxK2zgoKh9ZZA8oqb7UT2LCh3mj9zpa3Iwu167AuyNxsxrUE8eEJ2yH6wLCij4EApA==}
     dependencies:
       '@supabase/node-fetch': 2.6.15
       '@types/phoenix': 1.6.4
@@ -2024,21 +2026,21 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@supabase/storage-js@2.5.5:
-    resolution: {integrity: sha512-OpLoDRjFwClwc2cjTJZG8XviTiQH4Ik8sCiMK5v7et0MDu2QlXjCAW3ljxJB5+z/KazdMOTnySi+hysxWUPu3w==}
+  /@supabase/storage-js@2.6.0:
+    resolution: {integrity: sha512-REAxr7myf+3utMkI2oOmZ6sdplMZZ71/2NEIEMBZHL9Fkmm3/JnaOZVSRqvG4LStYj2v5WhCruCzuMn6oD/Drw==}
     dependencies:
       '@supabase/node-fetch': 2.6.15
     dev: false
 
-  /@supabase/supabase-js@2.43.4:
-    resolution: {integrity: sha512-/pLPaxiIsn5Vaz3s32HC6O/VNwfeddnzS0bZRpOW0AKcPuXroD8pT9G8mpiBlZfpKsMmq6k7tlhW7Sr1PAQ1lw==}
+  /@supabase/supabase-js@2.44.4:
+    resolution: {integrity: sha512-vqtUp8umqcgj+RPUc7LiEcQmgsEWFDPJdJizRJF/5tf2zSlVB+3YbUwyQE/hLagYA8TLvGXe7oAqtYyFde6llw==}
     dependencies:
-      '@supabase/auth-js': 2.64.2
-      '@supabase/functions-js': 2.3.1
+      '@supabase/auth-js': 2.64.4
+      '@supabase/functions-js': 2.4.1
       '@supabase/node-fetch': 2.6.15
-      '@supabase/postgrest-js': 1.15.2
-      '@supabase/realtime-js': 2.9.5
-      '@supabase/storage-js': 2.5.5
+      '@supabase/postgrest-js': 1.15.8
+      '@supabase/realtime-js': 2.10.2
+      '@supabase/storage-js': 2.6.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2086,7 +2088,7 @@ packages:
       y-prosemirror: ^1.2.5
     dependencies:
       '@tiptap/core': 2.4.0(@tiptap/pm@2.4.0)
-      y-prosemirror: 1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.16)
+      y-prosemirror: 1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.18)
     dev: false
 
   /@tiptap/extension-collaboration@2.4.0(@tiptap/core@2.4.0)(@tiptap/pm@2.4.0)(y-prosemirror@1.2.5):
@@ -2098,7 +2100,7 @@ packages:
     dependencies:
       '@tiptap/core': 2.4.0(@tiptap/pm@2.4.0)
       '@tiptap/pm': 2.4.0
-      y-prosemirror: 1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.16)
+      y-prosemirror: 1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.18)
     dev: false
 
   /@tiptap/extension-dropcursor@2.4.0(@tiptap/core@2.4.0)(@tiptap/pm@2.4.0):
@@ -2815,31 +2817,31 @@ packages:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
     dev: false
 
-  /@y-sweet/client@0.1.0(yjs@13.6.16):
-    resolution: {integrity: sha512-X9+IZ/7t7So39TxYxmmjKKZ8SCKcFJrBmnEHHEJ9l6Jj6hPfoK8uHzQiYN+R0J5CpEoGsxuPevwAQZzENYX0dQ==}
+  /@y-sweet/client@0.1.2(yjs@13.6.18):
+    resolution: {integrity: sha512-JaJoLGBjJLq8NaYzlKiIMAANUqBl8VsDvzh2/CscQLVA4F6YhASu5QeNEUs8ClLKDP1Y2TSnjqHmq/1XFW7Nbw==}
     peerDependencies:
       yjs: ^13.0.0
     dependencies:
-      '@y-sweet/sdk': 0.1.0
-      y-protocols: 1.0.6(yjs@13.6.16)
-      yjs: 13.6.16
+      '@y-sweet/sdk': 0.1.2
+      y-protocols: 1.0.6(yjs@13.6.18)
+      yjs: 13.6.18
     dev: false
 
-  /@y-sweet/react@0.1.0(react@18.2.0)(yjs@13.6.16):
-    resolution: {integrity: sha512-Ss6hsVmBxnkd6iIK1t9buOLR33mJVLFvrvp1A0KuuH3EA3UN0o5KcJaxPwErgrLyZxbPillyxZ+sCECsU6/4ZA==}
+  /@y-sweet/react@0.1.2(react@18.2.0)(yjs@13.6.18):
+    resolution: {integrity: sha512-EhqzvmtW8xf3r128o+2GjN4Kx6JjyWJbhaQgbA8YTdLowzA5W8V+o2Kj2PHROE8OqNTY/HW4hgZg9Uq6ScGKHA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       yjs: ^13.0.0
     dependencies:
-      '@y-sweet/client': 0.1.0(yjs@13.6.16)
-      '@y-sweet/sdk': 0.1.0
+      '@y-sweet/client': 0.1.2(yjs@13.6.18)
+      '@y-sweet/sdk': 0.1.2
       react: 18.2.0
-      y-protocols: 1.0.6(yjs@13.6.16)
-      yjs: 13.6.16
+      y-protocols: 1.0.6(yjs@13.6.18)
+      yjs: 13.6.18
     dev: false
 
-  /@y-sweet/sdk@0.1.0:
-    resolution: {integrity: sha512-rQDF3p3KhRVPBRpT9e8fNq0qyQlHe/LF3IfrkP3m/PjUmtTkMY/a3x1/vdRn1KXLz3tB5h7iP7KRPDP7bEs2qw==}
+  /@y-sweet/sdk@0.1.2:
+    resolution: {integrity: sha512-aqPUbugBtvB7OI3F3UeeGUKVRC6TmNPpkTtNpapw8yJTAdzlS3ykKKgSIc7ip0KBazNKeoG20pFhd0y5jzqo7A==}
     dependencies:
       '@types/node': 20.10.7
     dev: false
@@ -6039,8 +6041,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-photo-album@2.3.1(react@18.2.0):
-    resolution: {integrity: sha512-c7ofDx2DAbQa9AW9wUWOBX9zUKf/QjvdQK+fPNKEiKprks/n8t4c2viyBZ6EWpQLFLU0ad3yVBTgFvxEZ46/Iw==}
+  /react-photo-album@2.4.1(react@18.2.0):
+    resolution: {integrity: sha512-dzqP5QbYAugA0uZTl3qsVldckzDXYDkDOvA8CpACl51hSEfhJmCfwhbnI4WBHnETQHv48nnNQ1jhrulst8njLA==}
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=16.8.0'
@@ -6100,8 +6102,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /react-virtuoso@4.7.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-V1JIZLEwgX7R+YNkbY8dq6NcnIGKGWXe4mnMJJPsA2L4qeFKst0LY3mDk6sBCJyKRbMzYFxTZWyTT4QsA1JvVQ==}
+  /react-virtuoso@4.7.12(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-q8yaykkVJGJbPNQH2Hgm82ik0LsbNGJpHMEjAGz5ibEsTVHKObs5WtEELAd1A99OKFHs091W1M+HN+1sasL08Q==}
     engines: {node: '>=10'}
     peerDependencies:
       react: '>=16 || >=17 || >= 18'
@@ -7146,15 +7148,6 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /use-prefers-color-scheme@1.1.3(react@18.2.0):
-    resolution: {integrity: sha512-ZRgDfb5BFLum/Sud4SpZ+d1YcV+lRbsupw0qQ/rGy5kGrpE3KMUQgEQOKiQQSa4Wslex46n5fKFO+9FGMTosUQ==}
-    engines: {node: '>=8', npm: '>=5'}
-    peerDependencies:
-      react: '>= 16.8.0'
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /use-sidecar@1.1.2(@types/react@18.3.3)(react@18.2.0):
     resolution: {integrity: sha512-epTbsLuzZ7lPClpz2TyryBfztm7m+28DlEv2ZCQ3MDr5ssiwyOwGH/e5F9CkfWjJ1t4clvI58yF822/GUkjjhw==}
     engines: {node: '>=10'}
@@ -7336,7 +7329,20 @@ packages:
         optional: true
     dev: false
 
-  /y-prosemirror@1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.16):
+  /ws@8.18.0:
+    resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
+
+  /y-prosemirror@1.2.5(prosemirror-model@1.21.1)(prosemirror-state@1.4.3)(prosemirror-view@1.33.8)(y-protocols@1.0.6)(yjs@13.6.18):
     resolution: {integrity: sha512-T/JATxC8P2Dbvq/dAiaiztD1a8KEwRP8oLRlT8YlaZdNlLGE1Ea0IJ8If25UlDYmk+4+uqLbqT/S+dzUmwwgbA==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
@@ -7350,21 +7356,21 @@ packages:
       prosemirror-model: 1.21.1
       prosemirror-state: 1.4.3
       prosemirror-view: 1.33.8
-      y-protocols: 1.0.6(yjs@13.6.16)
-      yjs: 13.6.16
+      y-protocols: 1.0.6(yjs@13.6.18)
+      yjs: 13.6.18
     dev: false
 
-  /y-protocols@1.0.6(yjs@13.6.16):
+  /y-protocols@1.0.6(yjs@13.6.18):
     resolution: {integrity: sha512-vHRF2L6iT3rwj1jub/K5tYcTT/mEYDUppgNPXwp8fmLpui9f7Yeq3OEtTLVF012j39QnV+KEQpNqoN7CWU7Y9Q==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
       yjs: ^13.0.0
     dependencies:
       lib0: 0.2.94
-      yjs: 13.6.16
+      yjs: 13.6.18
     dev: false
 
-  /y-webrtc@10.3.0(yjs@13.6.16):
+  /y-webrtc@10.3.0(yjs@13.6.18):
     resolution: {integrity: sha512-KalJr7dCgUgyVFxoG3CQYbpS0O2qybegD0vI4bYnYHI0MOwoVbucED3RZ5f2o1a5HZb1qEssUKS0H/Upc6p1lA==}
     engines: {node: '>=12'}
     hasBin: true
@@ -7373,8 +7379,8 @@ packages:
     dependencies:
       lib0: 0.2.94
       simple-peer: 9.11.1
-      y-protocols: 1.0.6(yjs@13.6.16)
-      yjs: 13.6.16
+      y-protocols: 1.0.6(yjs@13.6.18)
+      yjs: 13.6.18
     optionalDependencies:
       ws: 8.15.1
     transitivePeerDependencies:
@@ -7417,8 +7423,8 @@ packages:
       y18n: 5.0.8
       yargs-parser: 21.1.1
 
-  /yjs@13.6.16:
-    resolution: {integrity: sha512-uEq+n/dFIecBElEdeQea8nDnltScBfuhCSyAxDw4CosveP9Ag0eW6iZi2mdpW7EgxSFT7VXK2MJl3tKaLTmhAQ==}
+  /yjs@13.6.18:
+    resolution: {integrity: sha512-GBTjO4QCmv2HFKFkYIJl7U77hIB1o22vSCSQD1Ge8ZxWbIbn8AltI4gyXbtL+g5/GJep67HCMq3Y5AmNwDSyEg==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     dependencies:
       lib0: 0.2.94

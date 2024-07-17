@@ -32,10 +32,19 @@ export function Preview() {
     parent.postMessage({type: `loader::${type}`, nodeId, debug});
   };
 
+  const updateTheme = (theme: string) => {
+    document.body.style.backgroundColor = theme === 'light'
+      ? '#fff'
+      : '#000';
+  }
+
   useEffect(() => {
     const figma = (e: JSON) => {
       const el = document.getElementById('component');
       switch (e.data?.type) {
+        case 'preview::theme':
+          updateTheme(e.data.theme);
+          return;
         case 'preview::inspect':
           setInspect(e.data.enabled);
           break;
@@ -44,6 +53,7 @@ export function Preview() {
           break;
         case 'preview::load':
           setError(null);
+          updateTheme(e.data.theme);
           // Update frame
           el.style.display = 'flex';
           el.style.width = e.data.width ? e.data.width + 'px' : 'auto';

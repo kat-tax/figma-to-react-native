@@ -6,7 +6,7 @@ import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {MonacoBinding} from 'interface/utils/editor/lib/MonacoBinding';
 import {initComponentEditor} from 'interface/utils/editor';
 import {F2RN_EDITOR_NS} from 'config/consts';
-import * as $ from 'interface/store';
+import * as $ from 'store';
 
 import type {Theme} from 'monacopilot';
 import type {UserSettings} from 'types/settings';
@@ -27,51 +27,53 @@ export function ComponentCode(props: ComponentCodeProps) {
   const [componentPath, setComponentPath] = useState<string>();
   const [patchPath, setPatchPath] = useState<string>();
   const [patch, setPatch] = useState<string>('');
-  const constraint = useRef<any>(null);
   const editor = useRef<Editor>(null);
 
-  const $componentInfo = $.components.get(props.compKey);
-  const $componentCode = $.getComponentCode(props.compKey);
+  const $info = $.components.get(props.compKey);
+  const $code = $.component.code(props.compKey);
 
-  // GPT triggered by user
-  const handleGPT = useCallback(async () => {
+  // Autocomplete triggered by user
+  const prompt = useCallback(async () => {
     const response = await fetch('http://localhost:8000', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        code: $componentCode.toString(),
+        code: $code.toString(),
         image: props.build.roster[props.compKey].preview,
       }),
     });
     const output = await response.text();
     setPatch(output);
-  }, [$componentCode, props.build]);
+  }, [$code, props.build, props.compKey]);
 
   // Update component path when info changes
   useEffect(() => {
-    if ($componentInfo) {
-      console.log('[component path]', $componentInfo.path);
-      setComponentPath(`${F2RN_EDITOR_NS}${$componentInfo.path.split('/').slice(1).join('/')}.tsx`);
-      setPatchPath(`${F2RN_EDITOR_NS}patch/${$componentInfo.path.split('/').slice(1).join('/')}.tsx`);
+    if ($info) {
+      console.log('[component path]', $info.path);
+      setComponentPath(`${F2RN_EDITOR_NS}${$info.path.split('/').slice(1).join('/')}.tsx`);
+      setPatchPath(`${F2RN_EDITOR_NS}patch/${$info.path.split('/').slice(1).join('/')}.tsx`);
     }
-  }, [$componentInfo]);
+  }, [$info]);
 
   // Update component dependencies on new build
   useEffect(() => {
     if (props.build) {
-      Object.entries(props.build.roster).forEach(([key, component]) => {
-        const code = $.getComponentCode(key);
+      for (const [key, component] of Object.entries(props.build.roster)) {
         const uri = `${F2RN_EDITOR_NS}${component.path.split('/').slice(1).join('/')}.tsx`;
         const path = props.monaco.Uri.parse(uri);
         const model = props.monaco.editor.getModel(path);
         if (!model) {
-          props.monaco.editor.createModel(code.toString(), 'typescript', path);
+          props.monaco.editor.createModel(
+            $.component.code(key).get().toString(),
+            'typescript',
+            path,
+          );
         }
-      });
+      }
     }
-  }, [props.build]);
+  }, [props.build, props.monaco]);
 
   // Consume code focus from navigation
   useEffect(() => {
@@ -87,26 +89,11 @@ export function ComponentCode(props: ComponentCodeProps) {
         editor.current?.revealPositionInCenter(pos, 0);
       }
     }
-  }, [props.nav.codeFocus]);
-
-  // Update editor constraints on target change
-  /*useEffect(() => {
-    if (constraint.current) {
-      const model = editor.current?.getModel();
-      constraint.current?.removeRestrictionsIn(model);
-      constraint.current?.addRestrictionsTo(model, [
-        {
-          label: 'start',
-          range: [1, 1, 1, 1],
-          allowMultiline: true,
-        },
-      ]);
-    }
-  }, [props.target]);*/
+  }, [props.nav.codeFocus, props.nav.setCodeFocus, props.nav.setCursorPos]);
 
   return (
     <Fragment>
-      {!$componentInfo && 
+      {!$info && 
         <ScreenWarning message="Component not found"/>
       }
       {!patch && <MonacoReact
@@ -117,7 +104,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         path={componentPath}
         onMount={(e, m) => {
           editor.current = e;
-          constraint.current = initComponentEditor(e, m, handleGPT);
+          initComponentEditor(e, m, prompt);
           e.onDidChangeCursorPosition((event) => {
             // console.log('[changed cursor]', event);
             if (props.nav.codeFocus) return;
@@ -140,10 +127,10 @@ export function ComponentCode(props: ComponentCodeProps) {
             e.focus();
           });
           new MonacoBinding(
-            $componentCode,
+            $code.get(),
             e.getModel(),
             new Set([e]),
-            $.provider.awareness,
+            $.provider?.awareness,
           );
         }}
       />}
@@ -152,7 +139,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         theme={props.editorTheme}
         options={{...props.editorOptions}}
         loading={<LoadingIndicator/>}
-        original={$componentCode.toString()}
+        original={$code.get().toString()}
         modified={patch}
         modifiedModelPath={patchPath}
         originalModelPath={componentPath}

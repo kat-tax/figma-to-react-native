@@ -40,11 +40,8 @@ export function getColor(color: RGB, opacity?: number, skipHex?: boolean): strin
   const g = Math.round(color.g * 255);
   const b = Math.round(color.b * 255);
   const a = opacity > 0 && opacity < 1 ? `, ${opacity}` : '';
-  if (skipHex) {
-    return `rgb${a?'a':''}(${r}, ${g}, ${b}${a})`;
-  } else {
-    return toHex(r, g, b, opacity);
-  }
+  if (skipHex) return `rgb${a?'a':''}(${r}, ${g}, ${b}${a})`;
+  return toHex(r, g, b, opacity);
 }
 
 function toHex(r: number, g: number, b: number, a?: number) {

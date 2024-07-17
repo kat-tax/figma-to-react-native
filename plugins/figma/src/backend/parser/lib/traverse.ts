@@ -98,12 +98,13 @@ export function getSection(node: BaseNode): SectionNode {
 
 // Get the page of a node
 export function getPage(node: BaseNode): PageNode {
-  if (!node) return null;
-  while (node.type !== 'PAGE') {
-    node = node.parent;
-    if (!node) return null;
+  let target = node;
+  if (!target) return null;
+  while (target.type !== 'PAGE') {
+    target = target.parent;
+    if (!target) return null;
   }
-  return node;
+  return target;
 }
 
 // Focus a node (and go to the page it's on)

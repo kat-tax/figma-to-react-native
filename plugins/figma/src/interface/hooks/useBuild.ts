@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import {on} from '@create-figma-plugin/utilities';
-import * as $ from 'interface/store';
+import * as $ from 'store';
 
 import type {EventComponentBuild} from 'types/events';
 import type {ComponentBuild} from 'types/component';
@@ -23,28 +23,20 @@ export function useBuild(): ComponentBuild {
   useEffect(() => on<EventComponentBuild>('COMPONENT_BUILD', (newBuild, component) => {
     setBuild(newBuild);
     $.doc.transact(() => {
-      $.setProjectIndex(newBuild.index);
-      $.setProjectFiles(Object.keys(newBuild.roster));
-      $.setComponentCode(component.key, component.code);
-      $.setComponentIndex(component.key, component.index);
-      $.setComponentStory(component.key, component.story);
-      $.setComponentDocs(component.key, component.docs);
-      Object.values(build.assets).forEach(asset =>
-        $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes));
-      const {id, key, info, props, imports, width, height} = component;
-      const {name, page, path} = info;
-      $.components.set(component.key, {
-        id,
-        key,
-        name,
-        path,
-        imports,
-        props,
-        width,
-        height,
-        page: page.name,
-      });
+      const {id, key, code, index, story, docs, info, props, imports, width, height} = component;
+      const {name, path} = info;
+      const page = info.page.name;
+      $.projectIndex.set(newBuild.index);
+      $.projectFiles.set(Object.keys(newBuild.roster));
+      $.component.code(key).set(code);
+      $.component.index(key).set(index);
+      $.component.story(key).set(story);
+      $.component.docs(key).set(docs);
+      $.components.set(key, {id, key, name, page, path, props, imports, width, height});
     });
+    for (const asset of Object.values(newBuild.assets)) {
+      $.assets.set(`${asset.name}.${asset.isVector ? 'svg' : 'png'}`, asset.bytes);
+    }
   }), []);
 
   return build;

@@ -11,14 +11,14 @@ import {emit} from '@create-figma-plugin/utilities';
 import * as F from 'figma-ui';
 
 import type {ReactNode} from 'react';
-import type {ProjectIcons} from 'types/project';
-import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/events';
-import type {ComponentBuild} from 'types/component';
 import type {Navigation} from 'interface/hooks/useNavigation';
+import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/events';
+import type {ProjectIcons as ProjectIconsType} from 'types/project';
+import type {ComponentBuild} from 'types/component';
 
 interface ProjectIconsProps {
   build: ComponentBuild,
-  icons: ProjectIcons,
+  icons: ProjectIconsType,
   nav: Navigation,
   hasStyles: boolean,
   isReadOnly: boolean,
@@ -42,8 +42,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
   const [iconSet, setIconSet] = useState(props.icons?.sets?.[0]);
   const [importing, setImporting] = useState(false);
-  const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
   const [loadProgress, setLoadProgress] = useState(0);
+  const [_loadedIcons, setLoadedIcons] = useState<string[]>([]);
   const [_copiedText, copyToClipboard] = useCopyToClipboard();
 
   // Rebuild list when icons or build or loadedIcons change
@@ -61,7 +61,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
       if (!a.missing && b.missing) return -1;
       return 0;
     })
-  , [props.icons, props.build, loadedIcons]);
+  , [props.icons, props.build]);
 
   // Rebuild index when icons change
   const index = useMemo(() => new Fzf(icons, {
@@ -92,7 +92,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
     loadIconSet(iconSet, setLoadProgress).then(list => {
       setLoadedIcons(list);
     });
-  }, [iconSet, props.build]);
+  }, [iconSet, importing]);
 
   // Update icon set when new icons are imported
   useEffect(() => {

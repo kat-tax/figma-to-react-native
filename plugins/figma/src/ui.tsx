@@ -3,13 +3,13 @@ import '!./interface/styles/default.css';
 import '!./interface/styles/plugin.css';
 import '!./interface/styles/editor.css';
 
+import {connect} from 'store';
 import {on, emit} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'react';
 import {useWindowResize, render} from 'figma-ui';
 import {init, auth, ErrorBoundary} from 'interface/telemetry';
 import {F2RN_UI_WIDTH_MIN} from 'config/consts';
 import {App} from 'interface/App';
-import * as $ from 'interface/store';
 
 import type {EventAppReady, EventAppStart} from 'types/events';
 
@@ -26,7 +26,7 @@ function Main() {
     setReady(true);
     setVSCode(vscode);
     setDevMode(devmode);
-    $.provider.awareness.setLocalState({user});
+    return connect(user);
   }), []);
 
   // Tell the plugin that the UI is ready
@@ -35,7 +35,7 @@ function Main() {
   }, []);
 
   // Handle window resize
-  useWindowResize((e: any) => emit('RESIZE_WINDOW', e), {
+  useWindowResize(e => emit('RESIZE_WINDOW', e), {
     minHeight: 200,
     minWidth: F2RN_UI_WIDTH_MIN,
     resizeBehaviorOnDoubleClick: 'minimize',

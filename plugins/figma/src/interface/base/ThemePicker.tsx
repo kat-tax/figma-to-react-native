@@ -3,10 +3,10 @@ import {emit} from '@create-figma-plugin/utilities';
 import * as F from 'figma-ui';
 
 import type {EventProjectImportTheme} from 'types/events';
-import type {ThemeColor, ThemePickerForm, ThemeRadius} from 'types/themes';
+import type {ThemeColor, ThemePickerForm} from 'types/themes';
 
 const tips = {
-  submit: `Generate the selected theme`,
+  submit: 'Generate the selected theme',
 };
 
 export function ThemePicker() {
@@ -83,7 +83,7 @@ export function ThemePicker() {
           loading={isGenerating}
           disabled={isGenerating}
           onClick={form.handleSubmit}>
-          {`Generate Theme`}
+          {'Generate Theme'}
         </F.Button>
       </Fragment>
       <F.VerticalSpace space="large"/>

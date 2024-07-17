@@ -8,7 +8,6 @@
       html {
         width: 100%;
         height: 100%;
-        background: #2c2c2c;
       }
       body, #previewer, #previewer > div {
         margin: 0;

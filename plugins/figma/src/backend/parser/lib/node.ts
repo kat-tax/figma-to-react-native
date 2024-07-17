@@ -25,7 +25,7 @@ export function getIconData(node: SceneNode): ParseIconData {
   const vector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
   const color = getFillToken(vector);
   const size = Math.max(node.width, node.height);
-  let name = (node as InstanceNode)?.mainComponent?.name;
+  const name = (node as InstanceNode)?.mainComponent?.name;
   return {name, color, size};
 }
 
@@ -99,9 +99,8 @@ export function sortComponentProps(a: any, b: any) {
   if (a[1].type === 'BOOLEAN' && b[1].type !== 'BOOLEAN') {
     return -1;
   // Otherwise sort alphabetically
-  } else {
-    return a[0]?.localeCompare(b[0]);
   }
+  return a[0]?.localeCompare(b[0]);
 }
 
 export function sortComponentPropsDef(a: any, b: any) {

@@ -6,7 +6,7 @@ const NS = '[F->RN]';
 const LT = new Logtail(LOGTAIL_TOKEN);
 
 let _user: User | null = null;
-let _queue = [] as Function[];
+let _queue: Array<(user: User) => void> = [];
 
 type MetaData = {[key: string]: string | boolean | number};
 
@@ -61,7 +61,7 @@ function start(user: User) {
 
 function flush() {
   if (_queue.length === 0) return;
-  _queue.forEach(fn => fn(_user));
+  for (const fn of _queue) fn(_user);
   _queue = [];
   LT.flush();
 }

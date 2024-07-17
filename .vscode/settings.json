@@ -9,11 +9,12 @@
   ],
   "material-icon-theme.activeIconPack": "react",
   "material-icon-theme.folders.associations": {
-    "importer": "import",
-    "parser": "review",
+    "sync": "ci",
+    "user": "admin",
     "editor": "mock",
-    "preview": "content",
-    "user": "admin"
+    "parser": "review",
+    "importer": "import",
+    "preview": "content"
   },
   "typescript.tsserver.watchOptions": {
     "watchDirectory": "useFsEvents",

@@ -36,8 +36,8 @@ export function ProjectAssets(props: ProjectAssetsProps) {
         <img
           alt={alt}
           src={src}
-          style={style as any}
-        /> as any
+          style={style}
+        />
       )}
     />
   ) : <ScreenInfo message="No assets found"/>;

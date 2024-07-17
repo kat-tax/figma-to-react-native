@@ -1,13 +1,12 @@
-import {emit} from '@create-figma-plugin/utilities';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
-import {getComponentCode} from 'interface/store';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-
+import {emit} from '@create-figma-plugin/utilities';
 import * as F from 'figma-ui';
+import * as $ from 'store';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {ComponentBuild, ComponentRosterEntry} from 'types/component';
@@ -51,7 +50,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       tiebreakers: [byLengthAsc],
       forward: false,
     });
-  }, [props?.build]);
+  }, [props?.build, hasComponents]);
 
   // Import EXO components
   const importComponents = async () => {
@@ -89,7 +88,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         }, {})
       : {};
     setList(newList);
-  }, [props.build, props.searchQuery]);
+  }, [index, props.searchQuery, hasComponents]);
 
   if (!hasComponents) {
     return (
@@ -195,8 +194,8 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
       }}
       onDragStart={(e) => {
         setDragging(name);
-        const $code = getComponentCode(name);
-        const code = $code.toString();
+        const $code = $.component.code(name);
+        const code = $code.get().toString();
         const img = new Image(100, 100);
         img.src = preview;
         e.dataTransfer.setDragImage(img, 0, 0);

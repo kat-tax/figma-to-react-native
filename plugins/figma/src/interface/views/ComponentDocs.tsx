@@ -3,8 +3,7 @@ import {LoadingIndicator} from 'figma-ui';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import MonacoReact from 'monacopilot';
-
-import * as $ from 'interface/store';
+import * as $ from 'store';
 
 import type {Theme} from 'monacopilot';
 import type {UserSettings} from 'types/settings';
@@ -16,17 +15,17 @@ interface ComponentDocsProps {
 }
 
 export function ComponentDocs(props: ComponentDocsProps) {
-  const $componentInfo = $.components.get(props.compKey);
-  const docs = $.getComponentDocs(props.compKey);
+  const $info = $.components.get(props.compKey);
+  const $docs = $.component.docs(props.compKey);
   return (
     <Fragment>
-      {!$componentInfo &&
+      {!$info &&
         <ScreenWarning message="Component not found"/>
       }
       <MonacoReact
         language="mdx"
-        path={`${F2RN_EDITOR_NS}${$componentInfo?.path}.docs.mdx`}
-        value={docs.toString()}
+        path={`${F2RN_EDITOR_NS}${$info?.path}.docs.mdx`}
+        value={$docs.get().toString()}
         theme={props.editorTheme}
         options={{...props.editorOptions, readOnly: true}}
         loading={<LoadingIndicator/>}

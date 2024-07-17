@@ -13,17 +13,13 @@ export function TextUnderline(props: TextUnderlineProps) {
   const nodes = chars.map((char, i) => {
     if (props.indices.has((group.length + 1) + i)) {
       return (
-        <Bold key={i} className="highlight">
+        <Bold className="highlight">
           {char}
         </Bold>
       );
-    } else {
-      return char;
     }
+    return char;
   });
-  return (
-    <Fragment>
-      {nodes}
-    </Fragment>
-  );
+
+  return nodes;
 };

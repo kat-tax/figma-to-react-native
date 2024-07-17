@@ -1,4 +1,4 @@
-const fs = require('fs').promises;
+const fs = require('node:fs').promises;
 const {NodeModulesPolyfillPlugin} = require('@esbuild-plugins/node-modules-polyfill');
 
 // @ts-check

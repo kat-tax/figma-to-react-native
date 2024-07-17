@@ -124,10 +124,10 @@ export interface EventProjectImportTheme extends EventHandler {
 
 export interface EventStyleGenReq extends EventHandler {
   name: 'STYLE_GEN_REQ';
-  handler: (css: Record<string, any>) => void;
+  handler: (css: {[s: string]: {[s: string]: unknown}}) => void;
 }
 
 export interface EventStyleGenRes extends EventHandler {
   name: 'STYLE_GEN_RES';
-  handler: (stylesheet: Record<string, any>) => void;
+  handler: (stylesheet: unknown) => void;
 }

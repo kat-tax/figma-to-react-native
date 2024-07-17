@@ -50,19 +50,22 @@ export function App() {
           // console.log('[changed language]', e.data.language);
           __lang__ = e.data.language;
           return;
-        case 'preview::variant':
+        case 'preview::variant': {
           // console.log('[changed variant]', e.data.variant);
           const newRoot = e.data.variant.props;
           setVariant(newRoot);
           parent.postMessage({type: 'app:refresh'});
           return;
+        }
       }
     };
     // Note: do not use addEventListener, cleanup doesn't always work
     // due to how the app is reloaded in the loader
     window.onmessage = updateProps;
     parent.postMessage({type: 'app:loaded'});
-    return () => (window.onmessage = null);
+    return function cleanup() {
+      window.onmessage = null;
+    };
   }, []);
 
   return (
@@ -83,8 +86,8 @@ AppRegistry.runApplication('app', {
   mode: 'concurrent',
 });
 
-class ErrorBoundary extends React.Component {
-  constructor(props: any) {
+class ErrorBoundary extends React.Component<{children: React.ReactNode}> {
+  constructor(props: {children: React.ReactNode}) {
     super(props);
     this.state = {
       hasError: false,

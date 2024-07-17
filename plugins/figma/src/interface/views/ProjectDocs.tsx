@@ -1,13 +1,11 @@
+import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {useBlockNote, BlockNoteViewRaw} from '@blocknote/react';
-import {Fzf, byLengthAsc} from 'fzf';
-
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-
 import * as F from 'figma-ui';
-import * as $ from 'interface/store';
+import * as $ from 'store';
 
 import type {BlockNoteEditor} from '@blocknote/core';
 import type {ComponentBuild} from 'types/component';
@@ -51,7 +49,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
       tiebreakers: [byLengthAsc],
       forward: false,
     });
-  }, [props?.build]);
+  }, [props?.build, hasDocs]);
 
   const rootDoc = {
     positions: new Set(),
@@ -88,7 +86,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
         }, {})
       : {};
     setList(newList);
-  }, [props.build, props.searchQuery]);
+  }, [index, props.searchQuery, hasDocs]);
 
   if (!hasDocs) {
     return (
@@ -209,7 +207,7 @@ function ProjectDocEditor(props: ProjectDocEditorProps) {
     collaboration: {
       provider: $.provider,
       fragment: $.doc.getXmlFragment(`doc-${props.entry.item.id}`),
-      user: $.provider.awareness.getLocalState()?.user,
+      user: $.provider?.awareness.getLocalState()?.user,
     },
   });
   return (

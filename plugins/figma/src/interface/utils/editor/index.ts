@@ -2,11 +2,10 @@ import {F2RN_EDITOR_NS} from 'config/consts';
 import {componentPathNormalize} from 'common/string';
 import {emit} from '@create-figma-plugin/utilities';
 import schema from 'interface/schemas/user/schema.json';
-import * as $ from 'interface/store';
+import * as $ from 'store';
 
 import imports from './lib/imports';
 import typings from './lib/typings';
-import Constraints from './lib/Constraints';
 import Experimental from './lib/Experimental';
 
 import type * as monaco from 'monaco-editor';
@@ -30,14 +29,14 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
     module: monaco.languages.typescript.ModuleKind.CommonJS,
     noEmit: true,
     paths: {
-      ['theme']: [`${F2RN_EDITOR_NS}theme.ts`],
-      ['components/*']: [`${F2RN_EDITOR_NS}*`],
-      ['react-exo/*']: [`${exo}`],
+      'theme': [`${F2RN_EDITOR_NS}theme.ts`],
+      'components/*': [`${F2RN_EDITOR_NS}*`],
+      'react-exo/*': [`${exo}`],
     }
   });
 
   // Add theme file
-  const theme = $.getProjectTheme().toString();
+  const theme = $.projectTheme.toString();
   if (theme) {
     const uri = monaco.Uri.parse(`${F2RN_EDITOR_NS}theme.ts`);
     const model = monaco.editor.getModel(uri);
@@ -49,12 +48,12 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
   }
 
   // Add library files
-  Object.keys(imports).forEach(key => {
+  for (const key of Object.keys(imports)) {
     const uri = monaco.Uri.parse(key);
     if (!monaco.editor.getModel(uri)) {
       monaco.editor.createModel(imports[key], 'typescript', uri);
     }
-  });
+  }
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
@@ -115,5 +114,4 @@ export function initComponentEditor(editor: Editor, monaco: Monaco, onTriggerGPT
   // console.log('[init editor]', editor, monaco);
   typings.init(monaco, editor);
   Experimental.init(monaco, editor, onTriggerGPT);
-  return Constraints.init(monaco, editor);
 }
