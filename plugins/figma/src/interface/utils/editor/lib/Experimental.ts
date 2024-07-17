@@ -12,10 +12,10 @@ export async function patch(action: string) {
       console.log('[diff]', action);
       break;
     case 'Apply':
-      confirm(`Are you sure you want to apply the component code changes?`);
+      confirm('Are you sure you want to apply the component code changes?');
       break;
     case 'reset':
-      confirm(`Are you sure you want to clear the code changes?`);
+      confirm('Are you sure you want to clear the code changes?');
       break;
     }
 }
