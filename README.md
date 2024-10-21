@@ -11,7 +11,7 @@
 </h4>
 <br/>
 
-> Transforms Figma components to React Native components in real time. It also exports themes, icons, assets, and much more. The mission goal is to eliminate the designer to developer handoff while embracing existing workflows and tooling. Join the [Discord Channel](https://discord.com/invite/TzhDRyj) or follow [@TheUltDev](https://x.com/theultdev) to track project development.
+> Transforms Figma components to React Native components in real time. It also exports themes, icons, assets, and much more. The mission goal is to eliminate the designer to developer handoff while embracing existing workflows and tooling. Join the [Discord Channel](https://discord.gg/cKuFhe97mW) or follow [@TheUltDev](https://x.com/theultdev) to track project development.
 
 ## Features
 
@@ -39,4 +39,4 @@
 
 ---
 
-This project is work in progress. Join the [Discord Channel](https://discord.com/invite/TzhDRyj) or follow [@TheUltDev](https://x.com/theultdev) to track project development.
+This project is work in progress. Join the [Discord Channel](https://discord.kat.tax) or follow [@TheUltDev](https://x.com/theultdev) to track project development.
