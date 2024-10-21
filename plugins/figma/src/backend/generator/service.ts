@@ -76,8 +76,9 @@ export async function watchTheme(settings: ProjectSettings) {
   const updateTheme = async () => {
     const tokens = await generateTheme(settings);
     const {code, collection, hasStyles} = tokens.themes;
-    const themeName = collection?.current
-      ? `${string.createIdentifierCamel(collection.current.name)}`
+    const colName = collection?.current?.name ?? collection?.default?.name;
+    const themeName = collection
+      ? `${string.createIdentifierCamel(colName)}`
       : 'main';
     if (code === _lastThemeCode && themeName === _lastThemeName)
         return;

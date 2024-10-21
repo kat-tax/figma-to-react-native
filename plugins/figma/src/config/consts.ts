@@ -1,5 +1,5 @@
 // Display
-export const F2RN_UI_WIDTH_MIN = 300;
+export const F2RN_UI_WIDTH_MIN = 308;
 
 // Configs
 export const F2RN_SETTINGS_USER = 'f2rn:user:1001';

@@ -148,7 +148,7 @@ async function writeThemes(writer: CodeBlockWriter) {
       themes[mode.name] = await getColorTokens(mode.modeId);
   // No theme variable collection found, use local styles only
   } else {
-    themes['main'] = await getColorLocalStyles();
+    themes['Main'] = await getColorLocalStyles();
   }
 
   writer.write('export const themes = {').indent(() => {
@@ -254,7 +254,7 @@ async function getColorLocalStyles(): Promise<Colors> {
   styles?.forEach(paint => {
     colors[paint.name] = {
       // @ts-ignore (TODO: expect only solid paints to fix this)
-      value: getColor(paint.paints[0]?.color || {r: 0, g: 0, b: 0}),
+      value: parser.getColor(paint.paints[0]?.color || {r: 0, g: 0, b: 0}),
       comment: paint.description,
     }
   });

@@ -1,8 +1,8 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {UserSettings} from 'types/settings';
-import type {ThemeColor, ThemeRadius} from 'types/themes';
 import type {ComponentData, ComponentBuild} from 'types/component';
+import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 
 /* General */
@@ -75,8 +75,8 @@ export interface DropComponentHandler extends EventHandler {
 
 /* Project */
 
-export interface EventProjectBuild extends EventHandler {
-  name: 'PROJECT_BUILD';
+export interface EventProjectRelease extends EventHandler {
+  name: 'PROJECT_RELEASE';
   handler: (project: ProjectBuild | null, info: ProjectInfo | null, config: ProjectRelease, user: User) => void;
 }
 
@@ -117,7 +117,7 @@ export interface EventProjectImportIcons extends EventHandler {
 
 export interface EventProjectImportTheme extends EventHandler {
   name: 'PROJECT_IMPORT_THEME';
-  handler: (color: ThemeColor, radius: ThemeRadius) => void;
+  handler: (theme: ThemePresets | 'Brand', scale: ThemeScale, radius: ThemeRadius) => void;
 }
 
 /* Style Gen */

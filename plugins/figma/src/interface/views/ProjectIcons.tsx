@@ -1,14 +1,13 @@
-import {useState, useEffect, useMemo, Fragment} from 'react';
-import {Icon, listIcons, getIcon} from '@iconify/react';
-import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {Fzf, byLengthAsc} from 'fzf';
+import {Icon, listIcons, getIcon} from '@iconify/react';
+import {useState, useEffect, useMemo, Fragment} from 'react';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
+import {Button, IconButton} from 'figma-ui';
 import {VirtuosoGrid} from 'react-virtuoso';
 import {loadIconSet} from 'interface/services/iconify';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {emit} from '@create-figma-plugin/utilities';
-
-import * as F from 'figma-ui';
 
 import type {ReactNode} from 'react';
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -115,12 +114,12 @@ export function ProjectIcons(props: ProjectIconsProps) {
       <ScreenInfo
         message="No icons found"
         action={!props.isReadOnly
-          ? <F.Button
+          ? <Button
               secondary
               loading={importing}
               onClick={() => importIcons('ph', 'Phosphor')}>
               Import from Iconify
-            </F.Button>
+            </Button>
           : null
         }
       />
@@ -162,7 +161,7 @@ interface IconListItemProps {
 function IconListItem(props: IconListItemProps) {
   const tag = `<Icon name="${props.icon}"/>`;
   return (
-    <F.IconButton
+    <IconButton
       title={props.icon}
       disabled={props.missing}
       draggable={!props.missing}
@@ -190,6 +189,6 @@ function IconListItem(props: IconListItemProps) {
         height={16}
         color={'var(--color-text)'}
       />
-    </F.IconButton>
+    </IconButton>
   );
 }

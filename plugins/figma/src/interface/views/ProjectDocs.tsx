@@ -1,10 +1,10 @@
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {useBlockNote, BlockNoteViewRaw} from '@blocknote/react';
+import {Stack, Layer, Muted, Button, Disclosure, IconWorld16, IconInfo32, IconTextAlignLeft16} from 'figma-ui';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import * as F from 'figma-ui';
 import * as $ from 'store';
 
 import type {BlockNoteEditor} from '@blocknote/core';
@@ -93,12 +93,12 @@ export function ProjectDocs(props: ProjectDocsProps) {
       <ScreenInfo
         message="No documentation found"
         action={!props.isReadOnly
-          ? <F.Button
+          ? <Button
               secondary
               loading={creating}
               onClick={createDoc}>
               New Document
-            </F.Button>
+            </Button>
           : null
         }
       />
@@ -110,7 +110,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
       <div className="list">
         <ProjectDocItem
           page="Root"
-          icon={<F.IconWorld16/>}
+          icon={<IconWorld16/>}
           onSelect={selectDoc}
           isActive={active === 'root'}
           entry={rootDoc}
@@ -128,8 +128,8 @@ export function ProjectDocs(props: ProjectDocsProps) {
       {active === 'root'
         ? <ProjectDocEditor entry={rootDoc}/>
         : <div className="tip">
-            <F.IconInfo32 color="secondary"/>
-            <F.Muted>Select a document</F.Muted>
+            <IconInfo32 color="secondary"/>
+            <Muted>Select a document</Muted>
           </div>
       }
     </div>
@@ -150,7 +150,7 @@ function ProjectDocSection(props: ProjectDocSectionProps) {
   if (!props?.entries?.length) return null;
 
   return (
-    <F.Disclosure
+    <Disclosure
       title={props.title}
       open={isExpanded}
       onClick={() => setExpanded(!isExpanded)}>
@@ -158,14 +158,14 @@ function ProjectDocSection(props: ProjectDocSectionProps) {
       {props?.entries?.map(entry =>
         <ProjectDocItem
           key={entry.item.name}
-          icon={<F.IconTextAlignLeft16/>}
+          icon={<IconTextAlignLeft16/>}
           entry={entry}
           page={props.title}
           isActive={props.activeDoc === entry.item.id}
           onSelect={props.onSelect}
         />
       )}
-    </F.Disclosure>
+    </Disclosure>
   );
 }
 
@@ -180,8 +180,8 @@ interface ProjectDocItemProps {
 function ProjectDocItem(props: ProjectDocItemProps) {
   const {id, name, group, preview} = props.entry.item;
   return (
-    <F.Stack space="extraLarge">
-      <F.Layer
+    <Stack space="extraLarge">
+      <Layer
         icon={props.icon}
         value={props.isActive}
         description={preview}
@@ -193,8 +193,8 @@ function ProjectDocItem(props: ProjectDocItemProps) {
           indices={props.entry.positions}
         />
         <TextCollabDots target={id}/>
-      </F.Layer>
-    </F.Stack>
+      </Layer>
+    </Stack>
   );
 }
 
@@ -211,11 +211,11 @@ function ProjectDocEditor(props: ProjectDocEditorProps) {
     },
   });
   return (
-    <F.Stack className="editor" space="extraLarge">
+    <Stack className="editor" space="extraLarge">
       <BlockNoteViewRaw
         editor={editor}
         theme={"dark"}
       />
-    </F.Stack>
+    </Stack>
   );
 }

@@ -1,10 +1,10 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
+import {Text, Muted, LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16} from 'figma-ui';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as string from 'common/string';
-import * as F from 'figma-ui';
 import * as $ from 'store';
 
 import type {ComponentBuild} from 'types/component';
@@ -206,28 +206,28 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <ScreenWarning message="Component not found"/>
       }
       <div style={styles.header}>
-        <F.IconToggleButton
+        <IconToggleButton
           onValueChange={inspect}
           disabled={!isLoaded}
           value={isInspect}
           style={styles.button}>
-          <F.IconTarget16/>
-        </F.IconToggleButton>
+          <IconTarget16/>
+        </IconToggleButton>
         <div style={styles.bar}>
-          <F.Text style={styles.path}>
+          <Text style={styles.path}>
             {previewBar ? previewBar[0] : ''}
-          </F.Text>
-          <F.Muted style={styles.desc}>
+          </Text>
+          <Muted style={styles.desc}>
             {previewBar ? previewBar[1] : ''}
-          </F.Muted>
+          </Muted>
         </div>   
-        <F.IconButton onClick={reload} style={styles.button}>
-          <F.IconSwap16/>
-        </F.IconButton>
+        <IconButton onClick={reload} style={styles.button}>
+          <IconSwap16/>
+        </IconButton>
       </div>
       {component && !isLoaded &&
         <div style={styles.loading}>
-          <F.LoadingIndicator/>
+          <LoadingIndicator/>
         </div>
       }
       <iframe

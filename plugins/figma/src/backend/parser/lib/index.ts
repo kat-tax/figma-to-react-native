@@ -6,6 +6,7 @@ export {
   getFillToken,
   getTopFill,
   getColor,
+  getRGB,
 } from './colors';
 
 export {

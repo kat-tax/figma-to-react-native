@@ -5,14 +5,14 @@ import {upload} from 'interface/utils/project/upload';
 import {download} from 'interface/utils/project/download';
 import * as consts from 'config/consts';
 
-import type {EventProjectBuild} from 'types/events';
+import type {EventProjectRelease} from 'types/events';
 
-export function useProjectBuild(
+export function useProjectRelease(
   onSuccess: () => void,
   onError: () => void,
   setExportCount: React.Dispatch<number>,
 ): void {
-  useEffect(() => on<EventProjectBuild>('PROJECT_BUILD', async (project, info, config) => {
+  useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (project, info, config) => {
     if (project === null) return onError();
     const assets = project.assets.length;
     const components = project.components.length;

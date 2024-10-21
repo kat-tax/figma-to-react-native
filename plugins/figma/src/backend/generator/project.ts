@@ -12,7 +12,7 @@ import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';
 
 import type {ProjectBuild, ProjectInfo, ProjectRelease, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
-import type {EventProjectBuild, EventProjectConfigLoad} from 'types/events';
+import type {EventProjectRelease, EventProjectConfigLoad} from 'types/events';
 import type {ComponentInfo, ComponentAsset} from 'types/component';
 import type {VariableModes} from 'types/figma';
 
@@ -31,7 +31,7 @@ export function build(release: ProjectRelease) {
   } as ProjectRelease));
 
   // Determine which components to export
-  let projectName: string = 'Components';
+  let projectName = 'Components';
   let exportNodes: Set<ComponentNode> = new Set();
   switch (release.scope) {
     case 'document':
@@ -135,9 +135,9 @@ export function build(release: ProjectRelease) {
 
       // console.log('[project/build]', build, projectConfig);
 
-      emit<EventProjectBuild>('PROJECT_BUILD', build, info, release, user);
+      emit<EventProjectRelease>('PROJECT_RELEASE', build, info, release, user);
       if (release.method === 'release') {
-        figma.notify(`Release published.`, {
+        figma.notify('Release published.', {
           timeout: 10000,
           button: {
             text: 'Open Dashboard',
@@ -147,7 +147,7 @@ export function build(release: ProjectRelease) {
       }
     }, 500);
   } else {
-    emit<EventProjectBuild>('PROJECT_BUILD', null, null, release, user);
+    emit<EventProjectRelease>('PROJECT_RELEASE', null, null, release, user);
     figma.notify('No components found to export', {error: true});
     if (projectVersion) {
       setProjectVersion(projectVersion);

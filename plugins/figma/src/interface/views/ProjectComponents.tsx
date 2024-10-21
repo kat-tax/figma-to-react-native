@@ -1,11 +1,11 @@
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
+import {Stack, Layer, Button, Disclosure, IconWarning16, IconLayerComponent16} from 'figma-ui';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {emit} from '@create-figma-plugin/utilities';
-import * as F from 'figma-ui';
 import * as $ from 'store';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -95,12 +95,12 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       <ScreenInfo
         message="No components found"
         action={hasImport
-          ? <F.Button
+          ? <Button
               secondary
               loading={importing}
               onClick={() => importComponents()}>
               Import from EXO
-            </F.Button>
+            </Button>
           : null
         }
       />
@@ -144,7 +144,7 @@ function ProjectPageGroup(props: ProjectPageGroupProps) {
   if (!props?.entries?.length) return null;
 
   return (
-    <F.Disclosure
+    <Disclosure
       style={{width: '100%'}}
       title={props.title}
       open={isExpanded}
@@ -158,7 +158,7 @@ function ProjectPageGroup(props: ProjectPageGroupProps) {
           onSelect={props.onSelect}
         />
       )}
-    </F.Disclosure>
+    </Disclosure>
   );
 }
 
@@ -175,7 +175,7 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
   const hasError = false;
 
   return (
-    <F.Stack
+    <Stack
       space="extraLarge"
       style={{width: '100%'}}
       draggable={!loading}
@@ -201,7 +201,7 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         e.dataTransfer.setDragImage(img, 0, 0);
         e.dataTransfer.setData('text/plain', code);
       }}>
-      <F.Layer
+      <Layer
         component={!hasError}
         value={name === dragging}
         onChange={() => id
@@ -217,15 +217,15 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
               : path.split('/').slice(2, -1).join('/')
         }
         icon={hasError
-          ? <F.IconWarning16 color="danger"/>
-          : <F.IconLayerComponent16 color="component"/>
+          ? <IconWarning16 color="danger"/>
+          : <IconLayerComponent16 color="component"/>
         }>
         <TextUnderline
           str={`${page}/${name}`}
           indices={props.entry.positions}
         />
         <TextCollabDots target={name}/>
-      </F.Layer>
-    </F.Stack>
+      </Layer>
+    </Stack>
   );
 }

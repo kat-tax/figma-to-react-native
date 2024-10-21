@@ -41,33 +41,6 @@
   --size-xlarge: 48px;
   --size-xxlarge: 64px;
   --size-xxxlarge: 80px;
-  /* Typography */
-  --font-stack: "Inter", sans-serif;
-  --font-size-xsmall: 11px;
-  --font-size-small: 12px;
-  --font-size-large: 13px;
-  --font-size-xlarge: 14px;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-bold: 600;
-  --font-line-height: 16px;
-  --font-line-height-large: 24px;
-  --font-letter-spacing-pos-xsmall: .005em;
-  --font-letter-spacing-neg-xsmall: .01em;
-  --font-letter-spacing-pos-small: 0;
-  --font-letter-spacing-neg-small: .005em;
-  --font-letter-spacing-pos-large: -.0025em;
-  --font-letter-spacing-neg-large: .0025em;
-  --font-letter-spacing-pos-xlarge: -.001em;
-  --font-letter-spacing-neg-xlarge: -.001em;
-}
-
-html, body {
-  margin: 0;
-  background-color: var(--figma-color-bg);
-  font-family: var(--font-stack);
-  font-size: var(--font-size-xsmall);
-  color: var(--figma-color-text);
 }
 
 iframe {
@@ -352,6 +325,19 @@ iframe {
 
 /* Theme Picker */
 
+.theme-picker-palette {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.theme-picker-palette > div {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background-color: #000000;
+}
+
 .theme-picker-colors > div > div {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -359,7 +345,7 @@ iframe {
 }
 
 .theme-picker-colors [class*="_child_"] {
-  height: 32px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -377,12 +363,7 @@ iframe {
 }
 
 .theme-picker-colors [class*="_children_"] {
-  padding: 7px 0 0 26px;
-}
-
-.theme-picker-colors [class*="_input_"]:checked ~[class*="_children_"] > [class*="_text_"] {
-  text-decoration: underline;
-  text-underline-offset: 8px;
+  padding: 3.5px 0 0 26px;
 }
 
 .theme-picker-colors [class*="_input_"]:checked ~[class*="_border_"] {

@@ -1,14 +1,14 @@
-import {useEffect, useState, Fragment} from 'react';
+import {Tabs, Text} from 'figma-kit';
 import {useWindowSize} from '@uidotdev/usehooks';
+import {useEffect, useState, Fragment} from 'react';
+import {Dropdown, IconNavigateBack32, IconSearch32, IconEllipsis32, IconLayerComponent16} from 'figma-ui';
 import {patch, actions} from 'interface/utils/editor/lib/Experimental';
-import {titleCase} from 'common/string';
-import {Bar, Link} from 'interface/base/Tabs';
 import {SearchBar} from 'interface/base/SearchBar';
+import {titleCase} from 'common/string';
 
-import * as F from 'figma-ui';
-
-import type {ComponentBuild} from 'types/component';
+import type {DropdownOption} from 'figma-ui';
 import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
+import type {ComponentBuild} from 'types/component';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface NavBarProps {
@@ -40,14 +40,14 @@ export function NavBar(props: NavBarProps) {
         ? 'drop-mod-target'
         : '';
 
-  const menuMainExt: Array<F.DropdownOption> = props.tabs.main
+  const menuMainExt: Array<DropdownOption> = props.tabs.main
     .filter(page => !mainTabs.includes(page))
     .map(value => ({
       value,
       text: titleCase(value.toString(),
-    )}) as F.DropdownOption);
+    )}) as DropdownOption);
 
-  const menuComponent: Array<F.DropdownOption> = Object
+  const menuComponent: Array<DropdownOption> = Object
     .entries(props.build.roster)
     .sort(([,a], [,b]) => a.name?.localeCompare(b.name))
     .map(([name, component]) => ({
@@ -56,7 +56,7 @@ export function NavBar(props: NavBarProps) {
       disabled: component.loading,
     }));
 
-  const menuComponentUnsaved: Array<F.DropdownOption> = actions.map(action => ({
+  const menuComponentUnsaved: Array<DropdownOption> = actions.map(action => ({
     value: action,
     text: titleCase(action),
   }));
@@ -85,7 +85,7 @@ export function NavBar(props: NavBarProps) {
 
   return (
     <div className={`tab-menu ${classMenu}`}>
-      <Bar loop aria-label="menu">
+      <Tabs.List loop aria-label="menu">
         {hasTarget
         ? <div className="tab-bar-nav">
             {hasBack &&
@@ -93,8 +93,9 @@ export function NavBar(props: NavBarProps) {
                 title="Go back to project"
                 className="tab-btn"
                 style={{paddingTop: '1px'}}
+                onKeyDown={props.nav.gotoOverview}
                 onClick={props.nav.gotoOverview}>
-                <F.IconNavigateBack32/>
+                <IconNavigateBack32/>
               </div>
             }
             {props.tabs.component
@@ -102,11 +103,11 @@ export function NavBar(props: NavBarProps) {
                 const [group, name] = page.split('/');
                 return (
                   <Fragment key={page.toString()}>
-                    <Link
+                    <Tabs.Trigger
                       title={`${titleCase(group)} ${titleCase(name)}`}
                       value={page.toString()}>
-                      {titleCase(name)}
-                    </Link>
+                      <Text>{titleCase(name)}</Text>
+                    </Tabs.Trigger>
                   </Fragment>
                 );
               })}
@@ -122,34 +123,35 @@ export function NavBar(props: NavBarProps) {
               <div
                 className="tab-btn"
                 title="Search components"
+                onKeyDown={() => props.setSearchMode(true)}
                 onClick={() => props.setSearchMode(true)}>
-                <F.IconSearch32/>
+                <IconSearch32/>
               </div>
               {mainTabs.map(page => (
                 <Fragment key={page.toString()}>
-                  <Link
+                  <Tabs.Trigger
                     title={`Project ${titleCase(page.toString())}`}
                     value={page.toString()}>
-                    {titleCase(page.toString())}
-                  </Link>
+                    <Text>{titleCase(page.toString())}</Text>
+                  </Tabs.Trigger>
                 </Fragment>
               ))}
             </div>
           }
           </Fragment>
         }
-      </Bar>
+      </Tabs.List>
       {!hasTarget && !props.searchMode && menuMainExt.length > 0 &&
-        <F.Dropdown
-          icon={<F.IconEllipsis32/>}
+        <Dropdown
+          icon={<IconEllipsis32/>}
           options={menuMainExt}
           value={!mainTabs.includes(props.nav.tab as AppPagesMain) ? props.nav.tab : null}
           onChange={(e) => props.nav.gotoTab(e.currentTarget.value as AppPages)}
         />
       }
       {hasTarget && !hasChanges &&
-        <F.Dropdown
-          icon={<F.IconLayerComponent16 color="component"/>}
+        <Dropdown
+          icon={<IconLayerComponent16 color="component"/>}
           options={menuComponent}
           placeholder="Select a component"
           value={isTargetInRoster ? props.nav.component : null}
@@ -157,8 +159,8 @@ export function NavBar(props: NavBarProps) {
         />
       }
       {hasTarget && hasChanges &&
-        <F.Dropdown
-          icon={<F.IconLayerComponent16 color="warning"/>}
+        <Dropdown
+          icon={<IconLayerComponent16 color="warning"/>}
           options={menuComponentUnsaved}
           placeholder="Review changes"
           value={null}

@@ -20,6 +20,7 @@ declare const styles: {
   readonly "tab-view": string;
   readonly "tabs": string;
   readonly "theme-picker-colors": string;
+  readonly "theme-picker-palette": string;
   readonly "tip": string;
   readonly "virtuoso-grid-list": string;
 };

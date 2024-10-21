@@ -1,18 +1,22 @@
-import * as string from 'common/string';
+import * as color from 'common/color';
 import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
-import type {ThemeColor, ThemeRadius, ThemePreset} from 'types/themes';
+import type {ThemeScale, ThemeRadius, ThemeTokens, ThemePresets} from 'types/themes';
 
-export async function importTheme(color: ThemeColor, radius: ThemeRadius) {
-  const preset = getPresetTokens(color);
-  await createTheme(preset);
-  figma.notify(`${string.titleCase(color)} theme created`, {
+export async function importTheme(
+  theme: ThemePresets | 'Brand',
+  scale: ThemeScale,
+  radius: ThemeRadius,
+) {
+  const tokens = getTokens(theme, scale);
+  await createTheme(tokens);
+  figma.notify(`${theme === 'Brand' ? 'Custom' : theme} theme created`, {
     timeout: 3000,
   });
 }
 
-async function createTheme(preset: ThemePreset) {
+async function createTheme(preset: ThemeTokens) {
   try {
     return await createVariableTheme(preset);
   } catch (e) {
@@ -21,7 +25,7 @@ async function createTheme(preset: ThemePreset) {
   }
 }
 
-async function createLocalStylesTheme(preset: ThemePreset): Promise<{
+async function createLocalStylesTheme(preset: ThemeTokens): Promise<{
   styles: Record<string, PaintStyle>,
   isVariable: false,
 }> {
@@ -39,7 +43,7 @@ async function createLocalStylesTheme(preset: ThemePreset): Promise<{
   return {styles, isVariable: false};
 }
 
-async function createVariableTheme(preset: ThemePreset): Promise<{
+async function createVariableTheme(preset: ThemeTokens): Promise<{
   themeVars: Record<string, Variable>,
   paletteVars: Record<string, Variable>,
   isVariable: true,
@@ -153,13 +157,25 @@ async function createVariableTheme(preset: ThemePreset): Promise<{
   };
 }
 
-function getPresetTokens(color: ThemeColor): ThemePreset {
-  const tokens = {colors: {}, modes: {light: {}, dark: {}}} as ThemePreset;
-  
+export function getTokens(
+  color: ThemePresets | 'Brand',
+  scale: ThemeScale,
+): ThemeTokens {
+  const tokens = {colors: {}, modes: {light: {}, dark: {}}} as ThemeTokens;
+
+  // Color scales
+  const scales = color !== 'Brand'
+    ? colorPresets
+    : {
+      Brand: Object.entries(scale).map(([k,v]) =>
+        ({scale: Number(k), hex: v})),
+      ...colorPresets,
+    };
+
   // Color tokens
   tokens.colors.White = {r: 1, g: 1, b: 1};
   tokens.colors.Black = {r: 0, g: 0, b: 0};
-  Object.entries(colorPresets).forEach(([colorName, colorScale]) => {
+  Object.entries(scales).forEach(([colorName, colorScale]) => {
     for (const {scale, hex} of colorScale) {
       if (hex) {
         tokens.colors[`${colorName}/${scale}`] = figma.util.rgb(hex);
@@ -175,6 +191,41 @@ function getPresetTokens(color: ThemeColor): ThemePreset {
 
   // Return tokens
   return tokens;
+}
+
+export function getCustomScale(baseColor: RGB): ThemeScale {
+  const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+  const [h, s, l] = color.hexToHsl(parser.getColor(baseColor));
+  const scale = {} as ThemeScale;
+  const base = 600;
+  steps.forEach((step) => {
+    const lightness = l + (base - step) / 10;
+    scale[step] = color.hslToHex(h, s, Math.min(100, Math.max(0, lightness)));
+  });
+  return scale;
+}
+
+export function getCustomScale2(baseColor: RGB): ThemeScale {
+  const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+  const delta = [63, 61, 57, 51, 30, 12, 0, -8, -17, -24, -30];
+  const [h, s, l] = color.hexToHsl(parser.getColor(baseColor));
+  const scale = {} as ThemeScale;
+  steps.forEach((step, index) => {
+    const lightness = l + delta[index];
+    scale[step] = color.hslToHex(h, s, Math.min(100, Math.max(0, lightness)));
+  });
+  return scale;
+}
+
+export function getPresetScale(scale: keyof typeof colorPresets): ThemeScale {
+  return colorPresets[scale].reduce((acc, {scale, hex}) => {
+    acc[scale] = hex;
+    return acc;
+  }, {} as ThemeScale);
+}
+
+export function getPresetColor(color: keyof typeof colorPresets): RGBA {
+  return parser.getRGB(colorPresets[color][6].hex);
 }
 
 const colorMapping = {

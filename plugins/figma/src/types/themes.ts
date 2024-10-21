@@ -1,6 +1,21 @@
-export interface ThemePickerForm {
-  color: ThemeColor,
+export interface ThemeForm {
+  theme: ThemePresets | 'Brand',
+  color: RGBA,
+  scale: ThemeScale,
   radius: ThemeRadius,
+}
+
+export type ThemeScale = {
+  50: string,
+  100: string,
+  200: string,
+  300: string,
+  400: string,
+  500: string,
+  600: string,
+  700: string,
+  800: string,
+  900: string,
 }
 
 export type ThemeRadius =
@@ -10,7 +25,7 @@ export type ThemeRadius =
   | '0.75'
   | '1.0';
 
-export type ThemeColor =
+export type ThemePresets =
   | 'Zinc'
   | 'Slate'
   | 'Stone'
@@ -24,18 +39,19 @@ export type ThemeColor =
   | 'Yellow'
   | 'Violet';
 
-export interface ThemePreset {
+export interface ThemeTokens {
   colors: Record<string, RGB>,
   modes: {
-    dark: ThemePresetTokens,
-    light: ThemePresetTokens,
+    dark: ThemeTokenValues,
+    light: ThemeTokenValues,
   }
 }
 
-export interface ThemePresetTokens {
+export interface ThemeTokenValues {
   background: string,
   foreground: string,
   card: string,
+  cardForeground: string,
   popover: string,
   popoverForeground: string,
   primary: string,
@@ -51,5 +67,4 @@ export interface ThemePresetTokens {
   border: string,
   input: string,
   ring: string,
-  cardForeground: string,
 }

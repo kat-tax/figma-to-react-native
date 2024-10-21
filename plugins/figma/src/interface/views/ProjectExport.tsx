@@ -1,9 +1,8 @@
-import {useState, Fragment} from 'react';
 import {emit} from '@create-figma-plugin/utilities';
+import {useState, Fragment} from 'react';
+import {useForm, Container, VerticalSpace, Text, Bold, Button, Textbox, SegmentedControl, Banner, Inline, Checkbox, IconComponent32, IconCheckCircle32, IconWarning32, IconStar32, IconCircleHelp16} from 'figma-ui';
+import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {titleCase} from 'common/string';
-import {useProjectBuild} from 'interface/hooks/useProjectBuild';
-
-import * as F from 'figma-ui';
 
 import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
 import type {EventProjectExport} from 'types/events';
@@ -50,7 +49,7 @@ export function ProjectExport(props: ProjectExportProps) {
   const [isExporting, setExporting] = useState(false);
   const [exportCount, setExportCount] = useState(0);
 
-  const form = F.useForm<ProjectRelease>(props.project, {
+  const form = useForm<ProjectRelease>(props.project, {
     close: () => {},
     validate: (_data) => true,
     submit: (data) => {
@@ -80,25 +79,25 @@ export function ProjectExport(props: ProjectExportProps) {
     }, 500);
   };
 
-  useProjectBuild(resetOnSucccess, resetOnFail, setExportCount);
+  useProjectRelease(resetOnSucccess, resetOnFail, setExportCount);
 
   return (
     <Fragment>
       {hasSuccess &&
-        <F.Banner icon={<F.IconComponent32/>} variant="success">
+        <Banner icon={<IconComponent32/>} variant="success">
           {`Successfully exported ${exportCount} component${exportCount === 1 ? '' : 's'}!`}
-        </F.Banner>
+        </Banner>
       }
       {isExporting &&
-        <F.Banner icon={<F.IconCheckCircle32/>}>
+        <Banner icon={<IconCheckCircle32/>}>
           {isReleasing 
             ? 'Publishing, please wait...'
             : `Exporting ${form.formState.scope}, please wait...`
           }
-        </F.Banner>
+        </Banner>
       }
       {false &&
-        <F.Banner icon={<F.IconWarning32/>} variant="warning">
+        <Banner icon={<IconWarning32/>} variant="warning">
           {'The Project Key entered is invalid. '}
           <a
             href="https://figma-to-react-native.com/dashboard"
@@ -108,10 +107,10 @@ export function ProjectExport(props: ProjectExportProps) {
             {'Click here for your key'}
           </a>
           {`. Please consider supporting the project if you don't have a subscription.`}
-        </F.Banner>
+        </Banner>
       }
       {false &&
-        <F.Banner icon={<F.IconStar32/>} variant="warning">
+        <Banner icon={<IconStar32/>} variant="warning">
           {'This plugin is free to use, but please consider supporting the project and unlock additional features! '}
           <a
             href="https://figma-to-react-native.com"
@@ -120,14 +119,14 @@ export function ProjectExport(props: ProjectExportProps) {
             style={{color: '#000'}}>
             {'Click here to get started'}
           </a>
-        </F.Banner>
+        </Banner>
       }
-      <F.Container space="medium" style={{maxWidth: 340}}>
-        <F.VerticalSpace space="large"/>
+      <Container space="medium" style={{maxWidth: 340}}>
+        <VerticalSpace space="large"/>
         <div title={tips.export}>
-          <F.Bold>Method</F.Bold>
-          <F.VerticalSpace space="small"/>
-          <F.SegmentedControl
+          <Bold>Method</Bold>
+          <VerticalSpace space="small"/>
+          <SegmentedControl
             aria-label={tips.export}
             value={form.formState.method}
             onValueChange={(v: ProjectExportMethod) => form.setFormState(v, 'method')}
@@ -138,13 +137,13 @@ export function ProjectExport(props: ProjectExportProps) {
               {children: 'Release', value: 'release'},
             ]}
           />
-          <F.VerticalSpace space="large"/>
+          <VerticalSpace space="large"/>
         </div>
         {isDownloading &&
           <div title={tips.scope}>
-            <F.Bold>Scope</F.Bold>
-            <F.VerticalSpace space="small"/>
-            <F.SegmentedControl
+            <Bold>Scope</Bold>
+            <VerticalSpace space="small"/>
+            <SegmentedControl
               aria-label={tips.scope}
               value={form.formState.scope}
               onValueChange={(v: ProjectExportScope) => form.setFormState(v, 'scope')}
@@ -155,23 +154,23 @@ export function ProjectExport(props: ProjectExportProps) {
                 {children: 'Selection', value: 'selected'},
               ]}
             />
-            <F.VerticalSpace space="large"/>
+            <VerticalSpace space="large"/>
           </div>
         }
         {!isDownloading &&
           <div title={tips.apiKey}>
-            <F.Inline style={{display: 'flex', alignItems: 'center'}}>
-              <F.Bold>Project Key</F.Bold>
+            <Inline style={{display: 'flex', alignItems: 'center'}}>
+              <Bold>Project Key</Bold>
               <a
                 href="http://figma-to-react-native.com/dashboard"
                 target="_blank"
                 rel="noreferrer"
                 style={{marginLeft: '4px'}}>
-                <F.IconCircleHelp16 color="brand"/>
+                <IconCircleHelp16 color="brand"/>
               </a>
-            </F.Inline>
-            <F.VerticalSpace space="small"/>
-            <F.Textbox
+            </Inline>
+            <VerticalSpace space="small"/>
+            <Textbox
               disabled={isExporting}
               aria-label={tips.apiKey}
               value={form.formState.apiKey}
@@ -179,39 +178,39 @@ export function ProjectExport(props: ProjectExportProps) {
               placeholder="Your Figma -> React Native Project Key"
               variant="border"
             />
-            <F.VerticalSpace space="large"/>
+            <VerticalSpace space="large"/>
           </div>
         }
         <Fragment>
-          <F.Bold>Options</F.Bold>
-          <F.VerticalSpace space="medium"/>
+          <Bold>Options</Bold>
+          <VerticalSpace space="medium"/>
           {isReleasing &&
             <Fragment>
-              {false && <F.VerticalSpace space="small"/>}
-              <F.Checkbox
+              {false && <VerticalSpace space="small"/>}
+              <Checkbox
                 title={tips.optimizeAssets}
                 disabled={isExporting}
                 value={form.formState.enableAssetOptimizations}
                 onValueChange={(v) => form.setFormState(v, 'enableAssetOptimizations')}>
-                <F.Text>Optimize assets</F.Text>
-              </F.Checkbox>
-              <F.VerticalSpace space="small"/>
+                <Text>Optimize assets</Text>
+              </Checkbox>
+              <VerticalSpace space="small"/>
             </Fragment>
           }
           <Fragment>
-            <F.Checkbox
+            <Checkbox
               title={tips.includeAssets}
               disabled={isExporting}
               value={form.formState.includeAssets}
               onValueChange={(v) => form.setFormState(v, 'includeAssets')}>
-              <F.Text>Include assets</F.Text>
-            </F.Checkbox>
-            <F.VerticalSpace space="small"/>
+              <Text>Include assets</Text>
+            </Checkbox>
+            <VerticalSpace space="small"/>
           </Fragment>
         </Fragment>
         <Fragment>
-          <F.VerticalSpace space="large"/>
-          <F.Button
+          <VerticalSpace space="large"/>
+          <Button
             fullWidth
             secondary
             title={tips.submit}
@@ -219,11 +218,11 @@ export function ProjectExport(props: ProjectExportProps) {
             disabled={isExporting || (!isDownloading && !hasProjectKey)}
             onClick={form.handleSubmit}>
             {`${titleCase(form.formState.method)} Components`}
-          </F.Button>
+          </Button>
         </Fragment>
-        <F.VerticalSpace space="large"/>
+        <VerticalSpace space="large"/>
         <div style={{display: 'none'}} {...form.initialFocus}/>
-      </F.Container>
+      </Container>
     </Fragment>
   );
 }

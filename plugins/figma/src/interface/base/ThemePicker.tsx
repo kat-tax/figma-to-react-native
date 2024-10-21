@@ -1,10 +1,13 @@
+import {Text, Button, ColorPicker} from 'figma-kit';
 import {useState, Fragment} from 'react';
+import {useForm, Container, VerticalSpace, RadioButtons} from 'figma-ui';
+import {getCustomScale, getPresetScale, getPresetColor} from 'backend/importer/themes';
 import {emit} from '@create-figma-plugin/utilities';
-import * as F from 'figma-ui';
 
 import type {EventProjectImportTheme} from 'types/events';
-import type {ThemeColor, ThemePickerForm} from 'types/themes';
+import type {ThemeForm, ThemePresets} from 'types/themes';
 
+const init: ThemePresets = 'Zinc';
 const tips = {
   submit: 'Generate the selected theme',
 };
@@ -12,15 +15,17 @@ const tips = {
 export function ThemePicker() {
   const [isGenerating, setGenerating] = useState(false);
 
-  const initialForm: ThemePickerForm = {
-    color: 'Zinc',
+  const initial: ThemeForm = {
+    theme: init,
+    color: getPresetColor(init),
+    scale: getPresetScale(init),
     radius: '0.5',
   };
 
-  const form = F.useForm<ThemePickerForm>(initialForm, {
+  const form = useForm<ThemeForm>(initial, {
     close: () => {},
-    submit: ({color, radius}) => {
-      emit<EventProjectImportTheme>('PROJECT_IMPORT_THEME', color, radius);
+    submit: ({theme, scale, radius}) => {
+      emit<EventProjectImportTheme>('PROJECT_IMPORT_THEME', theme, scale, radius);
       setGenerating(true);
       setTimeout(() => {
         setGenerating(false);
@@ -29,38 +34,82 @@ export function ThemePicker() {
   });
 
   return (
-    <F.Container space="medium" style={{maxWidth: 340, margin: '0 auto'}}>
-      <F.VerticalSpace space="large"/>
+    <Container space="medium" style={{
+      maxWidth: 340,
+      paddingTop: 12,
+      margin: '0 auto',
+    }}>
       <Fragment>
-        <F.Bold>Presets</F.Bold>
+        <Text style={{fontWeight: '550'}}>
+          Presets
+        </Text>
+        <VerticalSpace space="small"/>
         <div className="theme-picker-colors">
-          <F.VerticalSpace space="small"/>
-          <F.RadioButtons
-            value={form.formState.color}
-            onValueChange={(v: ThemeColor) => form.setFormState(v, 'color')}
+          <RadioButtons
             disabled={isGenerating}
+            value={form.formState.theme}
+            onValueChange={(theme: ThemePresets) => {
+              const scale = getPresetScale(theme);
+              const color = getPresetColor(theme);
+              form.setFormState(theme, 'theme');
+              form.setFormState(color, 'color');
+              form.setFormState(scale, 'scale');
+            }}
             options={[
-              {value: 'Zinc', children: <F.Text>Zinc</F.Text>},
-              {value: 'Slate', children: <F.Text>Slate</F.Text>},
-              {value: 'Stone', children: <F.Text>Stone</F.Text>},
-              {value: 'Grey', children: <F.Text>Grey</F.Text>},
-              {value: 'Neutral', children: <F.Text>Neutral</F.Text>},
-              {value: 'Red', children: <F.Text>Red</F.Text>},
-              {value: 'Rose', children: <F.Text>Rose</F.Text>},
-              {value: 'Orange', children: <F.Text>Orange</F.Text>},
-              {value: 'Green', children: <F.Text>Green</F.Text>},
-              {value: 'Blue', children: <F.Text>Blue</F.Text>},
-              {value: 'Yellow', children: <F.Text>Yellow</F.Text>},
-              {value: 'Violet', children: <F.Text>Violet</F.Text>},
+              {value: 'Zinc', children: <Text>Zinc</Text>},
+              {value: 'Slate', children: <Text>Slate</Text>},
+              {value: 'Stone', children: <Text>Stone</Text>},
+              {value: 'Grey', children: <Text>Grey</Text>},
+              {value: 'Neutral', children: <Text>Neutral</Text>},
+              {value: 'Red', children: <Text>Red</Text>},
+              {value: 'Rose', children: <Text>Rose</Text>},
+              {value: 'Orange', children: <Text>Orange</Text>},
+              {value: 'Green', children: <Text>Green</Text>},
+              {value: 'Blue', children: <Text>Blue</Text>},
+              {value: 'Yellow', children: <Text>Yellow</Text>},
+              {value: 'Violet', children: <Text>Violet</Text>},
             ]}
           />
         </div>
-        <F.VerticalSpace space="extraLarge"/>
+      </Fragment>
+      <VerticalSpace space="extraLarge"/>
+      <Fragment>
+        <Text style={{fontWeight: '550'}}>
+          Custom
+        </Text>
+        <VerticalSpace space="small"/>
+          <ColorPicker.Root
+            color={form.formState.color}
+            colorSpace="srgb"
+            onColorChange={color => {
+              const scale = getCustomScale(color);
+              form.setFormState('Brand', 'theme');
+              form.setFormState(color, 'color');
+              form.setFormState(scale, 'scale');
+            }}>
+            <ColorPicker.Area size={160}/>
+            <VerticalSpace space="small"/>
+            <ColorPicker.Hue/>
+            <VerticalSpace space="small"/>
+            <ColorPicker.Input/>
+          </ColorPicker.Root>
+      </Fragment>
+      <VerticalSpace space="extraLarge"/>
+      <Fragment>
+        <Text style={{fontWeight: '550'}}>Scale</Text>
+        <VerticalSpace space="small"/>
+        <div className="theme-picker-palette">
+          {Object.entries(form.formState.scale).map(([id, value]) => (
+            <div key={id} id={id} style={{backgroundColor: value}}/>
+          ))}
+        </div>
       </Fragment>
       {/*<Fragment>
-        <F.Bold>Radius</F.Bold>
-        <F.VerticalSpace space="small"/>
-        <F.SegmentedControl
+        <Text style={{fontWeight: '550'}}>
+          Radius
+        </Text>
+        <VerticalSpace space="small"/>
+        <SegmentedControl
           value={form.formState.radius}
           onValueChange={(v: ThemeRadius) => form.setFormState(v, 'radius')}
           disabled={isGenerating}
@@ -72,22 +121,22 @@ export function ThemePicker() {
             {value: '1', children: '1.0'},
           ]}
         />
-        <F.VerticalSpace space="extraLarge"/>
-        <F.VerticalSpace space="small"/>
+        <VerticalSpace space="extraLarge"/>
+        <VerticalSpace space="small"/>
       </Fragment>*/}
-      <Fragment>
-        <F.Button
-          fullWidth
-          secondary
-          title={tips.submit}
-          loading={isGenerating}
-          disabled={isGenerating}
-          onClick={form.handleSubmit}>
-          {'Generate Theme'}
-        </F.Button>
-      </Fragment>
-      <F.VerticalSpace space="large"/>
+      <VerticalSpace space="extraLarge"/>
+      <Button
+        fullWidth
+        variant="primary"
+        size="medium"
+        title={tips.submit}
+        disabled={isGenerating}
+        loading={isGenerating ? 'true' : undefined}
+        onClick={form.handleSubmit}>
+        Generate Theme
+      </Button>
+      <VerticalSpace space="large"/>
       <div style={{display: 'none'}} {...form.initialFocus}/>
-    </F.Container>
+    </Container>
   );
 }

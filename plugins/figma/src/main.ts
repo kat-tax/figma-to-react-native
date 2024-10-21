@@ -61,8 +61,8 @@ export default async function() {
     });
 
     // Handle import themes
-    on<T.EventProjectImportTheme>('PROJECT_IMPORT_THEME', (color, radius) => {
-      themes.importTheme(color, radius);
+    on<T.EventProjectImportTheme>('PROJECT_IMPORT_THEME', (theme, scale, radius) => {
+      themes.importTheme(theme, scale, radius);
     });
 
     // Handle import icons

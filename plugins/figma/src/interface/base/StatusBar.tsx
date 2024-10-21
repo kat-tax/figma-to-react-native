@@ -1,4 +1,4 @@
-import * as F from 'figma-ui';
+import {Muted} from 'figma-ui';
 
 import type {ComponentBuild} from 'types/component';
 
@@ -16,11 +16,11 @@ export function StatusBar(props: StatusBarProps) {
     <div className="status-bar">
       {isFullyLoaded
         ? <div className="status-actions">
-            <F.Muted>{textComponents}</F.Muted>
-            <F.Muted>{textAssets}</F.Muted>
+            <Muted>{textComponents}</Muted>
+            <Muted>{textAssets}</Muted>
           </div>
         : <div className="status-actions">
-            <F.Muted>{`Loading components... [${props.build.loaded}/${props.build.total}]`}</F.Muted>
+            <Muted>{`Loading components... [${props.build.loaded}/${props.build.total}]`}</Muted>
           </div>
       }
     </div>

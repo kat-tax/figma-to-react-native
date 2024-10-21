@@ -1,7 +1,8 @@
+import {Tabs} from 'figma-kit';
 import {useState, useEffect} from 'react';
+import {LoadingIndicator} from 'figma-ui';
 
 import {NavBar} from 'interface/base/NavBar';
-import {Tabs, Tab} from 'interface/base/Tabs';
 import {DualPanel} from 'interface/base/DualPanel';
 
 import {ProjectComponents} from 'interface/views/ProjectComponents';
@@ -28,8 +29,6 @@ import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
-
-import * as F from 'figma-ui';
 
 import type {Theme} from 'monacopilot';
 import type {AppTabs} from 'types/app';
@@ -63,7 +62,6 @@ export function App(props: AppProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [lastResize, setLastResize] = useState(0);
 
-  const isDark = useDarkMode();
   const build = useBuild();
   const theme = useProjectTheme();
   const icons = useProjectIcons();
@@ -72,6 +70,7 @@ export function App(props: AppProps) {
   const settings = useUserSettings();
   const variant = useSelectedVariant();
   const monaco = useEditor(settings.config, build.links);
+  const isDark = useDarkMode();
   const nav = useNavigation(build);
 
   const isReadOnly = isDevMode || isVSCode;
@@ -99,46 +98,46 @@ export function App(props: AppProps) {
   }, [compKey, nav]);
 
   return hasTabs ? (
-    <Tabs value={nav.tab} onValueChange={nav.gotoTab}>
+    <Tabs.Root value={nav.tab} onValueChange={nav.gotoTab}>
       <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
-      <Tab value="components">
+      <Tabs.Content value="components">
         <ProjectComponents {...{nav, build, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
-      </Tab>
-      <Tab value="icons">
+      </Tabs.Content>
+      <Tabs.Content value="icons">
         <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
-      </Tab>
-      <Tab value="theme">
+      </Tabs.Content>
+      <Tabs.Content value="theme">
         <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
-      </Tab>
-      <Tab value="assets">
+      </Tabs.Content>
+      <Tabs.Content value="assets">
         <ProjectAssets {...{build, searchMode, searchQuery}}/>
-      </Tab>
-      <Tab value="docs">
+      </Tabs.Content>
+      <Tabs.Content value="docs">
         <ProjectDocs {...{nav, build, isReadOnly, searchQuery}}/>
-      </Tab>
-      <Tab value="export">
+      </Tabs.Content>
+      <Tabs.Content value="export">
         <ProjectExport {...{project, build}}/>
-      </Tab>
-      <Tab value="settings">
+      </Tabs.Content>
+      <Tabs.Content value="settings">
         <ProjectSettings {...{monaco, settings, editorOptions, editorTheme}}/>
-      </Tab>
-      <Tab value="component/code">
+      </Tabs.Content>
+      <Tabs.Content value="component/code">
         <DualPanel
           primary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
           secondary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme}}/>}
           onResize={() => setLastResize(Date.now())}
         />
-      </Tab>
-      <Tab value="component/story">
+      </Tabs.Content>
+      <Tabs.Content value="component/story">
         <ComponentStory {...{compKey, monaco, editorOptions, editorTheme}}/>
-      </Tab>
-      <Tab value="component/docs">
+      </Tabs.Content>
+      <Tabs.Content value="component/docs">
         <ComponentDocs {...{compKey, monaco, editorOptions,editorTheme}}/>
-      </Tab>
-    </Tabs>
+      </Tabs.Content>
+    </Tabs.Root>
   ) : (
     <div className="center fill">
-      <F.LoadingIndicator/>
+      <LoadingIndicator/>
     </div>
   );
 }
