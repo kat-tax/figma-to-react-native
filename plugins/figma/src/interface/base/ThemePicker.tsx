@@ -127,8 +127,8 @@ export function ThemePicker() {
       <VerticalSpace space="extraLarge"/>
       <Button
         fullWidth
-        variant="primary"
         size="medium"
+        variant="primary"
         title={tips.submit}
         disabled={isGenerating}
         loading={isGenerating ? 'true' : undefined}

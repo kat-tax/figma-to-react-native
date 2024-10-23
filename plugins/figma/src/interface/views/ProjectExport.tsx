@@ -1,43 +1,13 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment} from 'react';
-import {useForm, Container, VerticalSpace, Text, Bold, Button, Textbox, SegmentedControl, Banner, Inline, Checkbox, IconComponent32, IconCheckCircle32, IconWarning32, IconStar32, IconCircleHelp16} from 'figma-ui';
+import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
+import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16} from 'figma-ui';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {titleCase} from 'common/string';
 
 import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
 import type {EventProjectExport} from 'types/events';
 import type {ComponentBuild} from 'types/component';
-
-const tips = {
-  export: `Export Method:
-
-  • Download: Save a zip file of your components
-  • Preview: Sync your components to a live Storybook
-  • Release: Generate a GitHub Pull Request
-
-  (preview and release require a project key)`,
-
-  scope: `Export Scope:
-
-  • Document: Export all components in the document
-  • Page: Export all components on the current page
-  • Selection: Export all selected components`,
-
-  apiKey: `Your Project Key generated at:
-
-  • https://figma-to-react-native.com/dashboard`,
-
-  includeAssets: `Include Assets:
-
-  • Enable this to include assets used in your components`,
-
-
-  optimizeAssets: `Optimize Assets:
-
-  • Optimize vectors and compress images`,
-
-  submit: "Start exporting your components",
-};
 
 interface ProjectExportProps {
   project: ProjectRelease,
@@ -96,71 +66,73 @@ export function ProjectExport(props: ProjectExportProps) {
           }
         </Banner>
       }
-      {false &&
-        <Banner icon={<IconWarning32/>} variant="warning">
-          {'The Project Key entered is invalid. '}
-          <a
-            href="https://figma-to-react-native.com/dashboard"
-            target="_blank"
-            rel="noreferrer"
-            style={{color: '#000'}}>
-            {'Click here for your key'}
-          </a>
-          {`. Please consider supporting the project if you don't have a subscription.`}
-        </Banner>
-      }
-      {false &&
-        <Banner icon={<IconStar32/>} variant="warning">
-          {'This plugin is free to use, but please consider supporting the project and unlock additional features! '}
-          <a
-            href="https://figma-to-react-native.com"
-            target="_blank"
-            rel="noreferrer"
-            style={{color: '#000'}}>
-            {'Click here to get started'}
-          </a>
-        </Banner>
-      }
-      <Container space="medium" style={{maxWidth: 340}}>
-        <VerticalSpace space="large"/>
-        <div title={tips.export}>
-          <Bold>Method</Bold>
+      <Container space="medium" style={{
+        maxWidth: 340,
+        paddingTop: 12,
+        margin: '0 auto',
+      }}>
+        <Fragment>
+          <Text style={{fontWeight: '550'}}>
+            Method
+          </Text>
           <VerticalSpace space="small"/>
-          <SegmentedControl
-            aria-label={tips.export}
-            value={form.formState.method}
-            onValueChange={(v: ProjectExportMethod) => form.setFormState(v, 'method')}
+          <SegmentedControl.Root
             disabled={isExporting}
-            options={[
-              {children: 'Download', value: 'download'},
-              {children: 'Preview', value: 'preview'},
-              {children: 'Release', value: 'release'},
-            ]}
-          />
+            value={form.formState.method}
+            onValueChange={(v: ProjectExportMethod) => form.setFormState(v, 'method')}>
+            <SegmentedControl.Item value="download" aria-label="Download">
+              <Text style={{paddingInline: 8}}>
+                Download
+              </Text>
+            </SegmentedControl.Item>
+            <SegmentedControl.Item value="preview" aria-label="Preview">
+              <Text style={{paddingInline: 8}}>
+                Preview
+              </Text>
+            </SegmentedControl.Item>
+            <SegmentedControl.Item value="release" aria-label="Release">
+              <Text style={{paddingInline: 8}}>
+                Release
+              </Text>
+            </SegmentedControl.Item>
+          </SegmentedControl.Root>
           <VerticalSpace space="large"/>
-        </div>
+        </Fragment>
         {isDownloading &&
-          <div title={tips.scope}>
-            <Bold>Scope</Bold>
+          <Fragment>
+            <Text style={{fontWeight: '550'}}>
+              Scope
+            </Text>
             <VerticalSpace space="small"/>
-            <SegmentedControl
-              aria-label={tips.scope}
-              value={form.formState.scope}
-              onValueChange={(v: ProjectExportScope) => form.setFormState(v, 'scope')}
+            <SegmentedControl.Root
               disabled={isExporting}
-              options={[
-                {children: 'Document', value: 'document'},
-                {children: 'Page', value: 'page'},
-                {children: 'Selection', value: 'selected'},
-              ]}
-            />
+              value={form.formState.scope}
+              onValueChange={(v: ProjectExportScope) => form.setFormState(v, 'scope')}>
+              <SegmentedControl.Item value="document" aria-label="Document">
+                <Text style={{paddingInline: 8}}>
+                  Document
+                </Text>
+              </SegmentedControl.Item>
+              <SegmentedControl.Item value="page" aria-label="Page">
+                <Text style={{paddingInline: 8}}>
+                  Page
+                </Text>
+              </SegmentedControl.Item>
+              <SegmentedControl.Item value="selected" aria-label="Selection">
+                <Text style={{paddingInline: 8}}>
+                  Selection
+                </Text>
+              </SegmentedControl.Item>
+            </SegmentedControl.Root>
             <VerticalSpace space="large"/>
-          </div>
+          </Fragment>
         }
         {!isDownloading &&
-          <div title={tips.apiKey}>
-            <Inline style={{display: 'flex', alignItems: 'center'}}>
-              <Bold>Project Key</Bold>
+          <Fragment>
+            <Flex align="center">
+              <Text style={{fontWeight: '550'}}>
+                Project Key
+              </Text>
               <a
                 href="http://figma-to-react-native.com/dashboard"
                 target="_blank"
@@ -168,53 +140,64 @@ export function ProjectExport(props: ProjectExportProps) {
                 style={{marginLeft: '4px'}}>
                 <IconCircleHelp16 color="brand"/>
               </a>
-            </Inline>
+            </Flex>
             <VerticalSpace space="small"/>
-            <Textbox
+            <Input
               disabled={isExporting}
-              aria-label={tips.apiKey}
               value={form.formState.apiKey}
-              onValueInput={v => form.setFormState(v, 'apiKey')}
+              onChange={(e) => form.setFormState(e.target.value, 'apiKey')}
               placeholder="Your Figma -> React Native Project Key"
-              variant="border"
             />
             <VerticalSpace space="large"/>
-          </div>
+          </Fragment>
         }
         <Fragment>
-          <Bold>Options</Bold>
+          <Text style={{fontWeight: '550'}}>
+            Options
+          </Text>
           <VerticalSpace space="medium"/>
+          <Fragment>
+            <Checkbox.Root>
+              <Checkbox.Input
+                disabled={isExporting}
+                checked={form.formState.includeAssets}
+                onChange={(e) => form.setFormState(e.target.checked, 'includeAssets')}
+              />
+              <Checkbox.Label>
+                <Text>Include assets</Text>
+              </Checkbox.Label>
+              <Checkbox.Description>
+                Extract images and vectors used in your components.
+              </Checkbox.Description>
+            </Checkbox.Root>
+            <VerticalSpace space="small"/>
+          </Fragment>
           {isReleasing &&
             <Fragment>
-              {false && <VerticalSpace space="small"/>}
-              <Checkbox
-                title={tips.optimizeAssets}
-                disabled={isExporting}
-                value={form.formState.enableAssetOptimizations}
-                onValueChange={(v) => form.setFormState(v, 'enableAssetOptimizations')}>
-                <Text>Optimize assets</Text>
-              </Checkbox>
+              <Checkbox.Root>
+                <Checkbox.Input
+                  disabled={isExporting}
+                  checked={form.formState.enableAssetOptimizations}
+                  onChange={(e) => form.setFormState(e.target.checked, 'enableAssetOptimizations')}
+                />
+                <Checkbox.Label>
+                  <Text>Optimize assets</Text>
+                </Checkbox.Label>
+                <Checkbox.Description>
+                  Reduce the file size of images and vectors.
+                </Checkbox.Description>
+              </Checkbox.Root>
               <VerticalSpace space="small"/>
             </Fragment>
           }
-          <Fragment>
-            <Checkbox
-              title={tips.includeAssets}
-              disabled={isExporting}
-              value={form.formState.includeAssets}
-              onValueChange={(v) => form.setFormState(v, 'includeAssets')}>
-              <Text>Include assets</Text>
-            </Checkbox>
-            <VerticalSpace space="small"/>
-          </Fragment>
         </Fragment>
         <Fragment>
           <VerticalSpace space="large"/>
           <Button
             fullWidth
-            secondary
-            title={tips.submit}
-            loading={isExporting}
+            size="medium"
+            variant="primary"
+            loading={isExporting ? 'true' : undefined}
             disabled={isExporting || (!isDownloading && !hasProjectKey)}
             onClick={form.handleSubmit}>
             {`${titleCase(form.formState.method)} Components`}
