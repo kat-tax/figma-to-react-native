@@ -26,10 +26,12 @@ export function Preview() {
 
   const inspectHandler = (type: 'hover' | 'inspect') => (data: any) => {
     const {codeInfo, fiber} = data;
+    const nodeRect = fiber?.stateNode?.getBoundingClientRect();
     const nodeId = fiber?.memoizedProps?.['data-testid'];
-    console.log('[inspect]', {codeInfo, nodeId});
     const debug = codeInfo?.absolutePath === 'index.tsx' ? null : codeInfo;
-    parent.postMessage({type: `loader::${type}`, nodeId, debug});
+    if (type === 'inspect')
+      console.debug('[inspect]', {nodeId, codeInfo, nodeRect, node: fiber?.stateNode});
+    parent.postMessage({type: `loader::${type}`, nodeId, nodeRect, debug});
   };
 
   const updateTheme = (theme: string) => {

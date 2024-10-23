@@ -1,12 +1,14 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
-import {Text, Muted, LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16} from 'figma-ui';
+import {Text, Muted, LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16, IconAnimation32, IconTidyGrid32, IconAdjust32} from 'figma-ui';
+import {Popover} from 'figma-kit';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as string from 'common/string';
 import * as $ from 'store';
 
+import type {CSSProperties} from 'react';
 import type {ComponentBuild} from 'types/component';
 import type {EventFocusNode} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
@@ -29,6 +31,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
   const [previewHover, setPreviewHover] = useState<[string, string] | null>(null);
+  const [previewNode, setPreviewNode] = useState<string | null>(null);
+  const [previewRect, setPreviewRect] = useState<DOMRect | null>(null);
   const [isInspect, setIsInspect] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [src, setSrc] = useState('');
@@ -91,6 +95,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     setIsInspect(enabled);
     post('preview::inspect', {enabled});
     if (!enabled) {
+      setPreviewRect(null);
+      setPreviewNode(null);
       setPreviewHover(null);
     }
   }, []);
@@ -106,17 +112,17 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     if (nav.lastEditorRev) initApp();
   }, [nav.lastEditorRev]);
 
-  // Update the preview dimensions when screen or component change
-  useEffect(() => post('preview::resize', {}), [screen, props.lastResize]);
+  // Update the dimensions when screen or component change & clear inspection
+  useEffect(() => {post('preview::resize', {}); inspect(false)}, [screen, props.lastResize]);
 
   // Update the preview theme when it changes
-  useEffect(() => post('preview::theme', {theme}), [theme]);
+  useEffect(() => {post('preview::theme', {theme})}, [theme]);
 
   // Update the preview language when it changes
-  useEffect(() => post('preview::language', {language}), [language]);
+  useEffect(() => {post('preview::language', {language})}, [language]);
 
   // Update the preview variant when it changes
-  useEffect(() => post('preview::variant', {variant}), [variant]);
+  useEffect(() => {post('preview::variant', {variant})}, [variant]);
 
   // Handle events from the loader and the app
   useEffect(() => {
@@ -158,6 +164,13 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             line: parseInt(e.data.debug?.lineNumber) || 1,
             column: parseInt(e.data.debug?.columnNumber) || 1,
           };
+
+          // Update the inspected node rect
+          if (e.data.nodeRect) {
+            const rect: DOMRect = e.data.nodeRect;
+            setPreviewRect(rect);
+            setPreviewNode(node);
+          }
 
           // Focus node in Figma (and subsequently the plugin UI)
           emit<EventFocusNode>('FOCUS', node);
@@ -230,26 +243,95 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <LoadingIndicator/>
         </div>
       }
-      <iframe
-        ref={iframe}
-        srcDoc={src}
-        style={{
-          opacity: src ? 1 : 0,
-          transition: 'opacity .5s',
-        }}
-        onLoad={() => {
-          if (loaded.current) {
-            initApp();
-          } else {
-            initLoader();
-          }
-        }}
-      />
+      <div style={{position: 'relative'}}>
+        <iframe
+          ref={iframe}
+          srcDoc={src}
+          style={{
+            opacity: src ? 1 : 0,
+            transition: 'opacity .5s',
+          }}
+          onLoad={() => {
+            if (loaded.current) {
+              initApp();
+            } else {
+              initLoader();
+            }
+          }}
+        />
+        {previewRect &&
+          <div style={{
+            ...styles.rect,
+            top: previewRect.top,
+            left: previewRect.left,
+            width: previewRect.width,
+            height: previewRect.height,
+          }}/>
+        }
+        {previewNode &&
+          <div style={styles.actions}>
+            <Popover.Root>
+              <Popover.Trigger>
+                <IconButton aria-label="Breakpoints">
+                  <IconTidyGrid32/>
+                </IconButton>
+              </Popover.Trigger>
+              <Popover.Content width={230} sideOffset={4}>
+                <Popover.Header>
+                  <Popover.Title>
+                    Breakpoints
+                  </Popover.Title>
+                  <Popover.Controls>
+                    <Popover.Close/>
+                  </Popover.Controls>
+                </Popover.Header>
+                <Popover.Section></Popover.Section>
+              </Popover.Content>
+            </Popover.Root>
+            <Popover.Root>
+              <Popover.Trigger>
+                <IconButton aria-label="Animations">
+                  <IconAnimation32/>
+                </IconButton>
+              </Popover.Trigger>
+              <Popover.Content width={230} sideOffset={4}>
+                <Popover.Header>
+                  <Popover.Title>
+                    Animations
+                  </Popover.Title>
+                  <Popover.Controls>
+                    <Popover.Close/>
+                  </Popover.Controls>
+                </Popover.Header>
+                <Popover.Section></Popover.Section>
+              </Popover.Content>
+            </Popover.Root>
+            <Popover.Root>
+              <Popover.Trigger>
+                <IconButton aria-label="Properties">
+                  <IconAdjust32/>
+                </IconButton>
+              </Popover.Trigger>
+              <Popover.Content width={230} sideOffset={4}>
+                <Popover.Header>
+                  <Popover.Title>
+                    Properties
+                  </Popover.Title>
+                  <Popover.Controls>
+                    <Popover.Close/>
+                  </Popover.Controls>
+                </Popover.Header>
+                <Popover.Section></Popover.Section>
+              </Popover.Content>
+            </Popover.Root>
+          </div>
+        }
+      </div>
     </Fragment>
   );
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   header: {
     display: 'flex',
     width: '100%',
@@ -281,6 +363,23 @@ const styles = {
   },
   desc: {
     marginLeft: 4,
+  },
+  actions: {
+    width: '100%',
+    display: 'flex',
+    position: 'absolute',
+    flexDirection: 'row',
+    background: 'var(--figma-color-bg-secondary)',
+    paddingInline: 8,
+    bottom: 71,
+    height: 30,
+  },
+  rect: {
+    position: 'absolute',
+    pointerEvents: 'none',
+    borderColor: '#9747ff',
+    borderWidth: 1,
+    borderRadius: 2,
   },
 }
 
