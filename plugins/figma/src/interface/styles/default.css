@@ -46,9 +46,7 @@
 iframe {
   border: 0;
   width: 100%;
-  height: calc(100% + 41px);
-  margin-top: -41px;
-  padding-top: 41px;
+  height: 100%;
 }
 
 #create-figma-plugin {

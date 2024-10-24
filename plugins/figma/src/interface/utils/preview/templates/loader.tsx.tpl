@@ -25,19 +25,29 @@ export function Preview() {
   const [isMouseInComponent, setMouseInComponent] = useState(false);
 
   const inspectHandler = (type: 'hover' | 'inspect') => (data: any) => {
-    const {codeInfo, fiber} = data;
-    const nodeRect = fiber?.stateNode?.getBoundingClientRect();
+    const {name, fiber, element, codeInfo, pointer} = data;
+    const root = codeInfo?.absolutePath !== 'index.tsx';
+    const path = root ? codeInfo?.absolutePath : null;
+    const rect = element?.getBoundingClientRect();
     const nodeId = fiber?.memoizedProps?.['data-testid'];
-    const debug = codeInfo?.absolutePath === 'index.tsx' ? null : codeInfo;
-    if (type === 'inspect')
-      console.debug('[inspect]', {nodeId, codeInfo, nodeRect, node: fiber?.stateNode});
-    parent.postMessage({type: `loader::${type}`, nodeId, nodeRect, debug});
+    const source = {
+      line: root && parseInt(codeInfo.lineNumber, 10) || 1,
+      column: root && parseInt(codeInfo.columnNumber, 10) || 1,
+    };
+    console.log(`[${type}]`, data);
+    parent.postMessage({type: `loader::${type}`,
+      name,
+      path,
+      rect,
+      nodeId,
+      source,
+    });
   };
 
   const updateTheme = (theme: string) => {
     document.body.style.backgroundColor = theme === 'light'
-      ? '#fff'
-      : '#000';
+      ? '#ffffff'
+      : '#2c2c2c';
   }
 
   useEffect(() => {

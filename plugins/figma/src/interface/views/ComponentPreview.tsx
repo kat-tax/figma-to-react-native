@@ -1,8 +1,8 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
-import {Text, Muted, LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16, IconAnimation32, IconTidyGrid32, IconAdjust32} from 'figma-ui';
-import {Popover} from 'figma-kit';
+import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16, IconEffects32, IconAdjust32, IconAnimation32, IconVisibilityVisible32, IconListDetailed32, IconPlus32} from 'figma-ui';
+import {Text, Popover} from 'figma-kit';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import * as string from 'common/string';
@@ -32,6 +32,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
   const [previewHover, setPreviewHover] = useState<[string, string] | null>(null);
   const [previewNode, setPreviewNode] = useState<string | null>(null);
+  const [previewDesc, setPreviewDesc] = useState<string | null>(null);
   const [previewRect, setPreviewRect] = useState<DOMRect | null>(null);
   const [isInspect, setIsInspect] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -45,6 +46,14 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const component = $.components.get(compKey);
   const previewBar = previewHover || previewFocused || previewDefault;
   const pathComponent = string.componentPathNormalize(component?.path);
+
+  // Helper to lookup path and nodeIds
+  const lookup = (path?: string, nodeId?: string): [string, string] => {
+    const uri = path
+      ? string.componentPathNormalize(path)
+      : Object.entries(build.links)?.find(([_,i]) => i === nodeId)?.[0];
+    return [uri, nodeId || build.links?.[uri]];
+  }
 
   // Helper to send messages to the iframe
   const post = useCallback((type: string, data: any) => {
@@ -74,11 +83,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     });
   }, [component, settings, build]);
 
-  // Reload the iframe command
-  const reload = useCallback(() => {
-    iframe.current?.contentWindow?.location.reload();
-  }, []);
-
   // Workaround to force the preview app to refresh
   const refresh = useCallback(() => {
     if (!iframe.current) return;
@@ -97,8 +101,15 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     if (!enabled) {
       setPreviewRect(null);
       setPreviewNode(null);
+      setPreviewDesc(null);
       setPreviewHover(null);
     }
+  }, []);
+
+  // Reload the iframe command
+  const reload = useCallback(() => {
+    iframe.current?.contentWindow?.location.reload();
+    inspect(false);
   }, []);
 
   // Render the loader when the settings change
@@ -142,45 +153,37 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
         // Update preview toolbar (temporarily)
         case 'loader::hover': {
-          const path = e.data.debug
-            ? string.componentPathNormalize(e.data.debug?.absolutePath)
-            : Object.entries(build.links).find(([_,i]) => i === e.data?.nodeId)[0];
-          const code = {
-            line: parseInt(e.data.debug?.lineNumber) || 1,
-            column: parseInt(e.data.debug?.columnNumber) || 1,
-          };
-          setPreviewHover([path ?? pathComponent, `${code.line}:${code.column}`]);
+          const {path, nodeId, source} = e.data;
+          const [uri] = lookup(path, nodeId);
+          setPreviewHover([
+            uri ?? pathComponent,
+            `${source.line}:${source.column}`
+          ]);
           break;
         }
 
         // Focus node in Figma and in the code editor
         // Update the preview bar (persistently)
         case 'loader::inspect': {
-          const path = e.data.debug
-            ? string.componentPathNormalize(e.data.debug?.absolutePath)
-            : Object.entries(build.links).find(([_,i]) => i === e.data?.nodeId)[0];
-          const node = e.data?.nodeId || build.links?.[path];
-          const code = {
-            line: parseInt(e.data.debug?.lineNumber) || 1,
-            column: parseInt(e.data.debug?.columnNumber) || 1,
-          };
+          const {path, nodeId, source, name, rect} = e.data;
+          const [uri, node] = lookup(path, nodeId);
 
           // Update the inspected node rect
-          if (e.data.nodeRect) {
-            const rect: DOMRect = e.data.nodeRect;
+          if (rect) {
             setPreviewRect(rect);
             setPreviewNode(node);
+            setPreviewDesc(name);
           }
 
           // Focus node in Figma (and subsequently the plugin UI)
           emit<EventFocusNode>('FOCUS', node);
 
           // Focus, but we're navigating to another file, wait for component to load
-          if (path !== pathComponent) {
-            setTimeout(() => nav.setCodeFocus(code), 200);
+          if (uri !== pathComponent) {
+            setTimeout(() => nav.setCodeFocus(source), 200);
           // Focus editor immediately
           } else {
-            nav.setCodeFocus(code);
+            nav.setCodeFocus(source);
           }
           break;
         }
@@ -227,12 +230,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <IconTarget16/>
         </IconToggleButton>
         <div style={styles.bar}>
-          <Text style={styles.path}>
+          <Text>
             {previewBar ? previewBar[0] : ''}
           </Text>
-          <Muted style={styles.desc}>
+          <Text muted style={styles.desc}>
             {previewBar ? previewBar[1] : ''}
-          </Muted>
+          </Text>
         </div>   
         <IconButton onClick={reload} style={styles.button}>
           <IconSwap16/>
@@ -243,13 +246,14 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <LoadingIndicator/>
         </div>
       }
-      <div style={{position: 'relative'}}>
+      <div style={styles.viewport}>
         <iframe
           ref={iframe}
           srcDoc={src}
           style={{
             opacity: src ? 1 : 0,
             transition: 'opacity .5s',
+            height: '100%',
           }}
           onLoad={() => {
             if (loaded.current) {
@@ -261,7 +265,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         />
         {previewRect &&
           <div style={{
-            ...styles.rect,
+            ...styles.nodeRect,
             top: previewRect.top,
             left: previewRect.left,
             width: previewRect.width,
@@ -269,61 +273,139 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           }}/>
         }
         {previewNode &&
-          <div style={styles.actions}>
-            <Popover.Root>
-              <Popover.Trigger>
-                <IconButton aria-label="Breakpoints">
-                  <IconTidyGrid32/>
-                </IconButton>
-              </Popover.Trigger>
-              <Popover.Content width={230} sideOffset={4}>
-                <Popover.Header>
-                  <Popover.Title>
-                    Breakpoints
-                  </Popover.Title>
-                  <Popover.Controls>
-                    <Popover.Close/>
-                  </Popover.Controls>
-                </Popover.Header>
-                <Popover.Section></Popover.Section>
-              </Popover.Content>
-            </Popover.Root>
-            <Popover.Root>
-              <Popover.Trigger>
-                <IconButton aria-label="Animations">
-                  <IconAnimation32/>
-                </IconButton>
-              </Popover.Trigger>
-              <Popover.Content width={230} sideOffset={4}>
-                <Popover.Header>
-                  <Popover.Title>
-                    Animations
-                  </Popover.Title>
-                  <Popover.Controls>
-                    <Popover.Close/>
-                  </Popover.Controls>
-                </Popover.Header>
-                <Popover.Section></Popover.Section>
-              </Popover.Content>
-            </Popover.Root>
-            <Popover.Root>
-              <Popover.Trigger>
-                <IconButton aria-label="Properties">
-                  <IconAdjust32/>
-                </IconButton>
-              </Popover.Trigger>
-              <Popover.Content width={230} sideOffset={4}>
-                <Popover.Header>
-                  <Popover.Title>
-                    Properties
-                  </Popover.Title>
-                  <Popover.Controls>
-                    <Popover.Close/>
-                  </Popover.Controls>
-                </Popover.Header>
-                <Popover.Section></Popover.Section>
-              </Popover.Content>
-            </Popover.Root>
+          <div style={{
+            ...styles.actions,
+            top: previewRect.top - 40,
+            left: Math.min(previewRect.left, screen.width - 160),
+          }}>
+          <Popover.Root>
+            <Popover.Trigger>
+              <IconButton aria-label="Visibility">
+                <IconVisibilityVisible32/>
+              </IconButton>
+            </Popover.Trigger>
+            <Popover.Content width={240} sideOffset={6}>
+              <Popover.Header>
+                <Popover.Title>
+                  Visibility
+                </Popover.Title>
+                <Popover.Controls>
+                  <IconButton aria-label="New condition">
+                    <IconPlus32/>
+                  </IconButton>
+                  <Popover.Close/>
+                </Popover.Controls>
+              </Popover.Header>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+            </Popover.Content>
+          </Popover.Root>
+          <Popover.Root>
+            <Popover.Trigger>
+              <IconButton aria-label="Effects">
+                <IconEffects32/>
+              </IconButton>
+            </Popover.Trigger>
+            <Popover.Content width={240} sideOffset={6}>
+              <Popover.Header>
+                <Popover.Title>
+                  Effects
+                </Popover.Title>
+                <Popover.Controls>
+                  <IconButton aria-label="New condition">
+                    <IconPlus32/>
+                  </IconButton>
+                  <Popover.Close/>
+                </Popover.Controls>
+              </Popover.Header>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+            </Popover.Content>
+          </Popover.Root>
+          <Popover.Root>
+            <Popover.Trigger>
+              <IconButton aria-label="Animations">
+                <IconAnimation32/>
+              </IconButton>
+            </Popover.Trigger>
+            <Popover.Content width={240} sideOffset={6}>
+              <Popover.Header>
+                <Popover.Title>
+                  Animations
+                </Popover.Title>
+                <Popover.Controls>
+                  <IconButton aria-label="New condition">
+                    <IconPlus32/>
+                  </IconButton>
+                  <Popover.Close/>
+                </Popover.Controls>
+              </Popover.Header>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+            </Popover.Content>
+          </Popover.Root>
+          <Popover.Root>
+            <Popover.Trigger>
+              <IconButton aria-label="List">
+                <IconListDetailed32/>
+              </IconButton>
+            </Popover.Trigger>
+            <Popover.Content width={240} sideOffset={6}>
+              <Popover.Header>
+                <Popover.Title>
+                  List Data
+                </Popover.Title>
+                <Popover.Controls>
+                  <IconButton aria-label="New condition">
+                    <IconPlus32/>
+                  </IconButton>
+                  <Popover.Close/>
+                </Popover.Controls>
+              </Popover.Header>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+            </Popover.Content>
+          </Popover.Root>
+          <Popover.Root>
+            <Popover.Trigger>
+              <IconButton aria-label="Properties">
+                <IconAdjust32/>
+              </IconButton>
+            </Popover.Trigger>
+            <Popover.Content width={240} sideOffset={6}>
+              <Popover.Header>
+                <Popover.Title>
+                  Properties
+                </Popover.Title>
+                <Popover.Controls>
+                  <IconButton aria-label="New condition">
+                    <IconPlus32/>
+                  </IconButton>
+                  <Popover.Close/>
+                </Popover.Controls>
+              </Popover.Header>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+              <Popover.Section></Popover.Section>
+            </Popover.Content>
+          </Popover.Root>
+        </div>
+        }
+        {previewDesc &&
+          <div style={{
+            ...styles.nodeTip,
+            top: previewRect.bottom + 4,
+            left: previewRect.left,
+          }}>
+            <Text style={styles.nodeTipTitle}>
+              <div style={styles.nodeTipMain}>
+                {previewDesc}
+              </div>
+            </Text>
           </div>
         }
       </div>
@@ -332,12 +414,26 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 }
 
 const styles: Record<string, CSSProperties> = {
+  viewport: {
+    position: 'relative',
+    height: 'calc(100% - 30px)',
+  },
   header: {
     display: 'flex',
     width: '100%',
     height: 30,
     gap: 10,
     background: 'var(--figma-color-bg-secondary)',
+    borderBlock: '1px solid var(--figma-color-bg-tertiary)',
+  },
+  actions: {
+    display: 'flex',
+    position: 'absolute',
+    flexDirection: 'row',
+    background: 'var(--figma-color-bg-secondary)',
+    border: '1px solid var(--figma-color-bg-tertiary)',
+    borderRadius: 2,
+    height: 32,
   },
   loading: {
     display: 'flex',
@@ -358,28 +454,46 @@ const styles: Record<string, CSSProperties> = {
   name: {
     fontWeight: 500,
   },
-  path: {
-    // ...
-  },
   desc: {
     marginLeft: 4,
   },
-  actions: {
-    width: '100%',
-    display: 'flex',
-    position: 'absolute',
-    flexDirection: 'row',
-    background: 'var(--figma-color-bg-secondary)',
-    paddingInline: 8,
-    bottom: 71,
-    height: 30,
-  },
-  rect: {
+  nodeRect: {
     position: 'absolute',
     pointerEvents: 'none',
     borderColor: '#9747ff',
     borderWidth: 1,
     borderRadius: 2,
   },
+  nodeTip: {
+    display: 'flex',
+    position: 'absolute',
+    flexFlow: 'row nowrap',
+    boxSizing: 'border-box',
+    alignItems: 'center',
+    maxWidth: '97vw',
+    padding: '0px 4px',
+    borderRadius: 2,
+    backgroundColor: '#9747ff',
+    whiteSpace: 'nowrap',
+    lineHeight: 1,
+    fontSize: 11,
+    fontFamily: 'Inter, sans-serif',
+    fontFeatureSettings: "'liga' 1, 'calt' 1",
+  },
+  nodeTipMain: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '0 1 auto',
+    overflow: 'hidden',
+  },
+  nodeTipTitle: {
+    maxWidth: 750,
+    marginBlock: 1,
+    color: '#fff',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    direction: 'rtl',
+    textAlign: 'left',
+    textOverflow: 'ellipsis',
+  },
 }
-

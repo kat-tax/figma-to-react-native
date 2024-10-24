@@ -228,7 +228,7 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
       element,
       fiber,
       codeInfo,
-      name: nameInfo?.name,
+      name: nameInfo?.title ?? '',
     });
 
     if (fiber && codeInfo) {
@@ -237,7 +237,7 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
         element,
         fiber,
         codeInfo,
-        name: nameInfo?.name ?? '',
+        name: nameInfo?.title ?? '',
       });
     }
   })

@@ -18,10 +18,10 @@ export function DualPanel(props: DualPanelProps) {
       <Resizable
         minWidth="100%"
         minHeight="30px"
-        maxHeight="90%"
+        maxHeight="99%"
         defaultSize={{
           width: '100%',
-          height: '50%',
+          height: '33%',
         }}
         onResize={props.onResize}
         enable={{

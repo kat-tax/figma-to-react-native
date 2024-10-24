@@ -98,7 +98,10 @@ export function App(props: AppProps) {
   }, [compKey, nav]);
 
   return hasTabs ? (
-    <Tabs.Root value={nav.tab} onValueChange={nav.gotoTab}>
+    <Tabs.Root
+      style={{height: 'calc(100% - 41px)'}}
+      value={nav.tab}
+      onValueChange={nav.gotoTab}>
       <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
       <Tabs.Content value="components">
         <ProjectComponents {...{nav, build, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
