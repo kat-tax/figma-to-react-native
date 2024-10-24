@@ -1,10 +1,11 @@
 import {emit} from '@create-figma-plugin/utilities';
+import {Text} from 'figma-kit';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
-import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16, IconEffects32, IconAdjust32, IconAnimation32, IconVisibilityVisible32, IconListDetailed32, IconPlus32} from 'figma-ui';
-import {Text, Popover} from 'figma-kit';
+import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16} from 'figma-ui';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
+import {NodeToolbar} from 'interface/base/NodeToolbar';
 import * as string from 'common/string';
 import * as $ from 'store';
 
@@ -151,6 +152,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           break;
         }
 
+        // Clear inspection when the user zooms / pans
+        case 'loader::interaction': {
+          inspect(false);
+          break;
+        }
+
         // Update preview toolbar (temporarily)
         case 'loader::hover': {
           const {path, nodeId, source} = e.data;
@@ -197,15 +204,23 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   useEffect(() => {
     if (!src) return;
     const valKeyEvent = (e: KeyboardEvent) => e.key === 'Meta' || e.key === 'Alt';
-    const onKeyDown = (e: KeyboardEvent) => valKeyEvent(e) && inspect(true);
-    const onKeyUp = (e: KeyboardEvent) => valKeyEvent(e) && inspect(false);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (valKeyEvent(e)) {
+        inspect(true);
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (valKeyEvent(e) && !previewNode) {
+        inspect(false);
+      }
+    };
     addEventListener('keydown', onKeyDown);
     addEventListener('keyup', onKeyUp);
     return () => {
       removeEventListener('keydown', onKeyDown);
       removeEventListener('keyup', onKeyUp);
     };
-  }, [src]);
+  }, [src, previewNode]);
 
   // Update preview default when cursor position changes
   useEffect(() => {
@@ -272,129 +287,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             height: previewRect.height,
           }}/>
         }
-        {previewNode &&
-          <div style={{
-            ...styles.actions,
-            top: previewRect.top - 40,
-            left: Math.min(previewRect.left, screen.width - 160),
-          }}>
-          <Popover.Root>
-            <Popover.Trigger>
-              <IconButton aria-label="Visibility">
-                <IconVisibilityVisible32/>
-              </IconButton>
-            </Popover.Trigger>
-            <Popover.Content width={240} sideOffset={6}>
-              <Popover.Header>
-                <Popover.Title>
-                  Visibility
-                </Popover.Title>
-                <Popover.Controls>
-                  <IconButton aria-label="New condition">
-                    <IconPlus32/>
-                  </IconButton>
-                  <Popover.Close/>
-                </Popover.Controls>
-              </Popover.Header>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-            </Popover.Content>
-          </Popover.Root>
-          <Popover.Root>
-            <Popover.Trigger>
-              <IconButton aria-label="Effects">
-                <IconEffects32/>
-              </IconButton>
-            </Popover.Trigger>
-            <Popover.Content width={240} sideOffset={6}>
-              <Popover.Header>
-                <Popover.Title>
-                  Effects
-                </Popover.Title>
-                <Popover.Controls>
-                  <IconButton aria-label="New condition">
-                    <IconPlus32/>
-                  </IconButton>
-                  <Popover.Close/>
-                </Popover.Controls>
-              </Popover.Header>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-            </Popover.Content>
-          </Popover.Root>
-          <Popover.Root>
-            <Popover.Trigger>
-              <IconButton aria-label="Animations">
-                <IconAnimation32/>
-              </IconButton>
-            </Popover.Trigger>
-            <Popover.Content width={240} sideOffset={6}>
-              <Popover.Header>
-                <Popover.Title>
-                  Animations
-                </Popover.Title>
-                <Popover.Controls>
-                  <IconButton aria-label="New condition">
-                    <IconPlus32/>
-                  </IconButton>
-                  <Popover.Close/>
-                </Popover.Controls>
-              </Popover.Header>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-            </Popover.Content>
-          </Popover.Root>
-          <Popover.Root>
-            <Popover.Trigger>
-              <IconButton aria-label="List">
-                <IconListDetailed32/>
-              </IconButton>
-            </Popover.Trigger>
-            <Popover.Content width={240} sideOffset={6}>
-              <Popover.Header>
-                <Popover.Title>
-                  List Data
-                </Popover.Title>
-                <Popover.Controls>
-                  <IconButton aria-label="New condition">
-                    <IconPlus32/>
-                  </IconButton>
-                  <Popover.Close/>
-                </Popover.Controls>
-              </Popover.Header>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-            </Popover.Content>
-          </Popover.Root>
-          <Popover.Root>
-            <Popover.Trigger>
-              <IconButton aria-label="Properties">
-                <IconAdjust32/>
-              </IconButton>
-            </Popover.Trigger>
-            <Popover.Content width={240} sideOffset={6}>
-              <Popover.Header>
-                <Popover.Title>
-                  Properties
-                </Popover.Title>
-                <Popover.Controls>
-                  <IconButton aria-label="New condition">
-                    <IconPlus32/>
-                  </IconButton>
-                  <Popover.Close/>
-                </Popover.Controls>
-              </Popover.Header>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-              <Popover.Section></Popover.Section>
-            </Popover.Content>
-          </Popover.Root>
-        </div>
-        }
         {previewDesc &&
           <div style={{
             ...styles.nodeTip,
@@ -406,6 +298,18 @@ export function ComponentPreview(props: ComponentPreviewProps) {
                 {previewDesc}
               </div>
             </Text>
+          </div>
+        }
+        {previewNode &&
+          <div style={{
+            ...styles.actions,
+            top: previewRect.top - 40,
+            left: Math.min(previewRect.left, screen.width - 190),
+          }}>
+            <NodeToolbar
+              nodeId={previewNode}
+              onClose={() => inspect(false)}
+            />
           </div>
         }
       </div>
@@ -488,7 +392,7 @@ const styles: Record<string, CSSProperties> = {
   },
   nodeTipTitle: {
     maxWidth: 750,
-    marginBlock: 1,
+    marginBlock: '1px 2px',
     color: '#fff',
     overflow: 'hidden',
     whiteSpace: 'nowrap',

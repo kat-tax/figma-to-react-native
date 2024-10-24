@@ -11,6 +11,7 @@ export default function Loader() {
       smooth
       initialPositionX={window.innerWidth / 2}
       initialPositionY={window.innerHeight * 2}
+      onTransformed={() => parent.postMessage({type: 'loader::interaction'})}
       doubleClick={{mode: 'reset'}}>
       <Preview/>
     </TransformWrapper>
