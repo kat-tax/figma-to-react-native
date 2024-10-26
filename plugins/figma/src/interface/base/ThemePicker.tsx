@@ -40,7 +40,7 @@ export function ThemePicker() {
       margin: '0 auto',
     }}>
       <Fragment>
-        <Text style={{fontWeight: '550'}}>
+        <Text weight="strong">
           Presets
         </Text>
         <VerticalSpace space="small"/>
@@ -74,7 +74,7 @@ export function ThemePicker() {
       </Fragment>
       <VerticalSpace space="extraLarge"/>
       <Fragment>
-        <Text style={{fontWeight: '550'}}>
+        <Text weight="strong">
           Custom
         </Text>
         <VerticalSpace space="small"/>
@@ -96,7 +96,7 @@ export function ThemePicker() {
       </Fragment>
       <VerticalSpace space="extraLarge"/>
       <Fragment>
-        <Text style={{fontWeight: '550'}}>Scale</Text>
+        <Text weight="strong">Scale</Text>
         <VerticalSpace space="small"/>
         <div className="theme-picker-palette">
           {Object.entries(form.formState.scale).map(([id, value]) => (
@@ -105,7 +105,7 @@ export function ThemePicker() {
         </div>
       </Fragment>
       {/*<Fragment>
-        <Text style={{fontWeight: '550'}}>
+        <Text weight="strong">
           Radius
         </Text>
         <VerticalSpace space="small"/>

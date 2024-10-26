@@ -72,7 +72,7 @@ export function ProjectExport(props: ProjectExportProps) {
         margin: '0 auto',
       }}>
         <Fragment>
-          <Text style={{fontWeight: '550'}}>
+          <Text weight="strong">
             Method
           </Text>
           <VerticalSpace space="small"/>
@@ -100,7 +100,7 @@ export function ProjectExport(props: ProjectExportProps) {
         </Fragment>
         {isDownloading &&
           <Fragment>
-            <Text style={{fontWeight: '550'}}>
+            <Text weight="strong">
               Scope
             </Text>
             <VerticalSpace space="small"/>
@@ -130,7 +130,7 @@ export function ProjectExport(props: ProjectExportProps) {
         {!isDownloading &&
           <Fragment>
             <Flex align="center">
-              <Text style={{fontWeight: '550'}}>
+              <Text weight="strong">
                 Project Key
               </Text>
               <a
@@ -152,7 +152,7 @@ export function ProjectExport(props: ProjectExportProps) {
           </Fragment>
         }
         <Fragment>
-          <Text style={{fontWeight: '550'}}>
+          <Text weight="strong">
             Options
           </Text>
           <VerticalSpace space="medium"/>

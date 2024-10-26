@@ -1,6 +1,7 @@
 import {Tabs} from 'figma-kit';
 import {useState, useEffect} from 'react';
 import {LoadingIndicator} from 'figma-ui';
+import {TooltipProvider} from 'figma-kit';
 
 import {NavBar} from 'interface/base/NavBar';
 import {DualPanel} from 'interface/base/DualPanel';
@@ -98,46 +99,48 @@ export function App(props: AppProps) {
   }, [compKey, nav]);
 
   return hasTabs ? (
-    <Tabs.Root
-      style={{height: 'calc(100% - 41px)'}}
-      value={nav.tab}
-      onValueChange={nav.gotoTab}>
-      <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
-      <Tabs.Content value="components">
-        <ProjectComponents {...{nav, build, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
-      </Tabs.Content>
-      <Tabs.Content value="icons">
-        <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
-      </Tabs.Content>
-      <Tabs.Content value="theme">
-        <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
-      </Tabs.Content>
-      <Tabs.Content value="assets">
-        <ProjectAssets {...{build, searchMode, searchQuery}}/>
-      </Tabs.Content>
-      <Tabs.Content value="docs">
-        <ProjectDocs {...{nav, build, isReadOnly, searchQuery}}/>
-      </Tabs.Content>
-      <Tabs.Content value="export">
-        <ProjectExport {...{project, build}}/>
-      </Tabs.Content>
-      <Tabs.Content value="settings">
-        <ProjectSettings {...{monaco, settings, editorOptions, editorTheme}}/>
-      </Tabs.Content>
-      <Tabs.Content value="component/code">
-        <DualPanel
-          primary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
-          secondary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme}}/>}
-          onResize={() => setLastResize(Date.now())}
-        />
-      </Tabs.Content>
-      <Tabs.Content value="component/story">
-        <ComponentStory {...{compKey, monaco, editorOptions, editorTheme}}/>
-      </Tabs.Content>
-      <Tabs.Content value="component/docs">
-        <ComponentDocs {...{compKey, monaco, editorOptions,editorTheme}}/>
-      </Tabs.Content>
-    </Tabs.Root>
+    <TooltipProvider disableHoverableContent>
+      <Tabs.Root
+        style={{height: 'calc(100% - 41px)'}}
+        value={nav.tab}
+        onValueChange={nav.gotoTab}>
+        <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
+        <Tabs.Content value="components">
+          <ProjectComponents {...{nav, build, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
+        </Tabs.Content>
+        <Tabs.Content value="icons">
+          <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
+        </Tabs.Content>
+        <Tabs.Content value="theme">
+          <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
+        </Tabs.Content>
+        <Tabs.Content value="assets">
+          <ProjectAssets {...{build, searchMode, searchQuery}}/>
+        </Tabs.Content>
+        <Tabs.Content value="docs">
+          <ProjectDocs {...{nav, build, isReadOnly, searchQuery}}/>
+        </Tabs.Content>
+        <Tabs.Content value="export">
+          <ProjectExport {...{project, build}}/>
+        </Tabs.Content>
+        <Tabs.Content value="settings">
+          <ProjectSettings {...{monaco, settings, editorOptions, editorTheme}}/>
+        </Tabs.Content>
+        <Tabs.Content value="component/code">
+          <DualPanel
+            primary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
+            secondary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme}}/>}
+            onResize={() => setLastResize(Date.now())}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="component/story">
+          <ComponentStory {...{compKey, monaco, editorOptions, editorTheme}}/>
+        </Tabs.Content>
+        <Tabs.Content value="component/docs">
+          <ComponentDocs {...{compKey, monaco, editorOptions,editorTheme}}/>
+        </Tabs.Content>
+      </Tabs.Root>
+    </TooltipProvider>
   ) : (
     <div className="center fill">
       <LoadingIndicator/>
