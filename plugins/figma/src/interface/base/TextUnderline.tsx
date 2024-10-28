@@ -1,5 +1,4 @@
-import {Fragment} from 'react';
-import {Bold} from 'figma-ui';
+import {Text} from 'figma-kit';
 
 interface TextUnderlineProps {
   str: string,
@@ -13,9 +12,9 @@ export function TextUnderline(props: TextUnderlineProps) {
   const nodes = chars.map((char, i) => {
     if (props.indices.has((group.length + 1) + i)) {
       return (
-        <Bold className="highlight">
+        <Text weight="strong" className="highlight">
           {char}
-        </Bold>
+        </Text>
       );
     }
     return char;

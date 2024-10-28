@@ -84,7 +84,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         // console.log('[code focus]', pos);
         props.nav.setCodeFocus(null);
         props.nav.setCursorPos({line, column});
-        editor.current?.focus();
+        // editor.current?.focus();
         editor.current?.setPosition(pos);
         editor.current?.revealPositionInCenter(pos, 0);
       }

@@ -1,5 +1,4 @@
-import {Muted} from 'figma-ui';
-
+import {Text} from 'figma-kit';
 import type {ComponentBuild} from 'types/component';
 
 interface StatusBarProps {
@@ -16,13 +15,25 @@ export function StatusBar(props: StatusBarProps) {
     <div className="status-bar">
       {isFullyLoaded
         ? <div className="status-actions">
-            <Muted>{textComponents}</Muted>
-            <Muted>{textAssets}</Muted>
+            <Text style={styles.text}>
+              {textComponents}
+            </Text>
+            <Text style={styles.text}>
+              {textAssets}
+            </Text>
           </div>
         : <div className="status-actions">
-            <Muted>{`Loading components... [${props.build.loaded}/${props.build.total}]`}</Muted>
+            <Text style={styles.text}>
+              {`Loading components... [${props.build.loaded}/${props.build.total}]`}
+            </Text>
           </div>
       }
     </div>
   );
 }
+
+const styles = {
+  text: {
+    color: 'var(--figma-color-text-secondary)',
+  },
+};

@@ -1,7 +1,8 @@
+import {Text} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {useBlockNote, BlockNoteViewRaw} from '@blocknote/react';
-import {Stack, Layer, Muted, Button, Disclosure, IconWorld16, IconInfo32, IconTextAlignLeft16} from 'figma-ui';
+import {Stack, Layer, Button, Disclosure, IconWorld16, IconInfo32, IconTextAlignLeft16} from 'figma-ui';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
@@ -129,7 +130,9 @@ export function ProjectDocs(props: ProjectDocsProps) {
         ? <ProjectDocEditor entry={rootDoc}/>
         : <div className="tip">
             <IconInfo32 color="secondary"/>
-            <Muted>Select a document</Muted>
+            <Text style={{color: 'var(--figma-color-text-secondary)'}}>
+              Select a document
+            </Text>
           </div>
       }
     </div>

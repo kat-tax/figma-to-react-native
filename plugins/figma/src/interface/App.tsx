@@ -128,8 +128,8 @@ export function App(props: AppProps) {
         </Tabs.Content>
         <Tabs.Content value="component/code">
           <DualPanel
-            primary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
-            secondary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme}}/>}
+            primary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme}}/>}
+            secondary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
             onResize={() => setLastResize(Date.now())}
           />
         </Tabs.Content>

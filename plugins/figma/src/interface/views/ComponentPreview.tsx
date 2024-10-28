@@ -248,7 +248,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <Text>
             {previewBar ? previewBar[0] : ''}
           </Text>
-          <Text muted style={styles.desc}>
+          <Text style={styles.desc}>
             {previewBar ? previewBar[1] : ''}
           </Text>
         </div>   
@@ -306,7 +306,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             top: previewRect.top - 40,
             left: Math.min(previewRect.left, screen.width - 200),
           }}>
-            <NodeToolbar id={previewNode} close={() => inspect(false)}/>
+            <NodeToolbar node={previewNode} close={() => inspect(false)}/>
           </div>
         }
       </div>
@@ -357,6 +357,7 @@ const styles: Record<string, CSSProperties> = {
   },
   desc: {
     marginLeft: 4,
+    color: 'var(--figma-color-text-secondary)',
   },
   nodeRect: {
     position: 'absolute',
