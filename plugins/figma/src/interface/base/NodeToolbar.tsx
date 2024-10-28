@@ -1,10 +1,12 @@
-import {useCallback, Fragment} from 'react';
+import {on, emit} from '@create-figma-plugin/utilities';
+import {useCallback, useEffect, Fragment} from 'react';
 import {useForm, IconAdjust32, IconAnimation32, IconEffects32, IconVisibilityVisible32, IconListDetailed32, IconPlus32, IconCross32, IconLayerLine16} from 'figma-ui';
 import {Flex, Popover, Dialog, Text, Input, Button, IconButton, Select, Switch, ValueField} from 'figma-kit';
 import {titleCase} from 'common/string';
 import {uuid} from 'common/random';
 
 import {NodeAttrGroup, NodeAttrData, NodeAttrType} from 'types/node';
+import {EventNodeAttrSave, EventNodeAttrReq, EventNodeAttrRes} from 'types/events';
 
 interface NodeToolbarProps {
   node: string,
@@ -15,7 +17,6 @@ interface NodeGroupProps extends NodeToolbarProps {
   icon: React.ReactNode,
   group: NodeAttrGroup,
   state: NodeAttrData,
-  save: () => void,
   update: <Name extends keyof NodeAttrData>(
     state: NodeAttrData[Name],
     name: undefined | Name,
@@ -35,23 +36,23 @@ export function NodeToolbar(props: NodeToolbarProps) {
 
   const init: NodeAttrData = {
     [NodeAttrGroup.Properties]: [
-      {uuid: uuid(), data: null, name: 'title', type: NodeAttrType.String},
-      {uuid: uuid(), data: null, name: 'width', type: NodeAttrType.Number},
-      {uuid: uuid(), data: null, name: 'variant', type: NodeAttrType.Enum, opts: ['Primary', 'Secondary', 'Tertiary']},
-      {uuid: uuid(), data: null, name: 'selectable', type: NodeAttrType.Boolean},
+      {uuid: uuid(), data: null, name: 'title', type: NodeAttrType.String, desc: 'Text for screen readers & tooltips'},
+      {uuid: uuid(), data: null, name: 'width', type: NodeAttrType.Number, desc: 'Width of the node'},
+      {uuid: uuid(), data: null, name: 'variant', type: NodeAttrType.Enum, opts: ['Primary', 'Secondary', 'Tertiary'], desc: 'Variant of the node'},
+      {uuid: uuid(), data: null, name: 'selectable', type: NodeAttrType.Boolean, desc: 'Whether the text is selectable'},
     ],
     [NodeAttrGroup.Animations]: [
-      {uuid: uuid(), data: null, name: 'loop', type: NodeAttrType.Motion},
-      {uuid: uuid(), data: null, name: 'enter', type: NodeAttrType.Motion},
-      {uuid: uuid(), data: null, name: 'hover', type: NodeAttrType.Motion},
-      {uuid: uuid(), data: null, name: 'tap', type: NodeAttrType.Motion},
+      {uuid: uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: 'Plays continuously'},
+      {uuid: uuid(), data: null, name: 'enter', type: NodeAttrType.Motion, desc: 'Plays when the node enters the viewport'},
+      {uuid: uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: 'Plays when the node is hovered'},
+      {uuid: uuid(), data: null, name: 'press', type: NodeAttrType.Motion, desc: 'Plays when the node is pressed'},
     ],
     [NodeAttrGroup.Interactions]: [],
     [NodeAttrGroup.Visibilities]: [
-      {uuid: uuid(), data: null, name: 'breakpoint', type: NodeAttrType.Enum, opts: ['XS', 'SM', 'MD', 'LG', 'XL']},
-      {uuid: uuid(), data: null, name: 'container', type: NodeAttrType.Tuple, opts: ['W', 'H']},
-      {uuid: uuid(), data: null, name: 'platform', type: NodeAttrType.Enum, opts: ['Web', 'iOS', 'Android', 'macOS', 'Windows', 'TV', 'XR']},
-      {uuid: uuid(), data: null, name: 'touch', type: NodeAttrType.Boolean},
+      {uuid: uuid(), data: null, name: 'breakpoint', type: NodeAttrType.Enum, opts: ['XS', 'SM', 'MD', 'LG', 'XL'], desc: 'The size breakpoint to show the node at'},
+      {uuid: uuid(), data: null, name: 'container', type: NodeAttrType.Tuple, opts: ['W', 'H'], desc: 'Minimum width and height of the container'},
+      {uuid: uuid(), data: null, name: 'platform', type: NodeAttrType.Enum, opts: ['Web', 'iOS', 'Android', 'macOS', 'Windows', 'TV', 'XR'], desc: 'What platform to show the node for'},
+      {uuid: uuid(), data: null, name: 'touch', type: NodeAttrType.Boolean, desc: 'Whether to show the node for touch input devices'},
     ],
     [NodeAttrGroup.Dynamics]: [],
   };
@@ -59,9 +60,28 @@ export function NodeToolbar(props: NodeToolbarProps) {
   const form = useForm<NodeAttrData>(init, {
     close: () => {},
     submit: (data) => {
-      console.log('[node/save]', node, data.visibilities);
+      emit<EventNodeAttrSave>('NODE_ATTR_SAVE', node, data);
     },
   });
+
+  // Handle node attributes response
+  useEffect(() => on<EventNodeAttrRes>('NODE_ATTR_RES', (nodeId, data) => {
+    if (nodeId === node) {
+      for (const [group, rules] of Object.entries(data)) {
+        form.setFormState(rules, group as NodeAttrGroup);
+      }
+    }
+  }), [node]);
+
+  // Request node attributes from backend
+  useEffect(() => {
+    emit<EventNodeAttrReq>('NODE_ATTR_REQ', node);
+  }, [node]);
+
+  // Save form on update
+  useEffect(() => {
+    form.handleSubmit();
+  }, [form.formState]);
 
   return (
     <Fragment>
@@ -70,7 +90,6 @@ export function NodeToolbar(props: NodeToolbarProps) {
           key={g.group}
           state={form.formState}
           update={form.setFormState}
-          save={form.handleSubmit}
           {...{node, close}}
           {...g}
         />
@@ -84,7 +103,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
 }
 
 export function NodeGroup(props: NodeGroupProps) {
-  const {group, icon, state, update, save} = props;
+  const {group, icon, state, update} = props;
   const rules = state[group];
   const title = titleCase(group);
 
@@ -93,6 +112,7 @@ export function NodeGroup(props: NodeGroupProps) {
     update([...rules, {
       uuid: uuid(),
       name: '',
+      desc: '',
       data: undefined,
       type: NodeAttrType.Blank,
     }], group);
@@ -104,7 +124,6 @@ export function NodeGroup(props: NodeGroupProps) {
     } else {
       update(rules.map(r => r.uuid === uuid ? {...r, data: null}: r), group);
     }
-    save();
   }, [rules]);
 
   return (
@@ -154,7 +173,7 @@ export function NodeGroup(props: NodeGroupProps) {
 }
 
 export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
-  const {uuid, group, state, update, save} = props;
+  const {uuid, group, state, update} = props;
   const rules = state[group];
   const cur = rules.find(r => r.uuid === uuid);
 
@@ -172,18 +191,16 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
     } else {
       update(data, group);
     }
-    save();
   };
 
-  const setData = (v: string | number, i?: number) => {
-    console.log('[node/attr/change/data]', v, i);
+  const setData = (v: string | number | boolean, i?: number) => {
+    // console.log('[node/data]', v, i);
     update(rules.map(r => r.uuid === uuid
-      ? i !== undefined && Array.isArray(r.data)
+      ? i !== undefined && Array.isArray(r.data) && typeof v === 'object'
         ? {...r, data: [...r.data.slice(0, i), v, ...r.data.slice(i + 1)]}
         : {...r, data: v}
       : r
     ), group);
-    save();
   };
 
   return (
@@ -209,22 +226,25 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
       }
       {cur.type === NodeAttrType.String && (
         <Input
-          placeholder="Enter text"
+          title={cur.desc}
           value={cur.data === undefined ? '' : String(cur.data)}
           onChange={e => setData(e.target.value)}
+          placeholder="Enter text"
           style={{flex: 1}}
         />
       )}
       {cur.type === NodeAttrType.Boolean && (
         <Flex style={{flex: 1}}>
           <Switch
-            value={Number(cur.data)}
-            onChange={undefined}
+            title={cur.desc}
+            checked={Boolean(cur.data)}
+            onCheckedChange={setData}
           />
         </Flex>
       )}
       {cur.type === NodeAttrType.Number && (
         <ValueField.Numeric
+          title={cur.desc}
           value={Number(cur.data) || 0}
           onChange={setData}
           style={{flex: 1}}
@@ -234,7 +254,7 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
         <Flex gap="2" style={{flex: 1}}>
           {cur?.opts.map((field, i) => (
             <ValueField.Multi key={field}>
-              <ValueField.Root>
+              <ValueField.Root title={cur.desc}>
                 <ValueField.Label>
                   {field}
                 </ValueField.Label>

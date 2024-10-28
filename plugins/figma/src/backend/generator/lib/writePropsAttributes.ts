@@ -1,24 +1,32 @@
 import CodeBlockWriter from 'code-block-writer';
+import {NodeAttrType} from 'types/node';
 
 import * as parser from 'backend/parser/lib';
 import * as string from 'common/string';
+
+import type {NodeAttrRule} from 'types/node';
 
 export function writePropsAttributes(
   writer: CodeBlockWriter,
   props: ComponentPropertyDefinitions | ComponentProperties,
   testProp?: string,
   styleProp?: string,
+  attrProps?: Array<NodeAttrRule>,
   extraProps?: Array<[string, string]>,
 ) {
   const _props = props ? Object.entries(props) : [];
 
-  // No component or extra props
-  if (!_props.length && !extraProps?.length) {
-    // If style or test props exist, write inline
+  // Write inline props (no component/attr props)
+  if (!_props.length && !attrProps?.length) {
+    // Write style prop
     if (styleProp)
       writer.write(` style={${styleProp}}`);
+    // Write test prop
     if (testProp)
       writer.write(` testID="${testProp}"`);
+    // Write extra props
+    extraProps?.forEach(prop =>
+      writer.writeLine(`${prop[0]}=${prop[1]}`));
     return writer.toString();
   }
 
@@ -37,9 +45,45 @@ export function writePropsAttributes(
     // Write extra props
     extraProps?.forEach(prop =>
       writer.writeLine(`${prop[0]}=${prop[1]}`));
+    // Write attribute props
+    attrProps?.forEach(attr =>
+      writeAttr(writer, attr));
   });
+  return writer.toString().trimEnd();
+}
 
-  return writer.toString();
+export function writeAttr(
+  writer: CodeBlockWriter,
+  attr: NodeAttrRule,
+) {
+  if (attr.data === undefined
+    || attr.data === null
+    || attr.name === '') return;
+  switch (attr.type) {
+    case NodeAttrType.Number:
+      writer.writeLine(`${attr.name}={${attr.data}}`);
+      return;
+    case NodeAttrType.Boolean:
+      writer.writeLine(attr.data ? attr.name : `${attr.name}={false}`);
+      return;
+    case NodeAttrType.Enum:
+      writer.writeLine(`${attr.name}="${attr.data}"`);
+      return;
+    case NodeAttrType.Tuple:
+      if (!Array.isArray(attr.data)) return;
+      writer.writeLine(`${attr.name}={${attr.data.join(',')}}`);
+      return;
+    case NodeAttrType.String:
+      if (typeof attr.data !== 'string') return;
+      writer.writeLine(attr.data.includes('${') || attr.data.includes('"')
+        ? `${attr.name}={\`${string.escapeBacktick(attr.data)}\`}`
+        : `${attr.name}="${attr.data}"`);
+      return;
+    case NodeAttrType.Motion:
+    case NodeAttrType.Blank:
+      return;
+    default: attr.type satisfies never;
+  }
 }
 
 export function writeProp(
@@ -112,6 +156,7 @@ export function writePropComponent(
     instance?.componentProperties,
     jsxTestProp,
     undefined,
+    [], // TODO: add attr props
     jsxExtraProps,
   );
 

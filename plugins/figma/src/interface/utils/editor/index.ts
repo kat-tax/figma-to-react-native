@@ -88,7 +88,7 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
       // Focus node in editor
       // TODO: support multiple nodes
       if (nodeId) {
-        emit<EventFocusNode>('FOCUS', nodeId);
+        emit<EventFocusNode>('NODE_FOCUS', nodeId);
       }
       console.debug('[open file]', {resource, base, nodeId, links, source});
       return false;

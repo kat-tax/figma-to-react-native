@@ -183,7 +183,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           }
 
           // Focus node in Figma (and subsequently the plugin UI)
-          emit<EventFocusNode>('FOCUS', node);
+          emit<EventFocusNode>('NODE_FOCUS', node);
 
           // Focus, but we're navigating to another file, wait for component to load
           if (uri !== pathComponent) {

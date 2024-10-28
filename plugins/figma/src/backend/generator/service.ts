@@ -1,5 +1,6 @@
-import {emit} from '@create-figma-plugin/utilities';
 import {getAllIconComponents} from 'backend/importer/icons';
+import {on, emit} from '@create-figma-plugin/utilities';
+import {diff} from 'deep-object-diff';
 
 import * as delay from 'common/delay';
 import * as assert from 'common/assert';
@@ -13,7 +14,7 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentData, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 const _cache: Record<string, ComponentData> = {};
@@ -61,14 +62,25 @@ export async function watchComponents(targetComponent: () => void) {
         }
       }
     });
-
     // No updates, do nothing
     if (updates.length === 0) return;
-
     // Get updated targets and compile
     const update = parser.getComponentTargets(updates);
     await compile(all, true, update);
     // console.log('[update]', Array.from(update));
+  });
+
+  // Recompile component on node attribute change
+  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, data) => {
+    const node = figma.getNodeById(nodeId);
+    const attr = parser.getNodeAttrs(node);
+    const delta = Object.keys(diff(attr, data)).length;
+    if (delta > 0) {
+      const component = parser.getComponentTarget(node);
+      if (component) {
+        compile(all, true, new Set([component]));
+      }
+    }
   });
 }
 

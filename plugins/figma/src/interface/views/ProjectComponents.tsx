@@ -72,7 +72,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   
 
   const select = (id: string) => {
-    emit<EventFocusNode>('FOCUS', id);
+    emit<EventFocusNode>('NODE_FOCUS', id);
   };
 
   useEffect(() => {

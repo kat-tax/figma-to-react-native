@@ -1,6 +1,7 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {UserSettings} from 'types/settings';
+import type {NodeAttrData} from 'types/node';
 import type {ComponentData, ComponentBuild} from 'types/component';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
@@ -10,11 +11,6 @@ import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 export interface EventOpenLink extends EventHandler {
   name: 'OPEN_LINK';
   handler: (url: string) => void;
-}
-
-export interface EventFocusNode extends EventHandler {
-  name: 'FOCUS';
-  handler: (nodeId: string | null) => void;
 }
 
 export interface EventNotify extends EventHandler {
@@ -49,6 +45,28 @@ export interface EventConfigLoad extends EventHandler {
 export interface EventConfigUpdate extends EventHandler {
   name: 'CONFIG_UPDATE';
   handler: (config: UserSettings) => void;
+}
+
+/* Node */
+
+export interface EventFocusNode extends EventHandler {
+  name: 'NODE_FOCUS';
+  handler: (nodeId: string | null) => void;
+}
+
+export interface EventNodeAttrSave extends EventHandler {
+  name: 'NODE_ATTR_SAVE';
+  handler: (nodeId: string, data: NodeAttrData) => void;
+}
+
+export interface EventNodeAttrReq extends EventHandler {
+  name: 'NODE_ATTR_REQ';
+  handler: (nodeId: string) => void;
+}
+
+export interface EventNodeAttrRes extends EventHandler {
+  name: 'NODE_ATTR_RES';
+  handler: (nodeId: string, data: NodeAttrData) => void;
 }
 
 /* Component */

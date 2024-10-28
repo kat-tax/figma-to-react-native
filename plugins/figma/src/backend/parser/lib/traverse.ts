@@ -21,9 +21,9 @@ export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentN
 }
 
 // Find the component of a node (if exists)
-export function getComponentTarget(node: SceneNode): ComponentNode {
+export function getComponentTarget(node: SceneNode | BaseNode): ComponentNode {
   // Find the component in the parent chain
-  let target: SceneNode = node;
+  let target: SceneNode | BaseNode = node;
 
   if (!target) return null;
 
@@ -64,9 +64,9 @@ export function getComponentTarget(node: SceneNode): ComponentNode {
 }
 
 // Find the parent component of a component instance
-export function getComponentParent(node: SceneNode): ComponentNode {
+export function getComponentParent(node: SceneNode | BaseNode): ComponentNode {
   // Find the component in the parent chain
-  let target: SceneNode = node;
+  let target: SceneNode | BaseNode = node;
   if (!target) return null;
   while (target.type !== 'COMPONENT_SET'
     && target.type !== 'COMPONENT'

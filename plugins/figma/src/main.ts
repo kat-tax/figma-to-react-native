@@ -1,6 +1,7 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
+import {focusNode, getNodeAttrs} from 'backend/parser/lib';
 import {F2RN_UI_WIDTH_MIN} from 'config/consts';
-import {focusNode} from 'backend/parser/lib';
+
 
 import * as project from 'backend/generator/project';
 import * as service from 'backend/generator/service';
@@ -76,11 +77,29 @@ export default async function() {
     });
 
     // Handle focus node
-    on<T.EventFocusNode>('FOCUS', (nodeId) => {
+    on<T.EventFocusNode>('NODE_FOCUS', (nodeId) => {
       if (nodeId === null) {
         figma.currentPage.selection = [];
       } else {
         focusNode(nodeId);
+      }
+    });
+
+    // Handle saving node attributes
+    on<T.EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, data) => {
+      const node = figma.getNodeById(nodeId);
+      if (node) {
+        node.setSharedPluginData('f2rn', 'attr', JSON.stringify(data));
+      }
+    });
+
+    // Handle loading node attributes
+    on<T.EventNodeAttrReq>('NODE_ATTR_REQ', (nodeId) => {
+      console.log('[node/load]', nodeId);
+      const node = figma.getNodeById(nodeId);
+      const data = node && getNodeAttrs(node);
+      if (data) {
+        emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, data);
       }
     });
 

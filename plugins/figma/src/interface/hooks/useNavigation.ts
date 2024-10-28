@@ -29,7 +29,7 @@ export function useNavigation(build: ComponentBuild): Navigation {
   const gotoOverview = () => {
     setTab('components');
     setComponent(null);
-    emit<EventFocusNode>('FOCUS', null);
+    emit<EventFocusNode>('NODE_FOCUS', null);
   };
 
   const gotoTab = (value: AppPages) => {

@@ -10,6 +10,7 @@ import {writePropsAttributes} from './writePropsAttributes';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {ProjectSettings} from 'types/settings';
+import type {NodeAttrRule} from 'types/node';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
@@ -62,10 +63,8 @@ export function writeChild(
   // Derived data
   const propRefs = child.node.componentPropertyReferences;
   const instance = parser.getComponentInstanceInfo(child.node as InstanceNode);
-  const reaction = parser.getComponentCustomReaction(instance.node);
-  // TODO: const pressable = getPressReaction(instance.node);
+  const attributes = parser.getNodeAttrs(child.node);
   const swapNodeProp = parser.getComponentPropName(propRefs?.mainComponent);
-  const hasCustomProps = reaction?.type === 'URL';
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
   const isAsset = child.node.type === 'VECTOR' || (child.node.isAsset && !isInstance);
@@ -148,35 +147,11 @@ export function writeChild(
   let jsxTag: string;
   let jsxTagWithProps: string;
   let jsxStyleProp: string;
-  let jsxExtraProps: Array<[string, string]> = [];
+  let jsxAttrProps: Array<NodeAttrRule> = [];
 
   // Custom props (via prototype interaction)
-  if (hasCustomProps) {
-    jsxExtraProps = reaction.url
-      ?.split(',')
-      ?.map(p => p.trim())
-      ?.map(p => {
-        // Prop -> root prop match alias
-        const relation = p?.split('->');
-        if (relation.length === 2) {
-          const [k, v] = relation;
-          if (k && v) {
-            return [
-              `${parser.getComponentPropName(k)}`,
-              `{props.${parser.getComponentPropName(v)}}`,
-            ] as [string, string];
-          }
-        }
-        // Purely custom input (raw k=v)
-        const custom = p?.split('=');
-        if (custom.length === 1 && custom[0])
-          return [custom[0], ''] as [string, string];
-        if (custom.length === 2 && custom[1])
-          return [custom[0], custom[1]] as [string, string];
-        // Invalid input
-        return null as [string, string];
-      })
-      .filter(Boolean);
+  if (attributes?.properties?.length > 0) {
+    jsxAttrProps = attributes.properties;
   }
 
   // Styles prop
@@ -190,7 +165,7 @@ export function writeChild(
     instance.node.componentProperties,
     instance.node.id,
     jsxStyleProp,
-    jsxExtraProps,
+    jsxAttrProps,
   );
 
   // Create instance tag

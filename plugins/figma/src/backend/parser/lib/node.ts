@@ -4,6 +4,7 @@ import * as consts from 'config/consts';
 import {getPage, getSection} from './traverse';
 import {getFillToken} from './colors';
 
+import type {NodeAttrData} from 'types/node';
 import type {ParseIconData} from 'types/parse';
 import type {ComponentInfo} from 'types/component';
 
@@ -27,6 +28,24 @@ export function getIconData(node: SceneNode): ParseIconData {
   const size = Math.max(node.width, node.height);
   const name = (node as InstanceNode)?.mainComponent?.name;
   return {name, color, size};
+}
+
+export function getNodeAttrs(node: BaseNode): NodeAttrData {
+  const attrs: NodeAttrData = {
+    properties: [],
+    animations: [],
+    interactions: [],
+    visibilities: [],
+    dynamics: [],
+  };
+
+  try {
+    const data = node.getSharedPluginData('f2rn', 'attr');
+    const json = data ? JSON.parse(data) : attrs;
+    return json;
+  } catch (e) {
+    return attrs;
+  }
 }
 
 export function getComponentInfo(node: BaseNode): ComponentInfo | null {
@@ -69,11 +88,6 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
   return {target, name, page, section, path, propDefs, isVariant, isInstance};
 }
 
-export function getComponentPropName(value: string) {
-  if (!value) return '';
-  return string.createIdentifierCamel(value.split('#').shift());
-}
-
 export function getComponentInstanceInfo(node: InstanceNode) {
   const isInstance = node.type === 'INSTANCE';
   const isVariant = !!node.variantProperties;
@@ -84,14 +98,9 @@ export function getComponentInstanceInfo(node: InstanceNode) {
   return {node, main, props, propName, isInstance};
 }
 
-export function getComponentCustomReaction(node: ComponentNode | InstanceNode) {
-  return node.reactions
-    ?.filter(r => r.trigger?.type === 'ON_CLICK'
-      && r.action?.type === 'URL')[0]?.action;
-}
-
-export function getComponentPressReaction(node: ComponentNode | InstanceNode) {
-  return node.reactions?.filter(r => r.trigger?.type === 'ON_PRESS')?.[0];
+export function getComponentPropName(value: string) {
+  if (!value) return '';
+  return string.createIdentifierCamel(value.split('#').shift());
 }
 
 export function sortComponentProps(a: any, b: any) {
@@ -114,4 +123,16 @@ export function sortComponentPropsDef(a: any, b: any) {
     return a[1].type?.localeCompare(b[1].type);
   // Otherwise sort prop name alphabetically
   return a[0]?.localeCompare(b[0]);
+}
+
+/** @deprecated */
+export function getComponentCustomReaction(node: ComponentNode | InstanceNode) {
+  return node.reactions
+    ?.filter(r => r.trigger?.type === 'ON_CLICK'
+      && r.action?.type === 'URL')[0]?.action;
+}
+
+/** @deprecated */
+export function getComponentPressReaction(node: ComponentNode | InstanceNode) {
+  return node.reactions?.filter(r => r.trigger?.type === 'ON_PRESS')?.[0];
 }

@@ -13,6 +13,7 @@ export {
   isNodeVisible,
   isNodeIcon,
   getIconData,
+  getNodeAttrs,
   getComponentInfo,
   getComponentPropName,
   getComponentInstanceInfo,
