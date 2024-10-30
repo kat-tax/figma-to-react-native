@@ -17,6 +17,7 @@ export interface ImportFlags {
     Pressable?: boolean,
     TextInput?: boolean,
     StyleSheet?: boolean,
+    Platform?: boolean,
   },
   reactNativeTypes: {
     PressableProps?: boolean,
@@ -49,6 +50,8 @@ export interface ImportFlags {
   exoUtils: {
     useVariants?: boolean,
     createIcon?: boolean,
+    isNative?: boolean,
+    isTouch?: boolean,
   },
   // Hook destructuring
   useStylesTheme: boolean,
@@ -75,8 +78,8 @@ export async function writeImports(
 
   // Package Imports
   writeImport('react', flags.react);
-  writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-exo/utils', flags.exoUtils);
+  writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-native', flags.reactNative);
   writeImport('react-exo/icon', flags.exoIcon);
   writeImport('react-exo/image', flags.exoImage);

@@ -2,6 +2,7 @@
 export const F2RN_UI_WIDTH_MIN = 308;
 
 // Configs
+export const F2RN_NODE_ATTRS = 'f2rn:attr:0001';
 export const F2RN_SETTINGS_USER = 'f2rn:user:1001';
 export const F2RN_SETTINGS_PROJECT = 'f2rn:project:1001';
 export const F2RN_PROJECT_RELEASE = 'f2rn:release:1001';

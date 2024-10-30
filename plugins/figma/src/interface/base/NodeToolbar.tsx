@@ -35,25 +35,10 @@ export function NodeToolbar(props: NodeToolbarProps) {
   ];
 
   const init: NodeAttrData = {
-    [NodeAttrGroup.Properties]: [
-      {uuid: uuid(), data: null, name: 'title', type: NodeAttrType.String, desc: 'Text for screen readers & tooltips'},
-      {uuid: uuid(), data: null, name: 'width', type: NodeAttrType.Number, desc: 'Width of the node'},
-      {uuid: uuid(), data: null, name: 'variant', type: NodeAttrType.Enum, opts: ['Primary', 'Secondary', 'Tertiary'], desc: 'Variant of the node'},
-      {uuid: uuid(), data: null, name: 'selectable', type: NodeAttrType.Boolean, desc: 'Whether the text is selectable'},
-    ],
-    [NodeAttrGroup.Animations]: [
-      {uuid: uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: 'Plays continuously'},
-      {uuid: uuid(), data: null, name: 'enter', type: NodeAttrType.Motion, desc: 'Plays when the node enters the viewport'},
-      {uuid: uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: 'Plays when the node is hovered'},
-      {uuid: uuid(), data: null, name: 'press', type: NodeAttrType.Motion, desc: 'Plays when the node is pressed'},
-    ],
+    [NodeAttrGroup.Properties]: [],
+    [NodeAttrGroup.Animations]: [],
     [NodeAttrGroup.Interactions]: [],
-    [NodeAttrGroup.Visibilities]: [
-      {uuid: uuid(), data: null, name: 'breakpoint', type: NodeAttrType.Enum, opts: ['XS', 'SM', 'MD', 'LG', 'XL'], desc: 'The size breakpoint to show the node at'},
-      {uuid: uuid(), data: null, name: 'container', type: NodeAttrType.Tuple, opts: ['W', 'H'], desc: 'Minimum width and height of the container'},
-      {uuid: uuid(), data: null, name: 'platform', type: NodeAttrType.Enum, opts: ['Web', 'iOS', 'Android', 'macOS', 'Windows', 'TV', 'XR'], desc: 'What platform to show the node for'},
-      {uuid: uuid(), data: null, name: 'touch', type: NodeAttrType.Boolean, desc: 'Whether to show the node for touch input devices'},
-    ],
+    [NodeAttrGroup.Visibilities]: [],
     [NodeAttrGroup.Dynamics]: [],
   };
 

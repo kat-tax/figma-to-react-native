@@ -1,6 +1,8 @@
+import * as random from 'common/random';
 import * as string from 'common/string';
 import * as consts from 'config/consts';
 
+import {NodeAttrGroup, NodeAttrType} from 'types/node';
 import {getPage, getSection} from './traverse';
 import {getFillToken} from './colors';
 
@@ -32,15 +34,35 @@ export function getIconData(node: SceneNode): ParseIconData {
 
 export function getNodeAttrs(node: BaseNode): NodeAttrData {
   const attrs: NodeAttrData = {
-    properties: [],
-    animations: [],
-    interactions: [],
-    visibilities: [],
-    dynamics: [],
+    [NodeAttrGroup.Properties]: [
+      {uuid: random.uuid(), data: null, name: 'title', type: NodeAttrType.String, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'width', type: NodeAttrType.Number, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'variant', type: NodeAttrType.Enum, opts: ['Primary', 'Secondary', 'Tertiary'], desc: ''},
+      {uuid: random.uuid(), data: null, name: 'selectable', type: NodeAttrType.Boolean, desc: ''},
+    ],
+    [NodeAttrGroup.Animations]: [
+      {uuid: random.uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'enter', type: NodeAttrType.Motion, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'press', type: NodeAttrType.Motion, desc: ''},
+    ],
+    [NodeAttrGroup.Interactions]: [
+      // ...
+    ],
+    [NodeAttrGroup.Visibilities]: [
+      //{uuid: random.uuid(), data: null, name: 'breakpoint', type: NodeAttrType.Enum, opts: ['XS', 'SM', 'MD', 'LG', 'XL'], desc: ''},
+      //{uuid: random.uuid(), data: null, name: 'container', type: NodeAttrType.Tuple, opts: ['W', 'H'], desc: ''},
+      {uuid: random.uuid(), data: null, name: 'platform', type: NodeAttrType.Enum, opts: ['Web', 'iOS', 'Android', 'macOS', 'Windows'], desc: ''},
+      {uuid: random.uuid(), data: null, name: 'native', type: NodeAttrType.Boolean, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'touch', type: NodeAttrType.Boolean, desc: ''},
+    ],
+    [NodeAttrGroup.Dynamics]: [
+      // ...
+    ],
   };
 
   try {
-    const data = node.getSharedPluginData('f2rn', 'attr');
+    const data = node.getSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS);
     const json = data ? JSON.parse(data) : attrs;
     return json;
   } catch (e) {

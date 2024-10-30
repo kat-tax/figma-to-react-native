@@ -76,6 +76,7 @@ export async function watchComponents(targetComponent: () => void) {
     const attr = parser.getNodeAttrs(node);
     const delta = Object.keys(diff(attr, data)).length;
     if (delta > 0) {
+      node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(data));
       const component = parser.getComponentTarget(node);
       if (component) {
         compile(all, true, new Set([component]));

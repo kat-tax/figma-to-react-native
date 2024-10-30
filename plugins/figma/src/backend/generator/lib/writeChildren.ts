@@ -7,10 +7,11 @@ import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
 import {writePropsAttributes} from './writePropsAttributes';
+import {NodeAttrType} from 'types/node';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
+import type {NodeAttrData, NodeAttrRule} from 'types/node';
 import type {ProjectSettings} from 'types/settings';
-import type {NodeAttrRule} from 'types/node';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
@@ -32,30 +33,38 @@ export function writeChildren(
   for (const child of children) {
     const slug = state.data.children?.find(c => c.node === child.node)?.slug;
     const pressId = state.pressables?.find(e => e?.[1] === slug)?.[2];
+    const isPress = Boolean(pressId);
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
-    const masterNode = isVariant ? child.node.parent : child.node;
-    const propRefs = (masterNode as SceneNode)?.componentPropertyReferences;
-    const isPressable = Boolean(pressId);
-    const isConditional = Boolean(propRefs?.visible);
-    if (isPressable)
+    const master = isVariant ? child.node.parent : child.node;
+    const attrs = parser.getNodeAttrs(child.node);
+    const conds = getConditional(attrs, (master as SceneNode)?.componentPropertyReferences);
+    const isCond = conds.length > 0;
+    if (isPress)
       state.flags.reactNative.Pressable = true;
-    writer.conditionalWriteLine(isConditional, `{props.${parser.getComponentPropName(propRefs?.visible)} && `);
-    writer.withIndentationLevel((isConditional ? 1 : 0) + writer.getIndentationLevel(), () => {
-      writer.conditionalWriteLine(isPressable, `<Pressable onPress={props.${pressId}}>`);
-      writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-        writeChild(writer, child, slug, isConditional, state);
+    if (isCond && conds.some(c => c.includes('Platform.'))) // TODO: refactor
+      state.flags.reactNative.Platform = true;
+    if (isCond && conds.some(c => c.includes('isTouch()'))) // TODO: refactor
+      state.flags.exoUtils.isTouch = true;
+    if (isCond && conds.some(c => c.includes('isNative()'))) // TODO: refactor
+      state.flags.exoUtils.isNative = true;
+    writer.conditionalWriteLine(isCond, `{${conds.join(' && ')} && `);
+    writer.withIndentationLevel((isCond ? 1 : 0) + writer.getIndentationLevel(), () => {
+      writer.conditionalWriteLine(isPress, `<Pressable onPress={props.${pressId}}>`);
+      writer.withIndentationLevel((isPress ? 1 : 0) + writer.getIndentationLevel(), () => {
+        writeChild(writer, child, slug, attrs, isCond, state);
       });
-      writer.conditionalWriteLine(isPressable, `</Pressable>`);
+      writer.conditionalWriteLine(isPress, `</Pressable>`);
     });
-    writer.conditionalWriteLine(isConditional, `}`);
+    writer.conditionalWriteLine(isCond, `}`);
   }
 }
 
-export function writeChild(
+function writeChild(
   writer: CodeBlockWriter,
   child: ParseNodeTreeItem,
   slug: string,
-  isConditional: boolean,
+  attrs: NodeAttrData,
+  isCond: boolean,
   state: WriteChildrenState,
 ) {
   const {data, settings, pressables, getStyleProp, getIconProp} = state;
@@ -63,7 +72,6 @@ export function writeChild(
   // Derived data
   const propRefs = child.node.componentPropertyReferences;
   const instance = parser.getComponentInstanceInfo(child.node as InstanceNode);
-  const attributes = parser.getNodeAttrs(child.node);
   const swapNodeProp = parser.getComponentPropName(propRefs?.mainComponent);
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
@@ -81,7 +89,7 @@ export function writeChild(
     if (isSwap) {
       state.flags.exoUtils.createIcon = true;
       const statement = `createIcon(props.${swapNodeProp}, ${icon})`;
-      writer.writeLine((isConditional ? '' : '{') + statement + (isConditional ? '' : '}'));
+      writer.writeLine((isCond ? '' : '{') + statement + (isCond ? '' : '}'));
     // Explicit icon, use Icon component directly
     } else {
       state.flags.exoIcon.Icon = true;
@@ -139,7 +147,7 @@ export function writeChild(
   // Swap node
   if (isSwap) {
     const statement = `props.${swapNodeProp}`;
-    writer.writeLine(isConditional ? statement : `{${statement}}`);
+    writer.writeLine(isCond ? statement : `{${statement}}`);
     return;
   }
 
@@ -150,8 +158,8 @@ export function writeChild(
   let jsxAttrProps: Array<NodeAttrRule> = [];
 
   // Custom props (via prototype interaction)
-  if (attributes?.properties?.length > 0) {
-    jsxAttrProps = attributes.properties;
+  if (attrs?.properties?.length > 0) {
+    jsxAttrProps = attrs.properties;
   }
 
   // Styles prop
@@ -261,6 +269,55 @@ export function writeChild(
 
   // Closing tag
   writer.writeLine(`</${jsxTag}>`);
+}
+
+function getConditional(
+  attrs: NodeAttrData,
+  propRefs: SceneNode['componentPropertyReferences'],
+): string[] {
+  const getName = (r: NodeAttrRule) => {
+    const n = r.type === NodeAttrType.Boolean
+      && !r.data ? '!' : '';
+    switch (r.name) {
+      case 'touch': return n + 'isTouch()';
+      case 'native': return n + 'isNative()';
+      case 'platform': return n + 'Platform.OS';
+      default: return r.name;
+    }
+  };
+
+  const getOperator = (r: NodeAttrRule) => {
+    switch (r.name) {
+      case 'touch': return '';
+      case 'native': return '';
+      default: return ' === ';
+    }
+  };
+
+  const getData = (r: NodeAttrRule) => {
+    switch (r.type) {
+      case NodeAttrType.Boolean: return '';
+      case NodeAttrType.String: return `'${r.data}'`;
+      case NodeAttrType.Number: return r.data;
+      case NodeAttrType.Motion: return `props.${parser.getComponentPropName(propRefs?.mainComponent)}`;
+      case NodeAttrType.Tuple: return JSON.stringify(r.data);
+      case NodeAttrType.Enum: return `'${r.data.toString().toLowerCase()}'`;
+      case NodeAttrType.Blank: return 'null';
+      default: r.type satisfies never;
+    }
+  };
+
+  /** These visibility attributes are handled in the stylesheet */
+  const ignoredAttrs = ['breakpoint', 'container'];
+
+  return [
+    Boolean(propRefs?.visible)
+      && `props.${parser.getComponentPropName(propRefs?.visible)}`,
+    ...attrs.visibilities
+      ?.filter(v => v.data !== null && v.name !== '')
+      ?.filter(v => !ignoredAttrs.includes(v.name))
+      ?.map(v => `${getName(v)}${getOperator(v)}${getData(v)}`),
+  ].filter(Boolean);
 }
 
 function getTagName(type: string): 'View' | 'Text' | 'Image' {

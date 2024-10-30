@@ -261,7 +261,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <LoadingIndicator/>
         </div>
       }
-      <div style={styles.viewport}>
+      <div style={{
+        position: 'relative',
+        height: isLoaded ? 'calc(100% - 30px)' : 0,
+      }}>
         <iframe
           ref={iframe}
           srcDoc={src}
@@ -315,10 +318,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 }
 
 const styles: Record<string, CSSProperties> = {
-  viewport: {
-    position: 'relative',
-    height: 'calc(100% - 30px)',
-  },
   header: {
     display: 'flex',
     width: '100%',

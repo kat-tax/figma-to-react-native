@@ -1,6 +1,6 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusNode, getNodeAttrs} from 'backend/parser/lib';
-import {F2RN_UI_WIDTH_MIN} from 'config/consts';
+import {F2RN_UI_WIDTH_MIN, F2RN_NODE_ATTRS} from 'config/consts';
 
 
 import * as project from 'backend/generator/project';
@@ -85,17 +85,8 @@ export default async function() {
       }
     });
 
-    // Handle saving node attributes
-    on<T.EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, data) => {
-      const node = figma.getNodeById(nodeId);
-      if (node) {
-        node.setSharedPluginData('f2rn', 'attr', JSON.stringify(data));
-      }
-    });
-
     // Handle loading node attributes
     on<T.EventNodeAttrReq>('NODE_ATTR_REQ', (nodeId) => {
-      console.log('[node/load]', nodeId);
       const node = figma.getNodeById(nodeId);
       const data = node && getNodeAttrs(node);
       if (data) {
