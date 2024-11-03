@@ -36,17 +36,11 @@ export function NodeToolbar(props: NodeToolbarProps) {
     {group: NodeAttrGroup.Dynamics, icon: <IconListDetailed32/>},
   ];
 
-  const init: NodeAttrData = {
-    [NodeAttrGroup.Properties]: [],
-    [NodeAttrGroup.Animations]: [],
-    [NodeAttrGroup.Interactions]: [],
-    [NodeAttrGroup.Visibilities]: [],
-    [NodeAttrGroup.Dynamics]: [],
-  };
-
-  const form = useForm<NodeAttrData>(init, {
+  const form = useForm<NodeAttrData | null>(null, {
     close: () => {},
     submit: (data) => {
+      if (!data) return;
+      //console.log('[node/save]', data);
       emit<EventNodeAttrSave>('NODE_ATTR_SAVE', node, data);
     },
   });
@@ -70,26 +64,27 @@ export function NodeToolbar(props: NodeToolbarProps) {
     form.handleSubmit();
   }, [form.formState]);
 
-  return (
-    <Fragment>
-      {groups
-        .filter(g => !DISABLED_ATTRS.includes(g.group))
-        .map(g =>
-          <NodeGroup
-            key={g.group}
-          state={form.formState}
-          update={form.setFormState}
-          {...{node, close}}
-          {...g}
-          />
-        )
-      }
-      <IconButton aria-label="Close" onClick={close} size="medium">
-        <IconCross32/>
-      </IconButton>
-      <div style={{display: 'none'}} {...form.initialFocus}/>
-    </Fragment>
-  );
+  return form.formState
+    ? (
+      <Fragment>
+        {groups
+          .filter(g => !DISABLED_ATTRS.includes(g.group))
+          .map(g =>
+            <NodeGroup
+              key={g.group}
+              state={form.formState}
+              update={form.setFormState}
+              {...{node, close}}
+              {...g}
+            />
+          )
+        }
+        <IconButton aria-label="Close" onClick={close} size="medium">
+          <IconCross32/>
+        </IconButton>
+      </Fragment>
+    )
+    : <div style={{display: 'none'}} {...form.initialFocus}/>;
 }
 
 export function NodeGroup(props: NodeGroupProps) {

@@ -26,8 +26,8 @@ export function writePropsAttributes(
       writer.write(` testID="${testProp}"`);
     // Write extra props
     extraProps?.forEach(prop =>
-      writer.writeLine(`${prop[0]}=${prop[1]}`));
-    return writer.toString();
+      writer.writeLine(` ${prop[0]}=${prop[1]}`));
+    return writer.toString().trimEnd();
   }
 
   // Write indented props

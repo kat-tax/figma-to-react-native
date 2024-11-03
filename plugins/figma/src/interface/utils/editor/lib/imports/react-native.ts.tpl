@@ -1,3 +1,7 @@
+/**
+ * Overrides for react-native-web types)
+ */
+
 declare module 'react-native' {
   // The following list is sourced from:
   // - https://github.com/necolas/react-native-web/blob/0.17.5/packages/react-native-web/src/types/styles.js#L76

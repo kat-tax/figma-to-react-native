@@ -313,7 +313,7 @@ function getConditional(
   return [
     Boolean(propRefs?.visible)
       && `props.${parser.getComponentPropName(propRefs?.visible)}`,
-    ...attrs.visibilities
+    ...attrs?.visibilities
       ?.filter(v => v.data !== null && v.name !== '')
       ?.filter(v => !ignoredAttrs.includes(v.name))
       ?.map(v => `${getName(v)}${getOperator(v)}${getData(v)}`),
