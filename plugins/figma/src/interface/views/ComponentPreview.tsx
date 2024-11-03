@@ -307,7 +307,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <div style={{
             ...styles.actions,
             top: previewRect.top - 40,
-            left: Math.min(previewRect.left, screen.width - 200),
+            left: Math.min(previewRect.left, screen.width - 140),
           }}>
             <NodeToolbar node={previewNode} close={() => inspect(false)}/>
           </div>
@@ -329,11 +329,13 @@ const styles: Record<string, CSSProperties> = {
   actions: {
     display: 'flex',
     position: 'absolute',
+    alignItems: 'center',
     flexDirection: 'row',
-    background: 'var(--figma-color-bg-secondary)',
-    border: '1px solid var(--figma-color-bg-tertiary)',
-    borderRadius: 2,
-    height: 32,
+    border: '1px solid var(--figma-color-border)',
+    background: 'var(--figma-color-bg)',
+    borderRadius: 'var(--radius-medium)',
+    paddingInline: 1,
+    height: 36,
   },
   loading: {
     display: 'flex',

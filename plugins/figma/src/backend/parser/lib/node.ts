@@ -42,9 +42,10 @@ export function getNodeAttrs(node: BaseNode): NodeAttrData {
     ],
     [NodeAttrGroup.Animations]: [
       {uuid: random.uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'enter', type: NodeAttrType.Motion, desc: ''},
       {uuid: random.uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: ''},
       {uuid: random.uuid(), data: null, name: 'press', type: NodeAttrType.Motion, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'enter', type: NodeAttrType.Motion, desc: ''},
+      {uuid: random.uuid(), data: null, name: 'exit', type: NodeAttrType.Motion, desc: ''},
     ],
     [NodeAttrGroup.Interactions]: [
       // ...

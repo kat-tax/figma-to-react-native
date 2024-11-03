@@ -23,6 +23,8 @@ interface NodeGroupProps extends NodeToolbarProps {
   ) => void,
 }
 
+const DISABLED_ATTRS: Array<NodeAttrGroup> = [NodeAttrGroup.Interactions, NodeAttrGroup.Dynamics];
+
 export function NodeToolbar(props: NodeToolbarProps) {
   const {node, close} = props;
 
@@ -70,15 +72,18 @@ export function NodeToolbar(props: NodeToolbarProps) {
 
   return (
     <Fragment>
-      {groups.map(g =>
-        <NodeGroup
-          key={g.group}
+      {groups
+        .filter(g => !DISABLED_ATTRS.includes(g.group))
+        .map(g =>
+          <NodeGroup
+            key={g.group}
           state={form.formState}
           update={form.setFormState}
           {...{node, close}}
           {...g}
-        />
-      )}
+          />
+        )
+      }
       <IconButton aria-label="Close" onClick={close} size="medium">
         <IconCross32/>
       </IconButton>
@@ -192,7 +197,7 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
     <Flex align="center" gap="2" style={{flex: 1}}>
       <Select.Root value={cur.name} onValueChange={setName}>
         <Select.Trigger style={{flex: 1}}/>
-        <Select.Content position="popper" side="bottom" sideOffset={-32}>
+        <Select.Content position="popper" side="bottom" sideOffset={-36}>
           {rules
             .filter(({name}) => name !== '')
             .map(({name, data}) => (
@@ -260,7 +265,7 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
       {cur.type === NodeAttrType.Enum && (
         <Select.Root value={String(cur.data)} onValueChange={setData}>
           <Select.Trigger style={{flex: 1}}/>
-          <Select.Content position="popper" side="bottom" sideOffset={-32}>
+          <Select.Content position="popper" side="bottom" sideOffset={-36}>
             {cur?.opts.map(value => (
               <Select.Item key={value} value={value}>
                 {value}
