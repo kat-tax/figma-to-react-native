@@ -25,7 +25,12 @@ export function Preview() {
   const [hasInspect, setInspect] = useState(false);
   const [isMouseInComponent, setMouseInComponent] = useState(false);
 
-  const inspectHandler = (type: 'hover' | 'inspect') => (data: any) => {
+  const inspectHandler = (type: 'hover' | 'inspect' | 'load') => (data: any) => {
+    if (type === 'load') {
+      console.log('[load]', data);
+      return;
+    }
+
     const {name, fiber, element, codeInfo, pointer} = data;
     const root = codeInfo?.absolutePath !== 'index.tsx';
     const path = root ? codeInfo?.absolutePath : null;
@@ -131,8 +136,9 @@ export function Preview() {
       }
       <Inspector
         active={hasInspect && isMouseInComponent}
-        onHoverElement={inspectHandler('hover')}
+        onLoadAllElements={inspectHandler('load')}
         onInspectElement={inspectHandler('inspect')}
+        onHoverElement={inspectHandler('hover')}
       />
     </TransformComponent>
   );

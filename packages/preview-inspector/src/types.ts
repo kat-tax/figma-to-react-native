@@ -39,6 +39,11 @@ export interface CodeDataAttribute {
  */
 export interface InspectAgent<Element> {
   /**
+   * load all elements to inspect
+   */
+  load(): Element[];
+
+  /**
    * trigger when user activate inspector in <Inspector/>
    *
    * Agent need setup event listeners to collect user interaction on their target renderer (like DOM, React Native, React Three.js etc.)
@@ -69,7 +74,6 @@ export interface InspectAgent<Element> {
      */
     onClick: (params: { element?: Element; pointer: PointerEvent }) => void;
   }): void;
-
 
   /**
    * trigger when user deactivate inspector in <Inspector/>,

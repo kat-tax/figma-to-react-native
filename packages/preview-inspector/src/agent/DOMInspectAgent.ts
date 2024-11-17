@@ -13,6 +13,10 @@ export class DOMInspectAgent implements InspectAgent<HTMLElement> {
   protected overlay?: Overlay
   protected unsubscribeListener?: () => void
 
+  public load(): HTMLElement[] {
+    return Array.from(document.querySelectorAll('*'));
+  }
+
   public activate({
     pointer,
     onHover,

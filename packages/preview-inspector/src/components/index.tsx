@@ -30,7 +30,7 @@ export interface InspectParams<Element = HTMLElement> {
   /** react component name for dom element */
   name?: string;
   /** pointer event that triggered hover / click */
-  pointer: PointerEvent;
+  pointer?: PointerEvent;
 }
 
 export interface InspectorProps<Element> {
@@ -55,15 +55,6 @@ export interface InspectorProps<Element> {
   active?: boolean;
 
   /**
-   * Trigger by `active` state change, includes:
-   * - hotkeys toggle, before activate/deactivate Inspector
-   * - Escape / Click, before deactivate Inspector
-   *
-   * will NOT trigger by `active` prop change.
-   */
-  onActiveChange?: (active: boolean) => void;
-
-  /**
    * Whether to disable all behavior include hotkeys listening or trigger,
    * will automatically disable in production environment by default.
    *
@@ -78,28 +69,27 @@ export interface InspectorProps<Element> {
   inspectAgents?: InspectAgent<Element>[];
 
   /**
+   * Trigger by `active` state change, includes:
+   * - hotkeys toggle, before activate/deactivate Inspector
+   * - Escape / Click, before deactivate Inspector
+   *
+   * will NOT trigger by `active` prop change.
+   */
+  onActiveChange?: (active: boolean) => void;
+
+  /**
+   * Callback when all react elements with testIds are loaded.
+   */
+  onLoadAllElements?: (params: {[testId: string]: InspectParams<Element>}) => void;
+
+  /**
    * Callback when left-clicking on an element, with ensuring the source code info is found.
-   *
-   * By setting the `onInspectElement` prop, the default behavior ("open local IDE") will be disabled,
-   *   that means you want to manually handle the source info, or handle how to goto editor by yourself.
-   *
-   * You can also use builtin `gotoServerEditor` utils in `onInspectElement` to get origin behavior ("open local IDE on server-side"),
-   *   it looks like:
-   *
-   * ```tsx
-   * import { Inspector, gotoServerEditor } from 'react-dev-inspector'
-   *
-   * <Inspector
-   *   onInspectElement={({ codeInfo }) => {
-   *     ...; // your processing
-   *     gotoServerEditor(codeInfo)
-   *   }}
-   * </Inspector>
-   * ```
    */
   onInspectElement?: (params: Required<InspectParams<Element>>) => void;
 
-  /** Callback when hovering on an element */
+  /**
+   * Callback when hovering on an element.
+   */
   onHoverElement?: (params: InspectParams<Element>) => void;
 
   /**
@@ -118,6 +108,7 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
     inspectAgents = defaultInspectAgents as InspectAgent<Element>[],
     disable = (process.env.NODE_ENV !== 'development'),
     active: controlledActive,
+    onLoadAllElements,
     onInspectElement,
     onActiveChange,
     onHoverElement,
@@ -145,6 +136,32 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
     });
     agentRef.current = undefined;
   });
+
+  const handleLoadElements = useEffectEvent(({agent, elements}: {
+    agent: InspectAgent<Element>,
+    elements: Element[],
+  }) => {
+    const nodes: {[testId: string]: InspectParams<Element>} = {};
+    elements.forEach(element => {
+      const nameInfo = agent.getNameInfo(element);
+      const codeInfo = agent.findCodeInfo(element);
+      const fiber = (element instanceof HTMLElement)
+        ? domInspectAgent.getElementFiber(element)
+        : undefined;
+      const testId = fiber?.memoizedProps?.['data-testid'];
+      if (testId) {
+        nodes[testId] = {
+          element,
+          fiber,
+          codeInfo,
+          name: nameInfo?.title ?? '',
+        };
+      }
+    });
+    if (Object.keys(nodes).length > 0) {
+      onLoadAllElements?.(nodes);
+    }
+  })
 
   const handleHoverElement = useEffectEvent(({agent, element, pointer}: {
     agent: InspectAgent<Element>,
@@ -265,6 +282,11 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
         agent.deactivate();
       });
     }
+  }, [inspectAgents]);
+
+  useEffect(() => {
+    inspectAgents.forEach(agent =>
+      handleLoadElements({agent, elements: agent.load()}));
   }, [inspectAgents]);
 
   return (<>{children ?? null}</>);
