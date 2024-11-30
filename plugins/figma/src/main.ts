@@ -1,7 +1,6 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusNode, getNodeAttrs} from 'backend/parser/lib';
-import {F2RN_UI_WIDTH_MIN, F2RN_NODE_ATTRS} from 'config/consts';
-
+import {F2RN_UI_WIDTH_MIN} from 'config/consts';
 
 import * as project from 'backend/generator/project';
 import * as service from 'backend/generator/service';

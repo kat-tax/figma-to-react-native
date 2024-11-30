@@ -144,7 +144,12 @@ export function NodeGroup(props: NodeGroupProps) {
           .filter(({name, data}) => (data !== null || name === ''))
           .map(({uuid, name}) =>(
             <Popover.Section key={uuid} size="small">
-              <Flex style={{marginInline: -4}} direction="row" justify="between" align="center" gap="2">
+              <Flex
+                style={{marginInline: -4}}
+                direction="row"
+                justify="between"
+                align="center"
+                gap="2">
                 <NodeAttr {...props} {...{uuid}}/>
                 <IconButton
                   onClick={() => remove(uuid)}
