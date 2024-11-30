@@ -10,6 +10,7 @@ import {EventNodeAttrSave, EventNodeAttrReq, EventNodeAttrRes} from 'types/event
 
 interface NodeToolbarProps {
   node: string,
+  nodeSrc: string,
   close: () => void,
 }
 
@@ -23,12 +24,15 @@ interface NodeGroupProps extends NodeToolbarProps {
   ) => void,
 }
 
-const DISABLED_ATTRS: Array<NodeAttrGroup> = [NodeAttrGroup.Interactions, NodeAttrGroup.Dynamics];
+const DISABLED_ATTRS: Array<NodeAttrGroup> = [
+  NodeAttrGroup.Interactions,
+  NodeAttrGroup.Dynamics,
+];
 
 export function NodeToolbar(props: NodeToolbarProps) {
-  const {node, close} = props;
+  const {node, nodeSrc, close} = props;
 
-  const groups: Array<Omit<NodeGroupProps, 'node' | 'close' | 'state' | 'update' | 'save'>> = [
+  const groups: Array<Omit<NodeGroupProps, 'node' | 'nodeSrc' | 'close' | 'state' | 'update' | 'save'>> = [
     {group: NodeAttrGroup.Properties, icon: <IconAdjust32/>},
     {group: NodeAttrGroup.Animations, icon: <IconAnimation32/>},
     {group: NodeAttrGroup.Interactions, icon: <IconEffects32/>},
@@ -41,7 +45,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
     submit: (data) => {
       if (!data) return;
       //console.log('[node/save]', data);
-      emit<EventNodeAttrSave>('NODE_ATTR_SAVE', node, data);
+      emit<EventNodeAttrSave>('NODE_ATTR_SAVE', node, nodeSrc, data);
     },
   });
 
@@ -56,7 +60,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
 
   // Request node attributes from backend
   useEffect(() => {
-    emit<EventNodeAttrReq>('NODE_ATTR_REQ', node);
+    emit<EventNodeAttrReq>('NODE_ATTR_REQ', node, nodeSrc);
   }, [node]);
 
   // Save form on update
@@ -74,7 +78,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
               key={g.group}
               state={form.formState}
               update={form.setFormState}
-              {...{node, close}}
+              {...{node, nodeSrc, close}}
               {...g}
             />
           )
@@ -192,13 +196,18 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
     <Flex align="center" gap="2" style={{flex: 1}}>
       <Select.Root value={cur.name} onValueChange={setName}>
         <Select.Trigger style={{flex: 1}}/>
-        <Select.Content position="popper" side="bottom" sideOffset={-36}>
+        <Select.Content
+          className="props-select"
+          position="popper"
+          side="bottom"
+          sideOffset={-36}>
           {rules
             .filter(({name}) => name !== '')
-            .map(({name, data}) => (
+            .map(({name, desc, data}) => (
               <Select.Item
                 key={name}
                 value={name}
+                title={desc}
                 disabled={data !== null}>
                 {titleCase(name)}
               </Select.Item>

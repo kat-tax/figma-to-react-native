@@ -86,9 +86,9 @@ export default async function() {
     });
 
     // Handle loading node attributes
-    on<T.EventNodeAttrReq>('NODE_ATTR_REQ', (nodeId) => {
+    on<T.EventNodeAttrReq>('NODE_ATTR_REQ', (nodeId, nodeSrc) => {
       const node = figma.getNodeById(nodeId);
-      const data = node && getNodeAttrs(node);
+      const data = node && getNodeAttrs(node, nodeSrc);
       if (data) {
         emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, data);
       }

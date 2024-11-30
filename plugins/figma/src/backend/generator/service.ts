@@ -14,7 +14,7 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentData, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 const _cache: Record<string, ComponentData> = {};
@@ -71,9 +71,9 @@ export async function watchComponents(targetComponent: () => void) {
   });
 
   // Recompile component on node attribute change
-  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, data) => {
+  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, nodeSrc, data) => {
     const node = figma.getNodeById(nodeId);
-    const attr = parser.getNodeAttrs(node);
+    const attr = parser.getNodeAttrs(node, nodeSrc);
     const delta = Object.keys(diff(attr, data)).length;
     if (delta > 0) {
       // TODO: improve undo UX (recompile component / refresh node toolbar)
@@ -84,6 +84,11 @@ export async function watchComponents(targetComponent: () => void) {
         compile(all, true, new Set([component]));
       }
     }
+  });
+
+  // Save component props when parsed
+  on<EventPropsSave>('PROPS_SAVE', (props) => {
+    figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
   });
 }
 

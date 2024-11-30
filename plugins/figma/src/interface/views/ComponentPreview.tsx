@@ -309,7 +309,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             top: previewRect.top - 40,
             left: Math.min(previewRect.left, screen.width - 140),
           }}>
-            <NodeToolbar node={previewNode} close={() => inspect(false)}/>
+            <NodeToolbar
+              node={previewNode}
+              nodeSrc={previewDesc}
+              close={() => inspect(false)}
+            />
           </div>
         }
       </div>

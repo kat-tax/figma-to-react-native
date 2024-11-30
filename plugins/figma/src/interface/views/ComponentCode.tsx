@@ -1,3 +1,4 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from 'monacopilot';
 import {Position} from 'monaco-editor';
@@ -10,6 +11,7 @@ import * as $ from 'store';
 
 import type {Theme} from 'monacopilot';
 import type {UserSettings} from 'types/settings';
+import type {EventPropsSave} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 import type {Monaco, Editor} from 'interface/utils/editor';
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -104,7 +106,9 @@ export function ComponentCode(props: ComponentCodeProps) {
         path={componentPath}
         onMount={(e, m) => {
           editor.current = e;
-          initComponentEditor(e, m, prompt);
+          initComponentEditor(e, m, prompt, (components) => {
+            emit<EventPropsSave>('PROPS_SAVE', Object.fromEntries(components));
+          });
           e.onDidChangeCursorPosition((event) => {
             // console.log('[changed cursor]', event);
             if (props.nav.codeFocus) return;

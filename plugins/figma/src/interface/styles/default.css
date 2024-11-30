@@ -55,6 +55,10 @@ iframe {
   height: 100%;
 }
 
+.props-select {
+  max-height: 300px;
+}
+
 /* Radix Tab Figma Styling */
 
 .tabs {
