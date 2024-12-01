@@ -34,19 +34,16 @@ export function getIconData(node: SceneNode): ParseIconData {
 }
 
 export function getNodeAttrs(node: BaseNode, nodeSrc: string): NodeAttrData {
-  const propsAll = JSON.parse(figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS) || '{}');
-  const propsSrc: TypeScriptComponentProps[] = propsAll?.[nodeSrc]?.props;
-  const propsDef: NodeAttrRule[] = propsSrc?.map(p => ({
-    uuid: random.uuid(),
-    data: null,
-    name: p.name,
-    type: p.type,
-    desc: p.docs,
-    opts: p.opts,
-  }));
-
+  const props = JSON.parse(figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS) || '{}');
   const attrs: NodeAttrData = {
-    [NodeAttrGroup.Properties]: propsDef || [],
+    [NodeAttrGroup.Properties]: props?.[nodeSrc]?.props?.map((p: TypeScriptComponentProps) => ({
+      uuid: random.uuid(),
+      data: null,
+      name: p.name,
+      type: p.type,
+      desc: p.docs,
+      opts: p.opts,
+    })),
     [NodeAttrGroup.Animations]: [
       {uuid: random.uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: ''},
       {uuid: random.uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: ''},
