@@ -134,15 +134,15 @@ export function NodeGroup(props: NodeGroupProps) {
             <IconButton
               onClick={create}
               aria-label={`New ${group}`}
-              disabled={!rules.some(r => r.data === null)}
+              disabled={!rules?.some(r => r.data === null)}
               size="medium">
               <IconPlus32/>
             </IconButton>
           </Popover.Controls>
         </Popover.Header>
         {rules
-          .filter(({name, data}) => (data !== null || name === ''))
-          .map(({uuid, name}) =>(
+          ?.filter(({name, data}) => (data !== null || name === ''))
+          ?.map(({uuid, name}) =>(
             <Popover.Section key={uuid} size="small">
               <Flex
                 style={{marginInline: -4}}
