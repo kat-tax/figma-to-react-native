@@ -143,12 +143,17 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
   }) => {
     const nodes: {[testId: string]: InspectParams<Element>} = {};
     elements.forEach(element => {
+      console.log('>> element', element);
       const nameInfo = agent.getNameInfo(element);
+      console.log('>> nameInfo', nameInfo);
       const codeInfo = agent.findCodeInfo(element);
+      console.log('>> codeInfo', codeInfo);
       const fiber = (element instanceof HTMLElement)
         ? domInspectAgent.getElementFiber(element)
         : undefined;
+      console.log('>> fiber', fiber);
       const testId = fiber?.memoizedProps?.['data-testid'];
+      console.log('>> testId', testId);
       if (testId) {
         nodes[testId] = {
           element,
@@ -276,17 +281,16 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
   });
 
   useEffect(() => {
+    inspectAgents.forEach(agent => handleLoadElements({
+      agent,
+      elements: agent.load(),
+    }));
     return () => {
       agentRef.current = undefined;
       inspectAgents.forEach(agent => {
         agent.deactivate();
       });
     }
-  }, [inspectAgents]);
-
-  useEffect(() => {
-    inspectAgents.forEach(agent =>
-      handleLoadElements({agent, elements: agent.load()}));
   }, [inspectAgents]);
 
   return (<>{children ?? null}</>);
