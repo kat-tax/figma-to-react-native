@@ -59,9 +59,9 @@ const tabs: AppTabs = {
 
 export function App(props: AppProps) {
   const {isReady, isVSCode, isDevMode} = props;
+  const [lastResize, setLastResize] = useState(0);
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [lastResize, setLastResize] = useState(0);
 
   const build = useBuild();
   const theme = useProjectTheme();
@@ -97,6 +97,11 @@ export function App(props: AppProps) {
       nav.gotoOverview();
     }
   }, [compKey, nav]);
+
+  // Reset search mode when tab or component changes
+  useEffect(() => {
+    setSearchMode(false);
+  }, [nav.tab, nav.component]);
 
   return hasTabs ? (
     <TooltipProvider disableHoverableContent>

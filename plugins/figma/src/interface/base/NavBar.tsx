@@ -84,7 +84,7 @@ export function NavBar(props: NavBarProps) {
   }, [props.tabs, width]);
 
   return (
-    <div className={`tab-menu ${classMenu}`}>
+    <div className={`tab-menu ${classMenu} ${props.searchMode ? 'search-mode' : ''}`}>
       <Tabs.List loop aria-label="menu">
         {hasTarget
         ? <div className="tab-bar-nav">

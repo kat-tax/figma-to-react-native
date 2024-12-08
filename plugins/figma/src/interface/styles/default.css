@@ -77,6 +77,12 @@ iframe {
   border-bottom: 1px solid var(--figma-color-border);
 }
 
+.search-mode.tab-menu,
+.search-mode div[role="tablist"],
+.search-mode div[role="tablist"] > div {
+  width: 100%;
+}
+
 .tab-bar {
   display: flex;
   overflow-x: auto;
