@@ -61,7 +61,8 @@ async function getTypeScriptComponents(
   try {
     const worker = await monaco.languages.typescript.getTypeScriptWorker();
     const client = await worker();
-    const uri = model.uri.toString();
+    const uri = model?.uri?.toString();
+    if (!uri) return null;
 
     // Find all component tags
     const content = model.getValue();

@@ -323,6 +323,8 @@ iframe {
 .virtuoso-grid-list {
   display: flex;
   flex-flow: wrap;
+  margin: 6px;
+  gap: 1px;
 }
 
 /* Theme Picker */

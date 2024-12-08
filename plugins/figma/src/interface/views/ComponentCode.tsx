@@ -107,6 +107,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         onMount={(e, m) => {
           editor.current = e;
           initComponentEditor(e, m, prompt, (components) => {
+            if (!components) return;
             emit<EventPropsSave>('PROPS_SAVE', Object.fromEntries(components));
           });
           e.onDidChangeCursorPosition((event) => {
