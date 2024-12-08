@@ -80,7 +80,9 @@ iframe {
 .search-mode.tab-menu,
 .search-mode div[role="tablist"],
 .search-mode div[role="tablist"] > div {
+  align-items: center;
   width: 100%;
+  gap: 0;
 }
 
 .tab-bar {
@@ -151,11 +153,12 @@ iframe {
 }
 
 .tab-btn {
-  width: 32;
-  height: 32;
+  width: 24px;
+  height: 24px;
+  margin-block: 4px;
+  margin-right: 4px;
   padding: 0;
   border: 0;
-  opacity: 0.6;
   border-radius: 5px;
   display: flex;
   background: none;
@@ -164,6 +167,7 @@ iframe {
 }
 
 .tab-btn:hover {
+  background-color: var(--figma-color-bg-pressed);
   opacity: 1;
 }
 
