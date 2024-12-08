@@ -128,7 +128,7 @@ iframe {
   padding: 0 8px;
   height: 32;
   border: 0;
-  border-radius: 2px;
+  border-radius: 5px;
 }
 
 .tab.icon {
@@ -156,7 +156,7 @@ iframe {
   padding: 0;
   border: 0;
   opacity: 0.6;
-  border-radius: 2px;
+  border-radius: 5px;
   display: flex;
   background: none;
   justify-content: center;
@@ -164,7 +164,6 @@ iframe {
 }
 
 .tab-btn:hover {
-  background-color: var(--figma-color-bg-pressed);
   opacity: 1;
 }
 

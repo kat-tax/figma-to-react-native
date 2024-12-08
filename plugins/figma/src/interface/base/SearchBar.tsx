@@ -11,6 +11,7 @@ export function SearchBar(props: SearchBarProps) {
   return (
     <Fragment>
       <SearchTextbox
+        autoFocus
         style={{width: '100%'}}
         placeholder="Find..."
         value={props.searchQuery}
