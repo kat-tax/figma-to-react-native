@@ -75,7 +75,7 @@ export async function preview(options: PreviewOptions) {
   }
 }
 
-export async function init(settings: UserSettings) {
+export async function init(settings: UserSettings, isDark: boolean) {
   // Build filesystem
   const files = new Map<string, string>();
   files.set(ENTRY_POINT, atob(loader.toString()));
@@ -84,6 +84,7 @@ export async function init(settings: UserSettings) {
   try {
     const output = await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
     return atob(iframe)
+      .replace('__CURRENT_FIGMA_THEME__', isDark ? 'dark' : 'light')
       .replace('__IMPORT_MAP__', JSON.stringify(importMap, undefined, 2))
       .replace('__LOADER__', output);
   } catch(e) {

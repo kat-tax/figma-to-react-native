@@ -24,12 +24,13 @@ interface ComponentPreviewProps {
   lastResize: number,
   background: string,
   language: string,
+  isDark: boolean,
   theme: string,
   nav: Navigation,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {compKey, build, variant, theme, background, language, nav} = props;
+  const {compKey, nav, build, variant, theme, background, language, isDark} = props;
   const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
   const [previewHover, setPreviewHover] = useState<[string, string] | null>(null);
@@ -65,7 +66,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   // Inits the loader that renders component apps
   const initLoader = useCallback(() => {
-    init(settings).then(code => {
+    init(settings, isDark).then(code => {
       loaded.current = true;
       setSrc(code);
       if (component) {
@@ -130,6 +131,9 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   // Update the preview theme when it changes
   useEffect(() => {post('preview::theme', {theme})}, [theme]);
+
+  // Update the background theme when it changes
+  useEffect(() => {post('preview::figma-theme', {isDark})}, [isDark]);
 
   // Update the preview background when it changes
   useEffect(() => {post('preview::background', {background})}, [background]);

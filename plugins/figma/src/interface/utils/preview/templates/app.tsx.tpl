@@ -47,6 +47,9 @@ export function App() {
           // console.log('[changed theme]', e.data.theme);
           UnistylesRuntime.setTheme(e.data.theme);
           return;
+        case 'preview::figma-theme':
+          document.documentElement.className = e.data.isDark ? 'dark' : 'light';
+          return;
         case 'preview::language':
           // console.log('[changed language]', e.data.language);
           __lang__ = e.data.language;

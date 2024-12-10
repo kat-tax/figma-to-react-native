@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html class="__CURRENT_FIGMA_THEME__">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,13 +9,17 @@
         width: 100%;
         height: 100%;
         background-size: 16px 16px;
-        background-color: rgb(31, 31, 31);
-        background-image: linear-gradient(45deg, rgb(43, 43, 43) 25%, transparent 25%), linear-gradient(-45deg, rgb(43, 43, 43) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(43, 43, 43) 75%), linear-gradient(-45deg, transparent 75%, rgb(43, 43, 43) 75%);
+        background-color: rgb(242, 242, 242);
+        background-image: linear-gradient(45deg, rgb(255, 255, 255) 25%, transparent 25%), linear-gradient(-45deg, rgb(255, 255, 255) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(255, 255, 255) 75%), linear-gradient(-45deg, transparent 75%, rgb(255, 255, 255) 75%);
         background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
         transition: background-size 0.2s ease-out, background-position 0.2s ease-out;
         will-change: background-size, background-position;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
+      }
+      html.dark {
+        background-color: rgb(31, 31, 31);
+        background-image: linear-gradient(45deg, rgb(43, 43, 43) 25%, transparent 25%), linear-gradient(-45deg, rgb(43, 43, 43) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(43, 43, 43) 75%), linear-gradient(-45deg, transparent 75%, rgb(43, 43, 43) 75%);
       }
       body, #previewer, #previewer > div {
         margin: 0;
