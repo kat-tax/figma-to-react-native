@@ -14,8 +14,9 @@ declare module 'react-native-unistyles' {
 }
 
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
-const initialTheme = '__CURRENT_THEME__';
+const initialBackground = '__CURRENT_BACKGROUND__';
 const initialLanguage = '__CURRENT_LANGUAGE__';
+const initialTheme = '__CURRENT_THEME__';
 
 // TODO: replace with real translations
 window.__messages__ = {
@@ -74,6 +75,8 @@ export function App() {
     </ErrorBoundary>
   )
 }
+
+document.body.style.backgroundColor = initialBackground;
 
 UnistylesRegistry
   .addThemes(themes)

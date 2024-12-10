@@ -14,7 +14,7 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentData, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave, EventProjectBackground} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 const _cache: Record<string, ComponentData> = {};
@@ -90,6 +90,19 @@ export async function watchComponents(targetComponent: () => void) {
   on<EventPropsSave>('PROPS_SAVE', (props) => {
     figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
   });
+}
+
+export async function watchBackground() {
+  let _lastBackground = '#000000';
+  const updateBackground = async () => {
+    const fill = parser.getTopFill(figma.currentPage.backgrounds);
+    const color = parser.getColor(fill?.color, fill?.opacity);
+    if (color === _lastBackground) return;
+    _lastBackground = color;
+    emit<EventProjectBackground>('PROJECT_BACKGROUND', color);
+  };
+  setInterval(updateBackground, 300);
+  updateBackground();
 }
 
 export async function watchTheme(settings: ProjectSettings) {

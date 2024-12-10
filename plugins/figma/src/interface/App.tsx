@@ -24,9 +24,10 @@ import {useEditor} from 'interface/hooks/useEditor';
 import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useNavigation} from 'interface/hooks/useNavigation';
 import {useUserSettings} from 'interface/hooks/useUserSettings';
-import {useProjectLanguage} from 'interface/hooks/useProjectLanguage';
-import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
+import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
+import {useProjectBackground} from 'interface/hooks/useProjectBackground';
+import {useProjectLanguage} from 'interface/hooks/useProjectLanguage';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
@@ -68,6 +69,7 @@ export function App(props: AppProps) {
   const icons = useProjectIcons();
   const project = useProjectConfig();
   const language = useProjectLanguage();
+  const background = useProjectBackground();
   const settings = useUserSettings();
   const variant = useSelectedVariant();
   const monaco = useEditor(settings.config, build.links);
@@ -134,7 +136,7 @@ export function App(props: AppProps) {
         <Tabs.Content value="component/code">
           <DualPanel
             primary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme}}/>}
-            secondary={<ComponentPreview {...{nav, compKey, build, variant, theme, language, settings, lastResize}}/>}
+            secondary={<ComponentPreview {...{nav, compKey, build, variant, theme, background, language, settings, lastResize}}/>}
             onResize={() => setLastResize(Date.now())}
           />
         </Tabs.Content>

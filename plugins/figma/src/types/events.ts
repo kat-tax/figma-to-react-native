@@ -113,6 +113,11 @@ export interface EventProjectTheme extends EventHandler {
   handler: (theme: string, current: string, hasStyles: boolean) => void;
 }
 
+export interface EventProjectBackground extends EventHandler {
+  name: 'PROJECT_BACKGROUND';
+  handler: (color: string) => void;
+}
+
 export interface EventProjectLanguage extends EventHandler {
   name: 'PROJECT_LANGUAGE';
   handler: (language: string) => void;

@@ -22,13 +22,14 @@ interface ComponentPreviewProps {
   build: ComponentBuild,
   settings: SettingsData,
   lastResize: number,
+  background: string,
   language: string,
   theme: string,
   nav: Navigation,
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {compKey, build, variant, theme, language, nav} = props;
+  const {compKey, build, variant, theme, background, language, nav} = props;
   const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
   const [previewHover, setPreviewHover] = useState<[string, string] | null>(null);
@@ -79,8 +80,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     if (!loaded.current) return
     const {name, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
-    preview({tag, name, path, imports, theme, language, settings, build}).then(bundle => {
-      post('preview::load', {bundle, name, width, height, theme});
+    preview({tag, name, path, imports, theme, background, language, settings, build}).then(bundle => {
+      post('preview::load', {bundle, name, width, height, theme, background});
     });
   }, [component, settings, build]);
 
@@ -129,6 +130,9 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   // Update the preview theme when it changes
   useEffect(() => {post('preview::theme', {theme})}, [theme]);
+
+  // Update the preview background when it changes
+  useEffect(() => {post('preview::background', {background})}, [background]);
 
   // Update the preview language when it changes
   useEffect(() => {post('preview::language', {language})}, [language]);

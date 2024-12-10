@@ -50,18 +50,16 @@ export function Preview() {
     });
   };
 
-  const updateTheme = (theme: string) => {
-    document.body.style.backgroundColor = theme === 'light'
-      ? '#ffffff'
-      : '#2c2c2c';
+  const updateBackground = (background: string) => {
+    document.body.style.backgroundColor = background;
   }
 
   useEffect(() => {
     const figma = (e: JSON) => {
       const el = document.getElementById('component');
       switch (e.data?.type) {
-        case 'preview::theme':
-          updateTheme(e.data.theme);
+        case 'preview::background':
+          updateBackground(e.data.background);
           return;
         case 'preview::inspect':
           setInspect(e.data.enabled);
@@ -71,7 +69,7 @@ export function Preview() {
           break;
         case 'preview::load':
           setError(null);
-          updateTheme(e.data.theme);
+          updateBackground(e.data.background);
           // Update frame
           el.style.display = 'flex';
           el.style.width = e.data.width ? e.data.width + 'px' : 'auto';
