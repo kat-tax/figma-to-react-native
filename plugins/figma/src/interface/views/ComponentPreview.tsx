@@ -85,7 +85,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     });
   }, [component, settings, build]);
 
-  // Workaround to force the preview app to refresh
+  // TEMP: Workaround to force the preview app to refresh
   const refresh = useCallback(() => {
     if (!iframe.current) return;
     requestAnimationFrame(() => {

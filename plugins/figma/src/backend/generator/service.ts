@@ -18,11 +18,18 @@ import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, Event
 import type {ProjectSettings} from 'types/settings';
 
 const _cache: Record<string, ComponentData> = {};
+
 let _lastThemeCode = '';
 let _lastThemeName = '';
 
-export async function watchComponents(targetComponent: () => void) {
-  // Compile all components in background on init
+export async function watchComponents(
+  targetComponent: () => void,
+  updateBackground: () => void,
+) {
+  // Init: update background preview color
+  updateBackground();
+
+  // Init: compile all components in background
   const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
   if (all.size > 0) {
     const cached = await compile(all);
@@ -36,7 +43,14 @@ export async function watchComponents(targetComponent: () => void) {
 
   // Recompile changed components on doc change
   figma.on('documentchange', async (e) => {
-    // console.log('[change]', e.documentChanges);
+    // Page background update
+    if (e.documentChanges.length === 1
+      && e.documentChanges[0].type === 'PROPERTY_CHANGE'
+      && e.documentChanges[0].properties.includes('backgrounds')) {
+      updateBackground();
+      return;
+    }
+
     // We need to get all components for the roster
     const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
     // No components, do nothing
@@ -90,19 +104,6 @@ export async function watchComponents(targetComponent: () => void) {
   on<EventPropsSave>('PROPS_SAVE', (props) => {
     figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
   });
-}
-
-export async function watchBackground() {
-  let _lastBackground = '#000000';
-  const updateBackground = async () => {
-    const fill = parser.getTopFill(figma.currentPage.backgrounds);
-    const color = parser.getColor(fill?.color, fill?.opacity);
-    if (color === _lastBackground) return;
-    _lastBackground = color;
-    emit<EventProjectBackground>('PROJECT_BACKGROUND', color);
-  };
-  setInterval(updateBackground, 300);
-  updateBackground();
 }
 
 export async function watchTheme(settings: ProjectSettings) {

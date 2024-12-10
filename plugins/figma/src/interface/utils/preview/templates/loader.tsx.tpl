@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import {createRoot} from 'react-dom/client';
-import {useEffect, useState} from 'react';
+import {useLayoutEffect, useState} from 'react';
 import {useControls, getMatrixTransformStyles, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 import {Inspector} from 'preview-inspector';
 
@@ -14,16 +14,8 @@ export default function Loader() {
       initialPositionX={window.innerWidth / 2}
       customTransform={getMatrixTransformStyles}
       centerZoomedOut={false}
-      doubleClick={{
-        disabled: false,
-        mode: 'reset',
-      }}
-      wheel={{
-        smoothStep: 0.03,
-      }}
-      onZoomStop={e => {
-        e.centerView();
-      }}
+      doubleClick={{mode: 'reset'}}
+      wheel={{smoothStep: 0.03}}
       onTransformed={(e) => {
         const defSize = 16;
         const minSize = 11.4;
@@ -81,7 +73,7 @@ export function Preview() {
     document.body.style.backgroundColor = background;
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const figma = (e: JSON) => {
       const el = document.getElementById('component');
       switch (e.data?.type) {

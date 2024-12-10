@@ -1,5 +1,5 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {focusNode, getNodeAttrs} from 'backend/parser/lib';
+import {focusNode, getNodeAttrs, getTopFill, getColor} from 'backend/parser/lib';
 import {F2RN_UI_WIDTH_MIN} from 'config/consts';
 
 import * as project from 'backend/generator/project';
@@ -137,10 +137,17 @@ export default async function() {
     }, 1000);
 
     // Start generation services
-    service.watchComponents(nav.targetSelectedComponent);
     service.watchTheme(config.state);
-    service.watchBackground();
     service.watchIcons();
     service.watchLocales();
+    service.watchComponents(
+      nav.targetSelectedComponent,
+      () => {
+        const page = figma.currentPage;
+        const fill = getTopFill(page.backgrounds);
+        const color = getColor(fill?.color, fill?.opacity);
+        emit<T.EventProjectBackground>('PROJECT_BACKGROUND', color);
+      }
+    );
   });
 }
