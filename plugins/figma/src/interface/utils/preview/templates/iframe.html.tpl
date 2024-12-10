@@ -12,6 +12,10 @@
         background-color: rgb(31, 31, 31);
         background-image: linear-gradient(45deg, rgb(43, 43, 43) 25%, transparent 25%), linear-gradient(-45deg, rgb(43, 43, 43) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(43, 43, 43) 75%), linear-gradient(-45deg, transparent 75%, rgb(43, 43, 43) 75%);
         background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+        transition: background-size 0.2s ease-out, background-position 0.2s ease-out;
+        will-change: background-size, background-position;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
       }
       body, #previewer, #previewer > div {
         margin: 0;

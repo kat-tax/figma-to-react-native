@@ -100,7 +100,7 @@
   "react-remove-scroll-bar/constants": "https://ga.jspm.io/npm:react-remove-scroll-bar@2.3.4/dist/es2015/constants.js",
   "react-remove-scroll": "https://ga.jspm.io/npm:react-remove-scroll@2.5.5/dist/es2015/index.js",
   "react-style-singleton": "https://ga.jspm.io/npm:react-style-singleton@2.2.1/dist/es2015/index.js",
-  "react-zoom-pan-pinch": "https://ga.jspm.io/npm:react-zoom-pan-pinch@3.0.8/dist/index.esm.js",
+  "react-zoom-pan-pinch": "https://ga.jspm.io/npm:react-zoom-pan-pinch@3.6.1/dist/index.esm.js",
   "react": "https://ga.jspm.io/npm:react@18.2.0/dev.index.js",
   "react/jsx-dev-runtime": "https://ga.jspm.io/npm:react@18.2.0/dev.jsx-dev-runtime.js",
   "react/jsx-runtime": "https://ga.jspm.io/npm:react@18.2.0/dev.jsx-runtime.js",

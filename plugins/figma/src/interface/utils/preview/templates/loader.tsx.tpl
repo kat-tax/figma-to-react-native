@@ -2,17 +2,44 @@
 
 import {createRoot} from 'react-dom/client';
 import {useEffect, useState} from 'react';
-import {useControls, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
+import {useControls, getMatrixTransformStyles, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 import {Inspector} from 'preview-inspector';
 
 export default function Loader() {
   return (
     <TransformWrapper
       smooth
+      minScale={0.5}
+      initialPositionY={-99999}
       initialPositionX={window.innerWidth / 2}
-      initialPositionY={window.innerHeight * 2}
-      onTransformed={() => parent.postMessage({type: 'loader::interaction'})}
-      doubleClick={{mode: 'reset'}}>
+      customTransform={getMatrixTransformStyles}
+      centerZoomedOut={false}
+      doubleClick={{
+        disabled: false,
+        mode: 'reset',
+      }}
+      wheel={{
+        smoothStep: 0.03,
+      }}
+      onZoomStop={e => {
+        e.centerView();
+      }}
+      onTransformed={(e) => {
+        const defSize = 16;
+        const minSize = 11.4;
+        const maxSize = 22.6;
+        // Scale < 1: interpolate between minSize and defSize
+        // Scale > 1: interpolate between defSize and maxSize
+        const size = e.state.scale <= 1 
+          ? minSize + (defSize - minSize) * e.state.scale
+          : defSize + (maxSize - defSize) * Math.min(e.state.scale - 1, 1);
+        const halfSize = size / 2;
+        const backgroundSize = `${size}px ${size}px`;
+        const backgroundPosition = `0 0, 0 ${halfSize}px, ${halfSize}px ${-halfSize}px, ${-halfSize}px 0px`;
+        document.documentElement.style.backgroundSize = backgroundSize;
+        document.documentElement.style.backgroundPosition = backgroundPosition;
+        parent.postMessage({type: 'loader::interaction'});
+      }}>
       <Preview/>
     </TransformWrapper>
   );
