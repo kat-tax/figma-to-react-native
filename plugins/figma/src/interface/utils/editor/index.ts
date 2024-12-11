@@ -7,8 +7,8 @@ import * as $ from 'store';
 import imports from './lib/imports';
 import copilot from './lib/copilot';
 import typings from './lib/typings';
-import typescript from './lib/language';
-import experimental from './lib/experimental';
+import prompts from './lib/prompts';
+import language from './lib/language';
 
 import type * as monaco from 'monaco-editor';
 import type {UserSettings} from 'types/settings';
@@ -122,10 +122,10 @@ export async function initComponentEditor(
   // console.log('[init editor]', editor, monaco);
   typings.init(monaco, editor);
   copilot.init(monaco, editor);
-  experimental.init(monaco, editor, onPrompt);
-  await typescript.onTypeScriptWorkerReady(monaco, editor.getModel());
+  prompts.init(monaco, editor, onPrompt);
+  await language.onTypeScriptWorkerReady(monaco, editor.getModel());
   editor.onDidChangeModel(async (e) => {
-    onComponents(await typescript.getTypeScriptComponents(monaco, editor.getModel()));
+    onComponents(await language.getTypeScriptComponents(monaco, editor.getModel()));
   });
 }
 
