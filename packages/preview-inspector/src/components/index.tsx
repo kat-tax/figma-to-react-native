@@ -303,18 +303,20 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
   
     // Update elements when window size changes
     const resizer = new ResizeObserver(update);
-    resizer.observe(root);
+    resizer.observe(document.body);
 
     // Update elements when component children change
     const observer = new MutationObserver(update);
-    observer.observe(root, {
-      childList: true,
-      subtree: true,
-    });
+    observer.observe(root, {childList: true, subtree: true});
+
+    // Update elements when position changes
+    const intersector = new IntersectionObserver(update, {threshold: 0, root: null});
+    intersector.observe(root);
 
     return () => {
       resizer.disconnect();
       observer.disconnect();
+      intersector.disconnect();
     };
   }, [inspectAgents, disable]);
 

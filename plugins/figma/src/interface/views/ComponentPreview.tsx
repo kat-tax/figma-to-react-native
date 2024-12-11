@@ -134,12 +134,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // TEMP: Workaround to force the preview app to refresh
   const refresh = useCallback(() => {
     if (!iframe.current) return;
-    requestAnimationFrame(() => {
-      iframe.current.style.width = '99%';
-      requestAnimationFrame(() => {
-        iframe.current.style.width = '100%';
-      });
-    });
+    // requestAnimationFrame(() => {
+    //   iframe.current.style.width = '99%';
+    //   requestAnimationFrame(() => {
+    //     iframe.current.style.width = '100%';
+    //   });
+    // });
   }, []);
 
   // Enable inspect mode in the app
