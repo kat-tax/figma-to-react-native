@@ -2,7 +2,7 @@ import {useWindowSize} from '@uidotdev/usehooks';
 import {useEffect, useState, Fragment} from 'react';
 import {Tabs, Text, IconButton} from 'figma-kit';
 import {Dropdown, IconEllipsis32, IconLayerComponent16} from 'figma-ui';
-import {patch, actions} from 'interface/utils/editor/lib/Experimental';
+import {patch, actions} from 'interface/utils/editor/lib/prompts';
 import {SearchBar} from 'interface/base/SearchBar';
 import {titleCase} from 'common/string';
 

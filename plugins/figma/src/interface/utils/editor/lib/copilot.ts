@@ -3,8 +3,9 @@ import type {Monaco, Editor} from '../';
 
 function init(monaco: Monaco, editor: Editor) {
   registerCompletion(monaco, editor, {
-    endpoint: 'https://api.example.com/complete',
+    endpoint: 'https://f2rn-copilot.deno.dev',
     language: 'typescript',
+    trigger: 'onTyping',
   });
 }
 

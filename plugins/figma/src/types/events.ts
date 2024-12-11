@@ -2,7 +2,7 @@ import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {UserSettings} from 'types/settings';
 import type {NodeAttrData} from 'types/node';
-import type {TypeScriptComponent} from 'interface/utils/editor/lib/TypeScript';
+import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
 import type {ComponentData, ComponentBuild} from 'types/component';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';

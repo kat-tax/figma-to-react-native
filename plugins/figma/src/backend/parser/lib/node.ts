@@ -8,8 +8,8 @@ import {getFillToken} from './colors';
 
 import type {ParseIconData} from 'types/parse';
 import type {ComponentInfo} from 'types/component';
-import type {NodeAttrData, NodeAttrRule} from 'types/node';
-import type {TypeScriptComponentProps} from 'interface/utils/editor/lib/TypeScript';
+import type {NodeAttrData} from 'types/node';
+import type {TypeScriptComponentProps} from 'interface/utils/editor/lib/language';
 
 export function isNodeVisible(node: SceneNode) {
   const isVariant = !!(node as SceneNode & VariantMixin).variantProperties;
