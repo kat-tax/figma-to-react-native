@@ -6,12 +6,14 @@ import * as $ from 'store';
 
 import imports from './lib/imports';
 import typings from './lib/typings';
+import TypeScript from './lib/TypeScript';
 import Experimental from './lib/Experimental';
 
 import type * as monaco from 'monaco-editor';
 import type {UserSettings} from 'types/settings';
 import type {EventFocusNode} from 'types/events';
 import type {ComponentLinks} from 'types/component';
+import type {TypeScriptComponents} from './lib/TypeScript';
 
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
@@ -110,8 +112,17 @@ export function initSettingsSchema(monaco: Monaco) {
   });
 }
 
-export function initComponentEditor(editor: Editor, monaco: Monaco, onTriggerGPT: () => void) {
+export async function initComponentEditor(
+  editor: Editor,
+  monaco: Monaco,
+  onPrompt: () => void,
+  onComponents: (components: TypeScriptComponents) => void,
+) {
   // console.log('[init editor]', editor, monaco);
   typings.init(monaco, editor);
-  Experimental.init(monaco, editor, onTriggerGPT);
+  Experimental.init(monaco, editor, onPrompt);
+  await TypeScript.onTypeScriptWorkerReady(monaco, editor.getModel());
+  editor.onDidChangeModel(async (e) => {
+    onComponents(await TypeScript.getTypeScriptComponents(monaco, editor.getModel()));
+  });
 }

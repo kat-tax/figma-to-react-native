@@ -6,9 +6,10 @@ import {NodeAttrGroup, NodeAttrType} from 'types/node';
 import {getPage, getSection} from './traverse';
 import {getFillToken} from './colors';
 
-import type {NodeAttrData} from 'types/node';
 import type {ParseIconData} from 'types/parse';
 import type {ComponentInfo} from 'types/component';
+import type {NodeAttrData, NodeAttrRule} from 'types/node';
+import type {TypeScriptComponentProps} from 'interface/utils/editor/lib/TypeScript';
 
 export function isNodeVisible(node: SceneNode) {
   const isVariant = !!(node as SceneNode & VariantMixin).variantProperties;
@@ -32,14 +33,17 @@ export function getIconData(node: SceneNode): ParseIconData {
   return {name, color, size};
 }
 
-export function getNodeAttrs(node: BaseNode): NodeAttrData {
+export function getNodeAttrs(node: BaseNode, nodeSrc: string): NodeAttrData {
+  const props = JSON.parse(figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS) || '{}');
   const attrs: NodeAttrData = {
-    [NodeAttrGroup.Properties]: [
-      {uuid: random.uuid(), data: null, name: 'title', type: NodeAttrType.String, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'width', type: NodeAttrType.Number, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'variant', type: NodeAttrType.Enum, opts: ['Primary', 'Secondary', 'Tertiary'], desc: ''},
-      {uuid: random.uuid(), data: null, name: 'selectable', type: NodeAttrType.Boolean, desc: ''},
-    ],
+    [NodeAttrGroup.Properties]: props?.[nodeSrc]?.props?.map((p: TypeScriptComponentProps) => ({
+      uuid: random.uuid(),
+      data: null,
+      name: p.name,
+      type: p.type,
+      desc: p.docs,
+      opts: p.opts,
+    })),
     [NodeAttrGroup.Animations]: [
       {uuid: random.uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: ''},
       {uuid: random.uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: ''},

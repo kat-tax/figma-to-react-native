@@ -86,7 +86,7 @@
     "ajv-cli": "^5.0.0",
     "esbuild": "^0.20.2",
     "figma-build": "workspace:*",
-    "react-zoom-pan-pinch": "^3.4.4",
+    "react-zoom-pan-pinch": "^3.6.1",
     "typescript": "^5.3.3",
     "typescript-json-schema": "^0.63.0"
   },

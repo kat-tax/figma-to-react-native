@@ -14,15 +14,22 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentData, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave, EventProjectBackground} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 const _cache: Record<string, ComponentData> = {};
+
 let _lastThemeCode = '';
 let _lastThemeName = '';
 
-export async function watchComponents(targetComponent: () => void) {
-  // Compile all components in background on init
+export async function watchComponents(
+  targetComponent: () => void,
+  updateBackground: () => void,
+) {
+  // Init: update background preview color
+  updateBackground();
+
+  // Init: compile all components in background
   const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
   if (all.size > 0) {
     const cached = await compile(all);
@@ -36,7 +43,14 @@ export async function watchComponents(targetComponent: () => void) {
 
   // Recompile changed components on doc change
   figma.on('documentchange', async (e) => {
-    // console.log('[change]', e.documentChanges);
+    // Page background update
+    if (e.documentChanges.length === 1
+      && e.documentChanges[0].type === 'PROPERTY_CHANGE'
+      && e.documentChanges[0].properties.includes('backgrounds')) {
+      updateBackground();
+      return;
+    }
+
     // We need to get all components for the roster
     const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
     // No components, do nothing
@@ -71,9 +85,9 @@ export async function watchComponents(targetComponent: () => void) {
   });
 
   // Recompile component on node attribute change
-  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, data) => {
+  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, nodeSrc, data) => {
     const node = figma.getNodeById(nodeId);
-    const attr = parser.getNodeAttrs(node);
+    const attr = parser.getNodeAttrs(node, nodeSrc);
     const delta = Object.keys(diff(attr, data)).length;
     if (delta > 0) {
       // TODO: improve undo UX (recompile component / refresh node toolbar)
@@ -84,6 +98,11 @@ export async function watchComponents(targetComponent: () => void) {
         compile(all, true, new Set([component]));
       }
     }
+  });
+
+  // Save component props when parsed
+  on<EventPropsSave>('PROPS_SAVE', (props) => {
+    figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
   });
 }
 

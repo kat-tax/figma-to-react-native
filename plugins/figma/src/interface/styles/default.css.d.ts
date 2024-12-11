@@ -10,6 +10,8 @@ declare const styles: {
   readonly "highlight": string;
   readonly "icon": string;
   readonly "list": string;
+  readonly "props-select": string;
+  readonly "search-mode": string;
   readonly "status-actions": string;
   readonly "status-bar": string;
   readonly "tab": string;
