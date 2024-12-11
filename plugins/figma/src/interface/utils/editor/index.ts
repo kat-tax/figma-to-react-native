@@ -5,15 +5,16 @@ import schema from 'interface/schemas/user/schema.json';
 import * as $ from 'store';
 
 import imports from './lib/imports';
+import copilot from './lib/copilot';
 import typings from './lib/typings';
-import TypeScript from './lib/TypeScript';
-import Experimental from './lib/Experimental';
+import typescript from './lib/language';
+import experimental from './lib/experimental';
 
 import type * as monaco from 'monaco-editor';
 import type {UserSettings} from 'types/settings';
 import type {EventFocusNode} from 'types/events';
 import type {ComponentLinks} from 'types/component';
-import type {TypeScriptComponents} from './lib/TypeScript';
+import type {TypeScriptComponents} from './lib/language';
 
 export type Editor = monaco.editor.IStandaloneCodeEditor;
 export type Monaco = typeof monaco;
@@ -120,9 +121,11 @@ export async function initComponentEditor(
 ) {
   // console.log('[init editor]', editor, monaco);
   typings.init(monaco, editor);
-  Experimental.init(monaco, editor, onPrompt);
-  await TypeScript.onTypeScriptWorkerReady(monaco, editor.getModel());
+  copilot.init(monaco, editor);
+  experimental.init(monaco, editor, onPrompt);
+  await typescript.onTypeScriptWorkerReady(monaco, editor.getModel());
   editor.onDidChangeModel(async (e) => {
-    onComponents(await TypeScript.getTypeScriptComponents(monaco, editor.getModel()));
+    onComponents(await typescript.getTypeScriptComponents(monaco, editor.getModel()));
   });
 }
+

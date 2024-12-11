@@ -1,7 +1,7 @@
 import {NodeAttrType} from 'types/node';
 
 import type * as monaco from 'monaco-editor';
-import type {Monaco} from '../index';
+import type {Monaco} from '../../index';
 
 export type TypeScriptComponents = Map<string, TypeScriptComponent>;
 

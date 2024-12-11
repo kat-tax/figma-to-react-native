@@ -32,7 +32,7 @@ import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 
-import type {Theme} from 'monacopilot';
+import type {Theme} from '@monaco-editor/react';
 import type {AppTabs} from 'types/app';
 
 interface AppProps {
@@ -84,7 +84,7 @@ export function App(props: AppProps) {
   const compKey = build.roster[nav.component] ? nav.component: null;
 
   // Monaco options
-  const editorTheme: Theme = isDark ? 'codesandbox-dark' : 'light';
+  const editorTheme: Theme = isDark ? 'vs-dark' : 'light';
   const editorOptions = {
     ...settings.config.monaco.general,
     tabSize: settings.config.writer.indentNumberOfSpaces,
