@@ -44,13 +44,8 @@ export function Preview() {
   const [hasInspect, setInspect] = useState(false);
   const [isMouseInComponent, setMouseInComponent] = useState(false);
 
-  const inspectHandler = (type: 'hover' | 'inspect' | 'load') => (data: any) => {
-    if (type === 'load') {
-      console.log('[load]', data);
-      return;
-    }
-
-    const {name, fiber, element, codeInfo, pointer} = data;
+  const augmentNode = (node: any) => {
+    const {name, fiber, element, codeInfo, pointer} = node;
     const root = codeInfo?.absolutePath !== 'index.tsx';
     const path = root ? codeInfo?.absolutePath : null;
     const rect = element?.getBoundingClientRect();
@@ -59,13 +54,26 @@ export function Preview() {
       line: root && parseInt(codeInfo.lineNumber, 10) || 1,
       column: root && parseInt(codeInfo.columnNumber, 10) || 1,
     };
-    console.log(`[${type}]`, data);
-    parent.postMessage({type: `loader::${type}`,
+    return {
       name,
+      root,
       path,
       rect,
       nodeId,
       source,
+    };
+  }
+
+  const augmentData = (data: any, isMap: boolean) => isMap
+    ? Object.fromEntries(Object.entries(data)
+      .map(([k, v]) => [k, augmentNode(v)]))
+    : augmentNode(data);
+
+  const inspectHandler = (type: 'hover' | 'inspect' | 'load') => (data: any) => {
+    console.log(`[${type}]`, data);
+    parent.postMessage({
+      type: `loader::${type}`,
+      info: augmentData(data, type === 'load'),
     });
   };
 

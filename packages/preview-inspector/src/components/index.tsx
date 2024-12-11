@@ -143,17 +143,12 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
   }) => {
     const nodes: {[testId: string]: InspectParams<Element>} = {};
     elements.forEach(element => {
-      console.log('>> element', element);
       const nameInfo = agent.getNameInfo(element);
-      console.log('>> nameInfo', nameInfo);
       const codeInfo = agent.findCodeInfo(element);
-      console.log('>> codeInfo', codeInfo);
       const fiber = (element instanceof HTMLElement)
         ? domInspectAgent.getElementFiber(element)
         : undefined;
-      console.log('>> fiber', fiber);
       const testId = fiber?.memoizedProps?.['data-testid'];
-      console.log('>> testId', testId);
       if (testId) {
         nodes[testId] = {
           element,
@@ -292,6 +287,36 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
       });
     }
   }, [inspectAgents]);
+
+  useEffect(() => {
+    if (disable) return;
+
+    const root = document.getElementById('component');
+    if (!root) return;
+
+    const update = () => {
+      inspectAgents.forEach(agent => handleLoadElements({
+        agent,
+        elements: agent.load(),
+      }));
+    }
+  
+    // Update elements when window size changes
+    const resizer = new ResizeObserver(update);
+    resizer.observe(root);
+
+    // Update elements when component children change
+    const observer = new MutationObserver(update);
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      resizer.disconnect();
+      observer.disconnect();
+    };
+  }, [inspectAgents, disable]);
 
   return (<>{children ?? null}</>);
 }

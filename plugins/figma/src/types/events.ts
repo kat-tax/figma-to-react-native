@@ -64,6 +64,11 @@ export interface EventFocusNode extends EventHandler {
   handler: (nodeId: string | null) => void;
 }
 
+export interface EventFocusedNode extends EventHandler {
+  name: 'NODE_FOCUSED';
+  handler: (nodeId: string | null) => void;
+}
+
 export interface EventNodeAttrSave extends EventHandler {
   name: 'NODE_ATTR_SAVE';
   handler: (nodeId: string, nodeSrc: string, data: NodeAttrData) => void;
