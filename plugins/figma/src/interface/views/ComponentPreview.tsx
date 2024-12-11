@@ -82,6 +82,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     const {path, nodeId, source, name, rect} = info;
     const [uri, node] = lookup(path, nodeId);
 
+    // Update the inspected node map
+    if (focusInFigma) {
+      setPreviewNodeMap(prev => ({...prev, [nodeId]: info}));
+    }
+
     // Update the inspected node rect
     if (rect) {
       setPreviewRect(rect);
@@ -192,13 +197,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Update the focused node when figma focus changes
   useEffect(() => {
     const node = previewNodeMap?.[figmaFocus];
-    console.log('[node focused2]', node, figmaFocus);
     if (node) focus(node);
   }, [figmaFocus, previewNodeMap]);
 
   // Handle node focus events from Figma
   useEffect(() => on<EventFocusedNode>('NODE_FOCUSED', (nodeId) => {
-    console.log('[node focused]', nodeId);
     setFigmaFocus(nodeId);
   }), []);
 
@@ -244,7 +247,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         // Focus node in Figma and in the code editor
         // Update the preview bar (persistently)
         case 'loader::inspect': {
-          focus(e.data.info, true);
+          const info: PreviewNodeInfo = e.data.info;
+          focus(info, true);
           break;
         }
       }
