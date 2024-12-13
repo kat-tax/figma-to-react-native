@@ -305,7 +305,7 @@ importers:
         version: 0.4.21
       '@monaco-editor/react':
         specifier: ^4.6.0
-        version: 4.6.0(monaco-editor@0.52.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 4.6.0(monaco-editor@0.52.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@radix-ui/react-menubar':
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -358,11 +358,11 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
       monaco-editor:
-        specifier: ^0.52.2
-        version: 0.52.2
+        specifier: 0.52.0
+        version: 0.52.0
       monaco-editor-auto-typings:
         specifier: ^0.4.6
-        version: 0.4.6(monaco-editor@0.52.2)
+        version: 0.4.6(monaco-editor@0.52.0)
       monacopilot:
         specifier: ^0.15.6
         version: 0.15.6
@@ -3395,8 +3395,8 @@ packages:
     peerDependencies:
       monaco-editor: '*'
 
-  monaco-editor@0.52.2:
-    resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
+  monaco-editor@0.52.0:
+    resolution: {integrity: sha512-OeWhNpABLCeTqubfqLMXGsqf6OmPU6pHM85kF3dhy6kq5hnhuVS1p3VrEW/XhWHc71P2tHyS5JFySD8mgs1crw==}
 
   monacopilot@0.15.6:
     resolution: {integrity: sha512-di32vqQseXIH1wSJmvw8EwvDX/PYyFg5KgdQhmdNG8X+umF0X9umJ9LgkPStee9E0VqNnpzBaigv0CI4Z2bJxg==}
@@ -5109,15 +5109,15 @@ snapshots:
     dependencies:
       exenv-es6: 1.1.1
 
-  '@monaco-editor/loader@1.4.0(monaco-editor@0.52.2)':
+  '@monaco-editor/loader@1.4.0(monaco-editor@0.52.0)':
     dependencies:
-      monaco-editor: 0.52.2
+      monaco-editor: 0.52.0
       state-local: 1.0.7
 
-  '@monaco-editor/react@4.6.0(monaco-editor@0.52.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@monaco-editor/react@4.6.0(monaco-editor@0.52.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@monaco-editor/loader': 1.4.0(monaco-editor@0.52.2)
-      monaco-editor: 0.52.2
+      '@monaco-editor/loader': 1.4.0(monaco-editor@0.52.0)
+      monaco-editor: 0.52.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
@@ -8047,11 +8047,11 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
-  monaco-editor-auto-typings@0.4.6(monaco-editor@0.52.2):
+  monaco-editor-auto-typings@0.4.6(monaco-editor@0.52.0):
     dependencies:
-      monaco-editor: 0.52.2
+      monaco-editor: 0.52.0
 
-  monaco-editor@0.52.2: {}
+  monaco-editor@0.52.0: {}
 
   monacopilot@0.15.6: {}
 

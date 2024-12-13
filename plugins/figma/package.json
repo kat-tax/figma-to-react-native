@@ -60,7 +60,7 @@
     "lib0": "^0.2.94",
     "lodash.camelcase": "^4.3.0",
     "lodash.kebabcase": "^4.1.1",
-    "monaco-editor": "^0.52.2",
+    "monaco-editor": "0.52.0",
     "monaco-editor-auto-typings": "^0.4.6",
     "monacopilot": "^0.15.6",
     "re-resizable": "^6.9.17",
