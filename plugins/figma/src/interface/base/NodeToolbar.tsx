@@ -44,7 +44,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
     close: () => {},
     submit: (data) => {
       if (!data) return;
-      //console.log('[node/save]', data);
+      console.log('>> [node/save]', data);
       emit<EventNodeAttrSave>('NODE_ATTR_SAVE', node, nodeSrc, data);
     },
   });

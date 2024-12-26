@@ -47,7 +47,7 @@ export default async function() {
 
     // Handle update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
-      console.log('navigate', page);
+      console.log('>> [navigate]', page);
     });
 
     // Handle update config from interface

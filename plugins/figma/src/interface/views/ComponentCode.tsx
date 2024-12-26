@@ -123,7 +123,7 @@ export function ComponentCode(props: ComponentCodeProps) {
             }
           });
           e.onDidChangeModelContent((event) => {
-            console.log('[changed model content]', event);
+            // console.log('[changed model content]', event);
             props.nav.setLastEditorRev(event.versionId);
           });
           e.onDidChangeModel((_event) => {

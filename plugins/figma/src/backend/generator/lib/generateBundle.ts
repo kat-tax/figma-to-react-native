@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import parseFigmaComponent from 'backend/parser';
+import parseComponent from 'backend/parser';
 
 import * as consts from 'config/consts';
 import * as string from 'common/string';
@@ -36,6 +36,7 @@ const emptyBundle: ComponentData = {
 export async function generateBundle(
   node: ComponentNode,
   settings: ProjectSettings,
+  skipCache: boolean = false,
 ): Promise<ComponentData> {
   // No node, return empty bundle
   if (!node) return emptyBundle;
@@ -64,10 +65,13 @@ export async function generateBundle(
   }
 
   // Normal component, parse figma data
-  const data = await parseFigmaComponent(node);
+  const data = await parseComponent(node, skipCache);
 
   // No data, return empty bundle
   if (!data) return emptyBundle;
+
+  // Profile
+  const _t1 = Date.now();
   
   // Component links
   const links: ComponentLinks = {};
@@ -78,7 +82,7 @@ export async function generateBundle(
   });
 
   // Return bundle
-  return {
+  const bundle: ComponentData = {
     // Info
     id: component.target.id,
     key: component.target.key,
@@ -105,4 +109,9 @@ export async function generateBundle(
     info: component,
     links,
   };
+
+  // Profile
+  console.log(`>> [bundle] ${Date.now() - _t1}ms`, component?.name || 'unknown');
+
+  return bundle;
 }

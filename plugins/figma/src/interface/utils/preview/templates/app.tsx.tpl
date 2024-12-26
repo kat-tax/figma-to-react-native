@@ -55,7 +55,7 @@ export function App() {
           __lang__ = e.data.language;
           return;
         case 'preview::variant': {
-          // console.log('[changed variant]', e.data.variant);
+          console.log('[changed variant]', e.data.variant);
           const newRoot = e.data.variant.props;
           setVariant(newRoot);
           parent.postMessage({type: 'app:refresh'});

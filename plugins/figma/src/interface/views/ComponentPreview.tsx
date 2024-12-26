@@ -136,7 +136,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     });
   }, [component, settings, build]);
 
-  // TEMP: Workaround to force the preview app to refresh
+  // TEMP: Workaround to force the preview app to refresh on variant change
   const refresh = useCallback(() => {
     if (!iframe.current) return;
     // requestAnimationFrame(() => {

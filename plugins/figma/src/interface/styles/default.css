@@ -59,6 +59,11 @@ iframe {
   max-height: 300px;
 }
 
+.fp-TabsContent {
+  overflow: auto;
+  height: 100%;
+}
+
 /* Radix Tab Figma Styling */
 
 .tabs {

@@ -34,7 +34,9 @@ export function getIconData(node: SceneNode): ParseIconData {
 }
 
 export function getNodeAttrs(node: BaseNode, nodeSrc: string): NodeAttrData {
-  const props = JSON.parse(figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS) || '{}');
+  // TODO: fix this
+  // const props = JSON.parse(figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS) || '{}');
+  const props = {};
   const attrs: NodeAttrData = {
     [NodeAttrGroup.Properties]: props?.[nodeSrc]?.props?.map((p: TypeScriptComponentProps) => ({
       uuid: random.uuid(),
@@ -91,6 +93,12 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
   const name = string.createIdentifierPascal(target.name);
   const section = getSection(target);
   const page = getPage(target);
+
+  // TODO: fix this, remote components not supported
+  if (!page) {
+    console.log('>> warning, remote components not supported', target);
+  }
+
   const path = 'components/'
     + string.createPathKebab(page?.name || 'common')
     + '/'
