@@ -81,33 +81,29 @@ export async function generateBundle(
     links[string.componentPathNormalize(info.path)] = info.target.id;
   });
 
+  // Get frame size
+  const {width, height} = parser.getComponentFrameSize(data.root.node, data.frame?.node);
+
   // Return bundle
   const bundle: ComponentData = {
     // Info
     id: component.target.id,
     key: component.target.key,
-    props: writePropsAttributes(
-      new CodeBlockWriter(settings.writer),
-      {...component.propDefs},
-    ),
-    imports: writePropsImports(
-      new CodeBlockWriter(settings.writer),
-      {...component.propDefs},
-    ),
+    props: writePropsAttributes(new CodeBlockWriter(settings.writer), {...component.propDefs}),
+    imports: writePropsImports(new CodeBlockWriter(settings.writer), {...component.propDefs}),
     // Text
     code: await generateComponent(data, settings),
     docs: await generateDocs(component, settings),
     story: generateStory(component, settings),
     index: generateIndex([component], settings, false),
-    // Rect
-    width: data.frame ? data.frame.node.width : data.root.node.width,
-    height: data.frame ? data.frame.node.height : data.root.node.height,
     // Data
     assets: Object.values(data.assetData),
     icons: Array.from(data.meta.iconsUsed),
     // Meta
     info: component,
     links,
+    width,
+    height,
   };
 
   // Profile

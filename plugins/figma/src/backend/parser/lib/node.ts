@@ -133,6 +133,14 @@ export function getComponentInstanceInfo(node: InstanceNode) {
   return {node, main, props, propName, isInstance};
 }
 
+export function getComponentFrameSize(node: ComponentNode, frame: FrameNode) {
+  const ref = frame || node;
+  return {
+    width: ref.layoutSizingHorizontal === 'HUG' ? 0 : ref.width,
+    height: ref.layoutSizingVertical === 'HUG' ? 0 : ref.height,
+  };
+}
+
 export function getComponentPropName(value: string) {
   if (!value) return '';
   return string.createIdentifierCamel(value.split('#').shift());
