@@ -4,7 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Component Previewer</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <style>
+      :root {
+        font-family: Inter, sans-serif;
+        font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */
+      }
+      @supports (font-variation-settings: normal) {
+        :root { font-family: InterVariable, sans-serif; }
+      }
       html {
         width: 100%;
         height: 100%;
@@ -73,8 +82,6 @@
         outline: none;
       }
     </style>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap">
     <script src="http://localhost:8097"></script>
   </head>
   <body>
