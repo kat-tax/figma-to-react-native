@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import {on} from '@create-figma-plugin/utilities';
 
 import type {EventSelectVariant} from 'types/events';
@@ -17,5 +17,5 @@ export function useSelectedVariant(): VariantData {
     setProps(props);
   }), []);
 
-  return {props, name};
+  return useMemo(() => ({props, name}), [props, name]);
 }
