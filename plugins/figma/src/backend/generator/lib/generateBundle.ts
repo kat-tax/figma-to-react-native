@@ -28,7 +28,7 @@ const emptyBundle: ComponentData = {
   width: 0,
   height: 0,
   links: {},
-  icons: [],
+  icons: {list: [], count: {}},
   assets: null,
   info: null,
 };
@@ -98,7 +98,7 @@ export async function generateBundle(
     index: generateIndex([component], settings, false),
     // Data
     assets: Object.values(data.assetData),
-    icons: Array.from(data.meta.iconsUsed),
+    icons: {list: Array.from(data.meta.iconsUsed), count: data.meta.iconCounts},
     // Meta
     info: component,
     links,

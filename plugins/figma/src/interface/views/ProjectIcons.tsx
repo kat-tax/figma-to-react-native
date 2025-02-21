@@ -33,7 +33,7 @@ type ProjectIcon = {
   icon: string,
   nodeId: string,
   missing: boolean,
-  used: boolean,
+  count: number,
 }
 
 export function ProjectIcons(props: ProjectIconsProps) {
@@ -50,11 +50,10 @@ export function ProjectIcons(props: ProjectIconsProps) {
       icon,
       nodeId: props.icons?.map?.[icon],
       missing: !props.icons?.list?.includes(icon),
-      used: props.build?.icons?.includes(icon),
+      count: props.build?.icons?.count?.[icon] || 0,
     }))
     .sort((a, b) => {
-      if (a.used && !b.used) return -1;
-      if (!a.used && b.used) return 1;
+      if (a.count > b.count) return -1;
       if (a.missing && !b.missing) return 1;
       if (!a.missing && b.missing) return -1;
       return 0;
@@ -151,7 +150,7 @@ interface IconListItemProps {
   icon: string,
   nodeId: string,
   missing: boolean,
-  used: boolean,
+  count: number,
   copy: (text: string) => void,
 }
 
@@ -160,7 +159,7 @@ function IconListItem(props: IconListItemProps) {
   return (
     <IconButton
       size="medium"
-      aria-label={props.icon}
+      aria-label={props.count > 0 ? `${props.icon} (used ${props.count}x)` : props.icon}
       disabled={props.missing}
       draggable={!props.missing}
       onDoubleClick={() => emit<EventFocusNode>('NODE_FOCUS', props.nodeId)}

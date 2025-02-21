@@ -174,7 +174,7 @@ export async function compile(
   const _roster: ComponentRoster = {};
   const _info: Record<string, ComponentInfo> = {};
   const _assets: Record<string, ComponentAsset> = {};
-  const _icons = new Set<string>();
+  const _icons = {list: new Set<string>(), count: {}};
 
   let _links: ComponentLinks = {};
   let _total = 0;
@@ -225,8 +225,11 @@ export async function compile(
       };
 
       // Aggregate assets and icons
-      icons?.forEach(icon => {_icons.add(icon)});
       assets?.forEach(asset => {_assets[asset.hash] = asset});
+      icons?.list?.forEach(icon => {_icons.list.add(icon)});
+      Object.entries(icons?.count).forEach(([icon, count]) => {
+        _icons.count[icon] = (icons?.count[icon] || 0) + count;
+      });
 
       // Send compilation to interface
       emit<EventComponentBuild>('COMPONENT_BUILD', {
@@ -237,8 +240,11 @@ export async function compile(
         loaded: _loaded,
         roster: _roster,
         assets: _assets,
-        icons: Array.from(_icons),
         assetMap: {},
+        icons: {
+          list: Array.from(_icons.list),
+          count: _icons.count,
+        },
       }, bundle);
 
       // Profile

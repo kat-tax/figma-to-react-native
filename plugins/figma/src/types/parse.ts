@@ -61,6 +61,7 @@ export type ParseMetaData = {
   assetNodes: Set<string>,
   styleNodes: Set<string>,
   iconsUsed: Set<string>,
+  iconCounts: Record<string, number>,
   components: Record<string, [BaseNode, BaseNode]>,
   includes: Record<string, [BaseNode, BaseNode]>,
   icons: Record<string, ParseIconData>,

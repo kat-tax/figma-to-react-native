@@ -74,6 +74,7 @@ function crawlChildren(
     assetNodes: new Set(),
     styleNodes: new Set(),
     iconsUsed: new Set(),
+    iconCounts: {},
     components: {},
     includes: {},
     icons: {},
@@ -108,7 +109,9 @@ function crawlChildren(
     // Record icon color and size
     if (isIcon) {
       const iconData = parser.getIconData(node);
+      const iconCount = (meta.iconCounts[iconData.name] || 0) + 1;
       meta.iconsUsed.add(iconData.name);
+      meta.iconCounts[iconData.name] = iconCount;
       meta.icons[node.id] = iconData;
     }
 
@@ -160,6 +163,7 @@ function crawlChildren(
               // If swap componet is icon, no need to import, just record the name
               if (parser.isNodeIcon(swapComponent)) {
                 meta.iconsUsed.add(swapComponent.name);
+                meta.iconCounts[swapComponent.name] = (meta.iconCounts[swapComponent.name] || 0) + 1;
               // If swap component not invisible, add to import list
               } else if (!swapInvisible) {
                 meta.components[swapComponent.id] = [swapComponent, node];
