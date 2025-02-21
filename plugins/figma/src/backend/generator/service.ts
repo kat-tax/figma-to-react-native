@@ -69,6 +69,11 @@ export async function watchComponents(
       return;
     }
 
+    // Theme change (all components are affected, ignore)
+    if (e.documentChanges?.some(c => c.type === 'PROPERTY_CHANGE' && c.node.type === 'SECTION')) {
+      return;
+    }
+
     // We need to get all components for the roster
     const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
     // No components, do nothing
