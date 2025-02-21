@@ -33,7 +33,7 @@ export function extractRule(
           extractOptions,
         )) {
           setStyleForSelectorList(
-            { ...partialStyle, ...style },
+            {...(partialStyle as ExtractedStyle), ...style},
             rule.value.selectors,
             extractOptions,
           );
