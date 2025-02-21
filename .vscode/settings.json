@@ -10,6 +10,7 @@
   "material-icon-theme.activeIconPack": "react",
   "material-icon-theme.folders.associations": {
     "sync": "ci",
+    "utils": "include",
     "user": "admin",
     "editor": "mock",
     "parser": "review",
