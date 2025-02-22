@@ -26,7 +26,7 @@ export async function getAssets(nodes: Set<string>): Promise<{
       let bytes: Uint8Array;
       let thumbhash: string;
   
-      const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin;
+      const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin & MinimalFillsMixin;
       
       const isVector = VECTOR_NODE_TYPES.includes(node.type)
         || (node.findAllWithCriteria
@@ -51,6 +51,11 @@ export async function getAssets(nodes: Set<string>): Promise<{
       } else {
         //const thumbBytes = await node.exportAsync({format: 'PNG', constraint: {type: 'WIDTH', value: 100}});
         //thumbhash = byteArrayToBase64(rgbaToThumbHash(100, 100, thumbBytes));
+
+        // TODO: replace export w/ getImage, lookup via figma.getImageByHash (must support most props, rotate, fit, etc.)
+        // const image = getImage(node.fills);
+        // console.log('>>> image', node.name, image);
+        
         rasters[node.name] = 1 + (rasters[node.name] || 0);
         hasRaster = true;
         count = rasters[node.name];
@@ -86,4 +91,11 @@ export async function getAssets(nodes: Set<string>): Promise<{
     hasRaster,
     hasVector,
   };
+}
+
+function getImage(fills: ReadonlyArray<Paint> | PluginAPI['mixed']): ImagePaint | undefined {
+  if (fills && fills !== figma.mixed && fills.length > 0) {
+    return [...fills].reverse().find((fill) =>
+      fill.type === 'IMAGE' && fill.visible !== false) as ImagePaint;
+  }
 }
