@@ -69,7 +69,7 @@ export function build(release: ProjectRelease) {
       const componentInfo: Record<string, ComponentInfo> = {};
       const assets = new Map<string, ComponentAsset>();
 
-      for await (const component of exportNodes) {
+      for (const component of exportNodes) {
         try {
           const bundle = await generateBundle(component, {...config.state}, true);
           if (bundle.code) {

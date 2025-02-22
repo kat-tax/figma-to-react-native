@@ -19,14 +19,14 @@ export async function getStyleSheet(
 
   // Generate CSS from nodes
   const css: StyleSheet = {};
-  for await (const id of nodes) {
+  for (const id of nodes) {
     css[id] = await getCSS(id, skipCache);
   }
 
   // Generate CSS from variant mappings
   if (variants?.mapping) {
-    for await (const id of Object.keys(variants.mapping)) {
-      for await (const [_, vid] of Object.entries(variants.mapping[id])) {
+    for (const id of Object.keys(variants.mapping)) {
+      for (const [_, vid] of Object.entries(variants.mapping[id])) {
         css[vid] = await getCSS(vid, skipCache);
       }
     }

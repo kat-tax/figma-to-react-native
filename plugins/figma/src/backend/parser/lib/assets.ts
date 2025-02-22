@@ -21,7 +21,7 @@ export async function getAssets(nodes: Set<string>): Promise<{
   let hasVector = false;
 
   try {
-    for await (const id of nodes) {
+    for (const id of nodes) {
       let count: number;
       let bytes: Uint8Array;
       let thumbhash: string;

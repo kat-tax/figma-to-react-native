@@ -93,7 +93,7 @@ async function createComponents(
   variables: Variable[],
   exoComponents: ExoComponents,
 ) {
-  for await (const [sectionName, components] of Object.entries(exoComponents)) {
+  for (const [sectionName, components] of Object.entries(exoComponents)) {
     // Create section
     const background = variables.find(v => v.name === 'background');
     const section = figma.createSection();
@@ -108,7 +108,7 @@ async function createComponents(
       section.fills = [fills[0]];
     }
     // Create components in section
-    for await (const [key, isComponentSet, x, y] of Object.values(components.list)) {
+    for (const [key, isComponentSet, x, y] of Object.values(components.list)) {
       const origin = isComponentSet
         ? await figma.importComponentSetByKeyAsync(key)
         : await figma.importComponentByKeyAsync(key);

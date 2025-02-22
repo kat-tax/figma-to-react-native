@@ -93,7 +93,7 @@ export async function createIcons(
   const ms = 5;
   let i = 0;
 
-  for await (const [name, svg] of Object.entries(icons)) {
+  for (const [name, svg] of Object.entries(icons)) {
     if (i++ % batch === 0)
       await delay.wait(ms);
   

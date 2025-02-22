@@ -7,7 +7,7 @@ export async function getLocalState(): Promise<ParseLocalState> {
   const state = await getVariableCollection(consts.VARIABLE_COLLECTIONS.STATE_LOCAL);
   const localState: ParseLocalState = {};
   if (!state) return;
-  for await (const id of state.variableIds) {
+  for (const id of state.variableIds) {
     const variable = await figma.variables.getVariableByIdAsync(id);
     if (!variable) return;
     const [page, component, name] = variable.name.split('/');

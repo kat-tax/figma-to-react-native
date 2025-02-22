@@ -186,7 +186,7 @@ export async function compile(
   let _loaded = 0;
 
   // Iterate over all components, fill roster, info, and total
-  for await (const component of components) {
+  for (const component of components) {
     const info = parser.getComponentInfo(component);
     if (!info) continue;
     const {name, page, path, target} = info;
@@ -203,9 +203,9 @@ export async function compile(
 
   // Compile either all components or just updated components if provided
   const targets = updated || components;
-  for await (const component of targets) {
+  for (const component of targets) {
     // Prevent UI from freezing
-    delay.wait(1);
+    await delay.wait(1);
     try {
       const _t1 = Date.now();
 
