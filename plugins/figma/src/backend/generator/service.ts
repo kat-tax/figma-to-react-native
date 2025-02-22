@@ -14,7 +14,7 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave, EventProjectBackground} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 let _lastThemeCode = '';
@@ -202,10 +202,7 @@ export async function compile(
   const index = generateIndex(Object.values(_info), config.state, true);
 
   // Compile either all components or just updated components if provided
-  const targets = updated || components;
-  for (const component of targets) {
-    // Prevent UI from freezing
-    await delay.wait(1);
+  for (const component of updated || components) {
     try {
       const _t1 = Date.now();
 
@@ -254,6 +251,9 @@ export async function compile(
 
       // Profile
       console.log(`>> [compile] ${Date.now() - _t1}ms`, info.name);
+
+      // Throttle
+      await delay.wait(1);
     } catch (e) {
       console.error('Failed to export', component, e);
     }
