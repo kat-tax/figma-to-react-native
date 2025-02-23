@@ -6,10 +6,12 @@ import {useControls, getMatrixTransformStyles, TransformWrapper, TransformCompon
 import {Inspector} from 'preview-inspector';
 
 export default function Loader() {
+  const [isLocked, setLocked] = useState(false);
   return (
     <TransformWrapper
       smooth
       minScale={0.5}
+      disabled={isLocked}
       initialPositionY={-99999}
       initialPositionX={window.innerWidth / 2}
       customTransform={getMatrixTransformStyles}
@@ -32,12 +34,12 @@ export default function Loader() {
         document.documentElement.style.backgroundPosition = backgroundPosition;
         parent.postMessage({type: 'loader::interaction'});
       }}>
-      <Preview/>
+      <Preview setLocked={setLocked} />
     </TransformWrapper>
   );
 }
 
-export function Preview() {
+export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
   const {zoomToElement} = useControls();
   const [name, setName] = useState();
   const [error, setError] = useState(null);
@@ -90,6 +92,9 @@ export function Preview() {
           return;
         case 'preview::inspect':
           setInspect(e.data.enabled);
+          break;
+        case 'preview::lock':
+          setLocked(e.data.enabled);
           break;
         case 'preview::resize':
           zoomToElement(el, 1, 25);

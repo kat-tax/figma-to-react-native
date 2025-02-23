@@ -2,7 +2,7 @@ import {Text} from 'figma-kit';
 import {emit, on} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
-import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16} from 'figma-ui';
+import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16, IconLockLocked16, IconLockUnlocked16, IconCorners32} from 'figma-ui';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {NodeToolbar} from 'interface/base/NodeToolbar';
@@ -11,7 +11,7 @@ import * as $ from 'store';
 
 import type {CSSProperties} from 'react';
 import type {ComponentBuild} from 'types/component';
-import type {EventFocusNode, EventFocusedNode} from 'types/events';
+import type {EventExpand, EventFocusNode, EventFocusedNode} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {VariantData} from 'interface/hooks/useSelectedVariant';
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -56,6 +56,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const [previewDesc, setPreviewDesc] = useState<string | null>(null);
   const [figmaFocus, setFigmaFocus] = useState<string | null>(null);
   const [isInspect, setIsInspect] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [src, setSrc] = useState('');
 
@@ -159,10 +160,21 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     }
   }, []);
 
+  // Disable zooming / panning in preview
+  const lock = useCallback((enabled: boolean) => {
+    setIsLocked(enabled);
+    post('preview::lock', {enabled});
+  }, []);
+
   // Reload the iframe command
   const reload = useCallback(() => {
     iframe.current?.contentWindow?.location.reload();
     inspect(false);
+  }, []);
+
+  // Expands the plugin to full screen
+  const expand = useCallback(() => {
+    emit<EventExpand>('EXPAND');
   }, []);
 
   // Render the loader when the settings change
@@ -294,23 +306,21 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <ScreenWarning message="Component not found"/>
       }
       <div style={styles.header}>
-        <IconToggleButton
-          onValueChange={inspect}
-          disabled={!isLoaded}
-          value={isInspect}
-          style={styles.button}>
+        <IconToggleButton onValueChange={inspect} value={isInspect} disabled={!isLoaded}>
           <IconTarget16/>
         </IconToggleButton>
+        <IconToggleButton onValueChange={lock} value={isLocked}>
+          {isLocked ? <IconLockLocked16/> : <IconLockUnlocked16/>}
+        </IconToggleButton>
         <div style={styles.bar}>
-          <Text>
-            {previewBar ? previewBar[0] : ''}
-          </Text>
-          <Text style={styles.desc}>
-            {previewBar ? previewBar[1] : ''}
-          </Text>
+          <Text>{previewBar ? previewBar[0] : ''}</Text>
+          <Text style={styles.desc}>{previewBar ? previewBar[1] : ''}</Text>
         </div>   
-        <IconButton onClick={reload} style={styles.button}>
+        <IconButton onClick={reload}>
           <IconSwap16/>
+        </IconButton>
+        <IconButton onClick={expand}>
+          <IconCorners32/>
         </IconButton>
       </div>
       {component && !isLoaded &&
@@ -382,8 +392,10 @@ const styles: Record<string, CSSProperties> = {
   header: {
     display: 'flex',
     width: '100%',
-    height: 30,
-    gap: 10,
+    height: 32,
+    gap: 2,
+    paddingLeft: 1,
+    paddingRight: 1,
     background: 'var(--figma-color-bg-secondary)',
     borderBlock: '1px solid var(--figma-color-bg-tertiary)',
   },
@@ -404,9 +416,6 @@ const styles: Record<string, CSSProperties> = {
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  button: {
-    width: 40,
   },
   bar: {
     flex: 1,

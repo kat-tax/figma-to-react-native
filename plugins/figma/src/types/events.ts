@@ -19,6 +19,11 @@ export interface EventNotify extends EventHandler {
   handler: (message: string, error?: boolean) => void;
 }
 
+export interface EventExpand extends EventHandler {
+  name: 'EXPAND';
+  handler: () => void;
+}
+
 /* App */
 
 export interface EventAppReady extends EventHandler {

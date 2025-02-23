@@ -17,6 +17,8 @@ import * as nav from 'backend/utils/nav';
 
 import type * as T from 'types/events';
 
+let isExpanded = false;
+
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
 if (!mode.isCodegen) {
@@ -103,9 +105,16 @@ export default async function() {
       figma.openExternal(link);
     });
 
+    // Handle expand event
+    on<T.EventExpand>('EXPAND', () => {
+      isExpanded = !isExpanded;
+      figma.ui.resize(isExpanded ? 999999 : F2RN_UI_WIDTH_MIN, 999999);
+    });
+
     // Handle resize event
     on('RESIZE_WINDOW', (size: {width: number; height: number}) => {
       figma.ui.resize(size.width, size.height);
+      isExpanded = false;
     });
 
     // Send event to show interface (remove spinner)
