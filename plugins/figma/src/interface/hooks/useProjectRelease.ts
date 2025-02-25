@@ -1,8 +1,9 @@
 import {useEffect} from 'react';
 import {on} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
-import {upload} from 'interface/utils/project/upload';
-import {download} from 'interface/utils/project/download';
+import {update} from 'interface/utils/project/update';
+import {release} from 'interface/utils/project/lib/release';
+import {download} from 'interface/utils/project/lib/download';
 import * as consts from 'config/consts';
 
 import type {EventProjectRelease} from 'types/events';
@@ -20,12 +21,19 @@ export function useProjectRelease(
       case 'download':
         download(project, info, config);
         break;
+      case 'push':
+        update(project, info, config);
+        break;
+      case 'sync':
+        open(`${consts.F2RN_PREVIEW_URL}/sync/${config.docKey}`);
+        break;
       case 'release':
-        upload(project, info, config);
+        release(project, info, config);
         break;
       case 'preview':
         open(`${consts.F2RN_PREVIEW_URL}/#/${config.docKey}`);
         break;
+      default: config.method satisfies never;
     }
     onSuccess();
     setExportCount(components);

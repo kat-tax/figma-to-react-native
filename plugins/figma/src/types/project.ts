@@ -37,9 +37,22 @@ export interface ProjectRelease {
   scope: ProjectExportScope,
   apiKey: string,
   docKey: string,
+  gitKey: string,
+  gitRepo: string,
+  gitBranch: string,
   enableAssetOptimizations: boolean,
   includeAssets: boolean,
+  includeTemplate: boolean,
 }
 
-export type ProjectExportScope = 'document' | 'page' | 'selected';
-export type ProjectExportMethod = 'download' | 'preview' | 'release';
+export type ProjectExportScope =
+  | 'document'
+  | 'page'
+  | 'selected';
+
+export type ProjectExportMethod =
+  | 'download'
+  | 'push'
+  | 'sync'
+  | 'preview'
+  | 'release';

@@ -3,6 +3,7 @@ import {useState, Fragment} from 'react';
 import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
 import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16} from 'figma-ui';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
+import {F2RN_EXO_REPO_URL} from 'config/consts';
 import {titleCase} from 'common/string';
 
 import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
@@ -30,7 +31,10 @@ export function ProjectExport(props: ProjectExportProps) {
   });
 
   const hasProjectKey = Boolean(form.formState.apiKey);
+  const isSyncing = Boolean(form.formState.method === 'sync');
+  const isPushing = Boolean(form.formState.method === 'push');
   const isDownloading = Boolean(form.formState.method === 'download');
+  const isPreviewing = Boolean(form.formState.method === 'preview');
   const isReleasing = Boolean(form.formState.method === 'release');
 
   const resetOnSucccess = () => {
@@ -82,12 +86,17 @@ export function ProjectExport(props: ProjectExportProps) {
             onValueChange={(v: ProjectExportMethod) => form.setFormState(v, 'method')}>
             <SegmentedControl.Item value="download" aria-label="Download">
               <Text style={{paddingInline: 8}}>
-                Download
+                Zip
               </Text>
             </SegmentedControl.Item>
-            <SegmentedControl.Item value="preview" aria-label="Preview">
+            <SegmentedControl.Item value="push" aria-label="Git">
               <Text style={{paddingInline: 8}}>
-                Preview
+                Git
+              </Text>
+            </SegmentedControl.Item>
+            <SegmentedControl.Item value="sync" aria-label="Sync">
+              <Text style={{paddingInline: 8}}>
+                Sync
               </Text>
             </SegmentedControl.Item>
             <SegmentedControl.Item value="release" aria-label="Release">
@@ -127,7 +136,7 @@ export function ProjectExport(props: ProjectExportProps) {
             <VerticalSpace space="large"/>
           </Fragment>
         }
-        {!isDownloading &&
+        {(isSyncing || isPreviewing || isReleasing) &&
           <Fragment>
             <Flex align="center">
               <Text weight="strong">
@@ -143,10 +152,86 @@ export function ProjectExport(props: ProjectExportProps) {
             </Flex>
             <VerticalSpace space="small"/>
             <Input
-              disabled={isExporting}
+              type="password"
               value={form.formState.apiKey}
-              onChange={(e) => form.setFormState(e.target.value, 'apiKey')}
+              disabled={isExporting}
               placeholder="Your Figma -> React Native Project Key"
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'apiKey');
+              }}
+              onFocus={(e) => {
+                e.target.type = 'text';
+                e.target.select();
+              }}
+              onBlur={(e) => {
+                e.target.type = 'password';
+              }}
+            />
+            <VerticalSpace space="large"/>
+          </Fragment>
+        }
+        {isPushing &&
+          <Fragment>
+            <Flex align="center">
+              <Text weight="strong">
+                Repository
+              </Text>
+            </Flex>
+            <VerticalSpace space="small"/>
+            <Input
+              type="text"
+              disabled={isExporting}
+              value={form.formState.gitRepo}
+              placeholder={F2RN_EXO_REPO_URL}
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'gitRepo');
+              }}
+            />
+            <VerticalSpace space="large"/>
+            <Flex align="center">
+              <Text weight="strong">
+                Branch
+              </Text>
+            </Flex>
+            <VerticalSpace space="small"/>
+            <Input
+              type="text"
+              disabled={isExporting}
+              value={form.formState.gitBranch}
+              placeholder="master"
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'gitBranch');
+              }}
+            />
+            <VerticalSpace space="large"/>
+            <Flex align="center">
+              <Text weight="strong">
+                Token
+              </Text>
+              <a
+                href="https://github.com/settings/tokens"
+                target="_blank"
+                rel="noreferrer"
+                style={{marginLeft: '4px'}}>
+                <IconCircleHelp16 color="brand"/>
+              </a>
+            </Flex>
+            <VerticalSpace space="small"/>
+            <Input
+              type="password"
+              disabled={isExporting}
+              value={form.formState.gitKey}
+              placeholder="Your GitHub Personal Access Token"
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'gitKey');
+              }}
+              onFocus={(e) => {
+                e.target.type = 'text';
+                e.target.select();
+              }}
+              onBlur={(e) => {
+                e.target.type = 'password';
+              }}
             />
             <VerticalSpace space="large"/>
           </Fragment>
@@ -167,11 +252,29 @@ export function ProjectExport(props: ProjectExportProps) {
                 <Text>Include assets</Text>
               </Checkbox.Label>
               <Checkbox.Description>
-                Extract images and vectors used in your components.
+                Extract images and vectors.
               </Checkbox.Description>
             </Checkbox.Root>
             <VerticalSpace space="small"/>
           </Fragment>
+          {isDownloading &&
+            <Fragment>
+              <Checkbox.Root>
+                <Checkbox.Input
+                  disabled={isExporting}
+                  checked={form.formState.includeTemplate}
+                  onChange={(e) => form.setFormState(e.target.checked, 'includeTemplate')}
+                />
+                <Checkbox.Label>
+                  <Text>Include template</Text>
+                </Checkbox.Label>
+                <Checkbox.Description>
+                  Use the latest EXO template.
+                </Checkbox.Description>
+              </Checkbox.Root>
+              <VerticalSpace space="small"/>
+            </Fragment>
+          }
           {isReleasing &&
             <Fragment>
               <Checkbox.Root>
@@ -200,7 +303,7 @@ export function ProjectExport(props: ProjectExportProps) {
             loading={isExporting ? 'true' : undefined}
             disabled={isExporting || (!isDownloading && !hasProjectKey)}
             onClick={form.handleSubmit}>
-            {`${titleCase(form.formState.method)} Components`}
+            {titleCase(form.formState.method)}
           </Button>
         </Fragment>
         <VerticalSpace space="large"/>

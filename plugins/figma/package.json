@@ -50,7 +50,7 @@
     "@y-sweet/client": "^0.1.2",
     "@y-sweet/react": "^0.1.2",
     "@y-sweet/sdk": "^0.1.2",
-    "@zip.js/zip.js": "^2.7.45",
+    "@zip.js/zip.js": "^2.7.57",
     "blakejs": "^1.2.1",
     "code-block-writer": "^13.0.1",
     "deep-object-diff": "^1.1.9",

@@ -12,6 +12,7 @@ export const F2RN_PROJECT_RELEASE = 'f2rn:release:1001';
 // Services
 export const F2RN_EDITOR_NS = 'figma://preview/';
 export const F2RN_STYLEGEN_API = 'https://f2rn.deno.dev';
+export const F2RN_EXO_REPO_URL = 'https://github.com/kat-tax/exo';
 export const F2RN_EXO_REPO_ZIP = 'https://codeload.github.com/kat-tax/exo/zip/refs/heads/master';
 export const F2RN_EXO_PROXY_URL = 'https://cors-proxy.ult.workers.dev/?url=';
 export const F2RN_SERVICE_URL = 'http://localhost:3000'; // https://figma-to-react-native.com

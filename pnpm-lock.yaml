@@ -347,8 +347,8 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2
       '@zip.js/zip.js':
-        specifier: ^2.7.45
-        version: 2.7.45
+        specifier: ^2.7.57
+        version: 2.7.57
       blakejs:
         specifier: ^1.2.1
         version: 1.2.1
@@ -379,9 +379,6 @@ importers:
       lodash.kebabcase:
         specifier: ^4.1.1
         version: 4.1.1
-      memfs:
-        specifier: ^4.17.0
-        version: 4.17.0
       monaco-editor:
         specifier: 0.52.0
         version: 0.52.0
@@ -2517,8 +2514,8 @@ packages:
   '@y-sweet/sdk@0.1.2':
     resolution: {integrity: sha512-aqPUbugBtvB7OI3F3UeeGUKVRC6TmNPpkTtNpapw8yJTAdzlS3ykKKgSIc7ip0KBazNKeoG20pFhd0y5jzqo7A==}
 
-  '@zip.js/zip.js@2.7.45':
-    resolution: {integrity: sha512-Mm2EXF33DJQ/3GWWEWeP1UCqzpQ5+fiMvT3QWspsXY05DyqqxWu7a9awSzU4/spHMHVFrTjani1PR0vprgZpow==}
+  '@zip.js/zip.js@2.7.57':
+    resolution: {integrity: sha512-BtonQ1/jDnGiMed6OkV6rZYW78gLmLswkHOzyMrMb+CAR7CZO8phOHO6c2qw6qb1g1betN7kwEHhhZk30dv+NA==}
     engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=16.5.0'}
 
   acorn-import-assertions@1.9.0:
@@ -7586,7 +7583,7 @@ snapshots:
     dependencies:
       '@types/node': 20.10.7
 
-  '@zip.js/zip.js@2.7.45': {}
+  '@zip.js/zip.js@2.7.57': {}
 
   acorn-import-assertions@1.9.0(acorn@8.11.3):
     dependencies:

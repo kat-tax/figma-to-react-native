@@ -11,6 +11,7 @@
   "material-icon-theme.folders.associations": {
     "sync": "ci",
     "utils": "include",
+    "utilities": "include",
     "user": "admin",
     "editor": "mock",
     "parser": "review",
