@@ -49,7 +49,7 @@ export function writePropsAttributes(
     attrProps?.forEach(attr =>
       writeAttr(writer, attr));
   });
-  return writer.toString().trimEnd();
+  return writer.toString();
 }
 
 export function writeAttr(
