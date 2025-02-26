@@ -1,7 +1,10 @@
+import {F2RN_SERVICE_URL} from 'config/consts';
 import supabase from 'interface/services/supabase';
+import {emit} from '@create-figma-plugin/utilities';
 import {create} from '../create';
 
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
+import type {EventNotify} from 'types/events';
 
 export async function release(project: ProjectBuild, info: ProjectInfo, release: ProjectRelease) {
   const blob = await create(project, info, release);
@@ -20,4 +23,9 @@ export async function release(project: ProjectBuild, info: ProjectInfo, release:
     });
 
   console.debug('[service/upload]', data, error);
+
+  emit<EventNotify>('NOTIFY', 'Release published.', {
+    button: ['Open Dashboard', `${F2RN_SERVICE_URL}/dashboard`],
+    timeout: 10000,
+  });
 }

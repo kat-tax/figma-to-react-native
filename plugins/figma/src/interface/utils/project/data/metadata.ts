@@ -42,16 +42,18 @@ export function storybookIndex(metadata: ProjectMetadata): string {
   const {linkDocs, linkGithub, linkFigma, pkgName, pkgVersion} = metadata;
   return [
     `import {Meta} from \'@storybook/blocks\';`,
-    ' ',
+    '',
     `<Meta title="Get Started"/>`,
-    ' ',
+    '',
     `# ${pkgName || 'project'}`,
-    ' ',
+    '',
     `#### ${pkgVersion || '0.0.1'}`,
-    linkDocs && `- [Documentation](${linkDocs})`,
-    linkGithub && `- [GitHub](${linkGithub})`,
-    linkFigma && `- [Figma](${linkFigma})`,
-  ].filter(Boolean).join('\n');
+    [
+      linkDocs && `- [Documentation](${linkDocs})`,
+      linkGithub && `- [GitHub](${linkGithub})`,
+      linkFigma && `- [Figma](${linkFigma})`,
+    ].filter(Boolean).join('\n'),
+  ].join('\n');
 }
 
 export function packageJson(
@@ -67,5 +69,5 @@ export function packageJson(
     },
     null,
     2
-  );
+  ) + '\n';
 }

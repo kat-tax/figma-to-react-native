@@ -113,7 +113,8 @@ export function build(release: ProjectRelease) {
         translations: getTranslations(collectionLocales, varsTranslations, modesLocales),
       };
       
-      if (release.method === 'release') {
+      // Increment design package version
+      if (release.method === 'release' || release.method === 'push') {
         const version = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
         if (version) {
           projectVersion = version;
@@ -134,17 +135,7 @@ export function build(release: ProjectRelease) {
       };
 
       console.log('>> [project/build]', build, info);
-
       emit<EventProjectRelease>('PROJECT_RELEASE', build, info, release, user);
-      if (release.method === 'release') {
-        figma.notify('Release published.', {
-          timeout: 10000,
-          button: {
-            text: 'Open Dashboard',
-            action: () => figma.openExternal(`${consts.F2RN_SERVICE_URL}/dashboard`),
-          },
-        });
-      }
     }, 500);
   } else {
     emit<EventProjectRelease>('PROJECT_RELEASE', null, null, release, user);

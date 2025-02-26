@@ -96,8 +96,15 @@ export default async function() {
     });
 
     // Handle notify event
-    on<T.EventNotify>('NOTIFY', (message, error) => {
-      figma.notify(message, {error});
+    on<T.EventNotify>('NOTIFY', (message, options) => {
+      figma.notify(message, {
+        error: options?.error,
+        timeout: options?.timeout,
+        button: options?.button ? {
+          text: options.button[0],
+          action: () => figma.openExternal(options.button[1]),
+        } : undefined,
+      });
     });
 
     // Handle open link event

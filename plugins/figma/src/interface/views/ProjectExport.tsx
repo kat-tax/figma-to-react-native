@@ -1,7 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment} from 'react';
 import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
-import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16} from 'figma-ui';
+import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32} from 'figma-ui';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {F2RN_EXO_REPO_URL} from 'config/consts';
 import {titleCase} from 'common/string';
@@ -16,9 +16,10 @@ interface ProjectExportProps {
 }
 
 export function ProjectExport(props: ProjectExportProps) {
-  const [hasSuccess, setHasSuccess] = useState(false);
-  const [isExporting, setExporting] = useState(false);
   const [exportCount, setExportCount] = useState(0);
+  const [isExporting, setExporting] = useState(false);
+  const [hasSuccess, setHasSuccess] = useState(false);
+  const [msgFailure, setMsgFailure] = useState('');
 
   const form = useForm<ProjectRelease>(props.project, {
     close: () => {},
@@ -37,29 +38,39 @@ export function ProjectExport(props: ProjectExportProps) {
   const isPreviewing = Boolean(form.formState.method === 'preview');
   const isReleasing = Boolean(form.formState.method === 'release');
 
-  const resetOnSucccess = () => {
-    setExporting(false);
+  const onSuccess = () => {
+    setMsgFailure('');
     setHasSuccess(true);
+    setExporting(false);
     setTimeout(() => {
       setHasSuccess(false);
       setExportCount(0);
     }, 5000);
   };
-  const resetOnFail = () => {
+  const onError = (msg: string) => {
+    setMsgFailure(msg);
+    setHasSuccess(false);
+    setExporting(false);
     setTimeout(() => {
-      setExporting(false);
       setHasSuccess(false);
+      setMsgFailure('');
+      setExporting(false);
       setExportCount(0);
-    }, 500);
+    }, 10000);
   };
 
-  useProjectRelease(resetOnSucccess, resetOnFail, setExportCount);
+  useProjectRelease(onSuccess, onError, setExportCount);
 
   return (
     <Fragment>
       {hasSuccess &&
         <Banner icon={<IconComponent32/>} variant="success">
           {`Successfully exported ${exportCount} component${exportCount === 1 ? '' : 's'}!`}
+        </Banner>
+      }
+      {msgFailure &&
+        <Banner icon={<IconWarning32/>} variant="warning">
+          {msgFailure}
         </Banner>
       }
       {isExporting &&
