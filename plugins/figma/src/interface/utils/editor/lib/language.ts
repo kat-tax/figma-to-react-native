@@ -150,79 +150,110 @@ async function getTypeFromDisplayParts(
   sourceFile?: string,
 ): Promise<[NodeAttrType, Array<string> | null]> {
   if (!displayParts) return [NodeAttrType.String, null];
+  
   // Check if an alias is used
   let alias = displayParts.find(part => part.kind === 'aliasName')?.text;
+  const propertyName = displayParts.find(part => part.kind === 'propertyName')?.text;
 
   // Check for truncated text, use property name as alias to lookup from source
   const trunc = displayParts.find(part => part.kind === 'text'
-    && part.text.endsWith('more ...'));
-  if (trunc) {
-    alias = displayParts.find(part => part.kind === 'propertyName')?.text;
-  }
+    && part.text.includes('more ...'));
   
   // Check for string literals first (enum case)
   const literals = displayParts
     .filter(part => part.kind === 'stringLiteral')
     .map(part => part.text.replace(/['"]/g, ''));
-  if (!alias && literals.length > 0) {
+  
+  // If we have literals and no truncation, use them directly
+  if (!trunc && literals.length > 0) {
     return [NodeAttrType.Enum, literals];
   }
 
-  // Check for alias, lookup its types
-  const source = alias && sourceFile && await client.getScriptText(sourceFile);
-  if (alias?.includes('textContentType')) {
-    console.log('>> [alias]', alias, displayParts, source);
-  }
-  if (alias && source) {
+  // Check for alias or truncated type, lookup its types from source
+  const source = sourceFile && await client.getScriptText(sourceFile);
+  if (source && (alias || trunc)) {
     try {
-      // Collect all string literals from the source file
-      const aliasLiterals = new Set<string>();
-      // Function to extract literals from a type alias
-      const extractLiterals = async (aliasName: string): Promise<void> => {
-        // Look for the alias definition in the source file
-        const aliasRegex = new RegExp(`type\\s+${aliasName}\\s*=\\s*([^;]+)`, 'g');
-        const aliasMatch = aliasRegex.exec(source);
-        if (!aliasMatch?.[1]) return;
-        const aliasDefinition = aliasMatch[1];
-        // Extract string literals directly from the definition
-        const literalRegex = /'([^']+)'|"([^"]+)"/g;
-        let literalMatch: RegExpExecArray | null;
-        while ((literalMatch = literalRegex.exec(aliasDefinition)) !== null) {
-          aliasLiterals.add(literalMatch[1] || literalMatch[2]);
-        }
-        // Look for references to other type aliases
-        const referencedTypes = aliasDefinition.match(/\b([A-Z][a-zA-Z0-9]*)\b/g);
-        if (referencedTypes) {
-          for (const refType of referencedTypes) {
-            if (refType !== aliasName) { // Avoid infinite recursion
-              await extractLiterals(refType);
-            }
+      // For truncated types, we need to find the full type definition in the source
+      if (trunc && propertyName) {
+        // Try to find the property definition in the source
+        const propRegex = new RegExp(`${propertyName}\\??:\\s*([^;]+)`, 'g');
+        const propMatch = propRegex.exec(source);
+        
+        if (propMatch?.[1]) {
+          const propDefinition = propMatch[1];
+          // Extract all string literals from the property definition
+          const literalRegex = /'([^']+)'|"([^"]+)"/g;
+          const propLiterals = new Set<string>();
+          let literalMatch: RegExpExecArray | null;
+          
+          while ((literalMatch = literalRegex.exec(propDefinition)) !== null) {
+            propLiterals.add(literalMatch[1] || literalMatch[2]);
+          }
+          
+          if (propLiterals.size > 0) {
+            return [NodeAttrType.Enum, Array.from(propLiterals)];
+          }
+          
+          // If the property references a type alias, extract that alias name
+          const typeRefMatch = propDefinition.match(/\b([A-Z][a-zA-Z0-9]*)\b/);
+          if (typeRefMatch?.[1]) {
+            alias = typeRefMatch[1]; // Use this alias for further processing
           }
         }
-      };
-      
-      // Start with the main alias
-      await extractLiterals(alias);
-      
-      // If we found literals, return them
-      if (aliasLiterals.size > 0) {
-        return [NodeAttrType.Enum, Array.from(aliasLiterals)];
       }
       
-      // If we couldn't extract literals directly, try to get definition
-      const aliasInfo = await client.getQuickInfoAtPosition(sourceFile, source.indexOf(alias));
-      if (aliasInfo?.displayParts) {
-        const nestedLiterals = aliasInfo.displayParts
-          .filter((part: {text: string; kind: string}) => part.kind === 'stringLiteral')
-          .map((part: {text: string; kind: string}) => part.text.replace(/['"]/g, ''));
-        if (nestedLiterals.length > 0) {
-          return [NodeAttrType.Enum, nestedLiterals];
+      // Process type alias if we have one
+      if (alias) {
+        // Collect all string literals from the source file
+        const aliasLiterals = new Set<string>();
+        
+        // Function to extract literals from a type alias
+        const extractLiterals = async (aliasName: string): Promise<void> => {
+          // Look for the alias definition in the source file
+          const aliasRegex = new RegExp(`type\\s+${aliasName}\\s*=\\s*([^;]+)`, 'g');
+          const aliasMatch = aliasRegex.exec(source);
+          if (!aliasMatch?.[1]) return;
+          const aliasDefinition = aliasMatch[1];
+          
+          // Extract string literals directly from the definition
+          const literalRegex = /'([^']+)'|"([^"]+)"/g;
+          let literalMatch: RegExpExecArray | null;
+          while ((literalMatch = literalRegex.exec(aliasDefinition)) !== null) {
+            aliasLiterals.add(literalMatch[1] || literalMatch[2]);
+          }
+          
+          // Look for references to other type aliases
+          const referencedTypes = aliasDefinition.match(/\b([A-Z][a-zA-Z0-9]*)\b/g);
+          if (referencedTypes) {
+            for (const refType of referencedTypes) {
+              if (refType !== aliasName) { // Avoid infinite recursion
+                await extractLiterals(refType);
+              }
+            }
+          }
+        };
+        
+        await extractLiterals(alias);
+        
+        // If we found literals, return them
+        if (aliasLiterals.size > 0) {
+          return [NodeAttrType.Enum, Array.from(aliasLiterals)];
+        }
+        
+        // If we couldn't extract literals directly, try to get definition
+        const aliasInfo = await client.getQuickInfoAtPosition(sourceFile, source.indexOf(alias));
+        if (aliasInfo?.displayParts) {
+          const nestedLiterals = aliasInfo.displayParts
+            .filter((part: {text: string; kind: string}) => part.kind === 'stringLiteral')
+            .map((part: {text: string; kind: string}) => part.text.replace(/['"]/g, ''));
+          if (nestedLiterals.length > 0) {
+            return [NodeAttrType.Enum, nestedLiterals];
+          }
         }
       }
     } catch (error) {
-      console.error('Error resolving alias type:', error);
+      console.error('Error resolving type:', error);
     }
-    return [NodeAttrType.Enum, []];
   }
 
   // Check for primitive types (default to string)

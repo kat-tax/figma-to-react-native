@@ -276,7 +276,11 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
       {cur.type === NodeAttrType.Enum && (
         <Select.Root value={String(cur.data)} onValueChange={setData}>
           <Select.Trigger style={{flex: 1}}/>
-          <Select.Content position="popper" side="bottom" sideOffset={-36}>
+          <Select.Content
+            className="props-select"
+            position="popper"
+            side="bottom"
+            sideOffset={-36}>
             {cur?.opts.map(value => (
               <Select.Item key={value} value={value}>
                 {value}
