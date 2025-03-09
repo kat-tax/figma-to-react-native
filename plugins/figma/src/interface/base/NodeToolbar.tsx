@@ -1,6 +1,6 @@
 import {on, emit} from '@create-figma-plugin/utilities';
-import {useCallback, useEffect, Fragment} from 'react';
-import {useForm, IconAdjust32, IconAnimation32, IconEffects32, IconVisibilityVisible32, IconListDetailed32, IconPlus32, IconCross32, IconLayerLine16} from 'figma-ui';
+import {useCallback, useEffect, Fragment, useState} from 'react';
+import {useForm, IconAdjust32, IconAnimation32, IconEffects32, IconVisibilityVisible32, IconListDetailed32, IconPlus32, IconCross32} from 'figma-ui';
 import {Flex, Popover, Dialog, Text, Input, Button, IconButton, Select, Switch, ValueField} from 'figma-kit';
 import {titleCase} from 'common/string';
 import {uuid} from 'common/random';
@@ -96,6 +96,8 @@ export function NodeGroup(props: NodeGroupProps) {
   const {group, icon, state, update} = props;
   const rules = state[group];
   const title = titleCase(group);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
 
   const create = useCallback(() => {
     if (rules.find(i => i.name === '')) return;
@@ -116,6 +118,46 @@ export function NodeGroup(props: NodeGroupProps) {
     }
   }, [rules]);
 
+  const handleDragStart = (e: React.DragEvent, uuid: string) => {
+    setDraggedItem(uuid);
+    // Hide the drag preview
+    const img = new Image();
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Transparent 1x1 pixel
+    e.dataTransfer.setDragImage(img, 0, 0);
+  };
+
+  const handleDragOver = (e: React.DragEvent, targetUuid: string) => {
+    e.preventDefault();
+    if (!draggedItem || draggedItem === targetUuid) return;
+    setDropTarget(targetUuid);
+  };
+
+  const handleDragLeave = () => {
+    setDropTarget(null);
+  };
+
+  const handleDrop = (targetUuid: string) => {
+    if (!draggedItem || draggedItem === targetUuid) return;
+    
+    const draggedIndex = rules.findIndex(r => r.uuid === draggedItem);
+    const targetIndex = rules.findIndex(r => r.uuid === targetUuid);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return;
+    
+    const newRules = [...rules];
+    const [removed] = newRules.splice(draggedIndex, 1);
+    newRules.splice(targetIndex, 0, removed);
+    
+    update(newRules, group);
+    setDraggedItem(null);
+    setDropTarget(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+    setDropTarget(null);
+  };
+
   return (
     <Popover.Root>
       <Popover.Trigger>
@@ -127,7 +169,7 @@ export function NodeGroup(props: NodeGroupProps) {
         </IconButton>
       </Popover.Trigger>
       <Popover.Content width={300} side="top" sideOffset={6}>
-        <Popover.Header>
+        <Popover.Header style={{paddingRight: 0}}>
           <Popover.Title>
             {title}
           </Popover.Title>
@@ -143,23 +185,68 @@ export function NodeGroup(props: NodeGroupProps) {
         </Popover.Header>
         {rules
           ?.filter(({name, data}) => (data !== null || name === ''))
-          ?.map(({uuid, name}) =>(
-            <Popover.Section key={uuid} size="small">
-              <Flex
-                style={{marginInline: -4}}
-                direction="row"
-                justify="between"
-                align="center"
-                gap="2">
-                <NodeAttr {...props} {...{uuid}}/>
-                <IconButton
-                  onClick={() => remove(uuid)}
-                  aria-label={`Remove ${name}`}
-                  size="small">
-                  <IconLayerLine16/>
-                </IconButton>
-              </Flex>
-            </Popover.Section>
+          ?.map(({uuid, name}, index) => (
+            <Fragment key={uuid}>
+              {dropTarget === uuid && draggedItem !== uuid && (
+                <div 
+                  style={{
+                    height: '2px',
+                    backgroundColor: 'var(--figma-color-border-brand-strong)',
+                    margin: '0 8px',
+                  }}
+                />
+              )}
+              <Popover.Section 
+                size="small"
+                draggable={true}
+                onDragStart={(e) => handleDragStart(e, uuid)}
+                onDragOver={(e) => handleDragOver(e, uuid)}
+                onDrop={() => handleDrop(uuid)}
+                onDragEnd={handleDragEnd}
+                onDragLeave={handleDragLeave}
+                style={{
+                  cursor: draggedItem === uuid ? 'grabbing' : 'default',
+                  opacity: draggedItem === uuid ? 0.5 : 1,
+                  transition: 'opacity 0.2s',
+                  padding: '4px 8px',
+                  backgroundColor: dropTarget === uuid ? 'var(--figma-color-bg-hover)' : 'transparent',
+                }}
+              >
+                <Flex
+                  style={{marginInline: -4}}
+                  direction="row"
+                  justify="between"
+                  align="center"
+                  gap="1">
+                  <IconButton
+                    aria-label="Drag to reorder"
+                    size="small"
+                    style={{cursor: 'grab', width: 16}}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="32" viewBox="0 0 16 32">
+                      <path fill="var(--color-icon-secondary)" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M5 12.5h6v1H5zm0 3h6v1H5zm0 3h6v1H5z"></path>
+                    </svg>
+                  </IconButton>
+                  <NodeAttr {...props} {...{uuid}}/>
+                  <IconButton
+                    onClick={() => remove(uuid)}
+                    aria-label={`Remove ${name}`}
+                    size="small">
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path fill="var(--color-icon)" fill-rule="evenodd" d="M6 12a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 6 12" clip-rule="evenodd"></path>
+                    </svg>
+                  </IconButton>
+                </Flex>
+              </Popover.Section>
+              {index === rules.length - 1 && dropTarget === uuid && (
+                <div 
+                  style={{
+                    height: '2px',
+                    backgroundColor: 'var(--figma-color-border-brand-strong)',
+                    margin: '0 8px',
+                  }}
+                />
+              )}
+            </Fragment>
           ))
         }
       </Popover.Content>
