@@ -108,7 +108,8 @@ async function getTypeScriptComponents(
           ?.filter((entry: any) => !IGNORE_PROPS.includes(entry.name.toLowerCase()))
           ?.map(async (entry: any) => {
             const details = await client.getCompletionEntryDetails(uri, propsOffset, entry.name);
-            const [type, opts] = getTypeFromDisplayParts(client, details.displayParts);
+            const [type, opts] = await getTypeFromDisplayParts(client, details.displayParts, definitions?.[0]?.fileName);
+            console.log('>> [lang:details]', entry.name, definitions, completions, details, type, opts);
             const props: TypeScriptComponentProps = {
               type,
               opts,
@@ -143,25 +144,84 @@ async function getTypeScriptComponents(
   }
 }
 
-function getTypeFromDisplayParts(
+async function getTypeFromDisplayParts(
   client: monaco.languages.typescript.TypeScriptWorker,
-  displayParts?: Array<{text: string; kind: string}>
-): [NodeAttrType, Array<string> | null] {
-  if (!displayParts) return null;
+  displayParts?: Array<{text: string; kind: string}>,
+  sourceFile?: string,
+): Promise<[NodeAttrType, Array<string> | null]> {
+  if (!displayParts) return [NodeAttrType.String, null];
+  // Check if an alias is used
+  let alias = displayParts.find(part => part.kind === 'aliasName')?.text;
+
+  // Check for truncated text, use property name as alias to lookup from source
+  const trunc = displayParts.find(part => part.kind === 'text'
+    && part.text.endsWith('more ...'));
+  if (trunc) {
+    alias = displayParts.find(part => part.kind === 'propertyName')?.text;
+  }
   
   // Check for string literals first (enum case)
   const literals = displayParts
     .filter(part => part.kind === 'stringLiteral')
     .map(part => part.text.replace(/['"]/g, ''));
-  if (literals.length > 0) {
+  if (!alias && literals.length > 0) {
     return [NodeAttrType.Enum, literals];
   }
 
-  // Check for alias, lookup it's types
-  const alias = displayParts.find(part => part.kind === 'aliasName')?.text;
-  if (alias) {
-    // TODO: Lookup alias type in language server
-    console.log('>> [alias]', alias, displayParts);
+  // Check for alias, lookup its types
+  const source = alias && sourceFile && await client.getScriptText(sourceFile);
+  if (alias?.includes('textContentType')) {
+    console.log('>> [alias]', alias, displayParts, source);
+  }
+  if (alias && source) {
+    try {
+      // Collect all string literals from the source file
+      const aliasLiterals = new Set<string>();
+      // Function to extract literals from a type alias
+      const extractLiterals = async (aliasName: string): Promise<void> => {
+        // Look for the alias definition in the source file
+        const aliasRegex = new RegExp(`type\\s+${aliasName}\\s*=\\s*([^;]+)`, 'g');
+        const aliasMatch = aliasRegex.exec(source);
+        if (!aliasMatch?.[1]) return;
+        const aliasDefinition = aliasMatch[1];
+        // Extract string literals directly from the definition
+        const literalRegex = /'([^']+)'|"([^"]+)"/g;
+        let literalMatch: RegExpExecArray | null;
+        while ((literalMatch = literalRegex.exec(aliasDefinition)) !== null) {
+          aliasLiterals.add(literalMatch[1] || literalMatch[2]);
+        }
+        // Look for references to other type aliases
+        const referencedTypes = aliasDefinition.match(/\b([A-Z][a-zA-Z0-9]*)\b/g);
+        if (referencedTypes) {
+          for (const refType of referencedTypes) {
+            if (refType !== aliasName) { // Avoid infinite recursion
+              await extractLiterals(refType);
+            }
+          }
+        }
+      };
+      
+      // Start with the main alias
+      await extractLiterals(alias);
+      
+      // If we found literals, return them
+      if (aliasLiterals.size > 0) {
+        return [NodeAttrType.Enum, Array.from(aliasLiterals)];
+      }
+      
+      // If we couldn't extract literals directly, try to get definition
+      const aliasInfo = await client.getQuickInfoAtPosition(sourceFile, source.indexOf(alias));
+      if (aliasInfo?.displayParts) {
+        const nestedLiterals = aliasInfo.displayParts
+          .filter((part: {text: string; kind: string}) => part.kind === 'stringLiteral')
+          .map((part: {text: string; kind: string}) => part.text.replace(/['"]/g, ''));
+        if (nestedLiterals.length > 0) {
+          return [NodeAttrType.Enum, nestedLiterals];
+        }
+      }
+    } catch (error) {
+      console.error('Error resolving alias type:', error);
+    }
     return [NodeAttrType.Enum, []];
   }
 

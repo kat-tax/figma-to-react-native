@@ -26,6 +26,7 @@ export async function watchComponents(
 ) {
   // Save component props when parsed
   on<EventPropsSave>('PROPS_SAVE', (props) => {
+    console.log('>> [props/save]', props);
     figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
   });
 
