@@ -32,16 +32,16 @@ export const template = (_: {
   fillThumb: string,
   importStyles: string,
 }) => `
-import {Slider as SliderBase} from 'react-exo/slider';
+import {Slider} from 'react-exo/slider';
 ${_.importStyles}
 export interface SliderProps {
   ${props.map(p => p.join(': ')).join(',\n  ')}
 }
 
-export function Slider(props: SliderProps) {
+function SliderThemed(props: SliderProps) {
   const {theme} = useStyles();
   return (
-    <SliderBase
+    <Slider
       rangeColor={props.rangeColor || ${_.fillRange}}
       trackColor={props.trackColor || ${_.fillTrack}}
       thumbColor={props.thumbColor || ${_.fillThumb}}
@@ -49,4 +49,6 @@ export function Slider(props: SliderProps) {
     />
   );
 }
+
+export {SliderThemed as Slider};
 `;

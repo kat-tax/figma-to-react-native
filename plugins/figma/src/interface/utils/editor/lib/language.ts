@@ -155,6 +155,14 @@ async function getTypeFromDisplayParts(
   let alias = displayParts.find(part => part.kind === 'aliasName')?.text;
   const propertyName = displayParts.find(part => part.kind === 'propertyName')?.text;
 
+  // Check for function types
+  const isFunction = displayParts.some(part => 
+    (part.kind === 'punctuation' && part.text === '=>'));
+  
+  if (isFunction) {
+    return [NodeAttrType.Function, null];
+  }
+
   // Check for truncated text, use property name as alias to lookup from source
   const trunc = displayParts.find(part => part.kind === 'text'
     && part.text.includes('more ...'));
@@ -267,6 +275,8 @@ async function getTypeFromDisplayParts(
       return [NodeAttrType.Number, null];
     case 'boolean':
       return [NodeAttrType.Boolean, null];
+    case 'function':
+      return [NodeAttrType.Function, null];
     default:
       return [NodeAttrType.String, null];
   }

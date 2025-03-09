@@ -14,6 +14,7 @@ export enum NodeAttrType {
   String = 'string',
   Boolean = 'boolean',
   Motion = 'motion',
+  Function = 'function',
 }
 
 export type NodeAttrData = Record<

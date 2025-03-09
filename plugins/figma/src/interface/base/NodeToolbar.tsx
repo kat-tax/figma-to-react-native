@@ -321,6 +321,15 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
           style={{flex: 1}}
         />
       )}
+      {cur.type === NodeAttrType.Function && (
+        <Input
+          title={cur.desc}
+          value={cur.data === undefined ? '' : String(cur.data)}
+          onChange={e => setData(e.target.value)}
+          placeholder="() => {}"
+          style={{flex: 1}}
+        />
+      )}
       {cur.type === NodeAttrType.Boolean && (
         <Flex style={{flex: 1}}>
           <Switch

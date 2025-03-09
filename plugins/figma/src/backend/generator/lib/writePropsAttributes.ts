@@ -81,6 +81,10 @@ export function writeAttr(
         ? `${attr.name}={\`${string.escapeBacktick(attr.data)}\`}`
         : `${attr.name}="${attr.data}"`);
       return;
+    case NodeAttrType.Function:
+      if (typeof attr.data !== 'string') return;
+      writer.writeLine(`${attr.name}={${attr.data}}`);
+      return;
     case NodeAttrType.Motion:
     case NodeAttrType.Blank:
       return;
