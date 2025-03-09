@@ -17,7 +17,7 @@ function init(monaco: Monaco, editor: Editor) {
   monaco.editor.addEditorAction({
     id: 'monacopilot.triggerCompletion',
     label: 'Trigger Copilot',
-    contextMenuGroupId: 'navigation',
+    contextMenuGroupId: null,
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Space,
     ],

@@ -1,12 +1,14 @@
 import {emit} from '@create-figma-plugin/utilities';
+import {LoadingIndicator} from 'figma-ui';
 import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
 import {Position} from 'monaco-editor';
-import {LoadingIndicator} from 'figma-ui';
+import {F2RN_EDITOR_NS} from 'config/consts';
+import {initComponentEditor} from 'interface/utils/editor';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {MonacoBinding} from 'interface/utils/editor/lib/multiplayer';
-import {initComponentEditor} from 'interface/utils/editor';
-import {F2RN_EDITOR_NS} from 'config/consts';
+import {useGit} from 'interface/providers/Git';
+import * as diff from 'interface/utils/editor/lib/diff';
 import * as $ from 'store';
 
 import type {Theme} from '@monaco-editor/react';
@@ -23,13 +25,19 @@ interface ComponentCodeProps {
   build: ComponentBuild,
   editorOptions: UserSettings['monaco']['general'],
   editorTheme: Theme,
+  showDiff: boolean,
+  setShowDiff: (show: boolean) => void,
 }
 
 export function ComponentCode(props: ComponentCodeProps) {
-  const [componentPath, setComponentPath] = useState<string>();
-  const [patchPath, setPatchPath] = useState<string>();
-  const [patch, setPatch] = useState<string>('');
   const editor = useRef<Editor>(null);
+  const {fs} = useGit();
+
+  const [componentPath, setComponentPath] = useState<string>();
+  const [comparePath, setComparePath] = useState<string>();
+  const [patch, setPatch] = useState<string>('');
+  const [snap, setSnap] = useState<string>('');
+  const [head, setHead] = useState<string>('');
 
   const $info = $.components.get(props.compKey);
   const $code = $.component.code(props.compKey);
@@ -47,7 +55,8 @@ export function ComponentCode(props: ComponentCodeProps) {
       }),
     });
     const output = await response.text();
-    setPatch(output);
+    setPatch(output); // TODO
+    props.setShowDiff(true);
   }, [$code, props.build, props.compKey]);
 
   // Update component path when info changes
@@ -55,9 +64,16 @@ export function ComponentCode(props: ComponentCodeProps) {
     if ($info) {
       console.log('[component path]', $info.path);
       setComponentPath(`${F2RN_EDITOR_NS}${$info.path.split('/').slice(1).join('/')}.tsx`);
-      setPatchPath(`${F2RN_EDITOR_NS}patch/${$info.path.split('/').slice(1).join('/')}.tsx`);
+      setComparePath(`${F2RN_EDITOR_NS}compare/${$info.path.split('/').slice(1).join('/')}.tsx`);
+      setSnap($code.get().toString());
+      try {
+        const path = `design/${$info.path}/${$info.name}.tsx`;
+        setHead(fs.readFileSync(path, 'utf8')?.toString());
+      } catch (e) {
+        setHead($code.get().toString());
+      }
     }
-  }, [$info]);
+  }, [$info, $code, fs]);
 
   // Update component dependencies on new build
   useEffect(() => {
@@ -98,7 +114,7 @@ export function ComponentCode(props: ComponentCodeProps) {
       {!$info && 
         <ScreenWarning message="Component not found"/>
       }
-      {!patch && <MonacoReact
+      {!props.showDiff && <MonacoReact
         language="typescript"
         theme={props.editorTheme}
         options={{...props.editorOptions}}
@@ -106,10 +122,15 @@ export function ComponentCode(props: ComponentCodeProps) {
         path={componentPath}
         onMount={(e, m) => {
           editor.current = e;
-          initComponentEditor(e, m, prompt, (components) => {
-            if (!components) return;
-            emit<EventPropsSave>('PROPS_SAVE', Object.fromEntries(components));
-          });
+          initComponentEditor(
+            e, m,
+            () => props.setShowDiff(!props.showDiff),
+            prompt,
+            (components) => {
+              if (!components) return;
+              emit<EventPropsSave>('PROPS_SAVE', Object.fromEntries(components));
+            },
+          );
           e.onDidChangeCursorPosition((event) => {
             // console.log('[changed cursor]', event);
             if (props.nav.codeFocus) return;
@@ -139,17 +160,23 @@ export function ComponentCode(props: ComponentCodeProps) {
           );
         }}
       />}
-      {patch && <DiffEditor
+      {props.showDiff && <DiffEditor
         language="typescript"
         theme={props.editorTheme}
-        options={{...props.editorOptions}}
+        options={{...props.editorOptions, readOnly: true}}
         loading={<LoadingIndicator/>}
-        original={$code.get().toString()}
-        modified={patch}
-        modifiedModelPath={patchPath}
-        originalModelPath={componentPath}
-        keepCurrentOriginalModel={true}
-        keepCurrentModifiedModel={false}
+        original={head}
+        modified={snap}
+        modifiedModelPath={componentPath}
+        originalModelPath={comparePath}
+        keepCurrentModifiedModel={true}
+        keepCurrentOriginalModel={false}
+        onMount={(e) => {
+          const editor = e.getModifiedEditor();
+          diff.exit(editor, props.monaco, () => {
+            props.setShowDiff(false);
+          });
+        }}
       />}
     </Fragment>
   );

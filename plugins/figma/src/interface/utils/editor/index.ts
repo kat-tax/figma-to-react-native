@@ -9,6 +9,7 @@ import copilot from './lib/copilot';
 import typings from './lib/typings';
 import prompts from './lib/prompts';
 import language from './lib/language';
+import diff from './lib/diff';
 
 import type * as monaco from 'monaco-editor';
 import type {UserSettings} from 'types/settings';
@@ -116,13 +117,15 @@ export function initSettingsSchema(monaco: Monaco) {
 export async function initComponentEditor(
   editor: Editor,
   monaco: Monaco,
+  onDiff: () => void,
   onPrompt: () => void,
   onComponents: (components: TypeScriptComponents) => void,
 ) {
   // console.log('[init editor]', editor, monaco);
+  diff.init(monaco, editor, onDiff);
+  prompts.init(monaco, editor, onPrompt);
   typings.init(monaco, editor);
   copilot.init(monaco, editor);
-  prompts.init(monaco, editor, onPrompt);
   await language.onTypeScriptWorkerReady(monaco, editor.getModel());
   editor.onDidChangeModel(async (e) => {
     onComponents(await language.getTypeScriptComponents(monaco, editor.getModel()));

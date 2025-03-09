@@ -88,7 +88,7 @@ UnistylesRegistry
 
 AppRegistry.registerComponent('app', () => App);
 AppRegistry.runApplication('app', {
-  rootTag: document.getElementById('component'),
+  rootTag: document.getElementById('__ROOT_TAG__'),
   mode: 'concurrent',
 });
 

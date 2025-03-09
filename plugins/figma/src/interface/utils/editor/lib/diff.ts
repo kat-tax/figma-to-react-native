@@ -6,7 +6,7 @@ export const actions = [
   'reset',
 ];
 
-export async function patch(action: string) {
+export async function diff(action: string) {
   switch (action) {
     case 'View Diff':
       console.log('[diff]', action);
@@ -22,19 +22,33 @@ export async function patch(action: string) {
 
 export function init(monaco: Monaco, editor: Editor, run: () => void) {
   editor.addAction({
-    id: 'f2rn-gpt',
-    label: 'Patch with GPT-4',
-    contextMenuGroupId: '1_modification',
+    id: 'f2rn-diff-init',
+    label: 'View Diff',
+    contextMenuGroupId: '10_versioning',
     contextMenuOrder: 99,
     precondition: null,
     keybindingContext: null,
-    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG],
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ],
+    run,
+  });
+}
+
+export function exit(editor: Editor, monaco: Monaco, run: () => void) {
+  editor.addAction({
+    id: 'f2rn-diff-exit',
+    label: 'Exit Diff',
+    contextMenuGroupId: '10_versioning',
+    contextMenuOrder: 99,
+    precondition: null,
+    keybindingContext: null,
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ],
     run,
   });
 }
 
 export default {
   actions,
-  patch,
+  diff,
   init,
+  exit,
 };

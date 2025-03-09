@@ -202,7 +202,7 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         e.dataTransfer.setData('text/plain', code);
       }}>
       <Layer
-        component={!hasError}
+        component={!hasError && !hasUnsavedChanges}
         value={name === dragging}
         onChange={() => id
           ? props.onSelect(id)
@@ -213,12 +213,12 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
           : hasError
             ? 'error'
             : hasUnsavedChanges
-              ? 'modified'
+              ? '(modified)'
               : path.split('/').slice(2, -1).join('/')
         }
         icon={hasError
           ? <IconWarning16 color="danger"/>
-          : <IconLayerComponent16 color="component"/>
+          : <IconLayerComponent16 color={hasUnsavedChanges ? 'warning' : 'component'}/>
         }>
         <TextUnderline
           str={`${page}/${name}`}

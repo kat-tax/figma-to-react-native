@@ -1,3 +1,7 @@
+// TODO: use git provider to avoid re-cloning
+// only switch over when sure it clears last release
+// and uses latest project data
+
 import {git, http, MemoryFS} from 'git-mem';
 import {F2RN_EXO_REPO_URL, F2RN_EXO_PROXY_URL} from 'config/consts';
 import {emit} from '@create-figma-plugin/utilities';
@@ -20,7 +24,7 @@ export async function update(project: ProjectBuild, info: ProjectInfo, release: 
   const changes = new Set<string>();
 
   // Clone repository
-  await git.clone({...repo, ref: branch, url, singleBranch: true, depth: 1, corsProxy, http});
+  await git.clone({...repo, ref: branch, url, singleBranch: true, depth: 1, corsProxy, http, onAuth: () => ({username})});
 
   // Checkout feature branch
   const ref = `design-${metadata.pkgVersion || '0.0.1'}`;
@@ -90,7 +94,7 @@ export async function update(project: ProjectBuild, info: ProjectInfo, release: 
 
   // Commit
   const message = `Release ${metadata.pkgVersion || '0.0.1'}`;
-  await git.add({fs, dir, filepath: Array.from(changes)});
+  await git.add({fs, dir, parallel: true, filepath: Array.from(changes)});
   await git.commit({...repo, message, author: {name: 'Figma → React Native', email: 'team@kat.tax'}});
 
   // Push changes

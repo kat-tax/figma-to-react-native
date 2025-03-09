@@ -43,6 +43,7 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
   const {zoomToElement} = useControls();
   const [name, setName] = useState();
   const [error, setError] = useState(null);
+  const [showDiff, setShowDiff] = useState(false);
   const [hasInspect, setInspect] = useState(false);
   const [isMouseInComponent, setMouseInComponent] = useState(false);
 
@@ -102,6 +103,14 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
         case 'preview::load':
           setError(null);
           updateBackground(e.data.background);
+          // Clear diff if not head preview
+          if (!e.data.head) {
+            const diff = document.getElementById('diff');
+            if (diff) diff.innerHTML = '';
+            setShowDiff(false);
+          } else {
+            setShowDiff(true);
+          }
           // Update frame
           el.style.display = 'flex';
           el.style.width = e.data.width ? e.data.width + 'px' : 'auto';
@@ -109,9 +118,10 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
           el.onmouseenter = () => setMouseInComponent(true);
           el.onmouseleave = () => setMouseInComponent(false);
           // Update script
-          const prev = document.getElementById('target');
+          const id = e.data.head ? 'target-head' : 'target';
+          const prev = document.getElementById(id);
           const next = document.createElement('script');
-          next.id = 'target';
+          next.id = id;
           next.type = 'module';
           next.innerHTML = e.data.bundle;
           prev && document.body.removeChild(prev);
@@ -153,7 +163,11 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
 
   return (
     <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
-      <div id="component"></div>
+      <div id="wrapper">
+        <div id="component"></div>
+        <div id="diff"></div>
+      </div>
+      {showDiff && <div id="handle"></div>}
       {error &&
         <div>
           <pre style={{color: 'red'}}>

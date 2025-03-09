@@ -6,6 +6,7 @@ import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {NodeToolbar} from 'interface/base/NodeToolbar';
+import {useGit} from 'interface/providers/Git';
 import * as string from 'common/string';
 import * as $ from 'store';
 
@@ -27,6 +28,7 @@ interface ComponentPreviewProps {
   isDark: boolean,
   theme: string,
   nav: Navigation,
+  showDiff: boolean,
 }
 
 interface PreviewNodeMap {
@@ -46,7 +48,7 @@ interface PreviewNodeInfo {
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {compKey, nav, build, variant, theme, background, language, isDark} = props;
+  const {compKey, nav, build, variant, theme, background, language, isDark, showDiff} = props;
   const [previewNodeMap, setPreviewNodeMap] = useState<PreviewNodeMap | null>(null);
   const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
@@ -59,6 +61,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const [isLocked, setIsLocked] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [src, setSrc] = useState('');
+  const {fs} = useGit();
 
   const screen = useWindowSize();
   const iframe = useRef<HTMLIFrameElement>(null);
@@ -135,7 +138,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     preview({tag, name, path, imports, theme, background, language, settings, build}).then(bundle => {
       post('preview::load', {bundle, name, width, height, theme, background});
     });
-  }, [component, settings, build]);
+    if (fs && showDiff) {
+      preview({tag, name, path, imports, theme, background, language, settings, build}, fs).then(bundle => {
+        post('preview::load', {bundle, name, width, height, theme, background, head: true});
+      });
+    }
+  }, [component, settings, build, fs, showDiff]);
 
   // TEMP: Workaround to force the preview app to refresh on variant change
   const refresh = useCallback(() => {
@@ -183,10 +191,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   // Render the app when the component or settings change
   useEffect(initApp, [component, settings]);
 
-  // Rebuild app when editor content changes
+  // Rebuild app when editor content changes or showDiff changes
   useEffect(() => {
     if (nav.lastEditorRev) initApp();
-  }, [nav.lastEditorRev]);
+  }, [nav.lastEditorRev, showDiff]);
 
   // Update the dimensions when screen or component change & clear inspection
   useEffect(() => {post('preview::resize', {}); inspect(false)}, [screen, props.lastResize]);
