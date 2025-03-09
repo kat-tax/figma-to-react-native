@@ -8,7 +8,7 @@ import {getFillToken} from './colors';
 
 import type {ParseIconData} from 'types/parse';
 import type {ComponentInfo} from 'types/component';
-import type {NodeAttrData} from 'types/node';
+import type {NodeAttrData, NodeAttrRule} from 'types/node';
 import type {TypeScriptComponentProps} from 'interface/utils/editor/lib/language';
 
 export function isNodeVisible(node: SceneNode) {
@@ -33,19 +33,9 @@ export function getIconData(node: SceneNode): ParseIconData {
   return {name, color, size};
 }
 
-export function getNodeAttrs(node: BaseNode, nodeSrc: string): NodeAttrData {
-  // TODO: fix this
-  // const props = JSON.parse(figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS) || '{}');
-  const props = {};
-  const attrs: NodeAttrData = {
-    [NodeAttrGroup.Properties]: props?.[nodeSrc]?.props?.map((p: TypeScriptComponentProps) => ({
-      uuid: random.uuid(),
-      data: null,
-      name: p.name,
-      type: p.type,
-      desc: p.docs,
-      opts: p.opts,
-    })),
+export function getNodeAttrs(node: BaseNode): NodeAttrData {
+  const initAttrs: NodeAttrData = {
+    [NodeAttrGroup.Properties]: [],
     [NodeAttrGroup.Animations]: [
       {uuid: random.uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: ''},
       {uuid: random.uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: ''},
@@ -70,11 +60,24 @@ export function getNodeAttrs(node: BaseNode, nodeSrc: string): NodeAttrData {
 
   try {
     const data = node.getSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS);
-    const json = data ? JSON.parse(data) : attrs;
+    const json = data ? JSON.parse(data) : initAttrs;
     return json;
   } catch (e) {
-    return attrs;
+    return initAttrs;
   }
+}
+
+export function getNodeSrcProps(nodeSrc: string): NodeAttrRule[] {
+  const props = figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS);
+  const json = props ? JSON.parse(props) : {};
+  return json?.[nodeSrc]?.props?.map((p: TypeScriptComponentProps) => ({
+    uuid: random.uuid(),
+    data: null,
+    name: p.name,
+    type: p.type,
+    desc: p.docs,
+    opts: p.opts,
+  }));
 }
 
 export function getComponentInfo(node: BaseNode): ComponentInfo | null {

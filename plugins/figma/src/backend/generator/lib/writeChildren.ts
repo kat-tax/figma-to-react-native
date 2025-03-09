@@ -36,7 +36,7 @@ export function writeChildren(
     const isPress = Boolean(pressId);
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
     const master = isVariant ? child.node.parent : child.node;
-    const attrs = parser.getNodeAttrs(child.node, string.createIdentifierPascal(master.name));
+    const attrs = parser.getNodeAttrs(child.node);
     const conds = getConditional(attrs, (master as SceneNode)?.componentPropertyReferences);
     const isCond = conds.length > 0;
     if (isPress)
@@ -76,6 +76,7 @@ function writeChild(
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
   const isAsset = child.node.type === 'VECTOR' || (child.node.isAsset && !isInstance);
+  const isInput = child.node.type === 'TEXT' && child.node.name.toLowerCase().startsWith('textinput');
   const isText = child.node.type === 'TEXT';
   const isSwap = Boolean(swapNodeProp);
   const isIcon = isInstance
@@ -174,6 +175,8 @@ function writeChild(
     instance.node.id,
     jsxStyleProp,
     jsxAttrProps,
+    undefined,
+    isInput,
   );
 
   // Create instance tag
@@ -203,19 +206,9 @@ function writeChild(
     : (child.node as TextNode).characters || '';
 
   // Text input detected
-  if (child.node.type === 'TEXT'
-    && child.node.name.toLowerCase().startsWith('textinput')
-    && child.node.name.includes('|')) {
-    const [_, type, value, ...extra] = child.node.name.split('|');
+  if (isInput) {
     state.flags.reactNative.TextInput = true;
-    writer.write('<TextInput').indent(() => {
-      writer.writeLine(`style={${getStyleProp(slug, isRootPressable)}}`);
-      writer.writeLine(`testID="${child.node.id}"`);
-      // Type (none, text, decimal, numeric, tel, search, email, url)
-      writer.writeLine(`inputMode="${type.trim().toLowerCase()}"`);
-      // Default value
-      // TODO: support state
-      writer.writeLine(`defaultValue={${value.trim()}}`);
+    writer.write('<TextInput').write(jsxProps).indent(() => {
       // Placeholder (props value)
       if (textPropValue.startsWith('props.')) {
         writer.writeLine(`placeholder={${textPropValue}}`);
@@ -227,16 +220,15 @@ function writeChild(
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
-      state.flags.useStylesTheme = true;
       writer.writeLine(`placeholderTextColor={${parser.getFillToken(child.node as TextNode)}}`);
-      extra?.forEach(p => p && writer.writeLine(p.trim()));
+      state.flags.useStylesTheme = true;
     });
     writer.write(`/>`);
     return;
   }
 
   // Child nodes, open tag and write children
-  writer.write(`<${jsxTagWithProps}>`).indent(() => {
+  writer.write(`<${jsxTagWithProps.trimEnd()}>`).indent(() => {
     switch (jsxTag) {
       case 'View':
         writeChildren(writer, child.children, {

@@ -6,12 +6,13 @@ import {useControls, getMatrixTransformStyles, TransformWrapper, TransformCompon
 import {Inspector} from 'preview-inspector';
 
 export default function Loader() {
-  const [isLocked, setLocked] = useState(false);
+  const [lockUser, setLockUser] = useState(false);
+  const [lockTemp, setLockTemp] = useState(false);
   return (
     <TransformWrapper
       smooth
       minScale={0.5}
-      disabled={isLocked}
+      disabled={lockUser || lockTemp}
       initialPositionY={-99999}
       initialPositionX={window.innerWidth / 2}
       customTransform={getMatrixTransformStyles}
@@ -34,18 +35,26 @@ export default function Loader() {
         document.documentElement.style.backgroundPosition = backgroundPosition;
         parent.postMessage({type: 'loader::interaction'});
       }}>
-      <Preview setLocked={setLocked} />
+      <Preview
+        setLockUser={setLockUser}
+        setLockTemp={setLockTemp}
+      />
     </TransformWrapper>
   );
 }
 
-export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
+export function Preview(props: {
+  setLockUser: (locked: boolean) => void,
+  setLockTemp: (locked: boolean) => void,
+}) {
   const {zoomToElement} = useControls();
   const [name, setName] = useState();
   const [error, setError] = useState(null);
   const [showDiff, setShowDiff] = useState(false);
+  const [diffWidth, setDiffWidth] = useState(50); // Default to 50%
   const [hasInspect, setInspect] = useState(false);
   const [isMouseInComponent, setMouseInComponent] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const augmentNode = (node: any) => {
     const {name, fiber, element, codeInfo, pointer} = node;
@@ -85,6 +94,42 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
   }
 
   useLayoutEffect(() => {
+    if (!showDiff) return;
+    const _handle = document.getElementById('handle');
+    const _diff = document.getElementById('diff');
+    if (!_handle || !_diff) return;
+
+    const onMouseDown = (e: MouseEvent) => {
+      props.setLockTemp(true);
+      e.preventDefault();
+      setIsDragging(true);
+    };
+    
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const rect = document.getElementById('wrapper').getBoundingClientRect();
+      const width = Math.min(Math.max(0, ((e.clientX - rect.left) / rect.width) * 100), 100);
+      setDiffWidth(width);
+      _diff.style.width = `${width}%`;
+      _handle.style.left = `${width}%`;
+    };
+    
+    const onMouseUp = () => {
+      setIsDragging(false);
+      props.setLockTemp(false);
+    };
+    
+    _handle.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    return () => {
+      _handle.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [showDiff, isDragging]);
+
+  useLayoutEffect(() => {
     const figma = (e: JSON) => {
       const el = document.getElementById('component');
       switch (e.data?.type) {
@@ -95,7 +140,7 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
           setInspect(e.data.enabled);
           break;
         case 'preview::lock':
-          setLocked(e.data.enabled);
+          props.setLockUser(e.data.enabled);
           break;
         case 'preview::resize':
           zoomToElement(el, 1, 25);
@@ -110,6 +155,12 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
             setShowDiff(false);
           } else {
             setShowDiff(true);
+            // Reset diff width to 50% when showing diff
+            setDiffWidth(50);
+            const _diff = document.getElementById('diff');
+            const _handle = document.getElementById('handle');
+            if (_diff) _diff.style.width = '50%';
+            if (_handle) _handle.style.left = '50%';
           }
           // Update frame
           el.style.display = 'flex';
@@ -165,7 +216,7 @@ export function Preview({setLocked}: {setLocked: (locked: boolean) => void}) {
     <TransformComponent wrapperStyle={{height: '100%', width: '100%'}}>
       <div id="wrapper">
         <div id="component"></div>
-        <div id="diff"></div>
+        {showDiff && <div id="diff"></div>}
       </div>
       {showDiff && <div id="handle"></div>}
       {error &&

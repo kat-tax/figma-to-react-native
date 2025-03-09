@@ -3,6 +3,8 @@ import {NodeAttrType} from 'types/node';
 import type * as monaco from 'monaco-editor';
 import type {Monaco} from '../index';
 
+const IGNORE_PROPS = ['key', 'style', 'testid'];
+
 export type TypeScriptComponents = Map<string, TypeScriptComponent>;
 
 export type TypeScriptComponent = {
@@ -103,9 +105,10 @@ async function getTypeScriptComponents(
         completions?.entries
           ?.filter((entry: any) =>
             entry.kind !== monaco.languages.CompletionItemKind.Property)
+          ?.filter((entry: any) => !IGNORE_PROPS.includes(entry.name.toLowerCase()))
           ?.map(async (entry: any) => {
             const details = await client.getCompletionEntryDetails(uri, propsOffset, entry.name);
-            const [type, opts] = getTypeFromDisplayParts(details.displayParts);
+            const [type, opts] = getTypeFromDisplayParts(client, details.displayParts);
             const props: TypeScriptComponentProps = {
               type,
               opts,
@@ -125,6 +128,14 @@ async function getTypeScriptComponents(
         props: componentProps,
       });
     }
+
+    // Remove components with no props
+    componentsMap.forEach((component, name) => {
+      if (component.props.length === 0) {
+        componentsMap.delete(name);
+      }
+    });
+
     return componentsMap;
   } catch (error) {
     console.error('Error getting component props:', error);
@@ -133,6 +144,7 @@ async function getTypeScriptComponents(
 }
 
 function getTypeFromDisplayParts(
+  client: monaco.languages.typescript.TypeScriptWorker,
   displayParts?: Array<{text: string; kind: string}>
 ): [NodeAttrType, Array<string> | null] {
   if (!displayParts) return null;
@@ -141,11 +153,18 @@ function getTypeFromDisplayParts(
   const literals = displayParts
     .filter(part => part.kind === 'stringLiteral')
     .map(part => part.text.replace(/['"]/g, ''));
-
   if (literals.length > 0) {
     return [NodeAttrType.Enum, literals];
   }
-  
+
+  // Check for alias, lookup it's types
+  const alias = displayParts.find(part => part.kind === 'aliasName')?.text;
+  if (alias) {
+    // TODO: Lookup alias type in language server
+    console.log('>> [alias]', alias, displayParts);
+    return [NodeAttrType.Enum, []];
+  }
+
   // Check for primitive types (default to string)
   const keyword = displayParts
     .find(part => part.kind === 'keyword')?.text;

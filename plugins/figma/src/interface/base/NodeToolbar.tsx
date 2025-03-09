@@ -61,6 +61,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
   // Request node attributes from backend
   useEffect(() => {
     emit<EventNodeAttrReq>('NODE_ATTR_REQ', node, nodeSrc);
+    console.log('>> [node/req]', node, nodeSrc);
   }, [node]);
 
   // Save form on update
@@ -208,6 +209,7 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
           sideOffset={-36}>
           {rules
             .filter(({name}) => name !== '')
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map(({name, desc, data}) => (
               <Select.Item
                 key={name}

@@ -13,11 +13,13 @@ export function writePropsAttributes(
   styleProp?: string,
   attrProps?: Array<NodeAttrRule>,
   extraProps?: Array<[string, string]>,
+  forceMultiLine?: boolean,
 ) {
   const _props = props ? Object.entries(props) : [];
+  const _noAttrProps = !attrProps || attrProps?.every(attr => attr.data === null);
 
   // Write inline props (no component/attr props)
-  if (!_props.length && !attrProps?.length) {
+  if (!_props.length && _noAttrProps && !forceMultiLine) {
     // Write style prop
     if (styleProp)
       writer.write(` style={${styleProp}}`);

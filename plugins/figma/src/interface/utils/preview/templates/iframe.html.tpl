@@ -40,15 +40,29 @@
       }
       #diff {
         position: absolute;
+        overflow: hidden;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        pointer-events: none;
       }
-      *:focus {
-        outline: none;
+      #handle {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 6px;
+        height: 100%;
+        background-color: rgba(90, 72, 245, 0.5);
+        cursor: col-resize !important;
+        transform: translateX(-50%);
+        z-index: 100;
+        transition: background-color 0.2s ease;
       }
+      
+      #handle:hover, #handle:active {
+        background-color: rgba(90, 72, 245, 0.8);
+      }
+
     </style>
     <style>
      .root {

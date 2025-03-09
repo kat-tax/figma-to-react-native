@@ -26,19 +26,18 @@ export async function watchComponents(
 ) {
   // Save component props when parsed
   on<EventPropsSave>('PROPS_SAVE', (props) => {
-    // TODO: fix this
-    // figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
+    figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
   });
 
   // Recompile component on node attribute change
-  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, nodeSrc, data) => {
+  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, nodeSrc, newAttrs) => {
     const node = figma.getNodeById(nodeId);
-    const attr = parser.getNodeAttrs(node, nodeSrc);
-    const delta = Object.keys(diff(attr, data)).length;
+    const attrs = parser.getNodeAttrs(node);
+    const delta = Object.keys(diff(attrs, newAttrs)).length;
     if (delta > 0) {
       // TODO: improve undo UX (recompile component / refresh node toolbar)
       // figma.commitUndo();
-      node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(data));
+      node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(newAttrs));
       const component = parser.getComponentTarget(node);
       if (component) {
         compile(all, true, new Set([component]));
@@ -56,7 +55,9 @@ export async function watchComponents(
     // Select targeted component since it's available now
     targetComponent();
     // Refresh component cache
-    await compile(all, true);
+
+    // TODO: heuristic to detect if we need to recompile all components
+    // await compile(all, true);
   }
 
   // Recompile changed components on doc change

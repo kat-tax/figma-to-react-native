@@ -126,9 +126,18 @@ export async function initComponentEditor(
   prompts.init(monaco, editor, onPrompt);
   typings.init(monaco, editor);
   copilot.init(monaco, editor);
-  await language.onTypeScriptWorkerReady(monaco, editor.getModel());
+  const model = editor.getModel();
+
+  // Initialize components
+  await language.onTypeScriptWorkerReady(monaco, model);
+  const components = await language.getTypeScriptComponents(monaco, model);
+  onComponents(components);
+
+  // Update components on model change
   editor.onDidChangeModel(async (e) => {
-    onComponents(await language.getTypeScriptComponents(monaco, editor.getModel()));
+    const newModel = monaco.editor.getModel(e.newModelUrl);
+    const components = await language.getTypeScriptComponents(monaco, newModel);
+    onComponents(components);
   });
 }
 

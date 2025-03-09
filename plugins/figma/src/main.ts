@@ -1,6 +1,7 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {focusNode, getNodeAttrs, getTopFill, getColor} from 'backend/parser/lib';
+import {focusNode, getNodeAttrs, getNodeSrcProps, getTopFill, getColor} from 'backend/parser/lib';
 import {F2RN_UI_WIDTH_MIN} from 'config/consts';
+import {NodeAttrGroup} from 'types/node';
 
 import * as project from 'backend/generator/project';
 import * as service from 'backend/generator/service';
@@ -89,9 +90,28 @@ export default async function() {
     // Handle loading node attributes
     on<T.EventNodeAttrReq>('NODE_ATTR_REQ', (nodeId, nodeSrc) => {
       const node = figma.getNodeById(nodeId);
-      const data = node && getNodeAttrs(node, nodeSrc);
-      if (data) {
-        emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, data);
+      const props = node && getNodeSrcProps(nodeSrc);
+      const attrs = node && getNodeAttrs(node);
+
+      // Props is the default props for the component type (Text / View)
+      // Attrs is the override property values for this node (props, animations, visibilities, etc.)
+      // Always provide all the props, and merge in the changed values from attrs
+      const mergedProps = [...props ?? []];
+      for (const prop of Object.values(attrs?.[NodeAttrGroup.Properties] ?? [])) {
+        if (prop.name && typeof prop.data !== 'undefined') {
+          const index = mergedProps.findIndex(p => p.name === prop.name);
+          if (index !== -1) {
+            mergedProps[index] = prop;
+          } else {
+            mergedProps.push(prop);
+          }
+        }
+      }
+
+      attrs.properties = mergedProps;
+
+      if (attrs) {
+        emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, attrs);
       }
     });
 

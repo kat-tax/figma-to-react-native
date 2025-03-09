@@ -2,9 +2,9 @@
 export const F2RN_UI_WIDTH_MIN = 308;
 
 // Configs
-export const F2RN_NODE_ATTRS = 'f2rn:attr:0010';
-export const F2RN_COMP_PROPS = 'f2rn:props:0010';
-export const F2RN_COMP_STYLES = 'f2rn:styles:0010';
+export const F2RN_NODE_ATTRS = 'f2rn:attr:0020';
+export const F2RN_COMP_PROPS = 'f2rn:props:0018';
+export const F2RN_COMP_STYLES = 'f2rn:styles:0012';
 export const F2RN_SETTINGS_USER = 'f2rn:user:1001';
 export const F2RN_SETTINGS_PROJECT = 'f2rn:project:1001';
 export const F2RN_PROJECT_RELEASE = 'f2rn:release:1001';

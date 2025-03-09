@@ -54,7 +54,6 @@ export async function getAssets(nodes: Set<string>): Promise<{
 
         // TODO: replace export w/ getImage, lookup via figma.getImageByHash (must support most props, rotate, fit, etc.)
         // const image = getImage(node.fills);
-        // console.log('>>> image', node.name, image);
         
         rasters[node.name] = 1 + (rasters[node.name] || 0);
         hasRaster = true;
