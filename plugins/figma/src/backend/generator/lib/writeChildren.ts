@@ -291,6 +291,7 @@ function getConditional(
       case NodeAttrType.Boolean: return '';
       case NodeAttrType.String: return `'${r.data}'`;
       case NodeAttrType.Number: return r.data;
+      case NodeAttrType.Function: return r.data;
       case NodeAttrType.Motion: return `props.${parser.getComponentPropName(propRefs?.mainComponent)}`;
       case NodeAttrType.Tuple: return JSON.stringify(r.data);
       case NodeAttrType.Enum: return `'${r.data.toString().toLowerCase()}'`;
