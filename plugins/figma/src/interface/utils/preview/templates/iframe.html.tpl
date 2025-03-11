@@ -52,17 +52,21 @@
         left: 50%;
         width: 6px;
         height: 100%;
-        background-color: rgba(90, 72, 245, 0.5);
+        background-color: rgba(151, 71, 255, 0.2);
         cursor: col-resize !important;
         transform: translateX(-50%);
         z-index: 100;
         transition: background-color 0.2s ease;
+        will-change: background-color;
+        backface-visibility: hidden;
+        border-radius: 9999px;
       }
-      
       #handle:hover, #handle:active {
-        background-color: rgba(90, 72, 245, 0.8);
+        background-color: rgba(151, 71, 255, 0.8);
       }
-
+      *:active, *:focus {
+        outline: none;
+      }
     </style>
     <style>
      .root {

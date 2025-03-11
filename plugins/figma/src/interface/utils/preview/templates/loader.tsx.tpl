@@ -94,24 +94,26 @@ export function Preview(props: {
   }
 
   useLayoutEffect(() => {
-    if (!showDiff) return;
+    const _wrapper = document.getElementById('wrapper');
     const _handle = document.getElementById('handle');
     const _diff = document.getElementById('diff');
-    if (!_handle || !_diff) return;
 
     const onMouseDown = (e: MouseEvent) => {
-      props.setLockTemp(true);
-      e.preventDefault();
+      if (e.target.nodeName !== 'INPUT') {
+        e.preventDefault();
+      } else {
+        props.setLockTemp(true);
+      }
       setIsDragging(true);
     };
     
     const onMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
-      const rect = document.getElementById('wrapper').getBoundingClientRect();
+      const rect = _wrapper?.getBoundingClientRect();
       const width = Math.min(Math.max(0, ((e.clientX - rect.left) / rect.width) * 100), 100);
       setDiffWidth(width);
-      _diff.style.width = `${width}%`;
-      _handle.style.left = `${width}%`;
+      if (_diff) _diff.style.width = `${width}%`;
+      if (_handle) _handle.style.left = `${width}%`;
     };
     
     const onMouseUp = () => {
@@ -119,11 +121,11 @@ export function Preview(props: {
       props.setLockTemp(false);
     };
     
-    _handle.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
     return () => {
-      _handle.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mousedown', onMouseDown);
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
     };
