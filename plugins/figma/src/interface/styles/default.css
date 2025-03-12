@@ -57,6 +57,7 @@ iframe {
 
 .props-select {
   max-height: 300px;
+  z-index: 99999;
 }
 
 .fp-SelectTrigger span:first-child {
