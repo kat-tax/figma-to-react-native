@@ -99,12 +99,15 @@ export function Preview(props: {
     const _diff = document.getElementById('diff');
 
     const onMouseDown = (e: MouseEvent) => {
-      if (e.target.nodeName !== 'INPUT') {
-        e.preventDefault();
-      } else {
+      const isInput = e.target.nodeName === 'INPUT';
+      if (isInput || showDiff) {
         props.setLockTemp(true);
+      } else {
+        e.preventDefault();
       }
-      setIsDragging(true);
+      if (!isInput) {
+        setIsDragging(true);
+      }
     };
     
     const onMouseMove = (e: MouseEvent) => {
