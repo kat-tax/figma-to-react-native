@@ -59,6 +59,12 @@ iframe {
   max-height: 300px;
 }
 
+.fp-SelectTrigger span:first-child {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 .fp-TabsContent {
   overflow: auto;
   height: 100%;

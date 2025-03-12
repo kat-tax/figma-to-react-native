@@ -285,10 +285,24 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
     ), group);
   };
 
+  // Common style for all input elements to take 50% width
+  const inputStyle = {
+    width: '50%',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+  };
+  
+  // Style for select triggers to handle text overflow
+  const selectTriggerStyle = {
+    ...inputStyle,
+    gap: 0,
+  };
+  
   return (
-    <Flex align="center" gap="2" style={{flex: 1}}>
+    <Flex align="center" gap="2" style={{flex: 1, width: 0}}>
       <Select.Root value={cur.name} onValueChange={setName}>
-        <Select.Trigger style={{flex: 1}}/>
+        <Select.Trigger style={selectTriggerStyle}/>
         <Select.Content
           className="props-select"
           position="popper"
@@ -310,7 +324,7 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
         </Select.Content>
       </Select.Root>
       {cur.type === NodeAttrType.Blank && group !== NodeAttrGroup.Animations &&
-        <Input disabled style={{flex: 1}}/>
+        <Input disabled style={inputStyle}/>
       }
       {cur.type === NodeAttrType.String && (
         <Input
@@ -318,7 +332,7 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
           value={cur.data === undefined ? '' : String(cur.data)}
           onChange={e => setData(e.target.value)}
           placeholder="Enter text"
-          style={{flex: 1}}
+          style={inputStyle}
         />
       )}
       {cur.type === NodeAttrType.Function && (
@@ -327,11 +341,11 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
           value={cur.data === undefined ? '' : String(cur.data)}
           onChange={e => setData(e.target.value)}
           placeholder="() => {}"
-          style={{flex: 1}}
+          style={inputStyle}
         />
       )}
       {cur.type === NodeAttrType.Boolean && (
-        <Flex style={{flex: 1}}>
+        <Flex style={inputStyle} justify="start">
           <Switch
             title={cur.desc}
             checked={Boolean(cur.data)}
@@ -344,11 +358,11 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
           title={cur.desc}
           value={Number(cur.data) || 0}
           onChange={setData}
-          style={{flex: 1}}
+          style={inputStyle}
         />
       )}
       {cur.type === NodeAttrType.Tuple && (
-        <Flex gap="2" style={{flex: 1}}>
+        <Flex gap="2" style={inputStyle}>
           {cur?.opts.map((field, i) => (
             <ValueField.Multi key={field}>
               <ValueField.Root title={cur.desc}>
@@ -371,14 +385,16 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
       )}
       {cur.type === NodeAttrType.Enum && (
         <Select.Root value={String(cur.data)} onValueChange={setData}>
-          <Select.Trigger style={{flex: 1}}/>
+          <Select.Trigger style={selectTriggerStyle}/>
           <Select.Content
             className="props-select"
             position="popper"
             side="bottom"
             sideOffset={-36}>
             {cur?.opts.map(value => (
-              <Select.Item key={value} value={value}>
+              <Select.Item
+                key={value}
+                value={value}>
                 {value}
               </Select.Item>
             ))}
@@ -392,7 +408,7 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
               variant="secondary"
               aria-label="Edit animation"
               disabled={cur.type === NodeAttrType.Blank}
-              style={{flex: 1}}>
+              style={inputStyle}>
               {/* TODO: add animation name */}
             </Button>
           </Dialog.Trigger>
