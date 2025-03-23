@@ -1,7 +1,7 @@
 import type {SourceCache as SourceCacheBase} from 'monaco-editor-auto-typings/custom-editor';
 
 export class SourceCache implements SourceCacheBase {
-  static NS = 'at-cache::';
+  static NS = 'type:';
   static _ = new Map<string, string>();
 
   async getFile(uri: string) {

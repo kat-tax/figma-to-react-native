@@ -13,6 +13,7 @@ export {
   isNodeVisible,
   isNodeIcon,
   isVariant,
+  getNode,
   getIconData,
   getNodeAttrs,
   getNodeSrcProps,

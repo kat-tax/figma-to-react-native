@@ -82,7 +82,7 @@ export function Preview(props: {
     : augmentNode(data);
 
   const inspectHandler = (type: 'hover' | 'inspect' | 'load') => (data: any) => {
-    console.log(`[${type}]`, data);
+    // console.log(`[${type}]`, data);
     parent.postMessage({
       type: `loader::${type}`,
       info: augmentData(data, type === 'load'),

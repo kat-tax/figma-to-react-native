@@ -5,7 +5,7 @@ import {generateTheme} from './lib/generateTheme';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];
-  const bundle = await generateBundle(node, config.state, true);
+  const bundle = await generateBundle(node, null, config.state, true);
   const {code} = (await generateTheme(config.state)).themes;
   return bundle.code ? [
     {

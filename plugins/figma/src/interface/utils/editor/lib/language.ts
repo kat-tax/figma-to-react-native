@@ -109,7 +109,6 @@ async function getTypeScriptComponents(
           ?.map(async (entry: any) => {
             const details = await client.getCompletionEntryDetails(uri, propsOffset, entry.name);
             const [type, opts] = await getTypeFromDisplayParts(client, details.displayParts, definitions?.[0]?.fileName);
-            console.log('>> [lang:details]', entry.name, definitions, completions, details, type, opts);
             const props: TypeScriptComponentProps = {
               type,
               opts,
@@ -118,6 +117,7 @@ async function getTypeScriptComponents(
               mods: details.kindModifiers?.split(','),
               docs: details?.documentation?.[0]?.text,
             };
+            // console.log('>> [lang:details]', entry.name, definitions, completions, details, type, opts, props);
             return props;
           })
       );

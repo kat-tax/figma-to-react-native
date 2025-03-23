@@ -2,6 +2,7 @@ declare const styles: {
   readonly "component": string;
   readonly "components": string;
   readonly "create-figma-plugin": string;
+  readonly "dialog-close": string;
   readonly "documents": string;
   readonly "drop-mod-menu": string;
   readonly "drop-mod-target": string;
@@ -12,6 +13,7 @@ declare const styles: {
   readonly "highlight": string;
   readonly "icon": string;
   readonly "list": string;
+  readonly "node-toolbar-btn": string;
   readonly "props-select": string;
   readonly "search-mode": string;
   readonly "status-actions": string;

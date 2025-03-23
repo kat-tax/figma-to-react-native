@@ -13,7 +13,7 @@ import {generateComponent} from './generateComponent';
 import {writePropsAttributes} from './writePropsAttributes';
 import {writePropsImports} from './writePropsImports';
 
-import type {ComponentData, ComponentLinks} from 'types/component';
+import type {ComponentData, ComponentInfo, ComponentLinks} from 'types/component';
 import type {ProjectSettings} from 'types/settings';
 
 const emptyBundle: ComponentData = {
@@ -35,6 +35,7 @@ const emptyBundle: ComponentData = {
 
 export async function generateBundle(
   node: ComponentNode,
+  infoDb: Record<string, ComponentInfo> | null,
   settings: ProjectSettings,
   skipCache: boolean = false,
 ): Promise<ComponentData> {
@@ -42,7 +43,7 @@ export async function generateBundle(
   if (!node) return emptyBundle;
 
   // Get component info
-  const component = parser.getComponentInfo(node);
+  const component = parser.getComponentInfo(node, infoDb);
 
   // If error, return stub bundle (w/ message)
   if (component.hasError) return {
@@ -85,25 +86,37 @@ export async function generateBundle(
   const links: ComponentLinks = {};
   links[string.componentPathNormalize(component.path)] = component.target.id;
   Object.values(data.meta.components).forEach(([node]) => {
-    const info = parser.getComponentInfo(node);
+    const info = parser.getComponentInfo(node, infoDb);
     links[string.componentPathNormalize(info.path)] = info.target.id;
   });
 
   // Get frame size
   const {width, height} = parser.getComponentFrameSize(data.root.node, data.frame?.node);
 
+  const [props, imports, code, docs, story, index] = await Promise.all([
+    writePropsAttributes(new CodeBlockWriter(settings.writer), {
+      props: {...component.propDefs},
+      infoDb,
+    }),
+    writePropsImports(new CodeBlockWriter(settings.writer), {...component.propDefs}, infoDb),
+    generateComponent(data, settings, infoDb),
+    generateDocs(component, settings, infoDb),
+    generateStory(component, settings, infoDb),
+    generateIndex([component], settings, false),
+  ]);
+
   // Return bundle
   const bundle: ComponentData = {
     // Info
     id: component.target.id,
     key: component.target.key,
-    props: writePropsAttributes(new CodeBlockWriter(settings.writer), {...component.propDefs}),
-    imports: writePropsImports(new CodeBlockWriter(settings.writer), {...component.propDefs}),
+    props,
+    imports,
     // Text
-    code: await generateComponent(data, settings),
-    docs: await generateDocs(component, settings),
-    story: generateStory(component, settings),
-    index: generateIndex([component], settings, false),
+    code,
+    docs,
+    story,
+    index,
     // Data
     assets: Object.values(data.assetData),
     icons: {list: Array.from(data.meta.iconsUsed), count: data.meta.iconCounts},

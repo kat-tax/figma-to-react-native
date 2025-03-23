@@ -1,5 +1,5 @@
 import * as consts from 'config/consts';
-
+import {getNode} from './node';
 // Return the selected component
 export function getSelectedComponent(): ComponentNode {
   const {selection} = figma.currentPage;
@@ -10,6 +10,7 @@ export function getSelectedComponent(): ComponentNode {
 
 // Find components in a list of nodes
 export function getComponentTargets(nodes: readonly SceneNode[]): Set<ComponentNode> {
+  if (nodes.length === 0) return new Set<ComponentNode>();
   const components = new Set<ComponentNode>();
   for (const node of nodes) {
     const component = getComponentTarget(node);
@@ -110,7 +111,7 @@ export function getPage(node: BaseNode): PageNode {
 // Focus a node (and go to the page it's on)
 export async function focusNode(id: string) {
   try {
-    const node = figma.getNodeById(id);
+    const node = getNode(id);
     if (node) {
       const page = getPage(node);
       if (page && figma.currentPage !== page)

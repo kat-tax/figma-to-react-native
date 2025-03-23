@@ -71,7 +71,7 @@ export function build(release: ProjectRelease) {
 
       for (const component of exportNodes) {
         try {
-          const bundle = await generateBundle(component, {...config.state}, true);
+          const bundle = await generateBundle(component, null, {...config.state}, true);
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
             componentInfo[bundle.key] = bundle.info;
@@ -83,7 +83,7 @@ export function build(release: ProjectRelease) {
               bundle.story,
               bundle.docs,
             ]);
-            console.log('>> [project/bundle]', bundle);
+            // console.log('>> [project/bundle]', bundle);
           }
         } catch (e) {
           console.error('Failed to export', component, e);
@@ -134,7 +134,7 @@ export function build(release: ProjectRelease) {
         assets: buildAssets,
       };
 
-      console.log('>> [project/build]', build, info);
+      // console.log('>> [project/build]', build, info);
       emit<EventProjectRelease>('PROJECT_RELEASE', build, info, release, user);
     }, 500);
   } else {

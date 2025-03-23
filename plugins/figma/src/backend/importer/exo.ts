@@ -153,15 +153,15 @@ async function replaceComponentSwaps(
     if (typeof value.defaultValue !== 'string')
       continue;
     // Not an icon swap
-    const originNode = figma.getNodeById(value.defaultValue);
+    const originNode = parser.getNode(value.defaultValue);
     if (parser.isNodeIcon(originNode))
       continue;
     // Find icon in local set first, fallback to global set
     const [originSet, originName] = originNode.name.split(':');
     const uriOrigin = `${originSet}:${originName}`;
     const uriLocal = `${iconSet}:${originName}`;
-    const iconLocal = figma.getNodeById(icons[uriLocal]) as ComponentNode;
-    const iconNode = iconLocal || figma.getNodeById(icons[uriOrigin]) as ComponentNode;
+    const iconLocal = parser.getNode(icons[uriLocal]) as ComponentNode;
+    const iconNode = iconLocal || parser.getNode(icons[uriOrigin]) as ComponentNode;
     // No icon node found
     if (!iconNode)
       continue;

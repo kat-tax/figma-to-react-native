@@ -2,14 +2,18 @@ import * as random from 'common/random';
 import * as string from 'common/string';
 import * as consts from 'config/consts';
 
-import {NodeAttrGroup, NodeAttrType} from 'types/node';
-import {getPage, getSection} from './traverse';
+import {NodeAttrGroup} from 'types/node';
 import {getFillToken} from './colors';
+import {getPage, getSection} from './traverse';
 
 import type {ParseIconData} from 'types/parse';
 import type {ComponentInfo} from 'types/component';
 import type {NodeAttrData, NodeAttrRule} from 'types/node';
 import type {TypeScriptComponentProps} from 'interface/utils/editor/lib/language';
+
+export function getNode(id: string) {
+  return figma.getNodeById(id);
+}
 
 export function isNodeVisible(node: SceneNode) {
   const isVariant = !!(node as SceneNode & VariantMixin).variantProperties;
@@ -44,28 +48,11 @@ export function getIconData(node: SceneNode): ParseIconData {
 export function getNodeAttrs(node: BaseNode): NodeAttrData {
   const initAttrs: NodeAttrData = {
     [NodeAttrGroup.Properties]: [],
-    [NodeAttrGroup.Animations]: [
-      {uuid: random.uuid(), data: null, name: 'loop', type: NodeAttrType.Motion, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'hover', type: NodeAttrType.Motion, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'press', type: NodeAttrType.Motion, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'enter', type: NodeAttrType.Motion, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'exit', type: NodeAttrType.Motion, desc: ''},
-    ],
-    [NodeAttrGroup.Interactions]: [
-      // ...
-    ],
-    [NodeAttrGroup.Visibilities]: [
-      //{uuid: random.uuid(), data: null, name: 'breakpoint', type: NodeAttrType.Enum, opts: ['XS', 'SM', 'MD', 'LG', 'XL'], desc: ''},
-      //{uuid: random.uuid(), data: null, name: 'container', type: NodeAttrType.Tuple, opts: ['W', 'H'], desc: ''},
-      {uuid: random.uuid(), data: null, name: 'platform', type: NodeAttrType.Enum, opts: ['Web', 'iOS', 'Android', 'macOS', 'Windows'], desc: ''},
-      {uuid: random.uuid(), data: null, name: 'native', type: NodeAttrType.Boolean, desc: ''},
-      {uuid: random.uuid(), data: null, name: 'touch', type: NodeAttrType.Boolean, desc: ''},
-    ],
-    [NodeAttrGroup.Dynamics]: [
-      // ...
-    ],
+    [NodeAttrGroup.Motions]: [],
+    [NodeAttrGroup.Interactions]: [],
+    [NodeAttrGroup.Visibilities]: [],
+    [NodeAttrGroup.Dynamics]: [],
   };
-
   try {
     const data = node.getSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS);
     const json = data ? JSON.parse(data) : initAttrs;
@@ -75,10 +62,9 @@ export function getNodeAttrs(node: BaseNode): NodeAttrData {
   }
 }
 
-export function getNodeSrcProps(nodeSrc: string): NodeAttrRule[] {
-  const props = figma.root.getSharedPluginData('f2rn', consts.F2RN_COMP_PROPS);
-  const json = props ? JSON.parse(props) : {};
-  return json?.[nodeSrc]?.props?.map((p: TypeScriptComponentProps) => ({
+export async function getNodeSrcProps(key: string): Promise<NodeAttrRule[]> {
+  const nodeSrc = await figma.clientStorage.getAsync(`${consts.F2RN_CACHE_PROPS}:${key}`);
+  return nodeSrc?.props?.map((p: TypeScriptComponentProps) => ({
     uuid: random.uuid(),
     data: null,
     name: p.name,
@@ -88,7 +74,7 @@ export function getNodeSrcProps(nodeSrc: string): NodeAttrRule[] {
   }));
 }
 
-export function getComponentInfo(node: BaseNode): ComponentInfo | null {
+export function getComponentInfo(node: BaseNode, infoDb?: Record<string, ComponentInfo>): ComponentInfo | null {
   if (node.type !== 'COMPONENT'
     && node.type !== 'INSTANCE'
     && node.type !== 'COMPONENT_SET') return null;
@@ -100,6 +86,18 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
     : isInstance
       ? node.mainComponent
       : node;
+
+  // If infoDb is provided, return cached info
+  if (infoDb) {
+    const info = infoDb[target.key];
+    if (info) {
+      // console.log('>>>> [info/hit]', node.name, node);
+      return info;
+    }
+    // console.log('>>>> [info/miss]', node.name, node);
+  } else {
+    // console.log('>>>> [info/whiff]', node.name, node);
+  }
 
   const name = string.createIdentifierPascal(target.name);
   const section = getSection(target);
@@ -121,6 +119,29 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
     };
   }
 
+  // Exclude icons from component info
+  let propDefs: ComponentPropertyDefinitions = {};
+  let hasError = false;
+  let errorMessage = '';
+  if (page?.name !== consts.PAGES_SPECIAL.ICONS) {  
+    // Find the selected variant (if applicable)
+    // TODO: fix this?, it should use the node target?
+    const selectedVariant = (isVariant
+      ? target.children.filter((n) => figma.currentPage.selection.includes(n)).pop()
+      : undefined) as VariantMixin;
+    try {
+      propDefs = target.componentPropertyDefinitions;
+    } catch (e) {
+      hasError = true;
+      errorMessage = 'Component has a duplicate variant';
+    }
+    if (!hasError && selectedVariant) {
+      Object.entries(selectedVariant?.variantProperties).forEach((v: any) => {
+        propDefs[v[0]].defaultValue = v[1];
+      });
+    }  
+  }
+
   const path = 'components/'
     + string.createPathKebab(page?.name || 'common')
     + '/'
@@ -128,29 +149,7 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
     + '/'
     + string.createPathKebab(target.name);
   
-  // Find the selected variant (if applicable)
-  // TODO: fix this?, it should use the node target?
-  const selectedVariant = (isVariant
-    ? target.children.filter((n) => figma.currentPage.selection.includes(n)).pop()
-    : undefined) as VariantMixin;
-    
-  let hasError = false;
-  let errorMessage = '';
-  let propDefs: ComponentPropertyDefinitions = {};
-  try {
-    propDefs = target.componentPropertyDefinitions;
-  } catch (e) {
-    hasError = true;
-    errorMessage = 'Component has a duplicate variant';
-  }
-
-  if (!hasError && selectedVariant) {
-    Object.entries(selectedVariant?.variantProperties).forEach((v: any) => {
-      propDefs[v[0]].defaultValue = v[1];
-    });
-  }
-  
-  return {
+  const info: ComponentInfo = {
     target, 
     name, 
     page, 
@@ -162,6 +161,8 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
     hasError,
     errorMessage
   };
+
+  return info;
 }
 
 export function getComponentInstanceInfo(node: InstanceNode) {

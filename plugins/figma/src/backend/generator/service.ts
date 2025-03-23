@@ -1,8 +1,6 @@
 import {getAllIconComponents} from 'backend/importer/icons';
 import {on, emit} from '@create-figma-plugin/utilities';
-import {diff} from 'deep-object-diff';
 
-import * as delay from 'common/delay';
 import * as assert from 'common/assert';
 import * as string from 'common/string';
 import * as consts from 'config/consts';
@@ -19,31 +17,32 @@ import type {ProjectSettings} from 'types/settings';
 
 let _lastThemeCode = '';
 let _lastThemeName = '';
+let _infoDb: Record<string, ComponentInfo> | null = null;
 
 export async function watchComponents(
   targetComponent: () => void,
   updateBackground: () => void,
 ) {
   // Save component props when parsed
-  on<EventPropsSave>('PROPS_SAVE', (props) => {
+  on<EventPropsSave>('PROPS_SAVE', async (props) => {
     console.log('>> [props/save]', props);
-    figma.root.setSharedPluginData('f2rn', consts.F2RN_COMP_PROPS, JSON.stringify(props));
+    for (const [key, value] of Object.entries(props)) {
+      figma.clientStorage.setAsync(`${consts.F2RN_CACHE_PROPS}:${key}`, value);
+    }
   });
 
   // Recompile component on node attribute change
-  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, nodeSrc, newAttrs) => {
-    const node = figma.getNodeById(nodeId);
-    const attrs = parser.getNodeAttrs(node);
-    const delta = Object.keys(diff(attrs, newAttrs)).length;
-    if (delta > 0) {
-      // TODO: improve undo UX (recompile component / refresh node toolbar)
-      // figma.commitUndo();
-      node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(newAttrs));
-      const component = parser.getComponentTarget(node);
-      if (component) {
-        compile(all, true, new Set([component]));
-      }
-    }
+  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, newAttrs) => {
+    figma.commitUndo();
+    const node = parser.getNode(nodeId);
+    node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(
+      Object.fromEntries(
+        Object.entries(newAttrs).map(([group, groupAttrs]) => [
+          group,
+          groupAttrs.filter(attr => attr.data !== null)
+        ])
+      )
+    ));
   });
 
   // Init: update background preview color
@@ -55,9 +54,7 @@ export async function watchComponents(
     await compile(all);
     // Select targeted component since it's available now
     targetComponent();
-    // Refresh component cache
-
-    // TODO: heuristic to detect if we need to recompile all components
+    // TODO: Refresh component cache, needs heuristic to detect if we need to recompile all components
     // await compile(all, true);
   }
 
@@ -78,35 +75,54 @@ export async function watchComponents(
 
     // We need to get all components for the roster
     const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
+    
     // No components, do nothing
     if (all.size === 0) return;
-    // Get all components that were updated
-    const updates: SceneNode[] = [];
+
+    // All components that were updated
+    const updateDeep: SceneNode[] = [];    // Deep changes (style, asset, etc)
+    const updateShallow: SceneNode[] = []; // Shallow changes (pluginData)
+
+    // Process all changes
     e.documentChanges.forEach(change => {
+      // console.log('>> [event]', change);
+  
+      const isCreate = change.type === 'CREATE';
+      const isPropChange = change.type === 'PROPERTY_CHANGE';
+      const isDataOnlyChange = isPropChange && change.properties.every(p => p === 'pluginData');
+      
       // Ignore events that aren't relevant
-      if (change.type !== 'CREATE'
-        && change.type !== 'PROPERTY_CHANGE')
-          return;
-      // Ignore events only effecting pluginData (our cache)
-      if (change.type === 'PROPERTY_CHANGE'
-        && change.properties.includes('pluginData'))
-          return;
+      if (!isCreate && !isPropChange) return;
+      
       // Queue component to update
       if (change.node.type === 'COMPONENT') {
-        updates.push(change.node as SceneNode);
+        if (isDataOnlyChange) {
+          updateShallow.push(change.node as SceneNode);
+        } else {
+          updateDeep.push(change.node as SceneNode);
+        }
       } else {
         const target = parser.getComponentTarget(change.node as SceneNode);
         if (target) {
-          updates.push(target);
+          if (isDataOnlyChange) {
+            updateShallow.push(target);
+          } else {
+            updateDeep.push(target);
+          }
         }
       }
     });
-    // No updates, do nothing
-    if (updates.length === 0) return;
-    // Get updated targets and compile
-    const update = parser.getComponentTargets(updates);
-    await compile(all, true, update);
-    console.log('>> [update]', Array.from(update));
+
+    // Compile updates
+    await Promise.all([
+      compile(all, true, parser.getComponentTargets(updateDeep)),
+      compile(all, false, parser.getComponentTargets(updateShallow)),
+    ]);
+
+    // console.log('>> [update]', {
+    //   deep: Array.from(updateDeep),
+    //   shallow: Array.from(updateShallow),
+    // });
   });
 }
 
@@ -178,6 +194,8 @@ export async function compile(
   skipCache?: boolean,
   updated?: Set<ComponentNode>,
 ) {
+  if (components.size === 0) return;
+
   const _roster: ComponentRoster = {};
   const _info: Record<string, ComponentInfo> = {};
   const _assets: Record<string, ComponentAsset> = {};
@@ -189,16 +207,22 @@ export async function compile(
 
   // Iterate over all components, fill roster, info, and total
   for (const component of components) {
-    const info = parser.getComponentInfo(component);
+    // @ts-ignore
+    const master = component.type === 'INSTANCE' ? component.mainComponent : component;
+    const cache = updated?.has(master) ? null : _infoDb;
+    const info = parser.getComponentInfo(master, cache);
     if (!info) continue;
     const {name, page, path, target} = info;
     const {id, key} = target;
-    const loading = !skipCache;
+    const loading = !_infoDb?.[key];
     const preview = ''; // data:image/png;base64,${await info.target.exportAsync({format: 'PNG'})}` : '';
     _total++;
     _info[key] = info;
     _roster[key] = {id, name, page: page.name, path, loading, preview};
   }
+
+  // Update component info cache
+  _infoDb = _info;
 
   // Generate index
   const index = generateIndex(Object.values(_info), config.state, true);
@@ -206,12 +230,12 @@ export async function compile(
   // Compile either all components or just updated components if provided
   for (const component of updated || components) {
     try {
-      const _t1 = Date.now();
-
       if (!component) continue;
 
+      const _t1 = Date.now();
+
       // Compile component
-      const bundle = await generateBundle(component, {...config.state}, skipCache);
+      const bundle = await generateBundle(component, _info, {...config.state}, skipCache);
 
       // Derive data
       const {id, key, info, links, icons, assets} = bundle;
@@ -257,7 +281,7 @@ export async function compile(
       console.log(`>> [compile] ${Date.now() - _t1}ms`, info.name);
 
       // Throttle
-      await delay.wait(1);
+      // await delay.wait(1);
     } catch (e) {
       console.error('Failed to export', component, e);
     }

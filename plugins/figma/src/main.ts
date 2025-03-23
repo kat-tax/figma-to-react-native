@@ -1,7 +1,9 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {focusNode, getNodeAttrs, getNodeSrcProps, getTopFill, getColor} from 'backend/parser/lib';
+import {focusNode, getNode, getNodeAttrs, getNodeSrcProps, getTopFill, getColor} from 'backend/parser/lib';
+import {MOTION_ATTRS, VISIBILITY_ATTRS} from 'interface/node/lib/consts';
 import {F2RN_UI_WIDTH_MIN} from 'config/consts';
 import {NodeAttrGroup} from 'types/node';
+import * as random from 'common/random';
 
 import * as project from 'backend/generator/project';
 import * as service from 'backend/generator/service';
@@ -88,13 +90,47 @@ export default async function() {
     });
 
     // Handle loading node attributes
-    on<T.EventNodeAttrReq>('NODE_ATTR_REQ', (nodeId, nodeSrc) => {
-      const node = figma.getNodeById(nodeId);
-      const props = node && getNodeSrcProps(nodeSrc);
+    on<T.EventNodeAttrReq>('NODE_ATTR_REQ', async (nodeId, nodeSrc) => {
+      const node = getNode(nodeId);
+      const props = node && await getNodeSrcProps(nodeSrc);
       const attrs = node && getNodeAttrs(node);
+      if (!attrs) return;
+
+      // Initialize arrays if they don't exist
+      if (!attrs[NodeAttrGroup.Motions])
+        attrs[NodeAttrGroup.Motions] = [];
+      if (!attrs[NodeAttrGroup.Visibilities])
+        attrs[NodeAttrGroup.Visibilities] = [];
+
+      // Add default motions that don't already exist by name
+      for (const ani of MOTION_ATTRS) {
+        if (!attrs[NodeAttrGroup.Motions].some(a => a.name === ani.name)) {
+          attrs[NodeAttrGroup.Motions].push({
+            uuid: random.uuid(),
+            data: null,
+            name: ani.name,
+            type: ani.type,
+            desc: ''
+          });
+        }
+      }
+
+      // Add default visibilities that don't already exist by name
+      for (const vis of VISIBILITY_ATTRS) {
+        if (!attrs[NodeAttrGroup.Visibilities].some(v => v.name === vis.name)) {
+          attrs[NodeAttrGroup.Visibilities].push({
+            uuid: random.uuid(),
+            data: null,
+            name: vis.name,
+            type: vis.type,
+            opts: vis.opts,
+            desc: ''
+          });
+        }
+      }
 
       // Props is the default props for the component type (Text / View)
-      // Attrs is the override property values for this node (props, animations, visibilities, etc.)
+      // Attrs is the override property values for this node (props, motions, visibilities, etc.)
       // Always provide all the props, and merge in the changed values from attrs
       const mergedProps = [...props ?? []];
       for (const prop of Object.values(attrs?.[NodeAttrGroup.Properties] ?? [])) {
@@ -109,10 +145,7 @@ export default async function() {
       }
 
       attrs.properties = mergedProps;
-
-      if (attrs) {
-        emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, attrs);
-      }
+      emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, attrs);
     });
 
     // Handle notify event
@@ -168,11 +201,6 @@ export default async function() {
       const node = figma.currentPage.selection?.[0];
       if (node) emit<T.EventFocusedNode>('NODE_FOCUSED', node.id);
     });
-
-    // If there is a selected component, target it on init
-    setTimeout(() => {
-      nav.targetSelectedComponent();
-    }, 1000);
 
     // Start generation services
     service.watchTheme(config.state);

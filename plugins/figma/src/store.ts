@@ -1,5 +1,6 @@
 import sync from 'sync';
 import {Doc} from 'yjs';
+import {applyTextDiff} from './utils/text-diff';
 
 import type {Text} from 'yjs';
 import type {SyncProvider, SyncSettings} from 'sync';
@@ -46,10 +47,12 @@ export const projectFiles = {
   get: () => doc.getArray<string>('files'),
   set: (files: string[]) => {
     const $files = doc.getArray<string>('files');
-    $files.delete(0, $files.length);
-    for (const file of files) {
-      $files.push([file]);
-    }
+    doc.transact(() => {
+      $files.delete(0, $files.length);
+      for (const file of files) {
+        $files.push([file]);
+      }
+    }, 'figma');
   }
 }
 
@@ -57,8 +60,7 @@ export const projectTheme = {
   get: () => doc.getText('theme'),
   set: (theme: string) => {
     const text = doc.getText('theme');
-    text.delete(0, text.length);
-    text.insert(0, theme);
+    applyTextDiff(text, theme, 'figma');
   }
 }
 
@@ -66,8 +68,7 @@ export const projectIndex = {
   get: () => doc.getText('index'),
   set: (index: string) => {
     const text = doc.getText('index');
-    text.delete(0, text.length);
-    text.insert(0, index);
+    applyTextDiff(text, index, 'figma');
   }
 }
 
@@ -78,8 +79,7 @@ export const component = {
     get: () => doc.getText(`code::${key}`),
     set: (code: string) => {
       const text = doc.getText(`code::${key}`);
-      text.delete(0, text.length);
-      text.insert(0, code);
+      applyTextDiff(text, code, 'figma');
     }
   }),
 
@@ -87,8 +87,7 @@ export const component = {
     get: () => doc.getText(`index::${key}`),
     set: (code: string) => {
       const text = doc.getText(`index::${key}`);
-      text.delete(0, text.length);
-      text.insert(0, code);
+      applyTextDiff(text, code, 'figma');
     }
   }),
 
@@ -96,8 +95,7 @@ export const component = {
     get: () => doc.getText(`story::${key}`),
     set: (code: string) => {
       const text = doc.getText(`story::${key}`);
-      text.delete(0, text.length);
-      text.insert(0, code);
+      applyTextDiff(text, code, 'figma');
     }
   }),
 
@@ -105,8 +103,7 @@ export const component = {
     get: () => doc.getText(`docs::${key}`),
     set: (code: string) => {
       const text = doc.getText(`docs::${key}`);
-      text.delete(0, text.length);
-      text.insert(0, code);
+      applyTextDiff(text, code, 'figma');
     }
   }),
 }

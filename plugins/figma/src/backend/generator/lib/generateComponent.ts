@@ -1,17 +1,19 @@
 import CodeBlockWriter from 'code-block-writer';
 
-import * as consts from 'config/consts';
-import * as parser from 'backend/parser/lib';
-
 import {writeImports} from './writeImports';
 import {writeFunction} from './writeFunction';
 import {writeStyleSheet} from './writeStyleSheet';
 
 import type {ImportFlags} from './writeImports';
 import type {ProjectSettings} from 'types/settings';
+import type {ComponentInfo} from 'types/component';
 import type {ParseData} from 'types/parse';
 
-export async function generateComponent(data: ParseData, settings: ProjectSettings) {
+export async function generateComponent(
+  data: ParseData,
+  settings: ProjectSettings,
+  infoDb: Record<string, ComponentInfo> | null,
+) {
   const head = new CodeBlockWriter(settings?.writer);
   const body = new CodeBlockWriter(settings?.writer);
   const flags: ImportFlags = {
@@ -24,21 +26,26 @@ export async function generateComponent(data: ParseData, settings: ProjectSettin
     exoIcon: {},
     exoImage: {},
     exoVideo: {},
+    exoMotion: {},
     exoLottie: {},
     exoRive: {},
     useStylesTheme: false,
   };
 
-  let language = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.LOCALES);
-  if (!language) {
-    try {
-      language = figma.variables.createVariableCollection(consts.VARIABLE_COLLECTIONS.LOCALES);
-    } catch (e) {}
-  }
+  // const t0 = Date.now();
+  await writeFunction(body, flags, data, settings, infoDb);
+  // const t1 = Date.now();
+  // console.log('>> [gen/function]', t1 - t0, 'ms');
 
-  await writeFunction(body, flags, data, settings, language);
+  // const t2 = Date.now(); 
   await writeStyleSheet(body, flags, data);
-  await writeImports(head, flags, data);
+  // const t3 = Date.now();
+  // console.log('>> [gen/stylesheet]', t3 - t2, 'ms');
+
+  // const t4 = Date.now();
+  await writeImports(head, flags, data, infoDb);
+  // const t5 = Date.now();
+  // console.log('>> [gen/imports]', t5 - t4, 'ms');
 
   return head.toString() + body.toString();
 }

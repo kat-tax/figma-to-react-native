@@ -1,7 +1,8 @@
 import CodeBlockWriter from 'code-block-writer';
-import * as string from 'common/string';
-import * as node from 'backend/parser/lib';
+import {isVariant, getNodeAttrs} from 'backend/parser/lib';
+import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 
+import {writePropsAttributes} from './writePropsAttributes';
 import {writePropsInterface} from './writePropsInterface';
 import {writeStateHooks} from './writeStateHooks';
 import {writeStyleHooks} from './writeStyleHooks';
@@ -10,6 +11,7 @@ import {writeTSDoc} from './writeTSDoc';
 
 import type {ImportFlags} from './writeImports';
 import type {ProjectSettings} from 'types/settings';
+import type {ComponentInfo} from 'types/component';
 import type {ParseData} from 'types/parse';
 
 export async function writeFunction(
@@ -17,19 +19,18 @@ export async function writeFunction(
   flags: ImportFlags,
   data: ParseData,
   settings: ProjectSettings,
-  language: VariableCollection,
+  infoDb: Record<string, ComponentInfo> | null,
 ) {
   // Derived data
-  const isVariant = node.isVariant(data.root.node);
-  const masterNode = (isVariant ? data.root.node?.parent : data.root.node) as ComponentNode;
+  const masterNode = (isVariant(data.root.node) ? data.root.node?.parent : data.root.node) as ComponentNode;
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
-  const name = string.createIdentifierPascal(masterNode.name);
+  const name = createIdentifierPascal(masterNode.name);
   const isIcon = name.startsWith('Icon');
 
   // Pressable data (on click -> open link set)
   const pressables = data.root?.click?.type === 'URL'
     ? data.root.click.url?.split(',')?.map(s => s?.trim()?.split('#'))?.map(([prop, label]) => {
-        const id = string.createIdentifierCamel(label && label !== 'root' && prop === 'onPress'
+        const id = createIdentifierCamel(label && label !== 'root' && prop === 'onPress'
           ? `${prop}_${label}`
           : prop
         );
@@ -47,7 +48,7 @@ export async function writeFunction(
   if (tsdoc?.value) writer.write(tsdoc.value);
 
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
-    const code = getComponentCode(flags, data, settings, language, masterNode, pressables, isPressable);
+    const code = getComponentCode(flags, data, settings, masterNode, pressables, isPressable, infoDb);
     writeStateHooks(writer, flags, data);
     writeStyleHooks(writer, flags, name, data.variants);
     writer.write(code);
@@ -60,10 +61,10 @@ function getComponentCode(
   flags: ImportFlags,
   data: ParseData,
   settings: ProjectSettings,
-  language: VariableCollection,
   masterNode: ComponentNode,
   pressables: string[][],
   isPressable: boolean,
+  infoDb: Record<string, ComponentInfo> | null,
 ) {
   const writer = new CodeBlockWriter(settings.writer);
 
@@ -81,23 +82,47 @@ function getComponentCode(
 
   // Write component JSX
   writer.write(`return (`).indent(() => {
-    const tag = isPressable ? 'Pressable' : 'View';
-    const testId = ` testID={props.testID ?? "${masterNode.id}"}`;
-    const props = isPressable ? `${testId} {...props}` : testId;
-    const style = ` style={${getStyleProp('root', isPressable, true)}}`;
+    const attributes = getNodeAttrs(masterNode);
 
-    // Import flags
-    flags.reactNative[tag] = true;
+    // Determine if motion component
+    let hasMotion = false;
+    if (attributes.motions?.length) {
+      flags.exoMotion.Motion = true;
+      hasMotion = true;
+    }
+
+    // Determine the JSX tag
+    const tag = hasMotion
+      ? 'Motion.View'
+      : isPressable
+        ? 'Pressable'
+        : 'View';
+
+    // Generate the JSX props
+    const props = writePropsAttributes(new CodeBlockWriter(settings.writer), {
+      props: undefined,
+      infoDb,
+      nodeId: masterNode.id,
+      styleProp: getStyleProp('root', isPressable, true),
+      attrProps: attributes?.properties,
+      motionProps: attributes?.motions,
+      isRoot: true,
+    });
+
+    // Import flags (if not motion)
+    if (!hasMotion) {
+      flags.reactNative[tag] = true;
+    }
 
     // Write root JSX
-    writer.write('<' + tag + style + props + '>').indent(() => {
+    writer.write(`<${tag}${isPressable ? `${props} {...props}` : props.trimEnd()}>`).indent(() => {
       writer.conditionalWriteLine(isPressable, `{e => <>`);
       writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
         writeChildren(writer, data.tree, {
           data,
           flags,
+          infoDb,
           settings,
-          language,
           pressables,
           getIconProp,
           getStyleProp,

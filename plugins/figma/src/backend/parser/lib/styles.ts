@@ -1,4 +1,6 @@
 import {emit, once} from '@create-figma-plugin/utilities';
+import {getNode} from './node';
+
 import * as consts from 'config/consts';
 
 import type {EventStyleGenReq, EventStyleGenRes} from 'types/events';
@@ -15,7 +17,7 @@ export async function getStyleSheet(
   variants?: ParseVariantData,
   skipCache: boolean = false,
 ): Promise<ParseStyleSheet> {
-  //const _t1 = Date.now();
+  // const _t1 = Date.now();
 
   // Generate CSS from nodes
   const css: StyleSheet = {};
@@ -33,14 +35,14 @@ export async function getStyleSheet(
   }
 
   // Profile
-  //console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
-  //const _t2 = Date.now();
+  // console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
+  // const _t2 = Date.now();
 
   // Convert CSS
   const output = await convertStyles(css);
 
   // Profile
-  //console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
+  // console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
 
   // Build Stylesheet
   const stylesheet: ParseStyleSheet = {};
@@ -73,11 +75,12 @@ async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClas
   }
   
   // Lookup node
-  const node = figma.getNodeById(id);
+  const node = getNode(id);
+  const key = `${consts.F2RN_CACHE_CSS}:${id}`;
   
   // Disk cache
   if (!skipCache) {
-    const data = node.getSharedPluginData('f2rn', consts.F2RN_COMP_STYLES);
+    const data = await figma.clientStorage.getAsync(key);
     if (data) {
       try {
         const css = JSON.parse(data) as StyleClass;
@@ -92,7 +95,7 @@ async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClas
   _cacheCSS[id] = css;
 
   // Cache disk
-  node.setSharedPluginData('f2rn', consts.F2RN_COMP_STYLES, JSON.stringify(css));
+  await figma.clientStorage.setAsync(key, JSON.stringify(css));
 
   return css;
 }

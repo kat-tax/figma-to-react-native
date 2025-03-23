@@ -31,7 +31,7 @@ export default async function parse(
   ]);
 
   // Profile (eta: 20ms per node [30-50ms w/ per node variants]) due to `getCSSAsync`)
-  console.log(`>> [parse] ${Date.now() - _t1}ms (${data.meta.styleNodes.size} styles, ${data.meta.assetNodes.size} assets)`, component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name);
+  console.log(`>> [parse] (cached: ${!skipCache}) ${Date.now() - _t1}ms (${data.meta.styleNodes.size} styles, ${data.meta.assetNodes.size} assets)`, component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name);
 
   return {...data, localState, stylesheet, assetData, assetMap};
 }
@@ -152,7 +152,7 @@ function crawlChildren(
           Object.keys(info.props).forEach((key) => {
             const {type, value} = info.props[key];
             if (type === 'INSTANCE_SWAP' && typeof value === 'string') {
-              const swapComponent = figma.getNodeById(value);
+              const swapComponent = parser.getNode(value);
               const swapPropsRef = (swapComponent as ComponentNode)?.instances?.[0]?.componentPropertyReferences;
               let swapInvisible = false; 
               // If a linked visible prop is false for the component swap, do not include component

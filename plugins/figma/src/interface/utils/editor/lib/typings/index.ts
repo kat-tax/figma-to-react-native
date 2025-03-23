@@ -13,9 +13,9 @@ function init(monaco: Monaco, editor: Editor) {
     monaco,
     sourceCache,
     sourceResolver,
-    shareCache: false,
+    shareCache: true,
     preloadPackages: true,
-    debounceDuration: 700,
+    debounceDuration: 0,
     onlySpecifiedPackages: true,
     fileRootPath: F2RN_EDITOR_NS,
     versions: {
@@ -27,7 +27,7 @@ function init(monaco: Monaco, editor: Editor) {
       'react': '17.0.2',
       'react-native-svg': '15.0.0',
       'react-exo': '0.17.1',
-      'react-native-unistyles': '2.7.2',
+      'react-native-unistyles': '2.31.0',
     },
     onError(error) {
       console.error('[at-error]', error);

@@ -55,9 +55,17 @@ iframe {
   height: 100%;
 }
 
+.node-toolbar-btn {
+  scale: 0.9;
+}
+
 .props-select {
   max-height: 300px;
   z-index: 99999;
+}
+
+.dialog-close > svg {
+  scale: 0.8;
 }
 
 .fp-SelectTrigger span:first-child {

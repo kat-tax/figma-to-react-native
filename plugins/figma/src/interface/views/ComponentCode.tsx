@@ -4,9 +4,10 @@ import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
 import {Position} from 'monaco-editor';
 import {F2RN_EDITOR_NS} from 'config/consts';
-import {initComponentEditor} from 'interface/utils/editor';
+import {initComponentEditor, toolbarEvents, NodeToolbarState} from 'interface/utils/editor';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {MonacoBinding} from 'interface/utils/editor/lib/multiplayer';
+import {MonacoBinding} from 'interface/utils/editor/lib/sync';
+import {NodeToolbar} from 'interface/node/NodeToolbar';
 import {useGit} from 'interface/providers/Git';
 import * as diff from 'interface/utils/editor/lib/diff';
 import * as $ from 'store';
@@ -32,7 +33,7 @@ interface ComponentCodeProps {
 export function ComponentCode(props: ComponentCodeProps) {
   const editor = useRef<Editor>(null);
   const {fs} = useGit();
-
+  const [toolbarState, setToolbarState] = useState<NodeToolbarState | null>(null);
   const [componentPath, setComponentPath] = useState<string>();
   const [comparePath, setComparePath] = useState<string>();
   const [patch, setPatch] = useState<string>('');
@@ -58,6 +59,9 @@ export function ComponentCode(props: ComponentCodeProps) {
     setPatch(output); // TODO
     props.setShowDiff(true);
   }, [$code, props.build, props.compKey]);
+
+  // Node toolbar state changes
+  useEffect(() => toolbarEvents.subscribe(setToolbarState), []);
 
   // Update component path when info changes
   useEffect(() => {
@@ -114,70 +118,84 @@ export function ComponentCode(props: ComponentCodeProps) {
       {!$info && 
         <ScreenWarning message="Component not found"/>
       }
-      {!props.showDiff && <MonacoReact
-        language="typescript"
-        theme={props.editorTheme}
-        options={{...props.editorOptions}}
-        loading={<LoadingIndicator/>}
-        path={componentPath}
-        onMount={(e, m) => {
-          editor.current = e;
-          initComponentEditor(
-            e, m,
-            () => props.setShowDiff(!props.showDiff),
-            prompt,
-            (components) => {
-              if (!components) return;
-              emit<EventPropsSave>('PROPS_SAVE', Object.fromEntries(components));
-            },
-          );
-          e.onDidChangeCursorPosition((event) => {
-            // console.log('[changed cursor]', event);
-            if (props.nav.codeFocus) return;
-            if ((event?.source === 'mouse'
-              || event?.source === 'keyboard'
-              || event?.source === 'restoreState')) {
-              props.nav.setCursorPos({
-                line: event.position.lineNumber,
-                column: event.position.column,
-              });
-            }
-          });
-          e.onDidChangeModelContent((event) => {
-            // console.log('[changed model content]', event);
-            props.nav.setLastEditorRev(event.versionId);
-          });
-          e.onDidChangeModel((_event) => {
-            // console.log('[changed model]', event);
-            props.nav.setCursorPos(null);
-            e.focus();
-          });
-          new MonacoBinding(
-            $code.get(),
-            e.getModel(),
-            new Set([e]),
-            $.provider?.awareness,
-          );
-        }}
-      />}
-      {props.showDiff && <DiffEditor
-        language="typescript"
-        theme={props.editorTheme}
-        options={{...props.editorOptions, readOnly: true}}
-        loading={<LoadingIndicator/>}
-        original={head}
-        modified={snap}
-        modifiedModelPath={componentPath}
-        originalModelPath={comparePath}
-        keepCurrentModifiedModel={true}
-        keepCurrentOriginalModel={false}
-        onMount={(e) => {
-          const editor = e.getModifiedEditor();
-          diff.exit(editor, props.monaco, () => {
-            props.setShowDiff(false);
-          });
-        }}
-      />}
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        {!props.showDiff && <MonacoReact
+          language="typescript"
+          theme={props.editorTheme}
+          options={{...props.editorOptions}}
+          loading={<LoadingIndicator/>}
+          path={componentPath}
+          onMount={(e, m) => {
+            editor.current = e;
+            initComponentEditor(
+              e, m,
+              () => props.setShowDiff(!props.showDiff),
+              prompt,
+              (components) => {
+                if (!components) return;
+                emit<EventPropsSave>('PROPS_SAVE', Object.fromEntries(components));
+              },
+            );
+            e.onDidChangeCursorPosition((event) => {
+              // console.log('[changed cursor]', event);
+              if (props.nav.codeFocus) return;
+              if ((event?.source === 'mouse'
+                || event?.source === 'keyboard'
+                || event?.source === 'restoreState')) {
+                props.nav.setCursorPos({
+                  line: event.position.lineNumber,
+                  column: event.position.column,
+                });
+              }
+            });
+            e.onDidChangeModelContent((event) => {
+              // console.log('[changed model content]', event);
+              props.nav.setLastEditorRev(event.versionId);
+            });
+            e.onDidChangeModel((_event) => {
+              // console.log('[changed model]', event);
+              props.nav.setCursorPos(null);
+              e.focus();
+            });
+            new MonacoBinding(
+              $.provider?.awareness,
+              $code.get(),
+              e.getModel(),
+              new Set([e]),
+            );
+          }}
+        />}
+        {props.showDiff && <DiffEditor
+          language="typescript"
+          theme={props.editorTheme}
+          options={{...props.editorOptions, readOnly: true}}
+          loading={<LoadingIndicator/>}
+          original={head}
+          modified={snap}
+          modifiedModelPath={componentPath}
+          originalModelPath={comparePath}
+          keepCurrentModifiedModel={true}
+          keepCurrentOriginalModel={false}
+          onMount={(e) => {
+            const editor = e.getModifiedEditor();
+            diff.exit(editor, props.monaco, () => {
+              props.setShowDiff(false);
+            });
+          }}
+        />}
+        {toolbarState && (
+          <NodeToolbar
+            node={toolbarState.nodeId}
+            nodeSrc={toolbarState.nodeName}
+            close={() => toolbarEvents.emit(null)}
+            className="editor-node-toolbar"
+            style={{
+              top: toolbarState.position.top,
+              left: toolbarState.position.left,
+            }}
+          />
+        )}
+      </div>
     </Fragment>
   );
 }

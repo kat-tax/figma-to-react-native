@@ -1,7 +1,7 @@
 import MonacoReact from '@monaco-editor/react';
 import {Fragment} from 'react';
 import {LoadingIndicator} from 'figma-ui';
-import {MonacoBinding} from 'interface/utils/editor/lib/multiplayer';
+import {MonacoBinding} from 'interface/utils/editor/lib/sync';
 import {ThemePicker} from 'interface/base/ThemePicker';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import * as $ from 'store';
@@ -26,10 +26,10 @@ export function ProjectTheme(props: ProjectThemeProps) {
           loading={<LoadingIndicator/>}
           onMount={(editor) => {
             new MonacoBinding(
+              $.provider?.awareness,
               $.projectTheme.get(),
               editor.getModel(),
               new Set([editor]),
-              $.provider?.awareness,
             );
           }}
         />

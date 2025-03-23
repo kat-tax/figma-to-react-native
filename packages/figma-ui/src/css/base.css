@@ -40,6 +40,7 @@
 
 body {
   margin: 0;
+  pointer-events: all !important;
   background-color: var(--figma-color-bg);
   color: var(--figma-color-text);
   font-family: var(--font-family);

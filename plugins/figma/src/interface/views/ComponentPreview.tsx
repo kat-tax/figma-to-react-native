@@ -5,7 +5,7 @@ import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
 import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16, IconLockLocked16, IconLockUnlocked16, IconCorners32} from 'figma-ui';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {NodeToolbar} from 'interface/base/NodeToolbar';
+import {NodeToolbar} from 'interface/node/NodeToolbar';
 import {useGit} from 'interface/providers/Git';
 import * as string from 'common/string';
 import * as $ from 'store';
@@ -379,17 +379,16 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           </div>
         }
         {previewNode &&
-          <div style={{
-            ...styles.actions,
-            top: previewRect.top - 40,
-            left: Math.min(previewRect.left, screen.width - 140),
-          }}>
-            <NodeToolbar
-              node={previewNode}
-              nodeSrc={previewDesc}
-              close={() => inspect(false)}
-            />
-          </div>
+          <NodeToolbar
+            node={previewNode}
+            nodeSrc={previewDesc}
+            close={() => inspect(false)}
+            className="preview-node-toolbar"
+            style={{
+              top: previewRect.top - 40,
+              left: Math.min(previewRect.left, screen.width - 140),
+            }}
+          />
         }
       </div>
     </Fragment>
@@ -406,17 +405,6 @@ const styles: Record<string, CSSProperties> = {
     paddingRight: 1,
     background: 'var(--figma-color-bg-secondary)',
     borderBlock: '1px solid var(--figma-color-bg-tertiary)',
-  },
-  actions: {
-    display: 'flex',
-    position: 'absolute',
-    alignItems: 'center',
-    flexDirection: 'row',
-    border: '1px solid var(--figma-color-border)',
-    background: 'var(--figma-color-bg)',
-    borderRadius: 'var(--radius-medium)',
-    paddingInline: 1,
-    height: 36,
   },
   loading: {
     display: 'flex',

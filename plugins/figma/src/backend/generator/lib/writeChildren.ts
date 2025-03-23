@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {translate} from 'backend/utils/translate';
+// import {translate} from 'backend/utils/translate';
 
 import * as string from 'common/string';
 import * as number from 'common/number';
@@ -12,14 +12,15 @@ import {NodeAttrType} from 'types/node';
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {NodeAttrData, NodeAttrRule} from 'types/node';
 import type {ProjectSettings} from 'types/settings';
+import type {ComponentInfo} from 'types/component';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
 type WriteChildrenState = {
   flags: ImportFlags,
   data: ParseData,
+  infoDb: Record<string, ComponentInfo> | null,
   settings: ProjectSettings,
-  language: VariableCollection,
   pressables?: string[][],
   getStyleProp: StylePrefixMapper,
   getIconProp: StylePrefixMapper,
@@ -157,10 +158,17 @@ function writeChild(
   let jsxTagWithProps: string;
   let jsxStyleProp: string;
   let jsxAttrProps: Array<NodeAttrRule> = [];
+  let jsxMotionProps: Array<NodeAttrRule> = [];
 
   // Custom props (via prototype interaction)
   if (attrs?.properties?.length > 0) {
     jsxAttrProps = attrs.properties;
+  }
+
+  // Motion props
+  if (attrs?.motions?.length > 0) {
+    jsxMotionProps = attrs.motions;
+    state.flags.exoMotion.Motion = true;
   }
 
   // Styles prop
@@ -169,15 +177,15 @@ function writeChild(
   }
 
   // Component props
-  const jsxProps = writePropsAttributes(
-    new CodeBlockWriter(state.settings.writer),
-    instance.node.componentProperties,
-    instance.node.id,
-    jsxStyleProp,
-    jsxAttrProps,
-    undefined,
-    isInput,
-  );
+  const jsxProps = writePropsAttributes(new CodeBlockWriter(state.settings.writer), {
+    props: instance.node.componentProperties,
+    infoDb: state.infoDb,
+    nodeId: instance.node.id,
+    styleProp: jsxStyleProp,
+    attrProps: jsxAttrProps,
+    motionProps: jsxMotionProps,
+    forceMultiLine: isInput,
+  });
 
   // Create instance tag
   if (isInstance) {
@@ -187,9 +195,10 @@ function writeChild(
       state.flags.exoIcon.Icon = true;
   // Create primitive tag
   } else {
-    jsxTag = getTagName(child.node.type);
+    jsxTag = getTagName(child.node.type, attrs?.motions?.length > 0);
     jsxTagWithProps = jsxTag + jsxProps;
-    state.flags.reactNative[jsxTag] = true;
+    if (!jsxTag.startsWith('Motion.'))
+      state.flags.reactNative[jsxTag] = true;
   }
 
   // No children, self closing tag
@@ -215,7 +224,7 @@ function writeChild(
       // Placeholder (explict), translate
       } else if (settings?.addTranslate) {
         state.flags.lingui.t = true;
-        translate(state.language, textPropValue);
+        // translate(state.language, textPropValue);
         writer.writeLine(`placeholder={t\`${textPropValue}\`}`);
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
@@ -231,17 +240,19 @@ function writeChild(
   writer.write(`<${jsxTagWithProps.trimEnd()}>`).indent(() => {
     switch (jsxTag) {
       case 'View':
+      case 'Motion.View':
         writeChildren(writer, child.children, {
           data,
           settings,
+          infoDb: state.infoDb,
           pressables,
           flags: state.flags,
-          language: state.language,
           getStyleProp,
           getIconProp,
         });
         break;
       case 'Text':
+      case 'Motion.Text':
         // Component property string
         if (textPropValue.startsWith('props.')) {
           writer.write(`{${textPropValue}}`);
@@ -249,7 +260,7 @@ function writeChild(
         } else {
           if (settings?.addTranslate) {
             state.flags.lingui.Trans = true;
-            translate(state.language, textPropValue);
+            // translate(state.language, textPropValue);
             writer.write('<Trans>{`' + textPropValue + '`}</Trans>');
           } else {
             writer.write(`{\`${textPropValue}\`}`);
@@ -313,18 +324,18 @@ function getConditional(
   ].filter(Boolean);
 }
 
-function getTagName(type: string): 'View' | 'Text' | 'Image' {
+function getTagName(type: string, hasMotion: boolean): 'View' | 'Text' | 'Image' | 'Motion.View' | 'Motion.Text' | 'Motion.Image' {
   switch (type) {
     case 'TEXT':
-      return 'Text';
+      return hasMotion ? 'Motion.Text' : 'Text';
     case 'IMAGE':
-      return 'Image';
+      return hasMotion ? 'Motion.Image' : 'Image';
     case 'COMPONENT':
     case 'INSTANCE':
     case 'RECTANGLE':
     case 'ELLIPSE':
     case 'FRAME':
     default:
-      return 'View';
+      return hasMotion ? 'Motion.View' : 'View';
   }
 }

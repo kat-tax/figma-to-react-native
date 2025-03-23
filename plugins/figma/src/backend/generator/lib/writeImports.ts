@@ -4,6 +4,7 @@ import * as parser from 'backend/parser/lib';
 import {writePropsImports} from './writePropsImports';
 
 import type {ParseData} from 'types/parse';
+import type {ComponentInfo} from 'types/component';
 
 export interface ImportFlags {
   react: {
@@ -41,6 +42,9 @@ export interface ImportFlags {
   exoVideo: {
     Video?: boolean,
   },
+  exoMotion: {
+    Motion?: boolean,
+  },
   exoLottie: {
     Lottie?: boolean,
   },
@@ -61,6 +65,7 @@ export async function writeImports(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   data: ParseData,
+  infoDb: Record<string, ComponentInfo> | null,
 ) {
   // Import template
   const writeImport = (name: string, props: Record<string, boolean>, isType?: boolean) => {
@@ -86,6 +91,7 @@ export async function writeImports(
   writeImport('react-exo/video', flags.exoVideo);
   writeImport('react-exo/rive', flags.exoRive);
   writeImport('react-exo/lottie', flags.exoLottie);
+  writeImport('react-exo/motion', flags.exoMotion);
   writeImport('@lingui/macro', flags.lingui);
 
   // Component Imports
@@ -95,13 +101,13 @@ export async function writeImports(
     components
       .sort((a, b) => a[1][0].name?.localeCompare(b[1][0].name))
       .forEach(([_id, [node, _instance]]) => {
-        const component = parser.getComponentInfo(node);
+        const component = parser.getComponentInfo(node, infoDb);
         subwriter.write(`import {${component.name}} from`);
         subwriter.space();
         subwriter.quote(component.path);
         subwriter.write(';');
         subwriter.newLine();
-        writePropsImports(subwriter, component.propDefs, flags.exoIcon.Icon);
+        writePropsImports(subwriter, component.propDefs, infoDb, flags.exoIcon.Icon);
       });
     // Split import code by lines, remove duplicates
     const subval = subwriter.toString();

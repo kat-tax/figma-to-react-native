@@ -76,7 +76,7 @@ export interface EventFocusedNode extends EventHandler {
 
 export interface EventNodeAttrSave extends EventHandler {
   name: 'NODE_ATTR_SAVE';
-  handler: (nodeId: string, nodeSrc: string, data: NodeAttrData) => void;
+  handler: (nodeId: string, data: NodeAttrData) => void;
 }
 
 export interface EventNodeAttrReq extends EventHandler {

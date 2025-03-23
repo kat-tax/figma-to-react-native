@@ -6,7 +6,7 @@ function init(monaco: Monaco, editor: Editor) {
     endpoint: 'https://f2rn-copilot.deno.dev/1',
     language: 'typescript',
     trigger: 'onTyping',
-    technologies: ['typescript', 'react', 'react-native'],
+    technologies: ['typescript', 'react', 'react-native', 'react-native-unistyles'],
     maxContextLines: 60,
     enableCaching: true,
     onError: (error) => {

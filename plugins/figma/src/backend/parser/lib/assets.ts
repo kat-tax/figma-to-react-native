@@ -1,5 +1,6 @@
 import {blake2sHex} from 'blakejs';
 import {rgbaToThumbHash, byteArrayToBase64} from 'common/thumbhash';
+import {getNode} from './node';
 import * as string from 'common/string';
 
 import type {ParseAssetData} from 'types/parse';
@@ -26,7 +27,7 @@ export async function getAssets(nodes: Set<string>): Promise<{
       let bytes: Uint8Array;
       let thumbhash: string;
   
-      const node = figma.getNodeById(id) as SceneNode & ExportMixin & ChildrenMixin & MinimalFillsMixin;
+      const node = getNode(id) as SceneNode & ExportMixin & ChildrenMixin & MinimalFillsMixin;
       
       const isVector = VECTOR_NODE_TYPES.includes(node.type)
         || (node.findAllWithCriteria
