@@ -1,18 +1,39 @@
 import {loadIcons} from '@iconify/react';
 
+const HOST = 'https://api.iconify.design';
+
+export type IconifySet = {
+  prefix: string;
+  name: string;
+  total: number;
+  samples: string[];
+}
+
+export async function getIconSets(): Promise<Array<IconifySet>> {
+  const res = await fetch(`${HOST}/collections`);
+  const val = await res.json();
+  return Object.entries(val)
+    .map(([prefix, data]: [string, any]) => ({
+      prefix,
+      name: data.name,
+      total: data.total,
+      samples: data.samples,
+    }))
+    .sort((a, b) => b.total - a.total); 
+}
+
 export async function loadIconSet(
   iconSet: string,
   onProgress: (value: number) => void,
 ): Promise<string[]> {
   if (!iconSet) return;
-  const host = 'https://api.iconify.design';
-  const res = await fetch(`${host}/collection?prefix=${iconSet}`);
+  const res = await fetch(`${HOST}/collection?prefix=${iconSet}`);
   const val = await res.json();
-  const set = filterIconsBySuffix(
+  const set = val.suffixes ? filterIconsBySuffix(
     '',
     val.suffixes,
     val.uncategorized,
-  );
+  ) : val.uncategorized;
 
   const list = set.map((icon: string) => `${iconSet}:${icon}`);
   return new Promise((resolve, _reject) => {

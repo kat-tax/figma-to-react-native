@@ -1,5 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
 import * as string from 'common/string';
+import * as node from 'backend/parser/lib';
 
 import {writePropsInterface} from './writePropsInterface';
 import {writeStateHooks} from './writeStateHooks';
@@ -19,7 +20,7 @@ export async function writeFunction(
   language: VariableCollection,
 ) {
   // Derived data
-  const isVariant = !!(data.root.node as SceneNode & VariantMixin).variantProperties;
+  const isVariant = node.isVariant(data.root.node);
   const masterNode = (isVariant ? data.root.node?.parent : data.root.node) as ComponentNode;
   const propDefs = (masterNode as ComponentNode)?.componentPropertyDefinitions;
   const name = string.createIdentifierPascal(masterNode.name);

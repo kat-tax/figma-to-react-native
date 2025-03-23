@@ -7,6 +7,8 @@ export type ComponentInfo = {
   propDefs: ComponentPropertyDefinitions,
   isVariant: boolean,
   isInstance: boolean,
+  hasError?: boolean,
+  errorMessage?: string,
 }
 
 export type ComponentBuild = {
@@ -29,6 +31,8 @@ export type ComponentRosterEntry = {
   path: string,
   loading: boolean,
   preview: string,
+  hasError?: boolean,
+  errorMessage?: string,
 }
 
 export type ComponentData = {

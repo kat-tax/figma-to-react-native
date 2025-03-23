@@ -225,6 +225,8 @@ export async function compile(
         id,
         name: info.name,
         page: info.page.name,
+        hasError: info.hasError,
+        errorMessage: info.errorMessage,
         loading: false,
       };
 

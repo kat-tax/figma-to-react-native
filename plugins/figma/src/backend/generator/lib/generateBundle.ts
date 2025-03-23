@@ -44,6 +44,14 @@ export async function generateBundle(
   // Get component info
   const component = parser.getComponentInfo(node);
 
+  // If error, return stub bundle (w/ message)
+  if (component.hasError) return {
+    ...emptyBundle,
+    id: component.target.id,
+    key: component.target.key,
+    info: component,
+  };
+
   // No target, return empty bundle
   if (!component.target) return emptyBundle;
 

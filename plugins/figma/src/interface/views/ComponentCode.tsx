@@ -62,7 +62,6 @@ export function ComponentCode(props: ComponentCodeProps) {
   // Update component path when info changes
   useEffect(() => {
     if ($info) {
-      console.log('[component path]', $info.path);
       setComponentPath(`${F2RN_EDITOR_NS}${$info.path.split('/').slice(1).join('/')}.tsx`);
       setComparePath(`${F2RN_EDITOR_NS}compare/${$info.path.split('/').slice(1).join('/')}.tsx`);
       setSnap($code.get().toString());
@@ -79,6 +78,7 @@ export function ComponentCode(props: ComponentCodeProps) {
   useEffect(() => {
     if (props.build) {
       for (const [key, component] of Object.entries(props.build.roster)) {
+        if (!component.path || component.hasError) continue;
         const uri = `${F2RN_EDITOR_NS}${component.path.split('/').slice(1).join('/')}.tsx`;
         const path = props.monaco.Uri.parse(uri);
         const model = props.monaco.editor.getModel(path);

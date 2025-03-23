@@ -222,8 +222,12 @@ function getVariants(root: ComponentNode, rootChildren: T.ParseChild[]) {
     icons: {},
   };
 
-  if (!root || !root.variantProperties)
+  try {
+    if (!root || !root.variantProperties)
+      return null;
+  } catch (e) {
     return null;
+  }
 
   const compSet = root.parent as ComponentSetNode;
   const compVars = compSet.children.filter((n: ComponentNode) =>

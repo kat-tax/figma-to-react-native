@@ -25,6 +25,14 @@ export function isNodeIcon(node: BaseNode) {
   return getPage(masterNode)?.name === consts.PAGES_SPECIAL.ICONS;
 }
 
+export function isVariant(node: BaseNode) {
+  try {
+    return !!(node as SceneNode & VariantMixin).variantProperties;
+  } catch (e) {
+    return false;
+  }
+}
+
 export function getIconData(node: SceneNode): ParseIconData {
   const vector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
   const color = getFillToken(vector);
@@ -97,9 +105,20 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
   const section = getSection(target);
   const page = getPage(target);
 
-  // TODO: fix this, remote components not supported
+  // Flag remote components as failed with error message
   if (!page) {
-    console.log('>> warning, remote components not supported', target);
+    return {
+      target,
+      name,
+      page: null,
+      section: null,
+      path: '',
+      propDefs: {},
+      isVariant,
+      isInstance,
+      hasError: true,
+      errorMessage: 'Remote components are not supported'
+    };
   }
 
   const path = 'components/'
@@ -115,15 +134,34 @@ export function getComponentInfo(node: BaseNode): ComponentInfo | null {
     ? target.children.filter((n) => figma.currentPage.selection.includes(n)).pop()
     : undefined) as VariantMixin;
     
-  // Override propDefs values with selected variant values
-  const propDefs = target.componentPropertyDefinitions;
-  if (selectedVariant) {
+  let hasError = false;
+  let errorMessage = '';
+  let propDefs: ComponentPropertyDefinitions = {};
+  try {
+    propDefs = target.componentPropertyDefinitions;
+  } catch (e) {
+    hasError = true;
+    errorMessage = 'Component has a duplicate variant';
+  }
+
+  if (!hasError && selectedVariant) {
     Object.entries(selectedVariant?.variantProperties).forEach((v: any) => {
       propDefs[v[0]].defaultValue = v[1];
     });
   }
-
-  return {target, name, page, section, path, propDefs, isVariant, isInstance};
+  
+  return {
+    target, 
+    name, 
+    page, 
+    section, 
+    path, 
+    propDefs, 
+    isVariant, 
+    isInstance,
+    hasError,
+    errorMessage
+  };
 }
 
 export function getComponentInstanceInfo(node: InstanceNode) {

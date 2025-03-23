@@ -169,16 +169,15 @@ interface ProjectPageComponentProps {
 }
 
 function ProjectPageComponent(props: ProjectPageComponentProps) {
-  const {id, name, page, path, preview, loading} = props.entry.item;
+  const {id, name, page, path, preview, loading, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const hasUnsavedChanges = false;
-  const hasError = false;
 
   return (
     <Stack
       space="extraLarge"
       style={{width: '100%'}}
-      draggable={!loading}
+      draggable={!loading && !hasError}
       onDragEnd={(e) => {
         setDragging(null);
         window.parent.postMessage({
@@ -208,23 +207,25 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
           ? props.onSelect(id)
           : undefined
         }
-        description={loading
-          ? 'loading...'
-          : hasError
-            ? 'error'
+        description={hasError
+          ? errorMessage || 'Unknown error'
+          : loading
+            ? 'loading...'
             : hasUnsavedChanges
               ? '(modified)'
               : path.split('/').slice(2, -1).join('/')
         }
         icon={hasError
-          ? <IconWarning16 color="danger"/>
+          ? <IconWarning16 color="warning"/>
           : <IconLayerComponent16 color={hasUnsavedChanges ? 'warning' : 'component'}/>
         }>
-        <TextUnderline
-          str={`${page}/${name}`}
-          indices={props.entry.positions}
-        />
-        <TextCollabDots target={name}/>
+        <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
+          <TextUnderline
+            str={`${page}/${name}`}
+            indices={props.entry.positions}
+          />
+          <TextCollabDots target={name}/>
+        </span>
       </Layer>
     </Stack>
   );
