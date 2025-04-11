@@ -4,7 +4,6 @@ import '!./interface/styles/plugin.css';
 import '!./interface/styles/editor.css';
 import '!figma-kit/dist/styles.css';
 
-import {connect} from 'store';
 import {on, emit} from '@create-figma-plugin/utilities';
 import {useState, useEffect} from 'react';
 import {useWindowResize, render} from 'figma-ui';
@@ -17,6 +16,7 @@ import type {EventAppReady, EventAppStart} from 'types/events';
 init();
 
 function Main() {
+  const [user, setUser] = useState<User>(null);
   const [ready, setReady] = useState<boolean>(false);
   const [vscode, setVSCode] = useState<boolean>(null);
   const [devMode, setDevMode] = useState<boolean>(null);
@@ -24,10 +24,10 @@ function Main() {
   // Receive start data from the plugin
   useEffect(() => on<EventAppStart>('APP_START', (user, vscode, devmode) => {
     auth(user);
+    setUser(user);
     setReady(true);
     setVSCode(vscode);
     setDevMode(devmode);
-    return connect(user);
   }), []);
 
   // Tell the plugin that the UI is ready
@@ -46,6 +46,7 @@ function Main() {
     <div style={{width: '100%'}}>
       <ErrorBoundary>
         <App
+          user={user}
           isReady={ready}
           isVSCode={vscode}
           isDevMode={devMode}

@@ -1,21 +1,41 @@
-import sync from 'sync';
 import {Doc} from 'yjs';
-import {applyTextDiff} from './utils/text-diff';
+import {emit} from '@create-figma-plugin/utilities';
+import {createYjsProvider} from '@y-sweet/client';
+import {applyTextDiff} from 'utils/text-diff';
+import {generateToken} from 'common/random';
+import {F2RN_SERVICE_URL} from 'config/consts';
 
 import type {Text} from 'yjs';
-import type {SyncProvider, SyncSettings} from 'sync';
+import type {YSweetProvider} from '@y-sweet/client';
+import type {EventNotify} from 'types/events';
 
 export const doc = new Doc();
 
 /* Connection */
 
-export let settings: SyncSettings;
-export let provider: SyncProvider;
+export let provider: YSweetProvider;
 
-export function connect(user: User) {
-  settings = sync.getSettings();
-  console.log('>> [sync]', settings);
-  provider = sync.createProvider(doc, settings);
+export function connect(user: User, apiKey: string) {
+  const docId = generateToken(22);
+  provider = createYjsProvider(doc, docId, async () => {
+    const response = await fetch(`${F2RN_SERVICE_URL}/api/sync`, {
+      body: JSON.stringify({docId}),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'X-Figma-User-Id': user.id,
+        'X-Figma-User-Name': user.name,
+        'X-Figma-User-Color': user.color,
+        'X-Figma-User-Photo': user.photoUrl,
+      },
+    });
+    return await response.json();
+  });
+  emit<EventNotify>('NOTIFY', 'Syncing is now active.', {
+    button: ['Open Link', `https://fig.run/sync/#${docId}`],
+    timeout: 10000,
+  });
   provider.awareness.setLocalState({user});
   return () => provider.disconnect();
 }

@@ -16,7 +16,11 @@ export interface EventOpenLink extends EventHandler {
 
 export interface EventNotify extends EventHandler {
   name: 'NOTIFY';
-  handler: (message: string, options?: {error?: boolean, timeout?: number, button?: [string, string]}) => void;
+  handler: (message: string, options?: {
+    error?: boolean,
+    timeout?: number,
+    button?: [string, string],
+  }) => void;
 }
 
 export interface EventExpand extends EventHandler {

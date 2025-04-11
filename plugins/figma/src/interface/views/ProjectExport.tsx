@@ -1,10 +1,11 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {useState, Fragment} from 'react';
+import {useState, Fragment, useMemo} from 'react';
 import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
 import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32} from 'figma-ui';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
-import {F2RN_EXO_REPO_URL} from 'config/consts';
+import {useSync} from 'interface/providers/Sync';
 import {titleCase} from 'common/string';
+import {F2RN_EXO_REPO_URL} from 'config/consts';
 
 import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
 import type {EventProjectExport} from 'types/events';
@@ -21,12 +22,19 @@ export function ProjectExport(props: ProjectExportProps) {
   const [hasSuccess, setHasSuccess] = useState(false);
   const [msgFailure, setMsgFailure] = useState('');
 
+  const sync = useSync();
   const form = useForm<ProjectRelease>(props.project, {
     close: () => {},
     validate: (_data) => true,
     submit: (data) => {
+      if (data.method === 'sync' && data.apiKey) {
+        sync.setApiKey(data.apiKey);
+        sync.setActive(!sync.active);
+        if (sync.active) return;
+      }
+      if (data.method !== 'sync')
+        setExporting(true);
       setHasSuccess(false);
-      setExporting(true);
       emit<EventProjectExport>('PROJECT_EXPORT', data);
     },
   });
@@ -38,13 +46,26 @@ export function ProjectExport(props: ProjectExportProps) {
   const isPreviewing = Boolean(form.formState.method === 'preview');
   const isReleasing = Boolean(form.formState.method === 'release');
 
+  const submitText = useMemo(() => {
+    switch (form.formState.method) {
+      case 'sync':
+        return sync.active ? 'Stop Syncing' : 'Start Syncing';
+      default:
+        return titleCase(form.formState.method);
+    }
+  }, [form.formState.method, sync.active]);
+
   const onSuccess = () => {
     setMsgFailure('');
-    setHasSuccess(true);
-    setExporting(false);
+    if (form.formState.method !== 'sync') {
+      setHasSuccess(true);
+      setExporting(false);
+    }
     setTimeout(() => {
-      setHasSuccess(false);
-      setExportCount(0);
+      if (form.formState.method !== 'sync') {
+        setHasSuccess(false);
+        setExportCount(0);
+      }
     }, 5000);
   };
   const onError = (msg: string) => {
@@ -97,7 +118,7 @@ export function ProjectExport(props: ProjectExportProps) {
             onValueChange={(v: ProjectExportMethod) => form.setFormState(v, 'method')}>
             <SegmentedControl.Item value="download" aria-label="Download">
               <Text style={{paddingInline: 8}}>
-                Zip
+                Download
               </Text>
             </SegmentedControl.Item>
             <SegmentedControl.Item value="push" aria-label="Git">
@@ -110,11 +131,11 @@ export function ProjectExport(props: ProjectExportProps) {
                 Sync
               </Text>
             </SegmentedControl.Item>
-            <SegmentedControl.Item value="release" aria-label="Release">
+            {/* <SegmentedControl.Item value="release" aria-label="Release">
               <Text style={{paddingInline: 8}}>
                 Release
               </Text>
-            </SegmentedControl.Item>
+            </SegmentedControl.Item> */}
           </SegmentedControl.Root>
           <VerticalSpace space="large"/>
         </Fragment>
@@ -310,11 +331,11 @@ export function ProjectExport(props: ProjectExportProps) {
           <Button
             fullWidth
             size="medium"
-            variant="primary"
+            variant={sync.active && isSyncing ? 'destructive' : 'primary'}
             loading={isExporting ? 'true' : undefined}
             disabled={isExporting || (!isDownloading && !hasProjectKey)}
             onClick={form.handleSubmit}>
-            {titleCase(form.formState.method)}
+            {submitText}
           </Button>
         </Fragment>
         <VerticalSpace space="large"/>

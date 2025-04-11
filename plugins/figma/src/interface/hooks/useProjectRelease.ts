@@ -28,7 +28,7 @@ export function useProjectRelease(
           await update(project, info, config);
           break;
         case 'sync':
-          open(`${consts.F2RN_PREVIEW_URL}/sync/${config.docKey}`);
+          // TODO: notification
           break;
         case 'release':
           await release(project, info, config);

@@ -62,7 +62,9 @@ export function build(release: ProjectRelease) {
 
   // Export components, if any
   if (exportNodes.size > 0) {
-    figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
+    if (release.method !== 'sync') {
+      figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
+    }
     setTimeout(async () => {
       const components: ProjectBuildComponents = [];
       const buildAssets: ProjectBuildAssets = [];
@@ -71,7 +73,12 @@ export function build(release: ProjectRelease) {
 
       for (const component of exportNodes) {
         try {
-          const bundle = await generateBundle(component, null, {...config.state}, true);
+          const bundle = await generateBundle(
+            component,
+            null,
+            {...config.state},
+            release.method !== 'sync',
+          );
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
             componentInfo[bundle.key] = bundle.info;
