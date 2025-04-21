@@ -10,22 +10,32 @@ export interface SyncProviderProps {
 export interface SyncContextType {
   active: boolean;
   apiKey: string;
+  docKey: string;
   setActive: (active: boolean) => void;
   setApiKey: (apiKey: string) => void;
+  setDocKey: (docKey: string) => void;
 }
 
 export function SyncProvider({user, children}: React.PropsWithChildren<SyncProviderProps>) {
   const [active, setActive] = useState(false);
   const [apiKey, setApiKey] = useState('');
+  const [docKey, setDocKey] = useState('');
 
   useEffect(() => {
-    if (user && active && apiKey) {
-      return connect(user, apiKey);
+    if (user && active && apiKey && docKey) {
+      return connect(user, apiKey, docKey);
     }
-  }, [user, active, apiKey]);
+  }, [user, active, apiKey, docKey]);
 
   return (
-    <SyncContext.Provider value={{active, apiKey, setActive, setApiKey}}>
+    <SyncContext.Provider value={{
+      active,
+      apiKey,
+      docKey,
+      setActive,
+      setApiKey,
+      setDocKey,
+    }}>
       {children}
     </SyncContext.Provider>
   );

@@ -15,7 +15,7 @@ export const doc = new Doc();
 
 export let provider: YSweetProvider;
 
-export function connect(user: User, apiKey: string) {
+export function connect(user: User, apiKey: string, docKey: string) {
   const docId = generateToken(22);
   provider = createYjsProvider(doc, docId, async () => {
     const response = await fetch(`${F2RN_SERVICE_URL}/api/sync`, {
@@ -24,6 +24,7 @@ export function connect(user: User, apiKey: string) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
+        'X-Figma-Doc-Key': docKey,
         'X-Figma-User-Id': user.id,
         'X-Figma-User-Name': user.name,
         'X-Figma-User-Color': user.color,
@@ -32,8 +33,8 @@ export function connect(user: User, apiKey: string) {
     });
     return await response.json();
   });
-  emit<EventNotify>('NOTIFY', 'Syncing is now active.', {
-    button: ['Open Link', `https://fig.run/sync/#${docId}`],
+  emit<EventNotify>('NOTIFY', 'Sync is active.', {
+    button: ['Open Link', `${F2RN_SERVICE_URL}/sync/${docId}`],
     timeout: 10000,
   });
   provider.awareness.setLocalState({user});

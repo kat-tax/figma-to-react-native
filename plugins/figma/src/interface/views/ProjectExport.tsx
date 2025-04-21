@@ -1,14 +1,14 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment, useMemo} from 'react';
 import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
-import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32} from 'figma-ui';
+import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32, IconButton, IconPlay32} from 'figma-ui';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {useSync} from 'interface/providers/Sync';
 import {titleCase} from 'common/string';
-import {F2RN_EXO_REPO_URL} from 'config/consts';
+import {F2RN_EXO_REPO_URL, F2RN_SERVICE_URL} from 'config/consts';
 
 import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
-import type {EventProjectExport} from 'types/events';
+import type {EventProjectExport, EventOpenLink} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 
 interface ProjectExportProps {
@@ -29,6 +29,7 @@ export function ProjectExport(props: ProjectExportProps) {
     submit: (data) => {
       if (data.method === 'sync' && data.apiKey) {
         sync.setApiKey(data.apiKey);
+        sync.setDocKey(data.docKey);
         sync.setActive(!sync.active);
         if (sync.active) return;
       }
@@ -45,6 +46,10 @@ export function ProjectExport(props: ProjectExportProps) {
   const isDownloading = Boolean(form.formState.method === 'download');
   const isPreviewing = Boolean(form.formState.method === 'preview');
   const isReleasing = Boolean(form.formState.method === 'release');
+
+  const syncUrl = useMemo(() => {
+    return `${F2RN_SERVICE_URL}/sync/${form.formState.docKey}`;
+  }, [form.formState.docKey]);
 
   const submitText = useMemo(() => {
     switch (form.formState.method) {
@@ -175,7 +180,7 @@ export function ProjectExport(props: ProjectExportProps) {
                 Project Key
               </Text>
               <a
-                href="http://figma-to-react-native.com/dashboard"
+                href={`${F2RN_SERVICE_URL}/dashboard`}
                 target="_blank"
                 rel="noreferrer"
                 style={{marginLeft: '4px'}}>
@@ -328,15 +333,29 @@ export function ProjectExport(props: ProjectExportProps) {
         </Fragment>
         <Fragment>
           <VerticalSpace space="large"/>
-          <Button
-            fullWidth
-            size="medium"
-            variant={sync.active && isSyncing ? 'destructive' : 'primary'}
-            loading={isExporting ? 'true' : undefined}
-            disabled={isExporting || (!isDownloading && !hasProjectKey)}
-            onClick={form.handleSubmit}>
-            {submitText}
-          </Button>
+          <Flex align="center">
+            <Flex align="center" gap="2" style={{width: '100%'}}>
+              <Button
+                size="medium"
+                fullWidth
+                style={{flex: 1}}
+                variant={sync.active && isSyncing ? 'destructive' : 'primary'}
+                loading={isExporting ? 'true' : undefined}
+                disabled={isExporting || (!isDownloading && !hasProjectKey)}
+                onClick={form.handleSubmit}>
+                {submitText}
+              </Button>
+              {sync.active && isSyncing && form.formState.apiKey && (
+                <>
+                  <IconButton
+                    onClick={() => emit<EventOpenLink>('OPEN_LINK', syncUrl)}
+                    aria-label="Sync to desktop">
+                    <IconPlay32/>
+                  </IconButton>
+                </>
+              )}
+            </Flex>
+          </Flex>
         </Fragment>
         <VerticalSpace space="large"/>
         <div style={{display: 'none'}} {...form.initialFocus}/>
