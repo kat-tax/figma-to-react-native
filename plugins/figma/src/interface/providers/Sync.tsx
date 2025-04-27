@@ -1,5 +1,7 @@
-import {connect} from 'store';
-import {useEffect, useState, useContext, createContext} from 'react';
+import {useState, useCallback, useContext, createContext} from 'react';
+import * as store from 'store';
+
+import type {ProjectBuild, ProjectRelease} from 'types/project';
 
 const SyncContext = createContext<SyncContextType | null>(null);
 
@@ -9,33 +11,26 @@ export interface SyncProviderProps {
 
 export interface SyncContextType {
   active: boolean;
-  apiKey: string;
-  docKey: string;
-  setActive: (active: boolean) => void;
-  setApiKey: (apiKey: string) => void;
-  setDocKey: (docKey: string) => void;
+  connect: (project: ProjectBuild, release: ProjectRelease) => void;
+  disconnect: () => void;
 }
 
 export function SyncProvider({user, children}: React.PropsWithChildren<SyncProviderProps>) {
   const [active, setActive] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [docKey, setDocKey] = useState('');
 
-  useEffect(() => {
-    if (user && active && apiKey && docKey) {
-      return connect(user, apiKey, docKey);
-    }
-  }, [user, active, apiKey, docKey]);
+  const connect = useCallback((project: ProjectBuild, release: ProjectRelease) => {
+    if (!user) return;
+    setActive(true);
+    return store.connect(user, project, release);
+  }, [user]);
+
+  const disconnect = useCallback(() => {
+    setActive(false);
+    store.disconnect();
+  }, []);
 
   return (
-    <SyncContext.Provider value={{
-      active,
-      apiKey,
-      docKey,
-      setActive,
-      setApiKey,
-      setDocKey,
-    }}>
+    <SyncContext.Provider value={{active, connect, disconnect}}>
       {children}
     </SyncContext.Provider>
   );

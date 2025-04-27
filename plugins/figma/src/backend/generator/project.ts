@@ -189,9 +189,10 @@ function getAppConfig(
 
 function getLocales(modes: VariableModes): ProjectInfo['locales'] {
   return {
-    source: getLocaleData(modes.default.name)[0],
-    all: modes.modes.map(mode =>
-      getLocaleData(mode.name).map(s => s.trim()) as [string, string]),
+    source: modes?.default?.name ? getLocaleData(modes.default.name)[0] : 'en',
+    all: modes?.modes?.map(mode => mode?.name
+      ? getLocaleData(mode.name).map(s => s.trim()) as [string, string]
+      : ['en', 'English']),
   }
 }
 

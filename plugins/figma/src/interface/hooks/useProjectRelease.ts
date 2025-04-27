@@ -2,10 +2,10 @@ import {useEffect} from 'react';
 import {on} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
 import {update} from 'interface/utils/project/update';
+import {useSync} from 'interface/providers/Sync';
 import {release} from 'interface/utils/project/lib/release';
 import {download} from 'interface/utils/project/lib/download';
 import * as consts from 'config/consts';
-
 import type {EventProjectRelease} from 'types/events';
 
 export function useProjectRelease(
@@ -13,6 +13,7 @@ export function useProjectRelease(
   onError: (msg: string) => void,
   setExportCount: React.Dispatch<number>,
 ): void {
+  const {connect} = useSync();
   useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (project, info, config) => {
     if (project === null)
       return onError('Unable to build project.');
@@ -28,7 +29,7 @@ export function useProjectRelease(
           await update(project, info, config);
           break;
         case 'sync':
-          // TODO: notification
+          connect(project, config);
           break;
         case 'release':
           await release(project, info, config);

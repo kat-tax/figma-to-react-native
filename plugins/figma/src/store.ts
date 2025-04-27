@@ -7,16 +7,22 @@ import {F2RN_SERVICE_URL} from 'config/consts';
 
 import type {Text} from 'yjs';
 import type {YSweetProvider} from '@y-sweet/client';
+import type {ProjectBuild, ProjectRelease} from 'types/project';
 import type {EventNotify} from 'types/events';
 
 export const doc = new Doc();
+export const docId = generateToken(22);
 
 /* Connection */
 
 export let provider: YSweetProvider;
 
-export function connect(user: User, apiKey: string, docKey: string) {
-  const docId = generateToken(22);
+export function connect(
+  user: User,
+  project: ProjectBuild,
+  release: ProjectRelease,
+) {
+  const {apiKey, docKey} = release;
   provider = createYjsProvider(doc, docId, async () => {
     const response = await fetch(`${F2RN_SERVICE_URL}/api/sync`, {
       body: JSON.stringify({docId}),
@@ -29,6 +35,9 @@ export function connect(user: User, apiKey: string, docKey: string) {
         'X-Figma-User-Name': user.name,
         'X-Figma-User-Color': user.color,
         'X-Figma-User-Photo': user.photoUrl,
+        'X-Figma-Project-Name': project.name,
+        'X-Figma-Project-Assets': project.assets.length.toString(),
+        'X-Figma-Project-Components': project.components.length.toString(),
       },
     });
     return await response.json();
@@ -39,6 +48,10 @@ export function connect(user: User, apiKey: string, docKey: string) {
   });
   provider.awareness.setLocalState({user});
   return () => provider.disconnect();
+}
+
+export function disconnect() {
+  provider?.disconnect();
 }
 
 /* Schema */

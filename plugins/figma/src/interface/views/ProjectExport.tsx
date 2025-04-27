@@ -1,11 +1,12 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment, useMemo} from 'react';
 import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
-import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32, IconButton, IconPlay32} from 'figma-ui';
+import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32, IconHyperlinkLinked32, IconButton} from 'figma-ui';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {useSync} from 'interface/providers/Sync';
 import {titleCase} from 'common/string';
 import {F2RN_EXO_REPO_URL, F2RN_SERVICE_URL} from 'config/consts';
+import {docId} from 'store';
 
 import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
 import type {EventProjectExport, EventOpenLink} from 'types/events';
@@ -27,11 +28,9 @@ export function ProjectExport(props: ProjectExportProps) {
     close: () => {},
     validate: (_data) => true,
     submit: (data) => {
-      if (data.method === 'sync' && data.apiKey) {
-        sync.setApiKey(data.apiKey);
-        sync.setDocKey(data.docKey);
-        sync.setActive(!sync.active);
-        if (sync.active) return;
+      if (data.method === 'sync' && sync.active) {
+        sync.disconnect();
+        return;
       }
       if (data.method !== 'sync')
         setExporting(true);
@@ -47,14 +46,10 @@ export function ProjectExport(props: ProjectExportProps) {
   const isPreviewing = Boolean(form.formState.method === 'preview');
   const isReleasing = Boolean(form.formState.method === 'release');
 
-  const syncUrl = useMemo(() => {
-    return `${F2RN_SERVICE_URL}/sync/${form.formState.docKey}`;
-  }, [form.formState.docKey]);
-
   const submitText = useMemo(() => {
     switch (form.formState.method) {
       case 'sync':
-        return sync.active ? 'Stop Syncing' : 'Start Syncing';
+        return sync.active ? 'Disconnect' : 'Sync';
       default:
         return titleCase(form.formState.method);
     }
@@ -348,9 +343,9 @@ export function ProjectExport(props: ProjectExportProps) {
               {sync.active && isSyncing && form.formState.apiKey && (
                 <>
                   <IconButton
-                    onClick={() => emit<EventOpenLink>('OPEN_LINK', syncUrl)}
+                    onClick={() => emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/sync/${docId}`)}
                     aria-label="Sync to desktop">
-                    <IconPlay32/>
+                    <IconHyperlinkLinked32/>
                   </IconButton>
                 </>
               )}
