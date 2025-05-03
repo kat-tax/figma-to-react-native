@@ -4,8 +4,8 @@ import * as consts from 'config/consts';
 
 import {diff} from 'deep-object-diff';
 import {NodeAttrGroup} from 'types/node';
-import {getFillToken} from './colors';
 import {getPage, getSection} from './traverse';
+import {getFillToken} from './colors';
 
 import type {ComponentInfo} from 'types/component';
 import type {ParseIconData, ParseStyles} from 'types/parse';

@@ -8,7 +8,6 @@ import * as parser from 'backend/parser/lib';
 
 import {writePropsAttributes} from './writePropsAttributes';
 import {NodeAttrType} from 'types/node';
-import {diff} from 'deep-object-diff';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {NodeAttrData, NodeAttrRule} from 'types/node';
