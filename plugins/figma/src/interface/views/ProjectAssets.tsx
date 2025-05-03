@@ -32,13 +32,13 @@ export function ProjectAssets(props: ProjectAssetsProps) {
       padding={20}
       spacing={10}
       photos={list}
-      renderPhoto={({imageProps: {src, alt, style}}) => (
-        <img
-          alt={alt}
-          src={src}
-          style={style}
-        />
-      )}
+      // render={({imageProps: {src, alt, style}}) => (
+      //   <img
+      //     alt={alt}
+      //     src={src}
+      //     style={style}
+      //   />
+      // )}
     />
   ) : <ScreenInfo message="No assets found"/>;
 }

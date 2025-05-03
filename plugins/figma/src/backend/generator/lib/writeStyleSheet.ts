@@ -41,9 +41,12 @@ export async function writeStyleSheet(
       // (if the instance component master is a variant, it should diff from that variant set)
       let childStyles = data.stylesheet[child.node.id];
       if (child.node.type === 'INSTANCE') {
-        const mainComponent = (child.node as InstanceNode).mainComponent;
+        const instance = child.node as InstanceNode;
+        const mainComponent = instance.mainComponent;
         const nodeStyles = data.stylesheet[mainComponent.id];
         if (nodeStyles) {
+          // TODO: we should diff from the variant the instance is set to, not the default variant
+          // instance.variantProperties;
           childStyles = diff(nodeStyles, childStyles) as ParseStyles;
         }
       }

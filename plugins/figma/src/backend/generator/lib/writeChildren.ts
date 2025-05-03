@@ -178,6 +178,8 @@ function writeChild(
     const masterStyles = data.stylesheet[(child.node as InstanceNode).mainComponent.id];
     const instanceStyles = data.stylesheet[child.node.id];
     if (masterStyles && instanceStyles) {
+      // TODO: we should diff from the variant the instance is set to, not the default variant
+      // instance.variantProperties;
       const diffStyles = diff(masterStyles, instanceStyles);
       if (Object.keys(diffStyles).length > 0) {
         hasStyleOverride = true;
