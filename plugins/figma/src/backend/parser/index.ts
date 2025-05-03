@@ -3,7 +3,15 @@ import * as parser from './lib';
 
 import type * as T from 'types/parse';
 
-const NODES_WITH_STYLES = ['TEXT', 'FRAME', 'GROUP', 'COMPONENT', 'RECTANGLE', 'ELLIPSE'];
+const NODES_WITH_STYLES: SceneNode['type'][] = [
+  'TEXT',
+  'FRAME',
+  'GROUP',
+  'INSTANCE',
+  'COMPONENT',
+  'RECTANGLE',
+  'ELLIPSE',
+];
 
 export default async function parse(
   component: ComponentNode,
@@ -17,10 +25,8 @@ export default async function parse(
     return null;
   }
 
-  // Profile
-  const _t1 = Date.now();
-
   // Gather node data relative to conversion
+  const _t1 = Date.now();
   const data = crawl(component);
 
   // Generated styles and assets
@@ -104,6 +110,10 @@ function crawlChildren(
     // Record nodes with styles, css will be extracted & converted later
     if (hasStyle) {
       meta.styleNodes.add(node.id);
+      // Component instances need access to the main component root style for diffing
+      if (isInstance) {
+        meta.styleNodes.add(node.mainComponent.id);
+      }
     }
 
     // Record icon color and size
@@ -147,7 +157,6 @@ function crawlChildren(
           if (!parser.isNodeIcon(info.main)) {
             meta.components[info.main.id] = [info.main, node];
           }
-
           // Record components used in subcomponent props
           Object.keys(info.props).forEach((key) => {
             const {type, value} = info.props[key];
@@ -157,8 +166,9 @@ function crawlChildren(
               let swapInvisible = false; 
               // If a linked visible prop is false for the component swap, do not include component
               if (typeof node.componentProperties[swapPropsRef.visible] !== 'undefined') {
-                if ((node.componentProperties[swapPropsRef.visible] as any)?.value === false)
+                if ((node.componentProperties[swapPropsRef.visible] as any)?.value === false) {
                   swapInvisible = true;
+                }
               }
               // If swap componet is icon, no need to import, just record the name
               if (parser.isNodeIcon(swapComponent)) {
@@ -176,7 +186,6 @@ function crawlChildren(
         break;
     }
   }
-
   return {dict, tree, meta};
 }
 
@@ -196,12 +205,17 @@ function validate(component: ComponentNode) {
 }
 
 function getRoot(node: ComponentNode): T.ParseRoot {
-  return {node, slug: 'root', click: parser.getComponentCustomReaction(node)};
+  return {
+    node,
+    slug: 'root',
+    click: parser.getComponentCustomReaction(node),
+  };
 }
 
 function getFrame(node: ComponentNode): T.ParseFrame {
-  if (node.parent.type !== 'FRAME') return null;
-  return {node: node.parent, slug: 'frame'};
+  return node.parent.type === 'FRAME'
+    ? {node: node.parent, slug: 'frame'}
+    : null;
 }
 
 function getChildren(nodes: Set<SceneNode>): T.ParseChild[] {
@@ -215,7 +229,10 @@ function getChildren(nodes: Set<SceneNode>): T.ParseChild[] {
   return children;
 }
 
-function getVariants(root: ComponentNode, rootChildren: T.ParseChild[]) {
+function getVariants(
+  root: ComponentNode,
+  rootChildren: T.ParseChild[],
+): T.ParseVariantData {
   const variants: T.ParseVariantData = {
     mapping: {},
     classes: {},
@@ -238,30 +255,25 @@ function getVariants(root: ComponentNode, rootChildren: T.ParseChild[]) {
     // Variant root mapping
     variants.mapping[variant.id] = {};
     variants.mapping[variant.id][root.id] = variant.id;
-
     // Variant root class (exclude default)
     if (!variants.classes.root)
       variants.classes.root = {};
       variants.classes.root[variant.name] = variant.id;
-
     // Variant children mapping, classes, and fills
     if (variant.children) {
       const nodes = crawlChildren(variant.children);
       const children = getChildren(nodes.dict);
       for (const child of children) {
         if (!child || !child.node) continue;
-
         // Map node to base node
         const baseNode = rootChildren.find((c) => c.slug === child.slug);
         variants.mapping[variant.id][baseNode?.node.id] = child?.node.id;
-  
         // Icon node
         if (parser.isNodeIcon(child.node)) {
           if (!variants.icons[child.slug]) variants.icons[child.slug] = {};
           const iconData = parser.getIconData(child.node);
           variants.icons[child.slug][variant.name] = iconData;
         }
-
         // Styled node
         if (NODES_WITH_STYLES.includes(child?.node.type)) {
           if (!variants.classes[child.slug]) variants.classes[child.slug] = {};
@@ -270,6 +282,5 @@ function getVariants(root: ComponentNode, rootChildren: T.ParseChild[]) {
       }
     }
   }
-
   return variants;
 }

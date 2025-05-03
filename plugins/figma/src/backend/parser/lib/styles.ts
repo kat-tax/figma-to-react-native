@@ -17,9 +17,8 @@ export async function getStyleSheet(
   variants?: ParseVariantData,
   skipCache: boolean = false,
 ): Promise<ParseStyleSheet> {
-  // const _t1 = Date.now();
-
   // Generate CSS from nodes
+  const _t1 = Date.now();
   const css: StyleSheet = {};
   for (const id of nodes) {
     css[id] = await getCSS(id, skipCache);
@@ -35,14 +34,14 @@ export async function getStyleSheet(
   }
 
   // Profile
-  // console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
-  // const _t2 = Date.now();
-
+  console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
+  
   // Convert CSS
+  const _t2 = Date.now();
   const output = await convertStyles(css);
 
   // Profile
-  // console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
+  console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
 
   // Build Stylesheet
   const stylesheet: ParseStyleSheet = {};

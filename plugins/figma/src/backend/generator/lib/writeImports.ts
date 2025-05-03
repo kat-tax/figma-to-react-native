@@ -21,6 +21,8 @@ export interface ImportFlags {
     Platform?: boolean,
   },
   reactNativeTypes: {
+    StyleProp?: boolean,
+    ViewStyle?: boolean,
     PressableProps?: boolean,
     GestureResponderEvent?: boolean,
     PressableStateCallbackType?: boolean,

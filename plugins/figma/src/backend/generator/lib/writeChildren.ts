@@ -8,6 +8,7 @@ import * as parser from 'backend/parser/lib';
 
 import {writePropsAttributes} from './writePropsAttributes';
 import {NodeAttrType} from 'types/node';
+import {diff} from 'deep-object-diff';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {NodeAttrData, NodeAttrRule} from 'types/node';
@@ -171,8 +172,21 @@ function writeChild(
     state.flags.exoMotion.Motion = true;
   }
 
+  // Instance style overrides
+  let hasStyleOverride = false;
+  if (isInstance) {
+    const masterStyles = data.stylesheet[(child.node as InstanceNode).mainComponent.id];
+    const instanceStyles = data.stylesheet[child.node.id];
+    if (masterStyles && instanceStyles) {
+      const diffStyles = diff(masterStyles, instanceStyles);
+      if (Object.keys(diffStyles).length > 0) {
+        hasStyleOverride = true;
+      }
+    }
+  }
+
   // Styles prop
-  if (!isInstance && slug) {
+  if (slug && (!isInstance || hasStyleOverride)) {
     jsxStyleProp = `${getStyleProp(slug, isRootPressable)}`;
   }
 

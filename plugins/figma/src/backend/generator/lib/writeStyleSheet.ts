@@ -4,7 +4,7 @@ import {diff} from 'deep-object-diff';
 import * as string from 'common/string';
 
 import type {ImportFlags} from './writeImports';
-import type {ParseData} from 'types/parse';
+import type {ParseData, ParseStyles} from 'types/parse';
 
 export async function writeStyleSheet(
   writer: CodeBlockWriter,
@@ -12,7 +12,6 @@ export async function writeStyleSheet(
   data: ParseData,
 ): Promise<ImportFlags> {
   flags.unistyles.createStyleSheet = true;
-
   writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
     // Root styles
     const rootStyles = data.stylesheet[data.root.node.id];
@@ -38,7 +37,16 @@ export async function writeStyleSheet(
 
     // Children styles
     for (const child of data.children) {
-      const childStyles = data.stylesheet[child.node.id];
+      // Instance component styles should diff from master component root
+      // (if the instance component master is a variant, it should diff from that variant set)
+      let childStyles = data.stylesheet[child.node.id];
+      if (child.node.type === 'INSTANCE') {
+        const mainComponent = (child.node as InstanceNode).mainComponent;
+        const nodeStyles = data.stylesheet[mainComponent.id];
+        if (nodeStyles) {
+          childStyles = diff(nodeStyles, childStyles) as ParseStyles;
+        }
+      }
       if (childStyles) {
         writeStyle(writer, child.slug, childStyles);
         const childVariants = data.variants?.classes[child.slug];

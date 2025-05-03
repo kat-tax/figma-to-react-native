@@ -70,6 +70,11 @@ export function writePropsInterface(
       writer.writeLine(`color?: string,`);
       writer.writeLine(`size?: number,`);
     }
+    // Style override
+    writer.writeLine(`/** Used to override the default root style. */`);
+    writer.writeLine(`style?: StyleProp<ViewStyle>,`);
+    flags.reactNativeTypes.StyleProp = true;
+    flags.reactNativeTypes.ViewStyle = true;
     // Test ID
     if (!isRootPressable) {
       writer.writeLine(`/** Used to locate this view in end-to-end tests. */`);

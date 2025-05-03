@@ -69,11 +69,17 @@ function getComponentCode(
   const writer = new CodeBlockWriter(settings.writer);
 
   // Helper to determine the style prop value
-  const getStyleProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants
+  const getStyleProp = (
+    slug: string,
+    isPressable?: boolean,
+    isRoot?: boolean,
+  ) => data?.variants
     && Object.keys(data.variants.classes).includes(slug)
-      ? `vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
-      : `styles.${slug}`;
-  
+      ? `[vstyles.${slug}${isRoot && isPressable ? '' : `(${isPressable ? 'e' : ''})`}, props.style]`
+      : isRoot
+        ? `[styles.${slug}, props.style]`
+        : `styles.${slug}`;
+
   // Helper to determine the icon prop value
   const getIconProp = (slug: string, isPressable?: boolean, isRoot?: boolean) => data?.variants
     && Object.keys(data.variants.icons).includes(slug)
