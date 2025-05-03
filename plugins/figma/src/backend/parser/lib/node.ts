@@ -2,12 +2,13 @@ import * as random from 'common/random';
 import * as string from 'common/string';
 import * as consts from 'config/consts';
 
+import {diff} from 'deep-object-diff';
 import {NodeAttrGroup} from 'types/node';
 import {getFillToken} from './colors';
 import {getPage, getSection} from './traverse';
 
-import type {ParseIconData} from 'types/parse';
 import type {ComponentInfo} from 'types/component';
+import type {ParseIconData, ParseStyles} from 'types/parse';
 import type {NodeAttrData, NodeAttrRule} from 'types/node';
 import type {TypeScriptComponentProps} from 'interface/utils/editor/lib/language';
 
@@ -72,6 +73,26 @@ export async function getNodeSrcProps(key: string): Promise<NodeAttrRule[]> {
     desc: p.docs,
     opts: p.opts,
   }));
+}
+
+export function getInstanceStyles(baseStyles: object, compareStyles: object) {
+  // TODO: we should diff from the variant the instance is set to, not the default variant
+  // instance.variantProperties;
+  const styles = diff(baseStyles, compareStyles) as ParseStyles;
+  const diffKeys = Object.keys(styles);
+  const diffCount = diffKeys.length;
+
+  // Special case: only one difference with flexShrink that's undefined
+  // TODO: figure out why flexShrink is undefined in diff when there are no instance changes
+  const isOnlyFlexShrinkUndefined = 
+    diffCount === 1 && 
+    diffKeys[0] === 'flexShrink' && 
+    styles['flexShrink'] === undefined;
+  
+  return {
+    styles,
+    hasChanges: diffCount > 0 && !isOnlyFlexShrinkUndefined
+  };
 }
 
 export function getComponentInfo(node: BaseNode, infoDb?: Record<string, ComponentInfo>): ComponentInfo | null {

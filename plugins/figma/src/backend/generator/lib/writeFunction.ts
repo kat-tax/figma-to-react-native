@@ -75,9 +75,11 @@ function getComponentCode(
     isRoot?: boolean,
   ) => data?.variants
     && Object.keys(data.variants.classes).includes(slug)
+      // Dynamic styles
       ? isRoot
-        ? `[vstyles.${slug}${isPressable ? '' : `(${isPressable ? 'e' : ''})`}, props.style]`
-        : `vstyles.${slug}${isPressable ? '' : `(${isPressable ? 'e' : ''})`}`
+        ? `[vstyles.${slug}(), props.style]`
+        : `vstyles.${slug}${`(${isPressable ? 'e' : ''})`}`
+      // Static styles
       : isRoot
         ? `[styles.${slug}, props.style]`
         : `styles.${slug}`;

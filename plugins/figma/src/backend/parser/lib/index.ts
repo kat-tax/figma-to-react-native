@@ -17,6 +17,7 @@ export {
   getIconData,
   getNodeAttrs,
   getNodeSrcProps,
+  getInstanceStyles,
   getComponentInfo,
   getComponentPropName,
   getComponentFrameSize,
