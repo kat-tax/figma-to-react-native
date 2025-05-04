@@ -4,12 +4,12 @@ import {emit} from '@create-figma-plugin/utilities';
 import schema from 'interface/schemas/user/schema.json';
 import * as $ from 'store';
 
+import diff from './lib/diff';
 import imports from './lib/imports';
 import copilot from './lib/copilot';
 import typings from './lib/typings';
 import prompts from './lib/prompts';
 import language from './lib/language';
-import diff from './lib/diff';
 
 import type * as monaco from 'monaco-editor';
 import type {UserSettings} from 'types/settings';
