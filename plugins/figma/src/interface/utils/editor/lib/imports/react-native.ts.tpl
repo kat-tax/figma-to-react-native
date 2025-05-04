@@ -1,7 +1,10 @@
 /**
- * Overrides for react-native-web types)
+ * Augmentations for react-native types (for react-native-web support)
  */
 
+/// <reference types="react" />
+
+// Using module augmentation to extend the React Native types
 declare module 'react-native' {
   // The following list is sourced from:
   // - https://github.com/necolas/react-native-web/blob/0.17.5/packages/react-native-web/src/types/styles.js#L76
@@ -93,8 +96,10 @@ declare module 'react-native' {
     ctrlKey: boolean;
   }
   interface ViewStyle {
+    cursor?: CursorValue;
     transitionProperty?: string;
     transitionDuration?: string;
+    display?: 'flex' | 'inline-flex' | 'none';
   }
   interface TextProps {
     dir?: 'ltr' | 'rtl' | 'auto';
@@ -161,15 +166,9 @@ declare module 'react-native' {
     color?: string | null;
   }
 
-  interface ViewStyle {
-    cursor?: CursorValue;
-    transitionProperty?: string;
-    display?: 'flex' | 'inline-flex' | 'none';
-  }
-
   interface TextStyle {
     // The following list is sourced from:
     // - https://github.com/necolas/react-native-web/blob/0.17.5/packages/react-native-web/src/types/styles.js#L128
     userSelect?: 'all' | 'auto' | 'contain' | 'none' | 'text';
   }
-}
+} 

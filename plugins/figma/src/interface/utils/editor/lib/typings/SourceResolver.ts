@@ -4,7 +4,16 @@ import typesZip from '../imports/types.zip.tpl';
 import type {SourceResolver as SourceResolverBase} from 'monaco-editor-auto-typings/custom-editor';
 import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
 
-const CACHE_ONLY = ['react-native'];
+const CACHE_ONLY = [
+  'react',
+  'react-exo',
+  'react-dom',
+  'react-native',
+  'react-native-svg',
+  'react-native-unistyles',
+  'prop-types',
+  'csstype',
+];
 
 export class SourceResolver implements SourceResolverBase {
   private init = false;

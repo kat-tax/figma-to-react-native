@@ -7,7 +7,7 @@ function init(monaco: Monaco, editor: Editor) {
     language: 'typescript',
     trigger: 'onTyping',
     technologies: ['typescript', 'react', 'react-native', 'react-native-unistyles'],
-    maxContextLines: 60,
+    maxContextLines: 100,
     enableCaching: true,
     onError: (error) => {
       console.error('[copilot error]', error);

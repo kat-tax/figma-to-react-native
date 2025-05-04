@@ -79,7 +79,7 @@ export function getInstanceStyles(baseStyles: object, compareStyles: object) {
   // TODO: we should diff from the variant the instance is set to, not the default variant
   // instance.variantProperties;
   const styles = diff(baseStyles, compareStyles) as ParseStyles;
-  const diffKeys = Object.keys(styles);
+  const diffKeys = Object.keys(styles ?? {});
   const diffCount = diffKeys.length;
 
   // Special case: only one difference with flexShrink that's undefined

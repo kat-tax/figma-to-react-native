@@ -119,7 +119,7 @@ async function getTypeScriptComponents(
             };
             // console.log('>> [lang:details]', entry.name, definitions, completions, details, type, opts, props);
             return props;
-          })
+          }) ?? []
       );
 
       // Record props for component
