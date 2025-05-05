@@ -385,10 +385,13 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
       const placeholderText = e.target.element.textContent || '';
       const nodeId = placeholderText.startsWith('#') ? placeholderText.substring(1) : placeholderText;
       if (nodeId && nodeId !== '...') {
-        // Show the NodeToolbar via the event emitter
-        showNodeToolbar(nodeId, e.target.element);
-        // Highlight the node in Figma
-        // emit<EventFocusNode>('NODE_FOCUS', nodeId);
+        // Highlight the node in Figma (if alt-key is pressed)
+        if (e.event.altKey) {
+          emit<EventFocusNode>('NODE_FOCUS', nodeId);
+        // Otherwise, show the NodeToolbar via the event emitter
+        } else {
+          showNodeToolbar(nodeId, e.target.element);
+        }
       }
     } else if (!e.target.element?.closest('.editor-node-toolbar')) {
       // Hide the toolbar when clicking elsewhere in the editor

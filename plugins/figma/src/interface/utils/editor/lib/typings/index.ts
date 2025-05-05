@@ -20,9 +20,6 @@ function init(monaco: Monaco, editor: Editor) {
     packageRecursionDepth: 2,
     onlySpecifiedPackages: true,
     fileRootPath: F2RN_EDITOR_NS,
-    onUpdate(update, textual) {
-      console.log('>>> [at-update]', update, textual);
-    },
     versions: {
       'react': 'latest',
       'react-dom': 'latest',
@@ -33,9 +30,12 @@ function init(monaco: Monaco, editor: Editor) {
       'prop-types': 'latest',
       'csstype': 'latest',
     },
-    onError(error) {
-      console.error('[at-error]', error);
-    },
+    // onUpdate(update, textual) {
+    //   console.log('>>> [at-update]', update, textual);
+    // },
+    // onError(error) {
+    //   console.error('>>> [at-error]', error);
+    // },
   });
 }
 

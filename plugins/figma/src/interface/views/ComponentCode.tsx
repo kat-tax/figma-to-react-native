@@ -122,7 +122,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         {!props.showDiff && <MonacoReact
           language="typescript"
           theme={props.editorTheme}
-          options={{...props.editorOptions}}
+          options={{...props.editorOptions, readOnly: true}}
           loading={<LoadingIndicator/>}
           path={componentPath}
           onMount={(e, m) => {

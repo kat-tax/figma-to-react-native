@@ -161,10 +161,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     setIsInspect(enabled);
     post('preview::inspect', {enabled});
     if (!enabled) {
+      setFigmaFocus(null);
       setPreviewRect(null);
       setPreviewNode(null);
       setPreviewDesc(null);
       setPreviewHover(null);
+      setPreviewFocused(null);
     }
   }, []);
 
