@@ -121,10 +121,9 @@ export function ThemePicker() {
             {value: '1', children: '1.0'},
           ]}
         />
-        <VerticalSpace space="extraLarge"/>
-        <VerticalSpace space="small"/>
       </Fragment>*/}
       <VerticalSpace space="extraLarge"/>
+      <VerticalSpace space="small"/>
       <Button
         fullWidth
         size="medium"

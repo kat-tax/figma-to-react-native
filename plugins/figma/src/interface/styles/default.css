@@ -75,6 +75,7 @@ iframe {
 }
 
 .fp-TabsContent {
+  outline: none;
   overflow: auto;
   height: 100%;
 }
