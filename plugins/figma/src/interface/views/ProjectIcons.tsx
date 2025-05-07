@@ -55,6 +55,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
       return;
     }
+    setLoadProgress(0);
     const icons = await loadIconSets(sets, setLoadProgress);
     emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', icons);
     setPrefix(sets.length === 1 ? sets[0].prefix : 'all');
@@ -94,6 +95,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   useEffect(() => {
     const entries = index.find(props.searchQuery);
     setList(Object.values(entries));
+    setLoadProgress(100);
   }, [index, props.searchQuery]);
 
   // Show browse interface
@@ -103,6 +105,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
         onSubmit={addSets}
         onClose={closeBrowse}
         installedSets={props.icons.sets}
+        searchQuery={props.searchQuery}
       />
     ) : (
       <ScreenInfo
@@ -122,7 +125,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   }
 
   // Showing loading bar
-  if (!list?.length) {
+  if (loadProgress < 100) {
     return (
       <ProgressBar percent={`${loadProgress}%`}/>
     );

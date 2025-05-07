@@ -1,6 +1,7 @@
 import {emit, on} from '@create-figma-plugin/utilities';
 import {useState, useEffect, useMemo} from 'react';
 import {Button, Flex, Select} from 'figma-kit';
+import {Fzf, byLengthAsc} from 'fzf';
 import {getPreviewSets} from './lib/iconify';
 import {IconSet} from './IconSet';
 
@@ -11,6 +12,8 @@ interface IconBrowseProps {
   installedSets: string[],
   onSubmit: (sets: IconifySetPreview[]) => void,
   onClose: () => void,
+  searchQuery: string,
+  searchMode?: boolean,
 }
 
 export function IconBrowse(props: IconBrowseProps) {
@@ -18,6 +21,32 @@ export function IconBrowse(props: IconBrowseProps) {
   const [previewSets, setPreviewSets] = useState<IconifySetPreview[]>([]);
   const [chosenSets, setChosenSets] = useState<IconifySetPreview[]>([]);
   const [favSets, setFavSets] = useState<string[]>();
+  
+  // Build search index for icon sets
+  const searchIndex = useMemo(() => new Fzf(previewSets, {
+    selector: (item) => item.name,
+    tiebreakers: [byLengthAsc],
+  }), [previewSets]);
+
+  // Get filtered sets based on search and category
+  const filteredSets = useMemo(() => {
+    let sets = previewSets;
+    
+    // Apply search filter if query exists
+    if (props.searchQuery) {
+      const results = searchIndex.find(props.searchQuery);
+      console.log('>>> ', props.searchQuery, results);
+      sets = results.map(result => result.item);
+    }
+    
+    // Apply category and other filters
+    return sets
+      .sort((a, b) => Number(favSets?.includes(b.prefix) ?? false) - Number(favSets?.includes(a.prefix) ?? false))
+      .filter(set => set.category !== 'Archive / Unmaintained')
+      .filter(set => category === 'all' || set.category === category)
+      .filter(set => !set.hidden);
+  }, [previewSets, props.searchQuery, category, favSets, searchIndex]);
+
   const categories = useMemo(() => {
     return [...new Set(previewSets
       .filter(set => set.category !== 'Archive / Unmaintained')
@@ -91,21 +120,16 @@ export function IconBrowse(props: IconBrowseProps) {
         flex: 1, 
         gap: 12,
       }}>
-        {previewSets
-          .sort((a, b) => Number(favSets?.includes(b.prefix) ?? false) - Number(favSets?.includes(a.prefix) ?? false))
-          .filter(set => set.category !== 'Archive / Unmaintained')
-          .filter(set => category === 'all' || set.category === category)
-          .filter(set => !set.hidden)
-          .map(set =>
-            <IconSet
-              key={set.prefix}
-              set={set}
-              onSelect={toggleSet}
-              onFavorite={toggleFav}
-              selected={chosenSets.includes(set)}
-              favorited={favSets?.includes(set.prefix)}
-              installed={props.installedSets.includes(set.prefix)}
-            />
+        {filteredSets.map(set =>
+          <IconSet
+            key={set.prefix}
+            set={set}
+            onSelect={toggleSet}
+            onFavorite={toggleFav}
+            selected={chosenSets.includes(set)}
+            favorited={favSets?.includes(set.prefix)}
+            installed={props.installedSets.includes(set.prefix)}
+          />
         )}
       </div>
       <Flex
