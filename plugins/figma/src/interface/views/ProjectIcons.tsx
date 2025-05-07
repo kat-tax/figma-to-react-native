@@ -124,7 +124,10 @@ export function ProjectIcons(props: ProjectIconsProps) {
     <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
       <div style={{flex: 1}}>
         <VirtuosoGrid
-          style={{height: '100%', scrollbarWidth: 'none'}}
+          style={{
+            height: '100%',
+            scrollbarWidth: 'none',
+          }}
           overscan={200}
           totalCount={list.length}
           itemContent={i =>
@@ -168,7 +171,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
         <div style={{flex: 1}}/>
         <Slider
           min={1}
-          max={10}
+          max={9.2}
           step={0.1}
           value={[iconScale]}
           onValueChange={([value]) => setIconScale(value)}
