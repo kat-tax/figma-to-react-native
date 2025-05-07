@@ -147,28 +147,44 @@ export async function watchTheme(settings: ProjectSettings) {
 export async function watchIcons() {
   let _sets = new Set<string>();
   let _list = new Set<string>();
-  let _map = new Map<string, string>();
+  let _maps = new Map<string, string>();
+  let _names = new Map<string, string>();
 
   const updateIcons = () => {
     const icons = getAllIconComponents();
-    const sets = new Set(icons?.map((i) => i.name.split(':')[0]));
-    const list = new Set(icons?.map((i) => i.name));
-    const map = new Map(icons?.map((i) => [i.name, i.id]));
+    const sets = new Set<string>();
+    const list = new Set<string>();
+    const maps = new Map<string, string>();
+    const names = new Map<string, string>();
 
-    if (assert.areMapsEqual(map, _map)
+    for (const icon of icons) {
+      const name = icon.name;
+      const prefix = name.split(':')[0];
+      const iconSet = icon.parent.name.split(',')[0];
+      sets.add(prefix);
+      list.add(name);
+      maps.set(name, icon.id);
+      names.set(prefix, iconSet);
+    }
+
+    if (assert.areMapsEqual(maps, _maps)
       && assert.areSetsEqual(sets, _sets)
-      && assert.areSetsEqual(list, _list))
+      && assert.areSetsEqual(list, _list)
+      && assert.areMapsEqual(names, _names)) {
       return;
+    }
 
     _sets = sets;
     _list = list;
-    _map = map;
+    _maps = maps;
+    _names = names;
 
     emit<EventProjectIcons>(
       'PROJECT_ICONS',
       Array.from(sets),
       Array.from(list),
-      Object.fromEntries(map),
+      Object.fromEntries(maps),
+      Object.fromEntries(names),
     );
   };
   setInterval(updateIcons, 500);

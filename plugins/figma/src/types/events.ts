@@ -140,7 +140,12 @@ export interface EventProjectLanguage extends EventHandler {
 
 export interface EventProjectIcons extends EventHandler {
   name: 'PROJECT_ICONS';
-  handler: (sets: string[], list: string[], map: Record<string, string>) => void;
+  handler: (
+    sets: string[],
+    list: string[],
+    maps: Record<string, string>,
+    names: Record<string, string>,
+  ) => void;
 }
 
 export interface EventProjectExport extends EventHandler {

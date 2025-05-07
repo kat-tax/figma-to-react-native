@@ -8,6 +8,7 @@ import type {IconFavoriteToggle, IconFavoriteReq, IconFavoriteRes} from 'types/e
 import type {IconifySetPreview} from './lib/iconify';
 
 interface IconBrowseProps {
+  installedSets: string[],
   onSubmit: (sets: IconifySetPreview[]) => void,
   onClose: () => void,
 }
@@ -102,7 +103,8 @@ export function IconBrowse(props: IconBrowseProps) {
               onSelect={toggleSet}
               onFavorite={toggleFav}
               selected={chosenSets.includes(set)}
-              favorite={favSets?.includes(set.prefix)}
+              favorited={favSets?.includes(set.prefix)}
+              installed={props.installedSets.includes(set.prefix)}
             />
         )}
       </div>

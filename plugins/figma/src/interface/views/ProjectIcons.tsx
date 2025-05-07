@@ -42,9 +42,10 @@ type ProjectIcon = {
 
 export function ProjectIcons(props: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
+  const [addingMore, setAddingMore] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [iconScale, setIconScale] = useState(1);
-  const [category, setCategory] = useState(props.icons.sets[0]);
+  const [category, setCategory] = useState([props.icons.sets[0], props.icons.names[props.icons.sets[0]]]);
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
   const [_, copyIcon] = useCopyToClipboard();
 
@@ -54,11 +55,19 @@ export function ProjectIcons(props: ProjectIconsProps) {
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
       return;
     }
-    const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it exists.\n\nContinue?');
-    if (!choice) return;
     const icons = await loadIconSets(sets, setLoadProgress);
     emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', icons);
-  }, [props.hasStyles, props.nav]);
+    if (!category) {
+      const set = sets[0];
+      setCategory([set.prefix, set.name]);
+    }
+    setAddingMore(false);
+  }, [props.hasStyles, props.nav, category]);
+
+  const closeBrowse = useCallback(() => {
+    setAddingMore(false);
+    setShowBrowse(false);
+  }, []);
 
   // Rebuild list when icons or build change
   // TODO: this is the issue, this should use icons from the project
@@ -66,12 +75,12 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const icons: ProjectIcon[] = useMemo(() => props.icons?.list
     ?.map(icon => ({
       icon,
-      nodeId: props.icons?.map?.[icon] || null,
+      nodeId: props.icons?.maps?.[icon] || null,
       missing: false, //!props.icons?.list?.includes(icon),
       count: props.build?.icons?.count?.[icon] || 0,
     }))
     ?.sort((a, b) => b.count - a.count), [
-    props.icons?.list,
+    props.icons,
     props.build?.icons?.count,
   ]);
 
@@ -89,11 +98,12 @@ export function ProjectIcons(props: ProjectIconsProps) {
   }, [index, props.searchQuery]);
 
   // Show browse interface
-  if (!props.icons.sets?.length) {
-    return showBrowse ? (
+  if (!props.icons.sets?.length || addingMore) {
+    return (showBrowse || addingMore) ? (
       <IconBrowse
         onSubmit={addSets}
-        onClose={() => setShowBrowse(false)}
+        onClose={closeBrowse}
+        installedSets={props.icons.sets}
       />
     ) : (
       <ScreenInfo
@@ -147,8 +157,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
           padding: '12px',
         }}>
         <Select.Root
-          value={category}
-          onValueChange={setCategory}>
+          value={category[0]}
+          onValueChange={(set) => setCategory([set, props.icons.names[set]])}>
           <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
           <Select.Content
             position="popper"
@@ -156,7 +166,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
             alignOffset={-28}>
             {props.icons.sets.map(set => (
               <Select.Item key={set} value={set}>
-                {set}
+                {category[1] ?? set}
               </Select.Item>
             ))}
           </Select.Content>
@@ -165,7 +175,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
           variant="secondary"
           size="small"
           style={{width: 32, padding: 0}}
-          onClick={() => setShowBrowse(true)}>
+          onClick={() => setAddingMore(true)}>
           <IconPlus32/>
         </Button>
         <div style={{flex: 1}}/>

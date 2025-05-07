@@ -26,7 +26,8 @@ export interface ProjectInfo {
 export interface ProjectIcons {
   sets: string[],
   list: string[],
-  map: Record<string, string>,
+  maps: Record<string, string>,
+  names: Record<string, string>,
 }
 
 export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;

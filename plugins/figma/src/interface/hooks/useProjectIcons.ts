@@ -7,13 +7,15 @@ import type {ProjectIcons} from 'types/project';
 export function useProjectIcons(): ProjectIcons {
   const [sets, setSets] = useState<string[]>([]);
   const [list, setList] = useState<string[]>([]);
-  const [map, setMap] = useState<Record<string, string>>({});
+  const [maps, setMaps] = useState<Record<string, string>>({});
+  const [names, setNames] = useState<Record<string, string>>({});
 
-  useEffect(() => on<EventProjectIcons>('PROJECT_ICONS', (sets, list, map) => {
+  useEffect(() => on<EventProjectIcons>('PROJECT_ICONS', (sets, list, maps, names) => {
     setSets(sets);
     setList(list);
-    setMap(map);
+    setMaps(maps);
+    setNames(names);
   }), []);
 
-  return {sets, list, map};
+  return {sets, list, maps, names};
 }

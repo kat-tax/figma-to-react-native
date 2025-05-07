@@ -6,15 +6,17 @@ import type {IconifySetPreview} from 'interface/icons/lib/iconify';
 
 interface IconSetProps {
   set: IconifySetPreview,
-  favorite: boolean,
   selected: boolean,
+  favorited: boolean,
+  installed: boolean,
   onSelect: (set: IconifySetPreview) => void,
   onFavorite: (set: IconifySetPreview) => void,
 }
 
 export function IconSet({
   set,
-  favorite,
+  favorited,
+  installed,
   selected,
   onSelect,
   onFavorite,
@@ -25,11 +27,12 @@ export function IconSet({
       onClick={(e) => {
         if (e.altKey) {
           window.open(`https://icones.js.org/collection/${set.prefix}`, '_blank');
-        } else {
+        } else if (!installed) {
           onSelect(set);
         }
       }}
-      style={{ 
+      style={{
+        opacity: installed ? 0.5 : 1,
         padding: '12px', 
         display: 'flex',
         flexDirection: 'column',
@@ -52,12 +55,12 @@ export function IconSet({
         </div>
         <IconButton
           size="medium"
-          aria-label={favorite ? 'Favorited' : 'Favorite'}
+          aria-label={favorited ? 'Favorited' : 'Favorite'}
           onClick={(e) => {
             e.stopPropagation();
             onFavorite(set);
           }}>
-          {favorite
+          {favorited
             ? <IconStarFilled16 color="secondary"/>
             : <IconStar16 color="tertiary"/>
           }

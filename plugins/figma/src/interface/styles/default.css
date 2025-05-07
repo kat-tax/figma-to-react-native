@@ -352,6 +352,7 @@ iframe {
 /* Virtual List */
 .virtuoso-grid-list {
   display: flex;
+  justify-content: center;
   flex-flow: wrap;
   margin: 6px;
   gap: 1px;
