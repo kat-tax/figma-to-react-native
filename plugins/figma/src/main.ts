@@ -1,7 +1,7 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusNode, getNode, getNodeAttrs, getNodeSrcProps, getTopFill, getColor} from 'backend/parser/lib';
+import {F2RN_UI_WIDTH_MIN, F2RN_ICONS_FAVORITES} from 'config/consts';
 import {MOTION_ATTRS, VISIBILITY_ATTRS} from 'interface/node/lib/consts';
-import {F2RN_UI_WIDTH_MIN} from 'config/consts';
 import {NodeAttrGroup} from 'types/node';
 import * as random from 'common/random';
 
@@ -146,6 +146,22 @@ export default async function() {
 
       attrs.properties = mergedProps;
       emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, attrs);
+    });
+
+    // Handle icon favorites
+    on<T.IconFavoriteReq>('ICON_FAVORITE_REQ', async () => {
+      let favs: string[] = await figma.clientStorage.getAsync(F2RN_ICONS_FAVORITES) ?? [];
+      emit<T.IconFavoriteRes>('ICON_FAVORITE_RES', favs);
+    });
+
+    on<T.IconFavoriteToggle>('ICON_FAVORITE_TOGGLE', async (prefix, state) => {
+      let favs: string[] = await figma.clientStorage.getAsync(F2RN_ICONS_FAVORITES) ?? [];
+      if (state) {
+        favs = Array.from(new Set([...favs, prefix]));
+      } else {
+        favs = favs.filter((p: string) => p !== prefix);
+      }
+      await figma.clientStorage.setAsync(F2RN_ICONS_FAVORITES, favs);
     });
 
     // Handle notify event

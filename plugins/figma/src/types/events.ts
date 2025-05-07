@@ -179,3 +179,20 @@ export interface EventStyleGenRes extends EventHandler {
   name: 'STYLE_GEN_RES';
   handler: (stylesheet: unknown) => void;
 }
+
+/* Icons */
+
+export interface IconFavoriteReq extends EventHandler {
+  name: 'ICON_FAVORITE_REQ';
+  handler: () => void;
+}
+
+export interface IconFavoriteRes extends EventHandler {
+  name: 'ICON_FAVORITE_RES';
+  handler: (prefixes: string[]) => void;
+}
+
+export interface IconFavoriteToggle extends EventHandler {
+  name: 'ICON_FAVORITE_TOGGLE';
+  handler: (prefix: string, state: boolean) => void;
+}
