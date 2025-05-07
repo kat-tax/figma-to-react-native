@@ -1,6 +1,5 @@
 import {loadIcons, getIcon} from '@iconify/react';
-
-const ICON_HOST = 'https://api.iconify.design';
+import {ICONIFY_HOST} from './consts';
 
 export type IconifySetPreview = {
   prefix: string;
@@ -27,7 +26,7 @@ export type IconifySetData = {
 }
 
 export async function getPreviewSets(): Promise<Array<IconifySetPreview>> {
-  const res = await fetch(`${ICON_HOST}/collections`);
+  const res = await fetch(`${ICONIFY_HOST}/collections`);
   const val = await res.json();
   return Object.entries(val)
     .map(([prefix, data]: [string, any]) => ({
@@ -64,7 +63,7 @@ export async function loadIconSets(
 
 async function getIconIds(prefixes: string[]): Promise<string[]> {
   return await Promise.all(prefixes.map(async (prefix) => {
-    const res = await fetch(`${ICON_HOST}/collection?prefix=${prefix}`);
+    const res = await fetch(`${ICONIFY_HOST}/collection?prefix=${prefix}`);
     const val = await res.json();
     const categorized = Object.values(val.categories || {}).flat() as string[];
     const uncategorized = val.uncategorized || [];

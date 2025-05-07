@@ -3,7 +3,7 @@ import * as string from 'common/string';
 import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
-import type {IconifySetPayload, IconifySetData} from 'interface/services/iconify';
+import type {IconifySetPayload, IconifySetData} from 'interface/icons/lib/iconify';
 
 const SVG_PROPS = (size: number) => `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${size}" height="${size}" viewBox="0 0 256 256"`;
 const SVG_SIZE = 32;
