@@ -71,8 +71,8 @@ export default async function() {
     });
 
     // Handle import icons
-    on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (name, svgs) => {
-      icons.importIcons(name, svgs);
+    on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (sets) => {
+      icons.importIcons(sets);
     });
 
     // Handle import components

@@ -1,49 +1,112 @@
-import {loadIcons} from '@iconify/react';
+import {loadIcons, getIcon} from '@iconify/react';
 
-const HOST = 'https://api.iconify.design';
+const ICON_HOST = 'https://api.iconify.design';
 
-export type IconifySet = {
+export type IconifySetPreview = {
   prefix: string;
   name: string;
   total: number;
+  height: number;
   samples: string[];
+  category: string;
+  hidden: boolean;
 }
 
-export async function getIconSets(): Promise<Array<IconifySet>> {
-  const res = await fetch(`${HOST}/collections`);
+export type IconifySetPayload = {
+  [prefix: string]: IconifySetData,
+}
+
+export type IconifySetData = {
+  name: string,
+  mode: string,
+  size: number,
+  list: {
+    // Icon name => Icon SVG
+    [icon: string]: string,
+  },
+}
+
+export async function getPreviewSets(): Promise<Array<IconifySetPreview>> {
+  const res = await fetch(`${ICON_HOST}/collections`);
   const val = await res.json();
   return Object.entries(val)
     .map(([prefix, data]: [string, any]) => ({
       prefix,
       name: data.name,
       total: data.total,
+      height: data.height || 32,
       samples: data.samples,
+      category: data.category,
+      hidden: data.hidden,
     }))
     .sort((a, b) => b.total - a.total); 
 }
 
-export async function loadIconSet(
-  iconSet: string,
+export async function loadIconSets(
+  sets: IconifySetPreview[],
   onProgress: (value: number) => void,
-): Promise<string[]> {
-  if (!iconSet) return;
-  const res = await fetch(`${HOST}/collection?prefix=${iconSet}`);
-  const val = await res.json();
-  const set = val.suffixes ? filterIconsBySuffix(
-    '',
-    val.suffixes,
-    val.uncategorized,
-  ) : val.uncategorized;
+): Promise<IconifySetPayload> {
+  if (!sets.length) return;
+  const ids = await getIconIds(sets.map(set => set.prefix));
+  const svgs = await getIconSvgs(ids, onProgress);
+  return Object.entries(svgs).reduce((acc, [prefix, list]) => {
+    const set = sets.find(set => set.prefix === prefix);
+    if (!set) return acc;
+    acc[prefix] = {
+      name: set.name,
+      size: set.height,
+      mode: '',
+      list,
+    };
+    return acc;
+  }, {});
+}
 
-  const list = set.map((icon: string) => `${iconSet}:${icon}`);
+async function getIconIds(prefixes: string[]): Promise<string[]> {
+  return await Promise.all(prefixes.map(async (prefix) => {
+    const res = await fetch(`${ICON_HOST}/collection?prefix=${prefix}`);
+    const val = await res.json();
+    const categorized = Object.values(val.categories || {}).flat() as string[];
+    const uncategorized = val.uncategorized || [];
+    const allIcons = new Set([...categorized, ...uncategorized]);
+    const set = getIconList('', val.suffixes, Array.from(allIcons));
+    console.log('>>> [icons]', allIcons.size);
+    return set.map(icon => `${prefix}:${icon}`);
+  })).then(ids => ids.flat());
+}
+
+async function getIconSvgs(
+  iconIds: string[],
+  onProgress: (value: number) => void,
+): Promise<{
+  [prefix: string]: {
+    [icon: string]: string,
+  },
+}> {
   return new Promise((resolve, _reject) => {
-    loadIcons(list, (_loaded, _missing, pending, _unsubscribe) => {
-      onProgress(Math.round((_loaded.length / list.length) * 100));
+    loadIcons(iconIds, (_loaded, _missing, pending, _unsubscribe) => {
+      onProgress(Math.round((_loaded.length / iconIds.length) * 100));
       if (pending.length) return;
-      resolve(list);
+      resolve(_loaded.reduce((acc, icon) => {
+        acc[icon.prefix] = acc[icon.prefix] || {};
+        acc[icon.prefix][icon.name] = getIcon(`${icon.prefix}:${icon.name}`)?.body;
+        return acc;
+      }, {}));
     });
   });
-};
+}
+
+function getIconList(
+  mode: string,
+  suffixes: Record<string, string>,
+  uncategorized: string[],
+): string[] {
+  return suffixes ? filterIconsBySuffix(
+    mode,
+    suffixes,
+    uncategorized,
+  ) : uncategorized;
+}
 
 function filterIconsBySuffix(
   suffix: string,

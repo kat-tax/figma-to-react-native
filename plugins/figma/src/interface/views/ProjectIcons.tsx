@@ -1,17 +1,17 @@
-import {Fzf, byLengthAsc} from 'fzf';
-import {Icon, listIcons, getIcon} from '@iconify/react';
-import {useState, useEffect, useMemo, Fragment} from 'react';
-import {useCopyToClipboard} from '@uidotdev/usehooks';
-import {IconStar16, IconStarFilled16} from 'figma-ui';
-import {Button, IconButton, Flex} from 'figma-kit';
 import {VirtuosoGrid} from 'react-virtuoso';
-import {loadIconSet, getIconSets} from 'interface/services/iconify';
+import {Icon, listIcons} from '@iconify/react';
+import {Fzf, byLengthAsc} from 'fzf';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
+import {useState, useEffect, useMemo, Fragment} from 'react';
+import {IconStar16, IconStarFilled16, Text} from 'figma-ui';
+import {Button, IconButton, Flex, Select} from 'figma-kit';
+import {loadIconSets, getPreviewSets} from 'interface/services/iconify';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {emit} from '@create-figma-plugin/utilities';
 
-import type {IconifySet} from 'interface/services/iconify';
 import type {Navigation} from 'interface/hooks/useNavigation';
+import type {IconifySetPreview} from 'interface/services/iconify';
 import type {EventNotify, EventFocusNode, EventProjectImportIcons} from 'types/events';
 import type {ProjectIcons as ProjectIconsType} from 'types/project';
 import type {ComponentBuild} from 'types/component';
@@ -38,15 +38,17 @@ type ProjectIcon = {
   count: number,
 }
 
+const DEFAULT_FAVORITES = ['ph', 'lucide', 'simple-icons'];
+
 export function ProjectIcons(props: ProjectIconsProps) {
+  const [category, setCategory] = useState('all');
   const [importing, setImporting] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
-  const [loadedIcons, setLoadedIcons] = useState<string[]>([]);
-  const [loadedSets, setLoadedSets] = useState<IconifySet[]>([]);
-  const [chosenSets, setChosenSets] = useState<string[]>([]);
-  const [favSets, setFavSets] = useState<string[]>(['ph', 'lucide', 'simple-icons']);
-  const [iconSet, setIconSet] = useState(props.icons?.sets?.[0]);
+  const [previewSets, setPreviewSets] = useState<IconifySetPreview[]>([]);
+  const [chosenSets, setChosenSets] = useState<IconifySetPreview[]>([]);
+  const [favSets, setFavSets] = useState<string[]>(DEFAULT_FAVORITES);
+  const [docSets, setDocSets] = useState<string[]>([]);
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
 
   const [_copiedText, copyToClipboard] = useCopyToClipboard();
@@ -65,7 +67,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
       if (!a.missing && b.missing) return -1;
       return 0;
     })
-  , [props.icons, props.build, loadedIcons]);
+  , [props.icons, props.build]);
 
   // Rebuild index when icons change
   const index = useMemo(() => new Fzf(icons, {
@@ -74,8 +76,17 @@ export function ProjectIcons(props: ProjectIconsProps) {
     forward: false,
   }), [icons]);
 
+  // Rebuild categories when loaded sets change
+  const categories = useMemo(() => {
+    return [...new Set(previewSets
+      .filter(set => set.category !== 'Archive / Unmaintained')
+      .filter(set => !set.hidden)
+      .map(set => set.category)
+    )];
+  }, [previewSets]);
+
   // Import icons from Iconify into Figma
-  const importIcons = async (prefix: string, name: string) => {
+  const importIcons = async (sets: IconifySetPreview[]) => {
     if (!props.hasStyles) {
       props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
@@ -84,14 +95,9 @@ export function ProjectIcons(props: ProjectIconsProps) {
     const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it exists.\n\nContinue?');
     if (!choice) return;
     setImporting(true);
-    setIconSet(prefix);
-    const icons = await loadIconSet(prefix, setLoadProgress);
-    const data = Object.fromEntries(icons.map(i => [i, getIcon(i).body]));
-    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', name, data);
-  };
-
-  const importSelection = () => {
-    importIcons(iconSet, 'Imported Icons');
+    setDocSets(sets.map(set => set.prefix));
+    const icons = await loadIconSets(sets, setLoadProgress);
+    emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', icons);
   };
 
   const goBack = () => {
@@ -99,42 +105,19 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setChosenSets([]);
   };
 
-  const toggleSet = (set: IconifySet) => {
-    setChosenSets(prev => prev.includes(set.prefix)
-      ? prev.filter(s => s !== set.prefix)
-      : [...prev, set.prefix]
+  const toggleSet = (set: IconifySetPreview) => {
+    setChosenSets(prev => prev.includes(set)
+      ? prev.filter(s => s !== set)
+      : [...prev, set]
     );
   };
 
-  const toggleFav = (set: IconifySet) => {
+  const toggleFav = (set: IconifySetPreview) => {
     setFavSets(prev => prev.includes(set.prefix)
       ? prev.filter(s => s !== set.prefix)
       : [...prev, set.prefix]
     );
   };
-
-  // Fetch icon sets from Iconify
-  const fetchIconSets = async () => {
-    const sets = await getIconSets();
-    if (sets) setLoadedSets(sets);
-  };
-  
-  // Load icon set when selected
-  useEffect(() => {
-    if (!iconSet || importing) return;
-    loadIconSet(iconSet, setLoadProgress).then(list => {
-      setLoadedIcons(list);
-    });
-  }, [iconSet, importing]);
-
-  // Update icon set when new icons are imported
-  useEffect(() => {
-    const set = props.icons?.sets?.[0];
-    if (set) {
-      setIconSet(props.icons?.sets?.[0]);
-      setImporting(false);
-    }
-  }, [props.icons]);
 
   // Update list when search query changes or index changes
   useEffect(() => {
@@ -142,14 +125,27 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setList(Object.values(entries));
   }, [index, props.searchQuery]);
 
-  // Load icon sets when search is shown
+  // Update icon set when new icons in document are changed
+  useEffect(() => {
+    const sets = props.icons?.sets;
+    if (sets) {
+      console.log('>>> [document icons changed]', sets);
+      setDocSets(sets);
+      setImporting(false);
+    }
+  }, [props.icons]);
+
+  // Load icon sets when browsing ui is shown
   useEffect(() => {
     if (showBrowse) {
-      fetchIconSets();
+      (async () => {
+        const sets = await getPreviewSets();
+        if (sets) setPreviewSets(sets);
+      })();
     }
   }, [showBrowse]);
 
-  // Escape key (deselect all sets)
+  // Handle escape key (deselect all sets)
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -160,8 +156,10 @@ export function ProjectIcons(props: ProjectIconsProps) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
 
-  // Show no icons message with search option
-  if (!iconSet || !props.icons.sets?.length) {
+  console.log('>>> [icons]', props, list);
+
+  // Show browse interface
+  if (!props.icons.sets?.length) {
     // Show icon set search interface
     if (showBrowse) {
       return (
@@ -181,33 +179,53 @@ export function ProjectIcons(props: ProjectIconsProps) {
             flex: 1, 
             gap: 12,
           }}>
-            {loadedSets
+            {previewSets
               .sort((a, b) => Number(favSets.includes(b.prefix)) - Number(favSets.includes(a.prefix)))
+              .filter(set => set.category !== 'Archive / Unmaintained')
+              .filter(set => category === 'all' || set.category === category)
+              .filter(set => !set.hidden)
               .map(set =>
                 <IconSet
                   key={set.prefix}
                   set={set}
                   onSelect={toggleSet}
                   onFavorite={toggleFav}
-                  selected={chosenSets.includes(set.prefix)}
-                favorite={favSets.includes(set.prefix)}
-              />
+                  selected={chosenSets.includes(set)}
+                  favorite={favSets.includes(set.prefix)}
+                />
             )}
           </div>
-          <Flex direction="row" style={{
-            borderTop: '1px solid var(--figma-color-border)',
-            padding: '12px',
-          }}>
-            <Button
-              variant="secondary"
-              onClick={goBack}>
+          <Flex
+            gap="2"
+            direction="row"
+            style={{
+              borderTop: '1px solid var(--figma-color-border)',
+              padding: '12px',
+            }}>
+            <Button variant="secondary" onClick={goBack}>
               Back
             </Button>
+            <Select.Root
+              value={category}
+              onValueChange={setCategory}>
+              <Select.Trigger style={{width: 'auto'}}/>
+              <Select.Content
+                position="popper"
+                side="top"
+                alignOffset={-28}>
+                <Select.Item value="all">All Categories</Select.Item>
+                {categories.map(category => (
+                  <Select.Item key={category} value={category}>
+                    {category}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
             <div style={{flex: 1}}/>
             <Button
               variant="primary"
               disabled={!chosenSets.length}
-              onClick={importSelection}>
+              onClick={() => importIcons(chosenSets)}>
               {`Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`}
             </Button>
           </Flex>
@@ -233,13 +251,13 @@ export function ProjectIcons(props: ProjectIconsProps) {
   }
 
   // Showing loading bar
-  if (loadProgress < 100) {
+  if (!list?.length || importing && loadProgress < 100) {
     return (
       <ProgressBar percent={`${loadProgress}%`}/>
     );
   }
 
-  // Grid of icon buttons
+  // Show icon grids
   return (
     <Fragment>
       <VirtuosoGrid
@@ -255,11 +273,11 @@ export function ProjectIcons(props: ProjectIconsProps) {
 }
 
 interface IconSetProps {
-  set: IconifySet,
+  set: IconifySetPreview,
   favorite: boolean,
   selected: boolean,
-  onSelect: (set: IconifySet) => void,
-  onFavorite: (set: IconifySet) => void,
+  onSelect: (set: IconifySetPreview) => void,
+  onFavorite: (set: IconifySetPreview) => void,
 }
 
 function IconSet({
@@ -287,9 +305,9 @@ function IconSet({
       }}>
       <Flex direction="row" justify="space-between">
         <div style={{flex: 1}}>
-          <div style={{fontWeight: 'bold', marginBottom: '4px'}}>
+          <Text style={{fontWeight: 'bold', color: 'var(--figma-color-text)', marginBottom: '4px'}}>
             {set.name}
-          </div>
+          </Text>
           <div style={{fontSize: '12px', marginBottom: '12px', color: 'var(--figma-color-text-secondary)'}}>
             {set.total} icons
           </div>
@@ -302,8 +320,8 @@ function IconSet({
             onFavorite(set);
           }}>
           {favorite
-            ? <IconStarFilled16 color="warning"/>
-            : <IconStar16 color="secondary"/>
+            ? <IconStarFilled16 color="secondary"/>
+            : <IconStar16 color="tertiary"/>
           }
         </IconButton>
       </Flex>

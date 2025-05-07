@@ -2,6 +2,7 @@ import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {UserSettings} from 'types/settings';
 import type {NodeAttrData} from 'types/node';
+import type {IconifySetPayload} from 'interface/services/iconify';
 import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
 import type {ComponentData, ComponentBuild} from 'types/component';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
@@ -159,7 +160,7 @@ export interface EventProjectImportComponents extends EventHandler {
 
 export interface EventProjectImportIcons extends EventHandler {
   name: 'PROJECT_IMPORT_ICONS';
-  handler: (name: string, svgs: Record<string, string>) => void;
+  handler: (sets: IconifySetPayload) => void;
 }
 
 export interface EventProjectImportTheme extends EventHandler {
