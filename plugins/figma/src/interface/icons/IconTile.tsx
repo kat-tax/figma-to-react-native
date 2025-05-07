@@ -9,6 +9,7 @@ interface IconTileProps {
   nodeId: string,
   missing: boolean,
   count: number,
+  scale: number,
   copy: (text: string) => void,
 }
 
@@ -17,6 +18,7 @@ export function IconTile(props: IconTileProps) {
   return (
     <IconButton
       size="medium"
+      style={{width: 32 * props.scale, height: 32 * props.scale}}
       aria-label={props.count > 0 ? `${props.icon} (used ${props.count}x)` : props.icon}
       disabled={props.missing}
       draggable={!props.missing}
@@ -40,9 +42,9 @@ export function IconTile(props: IconTileProps) {
       }}>
       <Icon
         icon={props.icon}
-        width={18}
-        height={18}
-        color={'var(--color-text)'}
+        width={18 * props.scale}
+        height={18 * props.scale}
+        color="var(--color-text)"
       />
     </IconButton>
   );

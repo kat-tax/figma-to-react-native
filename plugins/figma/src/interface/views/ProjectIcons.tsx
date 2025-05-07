@@ -1,5 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {Button} from 'figma-kit';
+import {Button, Flex, Select, Slider} from 'figma-kit';
+import {IconPlus32} from 'figma-ui';
 import {VirtuosoGrid} from 'react-virtuoso';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
@@ -24,6 +25,7 @@ interface ProjectIconsProps {
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
+  onSubmit?: (selectedIcons: string[]) => void,
 }
 
 type ProjectIconsEntry = {
@@ -41,6 +43,8 @@ type ProjectIcon = {
 export function ProjectIcons(props: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [showBrowse, setShowBrowse] = useState(false);
+  const [iconScale, setIconScale] = useState(1);
+  const [category, setCategory] = useState(props.icons.sets[0]);
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
   const [_, copyIcon] = useCopyToClipboard();
 
@@ -117,13 +121,60 @@ export function ProjectIcons(props: ProjectIconsProps) {
 
   // Show icon grid
   return (
-    <VirtuosoGrid
-      style={{height: '100%', scrollbarWidth: 'none'}}
-      overscan={200}
-      totalCount={list.length}
-      itemContent={i =>
-        <IconTile {...list[i].item} copy={copyIcon}/>
-      }
-    />
+    <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+      <div style={{flex: 1}}>
+        <VirtuosoGrid
+          style={{height: '100%', scrollbarWidth: 'none'}}
+          overscan={200}
+          totalCount={list.length}
+          itemContent={i =>
+            <IconTile
+              {...list[i].item}
+              copy={copyIcon}
+              scale={iconScale}
+            />
+          }
+        />
+      </div>
+      <Flex
+        gap="2"
+        direction="row"
+        style={{
+          borderTop: '1px solid var(--figma-color-border)',
+          padding: '12px',
+        }}>
+        <Select.Root
+          value={category}
+          onValueChange={setCategory}>
+          <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
+          <Select.Content
+            position="popper"
+            side="top"
+            alignOffset={-28}>
+            {props.icons.sets.map(set => (
+              <Select.Item key={set} value={set}>
+                {set}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+        <Button
+          variant="secondary"
+          size="small"
+          style={{width: 32, padding: 0}}
+          onClick={() => setShowBrowse(true)}>
+          <IconPlus32/>
+        </Button>
+        <div style={{flex: 1}}/>
+        <Slider
+          min={1}
+          max={10}
+          step={0.1}
+          value={[iconScale]}
+          onValueChange={([value]) => setIconScale(value)}
+          style={{maxWidth: 200}}
+        />
+      </Flex>
+    </div>
   );
 }
