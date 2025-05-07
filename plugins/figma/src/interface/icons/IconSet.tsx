@@ -22,7 +22,13 @@ export function IconSet({
   return (
     <div 
       key={set.prefix}
-      onClick={() => onSelect(set)}
+      onClick={(e) => {
+        if (e.altKey) {
+          window.open(`https://icones.js.org/collection/${set.prefix}`, '_blank');
+        } else {
+          onSelect(set);
+        }
+      }}
       style={{ 
         padding: '12px', 
         display: 'flex',
