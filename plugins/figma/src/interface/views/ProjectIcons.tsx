@@ -42,18 +42,15 @@ const DEFAULT_FAVORITES = ['ph', 'lucide', 'simple-icons'];
 
 export function ProjectIcons(props: ProjectIconsProps) {
   const [category, setCategory] = useState('all');
-  const [importing, setImporting] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [previewSets, setPreviewSets] = useState<IconifySetPreview[]>([]);
   const [chosenSets, setChosenSets] = useState<IconifySetPreview[]>([]);
   const [favSets, setFavSets] = useState<string[]>(DEFAULT_FAVORITES);
-  const [docSets, setDocSets] = useState<string[]>([]);
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
+  const [_, copyIcon] = useCopyToClipboard();
 
-  const [_copiedText, copyToClipboard] = useCopyToClipboard();
-
-  // Rebuild list when icons or build or loadedIcons change
+  // Rebuild list when icons or build change
   const icons: ProjectIcon[] = useMemo(() => listIcons()
     .map(icon => ({
       icon,
@@ -67,7 +64,10 @@ export function ProjectIcons(props: ProjectIconsProps) {
       if (!a.missing && b.missing) return -1;
       return 0;
     })
-  , [props.icons, props.build]);
+  , [
+    props.icons?.list,
+    props.build?.icons?.count,
+  ]);
 
   // Rebuild index when icons change
   const index = useMemo(() => new Fzf(icons, {
@@ -85,8 +85,12 @@ export function ProjectIcons(props: ProjectIconsProps) {
     )];
   }, [previewSets]);
 
-  // Import icons from Iconify into Figma
-  const importIcons = async (sets: IconifySetPreview[]) => {
+  const goBack = () => {
+    setShowBrowse(false);
+    setChosenSets([]);
+  };
+
+  const addSets = async (sets: IconifySetPreview[]) => {
     if (!props.hasStyles) {
       props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
@@ -94,15 +98,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
     }
     const choice = confirm('Warning! Importing icons will overwrite the "Icons" page if it exists.\n\nContinue?');
     if (!choice) return;
-    setImporting(true);
-    setDocSets(sets.map(set => set.prefix));
     const icons = await loadIconSets(sets, setLoadProgress);
     emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', icons);
-  };
-
-  const goBack = () => {
-    setShowBrowse(false);
-    setChosenSets([]);
   };
 
   const toggleSet = (set: IconifySetPreview) => {
@@ -125,16 +122,6 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setList(Object.values(entries));
   }, [index, props.searchQuery]);
 
-  // Update icon set when new icons in document are changed
-  useEffect(() => {
-    const sets = props.icons?.sets;
-    if (sets) {
-      console.log('>>> [document icons changed]', sets);
-      setDocSets(sets);
-      setImporting(false);
-    }
-  }, [props.icons]);
-
   // Load icon sets when browsing ui is shown
   useEffect(() => {
     if (showBrowse) {
@@ -156,7 +143,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
 
-  console.log('>>> [icons]', props, list);
+  console.log('>>> [icons]', props, icons, list);
 
   // Show browse interface
   if (!props.icons.sets?.length) {
@@ -225,7 +212,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
             <Button
               variant="primary"
               disabled={!chosenSets.length}
-              onClick={() => importIcons(chosenSets)}>
+              onClick={() => addSets(chosenSets)}>
               {`Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`}
             </Button>
           </Flex>
@@ -251,7 +238,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   }
 
   // Showing loading bar
-  if (!list?.length || importing && loadProgress < 100) {
+  if (!list?.length) {
     return (
       <ProgressBar percent={`${loadProgress}%`}/>
     );
@@ -265,7 +252,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
         overscan={200}
         totalCount={list.length}
         itemContent={i =>
-          <IconListItem {...list[i].item} copy={copyToClipboard}/>
+          <IconListItem {...list[i].item} copy={copyIcon}/>
         }
       />
     </Fragment>
