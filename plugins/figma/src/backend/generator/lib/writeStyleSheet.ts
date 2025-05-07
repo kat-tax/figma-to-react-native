@@ -142,8 +142,9 @@ export function writeProp(writer: CodeBlockWriter, prop: string, val: unknown) {
       // Theme values
       if (value.startsWith('theme.')) {
         writer.write(value);
+      // Fill value (quoted)
       } else {
-        writer.quote(value);
+        writer.quote(value.replace(/^"|"$/g, ''));
       }
     // Unknown value
     } else {

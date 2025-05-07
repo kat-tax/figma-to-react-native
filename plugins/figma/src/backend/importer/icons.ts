@@ -116,12 +116,7 @@ export async function createIcons(
     // Create icon component
     const component = figma.createComponent();
     component.name = `${prefix}:${name}`;
-    component.layoutMode = 'VERTICAL';
-    component.layoutPositioning = 'AUTO';
-    component.primaryAxisAlignItems = 'CENTER';
-    component.counterAxisAlignItems = 'CENTER';
-    component.layoutSizingVertical = 'FIXED';
-    component.layoutSizingHorizontal = 'FIXED';
+    component.lockAspectRatio();
     component.resize(size, size);
 
     // Create icon frame

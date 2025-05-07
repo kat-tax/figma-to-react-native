@@ -108,7 +108,7 @@ function crawlChildren(
     }
 
     // Record nodes with styles, css will be extracted & converted later
-    if (hasStyle) {
+    if (hasStyle && !isIcon) {
       meta.styleNodes.add(node.id);
       // Component instances need access to the main component root style for diffing
       if (isInstance) {

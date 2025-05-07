@@ -103,7 +103,7 @@ export function IconBrowse(props: IconBrowseProps) {
         <Select.Root
           value={category}
           onValueChange={setCategory}>
-          <Select.Trigger style={{width: 'auto'}}/>
+          <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
           <Select.Content
             position="popper"
             side="top"

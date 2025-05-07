@@ -1,6 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Button} from 'figma-kit';
-import {listIcons} from '@iconify/react';
 import {VirtuosoGrid} from 'react-virtuoso';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
@@ -60,20 +59,14 @@ export function ProjectIcons(props: ProjectIconsProps) {
   // Rebuild list when icons or build change
   // TODO: this is the issue, this should use icons from the project
   // not the global cache from iconify
-  const icons: ProjectIcon[] = useMemo(() => listIcons()
-    .map(icon => ({
+  const icons: ProjectIcon[] = useMemo(() => props.icons?.list
+    ?.map(icon => ({
       icon,
-      nodeId: props.icons?.map?.[icon],
-      missing: !props.icons?.list?.includes(icon),
+      nodeId: props.icons?.map?.[icon] || null,
+      missing: false, //!props.icons?.list?.includes(icon),
       count: props.build?.icons?.count?.[icon] || 0,
     }))
-    .sort((a, b) => {
-      if (a.count > b.count) return -1;
-      if (a.missing && !b.missing) return 1;
-      if (!a.missing && b.missing) return -1;
-      return 0;
-    })
-  , [
+    ?.sort((a, b) => b.count - a.count), [
     props.icons?.list,
     props.build?.icons?.count,
   ]);
@@ -125,7 +118,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   // Show icon grid
   return (
     <VirtuosoGrid
-      style={{height: '100%'}}
+      style={{height: '100%', scrollbarWidth: 'none'}}
       overscan={200}
       totalCount={list.length}
       itemContent={i =>
