@@ -45,7 +45,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [addingMore, setAddingMore] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [iconScale, setIconScale] = useState(1);
-  const [category, setCategory] = useState([props.icons.sets[0], props.icons.names[props.icons.sets[0]]]);
+  const [prefix, setPrefix] = useState('all');
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
   const [_, copyIcon] = useCopyToClipboard();
 
@@ -57,12 +57,9 @@ export function ProjectIcons(props: ProjectIconsProps) {
     }
     const icons = await loadIconSets(sets, setLoadProgress);
     emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', icons);
-    if (!category) {
-      const set = sets[0];
-      setCategory([set.prefix, set.name]);
-    }
+    setPrefix(sets.length === 1 ? sets[0].prefix : 'all');
     setAddingMore(false);
-  }, [props.hasStyles, props.nav, category]);
+  }, [props.hasStyles, props.nav]);
 
   const closeBrowse = useCallback(() => {
     setAddingMore(false);
@@ -79,7 +76,9 @@ export function ProjectIcons(props: ProjectIconsProps) {
       missing: false, //!props.icons?.list?.includes(icon),
       count: props.build?.icons?.count?.[icon] || 0,
     }))
+    ?.filter(({icon}) => prefix === 'all' || icon.split(':')[0] === prefix)
     ?.sort((a, b) => b.count - a.count), [
+    prefix,
     props.icons,
     props.build?.icons?.count,
   ]);
@@ -157,16 +156,17 @@ export function ProjectIcons(props: ProjectIconsProps) {
           padding: '12px',
         }}>
         <Select.Root
-          value={category[0]}
-          onValueChange={(set) => setCategory([set, props.icons.names[set]])}>
+          value={prefix}
+          onValueChange={setPrefix}>
           <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
           <Select.Content
             position="popper"
             side="top"
             alignOffset={-28}>
+            <Select.Item value="all">All Icons</Select.Item>
             {props.icons.sets.map(set => (
               <Select.Item key={set} value={set}>
-                {category[1] ?? set}
+                {props.icons.names[set] ?? set}
               </Select.Item>
             ))}
           </Select.Content>

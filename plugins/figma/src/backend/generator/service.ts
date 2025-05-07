@@ -152,6 +152,8 @@ export async function watchIcons() {
 
   const updateIcons = () => {
     const icons = getAllIconComponents();
+    if (!icons?.length) return;
+    
     const sets = new Set<string>();
     const list = new Set<string>();
     const maps = new Map<string, string>();

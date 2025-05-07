@@ -31,10 +31,9 @@ export async function createIconSet(prefix: string, set: IconifySetData) {
     page = figma.createPage();
     page.name = consts.PAGES_SPECIAL.ICONS;
     figma.root.appendChild(page);
-  
-  // Page exists, remove all children
   } else {
-    page.children.forEach(c => c.remove());
+    // Page exists
+    // TODO: find starting x,y from existing section
   }
 
   // Get theme
