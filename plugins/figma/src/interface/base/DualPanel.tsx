@@ -25,6 +25,9 @@ export function DualPanel(props: DualPanelProps) {
           width: '100%',
           height: '66%',
         }}
+        style={{
+          zIndex: 1,
+        }}
         onResize={props.onResize}
         handleStyles={{
           bottom: {

@@ -93,7 +93,15 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
     // Update the inspected node rect
     if (rect) {
-      setPreviewRect(rect);
+      // Constrain the rect to the iframe size
+      const outline = {
+        ...rect,
+        top: Math.max(0, rect.top),
+        left: Math.max(0, rect.left),
+        width: Math.min(rect.width, iframe.current?.clientWidth || 0),
+        height: Math.min(rect.height, iframe.current?.clientHeight || 0),
+      };
+      setPreviewRect(outline);
       setPreviewNode(node);
       setPreviewDesc(name);
     }

@@ -25,7 +25,7 @@ export function NodeGroup(props: NodeGroupProps) {
   const [dragItem, setDragItem] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [dragDirection, setDragDirection] = useState<'up' | 'down' | null>(null);
-  const title = titleCase(group);
+  const title = `${props.nodeSrc} ${titleCase(group)}`;
   const rules = state[group];
 
   // CRUD
