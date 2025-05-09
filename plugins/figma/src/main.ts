@@ -188,7 +188,7 @@ export default async function() {
     on<T.EventExpand>('EXPAND', () => {
       isExpanded = !isExpanded;
       figma.ui.resize(isExpanded
-        ? figma.viewport.bounds.width + F2RN_UI_WIDTH_MIN
+        ? Math.round(figma.viewport.bounds.width + F2RN_UI_WIDTH_MIN)
         : F2RN_UI_WIDTH_MIN
       , startHeight);
     });
