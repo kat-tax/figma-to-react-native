@@ -68,7 +68,13 @@ iframe {
   scale: 0.8;
 }
 
-.fp-SelectTrigger span:first-child {
+/* Needed for color picker */
+.fp-SelectTrigger {
+  gap: 0;
+}
+
+/* Needed for node attributes */
+.fp-DialogBaseSection .fp-SelectTrigger span:first-child {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;

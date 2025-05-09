@@ -8,6 +8,7 @@ declare const styles: {
   readonly "drop-mod-target": string;
   readonly "drop-mod-target-unsaved": string;
   readonly "editor": string;
+  readonly "fp-DialogBaseSection": string;
   readonly "fp-SelectTrigger": string;
   readonly "fp-TabsContent": string;
   readonly "highlight": string;
