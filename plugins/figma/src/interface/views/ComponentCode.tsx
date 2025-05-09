@@ -1,7 +1,8 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {LoadingIndicator} from 'figma-ui';
+import {useWindowSize} from '@uidotdev/usehooks';
 import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
+import {LoadingIndicator} from 'figma-ui';
 import {Position} from 'monaco-editor';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import {initComponentEditor, toolbarEvents, NodeToolbarState} from 'interface/utils/editor';
@@ -33,12 +34,14 @@ interface ComponentCodeProps {
 export function ComponentCode(props: ComponentCodeProps) {
   const editor = useRef<Editor>(null);
   const {fs} = useGit();
+
   const [toolbarState, setToolbarState] = useState<NodeToolbarState | null>(null);
   const [componentPath, setComponentPath] = useState<string>();
   const [comparePath, setComparePath] = useState<string>();
   const [patch, setPatch] = useState<string>('');
   const [snap, setSnap] = useState<string>('');
   const [head, setHead] = useState<string>('');
+  const screen = useWindowSize();
 
   const $info = $.components.get(props.compKey);
   const $code = $.component.code(props.compKey);
@@ -191,7 +194,7 @@ export function ComponentCode(props: ComponentCodeProps) {
             className="editor-node-toolbar"
             style={{
               top: toolbarState.position.top,
-              left: toolbarState.position.left,
+              left: Math.min(toolbarState.position.left, screen.width - 150),
             }}
           />
         )}

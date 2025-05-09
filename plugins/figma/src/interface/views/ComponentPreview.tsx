@@ -396,7 +396,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             className="preview-node-toolbar"
             style={{
               top: previewRect.top - 40,
-              left: Math.min(previewRect.left, screen.width - 140),
+              left: Math.min(previewRect.left, screen.width - 150),
             }}
           />
         }

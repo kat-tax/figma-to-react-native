@@ -106,7 +106,14 @@ export function NodeGroup(props: NodeGroupProps) {
           {icon}
         </IconButton>
       </Popover.Trigger>
-      <Popover.Content width={300} side="top" sideOffset={6} style={{zIndex: 99998}}>
+      <Popover.Content
+        side="top"
+        sideOffset={6}
+        style={{
+          minWidth: 240,
+          maxWidth: 300,
+          zIndex: 99998,
+        }}>
         <Popover.Header style={{paddingRight: 0}}>
           <Popover.Title>
             {title}

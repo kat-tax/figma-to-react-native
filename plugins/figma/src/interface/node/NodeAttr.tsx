@@ -176,11 +176,12 @@ export function NodeAttr(props: NodeGroupProps & {uuid: string}) {
           <Dialog.Portal>
             <Dialog.Content
               placement="top"
-              width={290}
+              width="100%"
+              maxWidth={300}
               style={{
                 top: 53,
-                right: 16,
-                left: 'initial',
+                right: 0,
+                left: 'auto',
                 transform: 'initial',
                 zIndex: 99999,
               }}>
