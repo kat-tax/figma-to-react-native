@@ -76,8 +76,9 @@ function getComponentCode(
   ) => data?.variants
     && Object.keys(data.variants.classes).includes(slug)
       // Dynamic styles
+      // TODO: pressable needs props.style ([vstyles.${slug}, props.style]), but useVariant needs to support it?
       ? isRoot
-        ? isPressable ? `vstyles.${slug}` : `vstyles.${slug}()`
+        ? isPressable ? `vstyles.${slug}` : `[vstyles.${slug}(), props.style]`
         : `vstyles.${slug}${`(${isPressable ? 'e' : ''})`}`
       // Static styles
       : isRoot
@@ -114,7 +115,7 @@ function getComponentCode(
       infoDb,
       nodeId: masterNode.id,
       styleProp: getStyleProp('root', isPressable, true),
-      attrProps: attributes?.properties,
+      attrProps: attributes?.props,
       motionProps: attributes?.motions,
       isRoot: true,
     });

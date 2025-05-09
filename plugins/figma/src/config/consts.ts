@@ -1,5 +1,6 @@
 // Display
-export const F2RN_UI_WIDTH_MIN = 308;
+export const F2RN_UI_WIDTH_MIN = 240;
+export const F2RN_UI_WIDTH_FULL = 308;
 
 // Cache
 export const F2RN_CACHE_CSS = 'css';

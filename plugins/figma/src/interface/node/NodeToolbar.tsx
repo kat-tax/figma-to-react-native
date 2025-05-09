@@ -29,8 +29,17 @@ export function NodeToolbar(props: NodeToolbarProps) {
   const [visible, setVisible] = useState(true);
   const [initial, setInitial] = useState<NodeAttrData | null>(null);
 
-  const groups: Array<Omit<NodeGroupProps, 'node' | 'nodeSrc' | 'close' | 'state' | 'update' | 'visible' | 'save' | 'setDialogOpen'>> = [
-    {group: NodeAttrGroup.Properties, icon: <IconAdjust32/>},
+  const groups: Array<Omit<NodeGroupProps,
+    | 'node'
+    | 'nodeSrc'
+    | 'visible'
+    | 'state'
+    | 'save'
+    | 'close'
+    | 'update'
+    | 'setDialogOpen'>
+  > = [
+    {group: NodeAttrGroup.Props, icon: <IconAdjust32/>},
     {group: NodeAttrGroup.Motions, icon: <IconAnimation32/>},
     {group: NodeAttrGroup.Interactions, icon: <IconEffects32/>},
     {group: NodeAttrGroup.Visibilities, icon: <IconVisibilityVisible32/>},

@@ -324,6 +324,18 @@ iframe {
   align-self: center;
 }
 
+@media (max-width: 308px) {
+  .drop-mod-target [class*="_dropdown_"],
+  .drop-mod-target-unsaved [class*="_dropdown_"] {
+    min-width: 54px;
+    flex: 0;
+  }
+}
+
+body [class*="_menu_"] {
+  border-radius: 9px;
+}
+
 /* Status icon padding removed for unsaved target */
 .drop-mod-target-unsaved [class*="_optionValue_"] {
   padding: 4px var(--space-medium);
@@ -354,7 +366,7 @@ iframe {
   display: flex;
   justify-content: center;
   flex-flow: wrap;
-  margin: 6px;
+  margin-top: 5px;
   gap: 1px;
 }
 

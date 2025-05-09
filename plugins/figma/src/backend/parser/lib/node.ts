@@ -48,7 +48,7 @@ export function getIconData(node: SceneNode): ParseIconData {
 
 export function getNodeAttrs(node: BaseNode): NodeAttrData {
   const initAttrs: NodeAttrData = {
-    [NodeAttrGroup.Properties]: [],
+    [NodeAttrGroup.Props]: [],
     [NodeAttrGroup.Motions]: [],
     [NodeAttrGroup.Interactions]: [],
     [NodeAttrGroup.Visibilities]: [],

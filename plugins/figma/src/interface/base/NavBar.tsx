@@ -8,8 +8,8 @@ import {SearchBar} from 'interface/base/SearchBar';
 import {titleCase} from 'common/string';
 
 import type {DropdownOption} from 'figma-ui';
-import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {ComponentBuild} from 'types/component';
+import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface NavBarProps {

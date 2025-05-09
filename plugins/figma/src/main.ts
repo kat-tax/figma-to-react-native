@@ -21,15 +21,18 @@ import * as nav from 'backend/utils/nav';
 import type * as T from 'types/events';
 
 let isExpanded = false;
+const startHeight = Math.round(figma.viewport.bounds.height - 115);
+const startX = Math.round(figma.viewport.bounds.x - F2RN_UI_WIDTH_MIN);
+const startY = Math.round(figma.viewport.bounds.y + 74);
 
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
 if (!mode.isCodegen) {
-  const width = F2RN_UI_WIDTH_MIN;
-  const height = 999999;
-  const x = Math.round(figma.viewport.bounds.x);
-  const y = Math.round(figma.viewport.bounds.y) - 20;
-  showUI({width, height, position: {x, y}});
+  showUI({
+    position: {x: startX, y: startY},
+    width: F2RN_UI_WIDTH_MIN,
+    height: startHeight,
+  });
 }
 
 export default async function() {
@@ -133,7 +136,7 @@ export default async function() {
       // Attrs is the override property values for this node (props, motions, visibilities, etc.)
       // Always provide all the props, and merge in the changed values from attrs
       const mergedProps = [...props ?? []];
-      for (const prop of Object.values(attrs?.[NodeAttrGroup.Properties] ?? [])) {
+      for (const prop of Object.values(attrs?.[NodeAttrGroup.Props] ?? [])) {
         if (prop.name && typeof prop.data !== 'undefined') {
           const index = mergedProps.findIndex(p => p.name === prop.name);
           if (index !== -1) {
@@ -144,7 +147,7 @@ export default async function() {
         }
       }
 
-      attrs.properties = mergedProps;
+      attrs.props = mergedProps;
       emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, attrs);
     });
 
@@ -184,7 +187,10 @@ export default async function() {
     // Handle expand event
     on<T.EventExpand>('EXPAND', () => {
       isExpanded = !isExpanded;
-      figma.ui.resize(isExpanded ? 999999 : F2RN_UI_WIDTH_MIN, 999999);
+      figma.ui.resize(isExpanded
+        ? figma.viewport.bounds.width + F2RN_UI_WIDTH_MIN
+        : F2RN_UI_WIDTH_MIN
+      , startHeight);
     });
 
     // Handle resize event

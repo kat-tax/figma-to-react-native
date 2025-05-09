@@ -184,8 +184,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
         <div style={{flex: 1}}/>
         <Slider
           min={1}
-          max={9.2}
-          step={0.1}
+          max={7}
+          step={0.15}
           value={[iconScale]}
           onValueChange={([value]) => setIconScale(value)}
           style={{maxWidth: 200}}

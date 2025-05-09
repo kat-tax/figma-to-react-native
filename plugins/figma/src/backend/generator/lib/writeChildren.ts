@@ -161,8 +161,8 @@ function writeChild(
   let jsxMotionProps: Array<NodeAttrRule> = [];
 
   // Custom props (via prototype interaction)
-  if (attrs?.properties?.length > 0) {
-    jsxAttrProps = attrs.properties;
+  if (attrs?.props?.length > 0) {
+    jsxAttrProps = attrs.props;
   }
 
   // Motion props

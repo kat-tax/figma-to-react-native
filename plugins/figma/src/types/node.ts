@@ -1,5 +1,5 @@
 export enum NodeAttrGroup {
-  Properties = 'properties',
+  Props = 'props',
   Motions = 'motions',
   Interactions = 'interactions',
   Visibilities = 'visibilities',
