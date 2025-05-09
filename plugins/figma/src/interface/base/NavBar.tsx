@@ -130,7 +130,7 @@ export function NavBar(props: NavBarProps) {
               <IconButton
                 aria-label="Enter search"
                 className="tab-btn"
-                style={{marginRight: 1}}
+                style={{marginRight: 4}}
                 onKeyDown={() => props.setSearchMode(true)}
                 onClick={() => props.setSearchMode(true)}>
                 <svg width="24" height="24" fill="none" viewBox="0 0 24 24">

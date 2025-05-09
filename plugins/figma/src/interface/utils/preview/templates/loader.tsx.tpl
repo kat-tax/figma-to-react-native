@@ -188,9 +188,17 @@ export function Preview(props: {
             setName(e.data.name);
             setTimeout(() =>
               requestIdleCallback(() =>
-                requestAnimationFrame(() =>
-                  zoomToElement(el, 1, isInitLoad ? 0 : 150)
-                )
+                requestAnimationFrame(() => {
+                  const elRect = el.getBoundingClientRect();
+                  const windowWidth = window.innerWidth;
+                  const windowHeight = window.innerHeight;
+                  const viewportRatio = 0.9; // percentage of viewport to use (80%)
+                  const widthScale = elRect.width > windowWidth * viewportRatio ? windowWidth * viewportRatio / elRect.width : 1;
+                  const heightScale = elRect.height > windowHeight * viewportRatio ? windowHeight * viewportRatio / elRect.height : 1;
+                  const scale = Math.min(widthScale, heightScale, 1);
+                  const time = isInitLoad ? 0 : 150;
+                  zoomToElement(el, scale, time);
+                })
               )
             , isInitLoad ? 500 : 0);
           }
