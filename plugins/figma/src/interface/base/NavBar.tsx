@@ -70,8 +70,8 @@ export function NavBar(props: NavBarProps) {
       const tab = (16.5 + name.length * 5.5);
       const mod = i === props.tabs.main.length - 1
         ? tab - 40
-        : i === 3
-          ? tab - 17
+        : i === 2 || i === 3
+          ? tab - 20
           : tab;
       if (mod < spaceLeft) {
         tabs.push(name);
@@ -130,6 +130,7 @@ export function NavBar(props: NavBarProps) {
               <IconButton
                 aria-label="Enter search"
                 className="tab-btn"
+                style={{marginRight: 1}}
                 onKeyDown={() => props.setSearchMode(true)}
                 onClick={() => props.setSearchMode(true)}>
                 <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -159,6 +160,7 @@ export function NavBar(props: NavBarProps) {
         <Dropdown
           icon={<IconEllipsis32/>}
           options={menuMainExt}
+          style={{marginRight: 4, transform: 'scale(0.9)'}}
           value={!mainTabs.includes(props.nav.tab as AppPagesMain) ? props.nav.tab : null}
           onChange={(e) => props.nav.gotoTab(e.currentTarget.value as AppPages)}
         />
