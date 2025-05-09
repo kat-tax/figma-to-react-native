@@ -49,6 +49,12 @@ iframe {
   height: 100%;
 }
 
+.no-first-span-overflow > span:first-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 #create-figma-plugin {
   display: flex;
   overflow: hidden;

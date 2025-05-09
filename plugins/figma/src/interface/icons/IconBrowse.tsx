@@ -1,4 +1,5 @@
 import {emit, on} from '@create-figma-plugin/utilities';
+import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useEffect, useMemo} from 'react';
 import {Button, Flex, Select} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
@@ -21,6 +22,7 @@ export function IconBrowse(props: IconBrowseProps) {
   const [previewSets, setPreviewSets] = useState<IconifySetPreview[]>([]);
   const [chosenSets, setChosenSets] = useState<IconifySetPreview[]>([]);
   const [favSets, setFavSets] = useState<string[]>();
+  const screen = useWindowSize();
   
   // Build search index for icon sets
   const searchIndex = useMemo(() => new Fzf(previewSets, {
@@ -145,12 +147,19 @@ export function IconBrowse(props: IconBrowseProps) {
         <Select.Root
           value={category}
           onValueChange={setCategory}>
-          <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
+          <Select.Trigger className="no-first-span-overflow" style={{
+            width: 'auto',
+            maxWidth: 123,
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+          }}/>
           <Select.Content
             position="popper"
             side="top"
             alignOffset={-28}>
-            <Select.Item value="all">All Categories</Select.Item>
+            <Select.Item value="all">
+              All Categories
+            </Select.Item>
             {categories.map(category => (
               <Select.Item key={category} value={category}>
                 {category}
@@ -163,7 +172,9 @@ export function IconBrowse(props: IconBrowseProps) {
           variant="primary"
           disabled={!chosenSets.length}
           onClick={() => props.onSubmit(chosenSets)}>
-          {`Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`}
+          {screen.width >= 308
+            ? `Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`
+            : `Import (${chosenSets.length})`}
         </Button>
       </Flex>
     </div>
