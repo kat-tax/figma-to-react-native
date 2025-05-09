@@ -1,5 +1,12 @@
 .label {
+  display: flex;
   position: relative;
+  align-items: center;
+  height: 40px;
+}
+
+.label:hover .icon {
+  opacity: 1;
 }
 
 .input {
@@ -16,31 +23,26 @@
     var(--space-extra-small)
     var(--space-small)
     var(--space-extra-small)
-    var(--space-large);
+    var(--space-medium);
 }
 
 .title {
   position: relative;
-  font-weight: var(--font-weight-bold);
+  font-weight: 400;
+  font-size: 11.5px;
   color: var(--figma-color-text);
-}
-
-.title:hover,
-.input:focus ~ .title {
-  background-color: var(--figma-color-bg-hover);
 }
 
 .icon {
   position: absolute;
   top: var(--space-extra-small);
   left: 0;
-  color: var(--figma-color-icon);
+  opacity: 0;
+  transform: rotate(-90deg);
 }
 
 .input:checked ~ .title .icon {
-  transform: rotate(90deg);
-  top: calc(var(--space-extra-small) - 2px);
-  left: 2px;
+  transform: rotate(0deg);
 }
 
 .children {

@@ -1,7 +1,6 @@
 import styles from './disclosure.module.css';
 
 import {Fragment, useCallback} from 'react';
-import {IconCaretRight16} from '../../icons/icon-16/icon-caret-right-16.js';
 import {createComponent} from '../../utilities/create-component.js';
 import {noop} from '../../utilities/no-op.js';
 
@@ -51,7 +50,18 @@ export const Disclosure = createComponent<HTMLInputElement, DisclosureProps>(({
         />
         <div className={styles.title}>
           <div className={styles.icon}>
-            <IconCaretRight16/>
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              viewBox="0 0 16 16">
+              <path
+                fill="#8d8d8d"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M10.475 6.768a.5.5 0 0 1 0 .707L8.354 9.596 8 9.95l-.354-.354-2.12-2.121a.5.5 0 0 1 .706-.707L8 8.536l1.768-1.768a.5.5 0 0 1 .707 0"
+              />
+            </svg>
           </div>
           {title}
         </div>

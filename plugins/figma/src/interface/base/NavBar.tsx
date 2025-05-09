@@ -1,7 +1,8 @@
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useEffect, useState, Fragment} from 'react';
 import {Tabs, Text, IconButton} from 'figma-kit';
-import {Dropdown, IconEllipsis32, IconLayerComponent16} from 'figma-ui';
+import {Dropdown, IconEllipsis32} from 'figma-ui';
+import {IconComponent} from 'interface/figma/IconComponent';
 import {patch, actions} from 'interface/utils/editor/lib/prompts';
 import {SearchBar} from 'interface/base/SearchBar';
 import {titleCase} from 'common/string';
@@ -164,7 +165,7 @@ export function NavBar(props: NavBarProps) {
       }
       {hasTarget && !hasChanges &&
         <Dropdown
-          icon={<IconLayerComponent16 color="component"/>}
+          icon={<IconComponent/>}
           options={menuComponent}
           placeholder="Select a component"
           value={isTargetInRoster ? props.nav.component : null}
@@ -173,7 +174,7 @@ export function NavBar(props: NavBarProps) {
       }
       {hasTarget && hasChanges &&
         <Dropdown
-          icon={<IconLayerComponent16 color="warning"/>}
+          icon={<IconComponent warning/>}
           options={menuComponentUnsaved}
           placeholder="Review changes"
           value={null}

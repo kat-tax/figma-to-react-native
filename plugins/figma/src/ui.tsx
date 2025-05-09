@@ -2,6 +2,7 @@ import "!@blocknote/react/dist/style.css";
 import '!./interface/styles/default.css';
 import '!./interface/styles/plugin.css';
 import '!./interface/styles/editor.css';
+import '!./interface/styles/layer.css';
 import '!figma-kit/dist/styles.css';
 
 import {on, emit} from '@create-figma-plugin/utilities';

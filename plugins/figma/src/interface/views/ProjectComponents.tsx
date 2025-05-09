@@ -1,10 +1,11 @@
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
-import {Stack, Layer, Button, Disclosure, IconWarning16, IconLayerComponent16} from 'figma-ui';
+import {Stack, Button, Disclosure} from 'figma-ui';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
+import {Layer} from 'interface/figma/Layer';
 import {emit} from '@create-figma-plugin/utilities';
 import * as $ from 'store';
 
@@ -201,8 +202,9 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
         e.dataTransfer.setData('text/plain', code);
       }}>
       <Layer
-        component={!hasError && !hasUnsavedChanges}
-        value={name === dragging}
+        component
+        active={name === dragging}
+        warning={hasError}
         onChange={() => id
           ? props.onSelect(id)
           : undefined
@@ -214,10 +216,6 @@ function ProjectPageComponent(props: ProjectPageComponentProps) {
             : hasUnsavedChanges
               ? '(modified)'
               : path.split('/').slice(2, -1).join('/')
-        }
-        icon={hasError
-          ? <IconWarning16 color="warning"/>
-          : <IconLayerComponent16 color={hasUnsavedChanges ? 'warning' : 'component'}/>
         }>
         <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
           <TextUnderline
