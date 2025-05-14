@@ -21,7 +21,7 @@ import * as nav from 'backend/utils/nav';
 import type * as T from 'types/events';
 
 let isExpanded = false;
-const startHeight = Math.round(figma.viewport.bounds.height - 115);
+const startHeight = Math.round(figma.viewport.bounds.height - 116);
 const startX = Math.round(figma.viewport.bounds.x - F2RN_UI_WIDTH_MIN);
 const startY = Math.round(figma.viewport.bounds.y + 74);
 
