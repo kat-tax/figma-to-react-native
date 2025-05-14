@@ -63,13 +63,18 @@ export async function create(
   // Assets
   if (release.includeAssets) {
     const added = new Set();
+    let duplicates = 0;
     for (const [name, isVector, bytes] of project.assets) {
       const ext = isVector ? 'svg' : 'png';
       const type = isVector ? 'svg' : 'img';
       const mime = isVector ? 'image/svg+xml' : 'image/png';
       const blob = new Blob([bytes], {type: mime});
-      const path = `assets/${type}/${name.toLowerCase()}.${ext}`;
-      if (added.has(path)) return;
+      let path = `assets/${type}/${name.toLowerCase()}.${ext}`;
+      //if (added.has(path)) return;
+      if (added.has(path)) { // export duplicate asset name: Rename instead of failing
+        console.warn(`>>> Asset already exists: ${path}`); // todo show warning in UI
+        path = `assets/${type}/${name.toLowerCase()}__DUPLICATE_NAME_${++duplicates}.${ext}`;
+      }      
       const category = design.getChildByName(`assets/${type}`);
       if (category) zip.remove(category);
       design.addBlob(path, blob);
