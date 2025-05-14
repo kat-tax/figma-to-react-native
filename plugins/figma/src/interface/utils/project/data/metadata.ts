@@ -31,6 +31,8 @@ export function localesConfig(info: ProjectInfo): string {
     '',
     'export type Locales = keyof typeof locales;',
     `export const sourceLocale: Locales = "${info.locales.source}";`,
+    // fix info.locales.all can be undefined: `export const locales = ${JSON.stringify(info.locales.all.reduce((acc, [key, value]) => {
+    !info.locales.all ? `export const locales = []; // patch for undefined: info.locales.all` : // patch undefined: info.locales.all
     `export const locales = ${JSON.stringify(info.locales.all.reduce((acc, [key, value]) => {
       acc[key] = value;
       return acc;
