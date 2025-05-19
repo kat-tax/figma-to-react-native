@@ -2,6 +2,8 @@ import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {AppPages} from 'types/app';
 import type {UserSettings} from 'types/settings';
 import type {NodeAttrData} from 'types/node';
+import type {IconifySetPayload} from 'interface/icons/lib/iconify';
+import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
 import type {ComponentData, ComponentBuild} from 'types/component';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
@@ -15,7 +17,16 @@ export interface EventOpenLink extends EventHandler {
 
 export interface EventNotify extends EventHandler {
   name: 'NOTIFY';
-  handler: (message: string, error?: boolean) => void;
+  handler: (message: string, options?: {
+    error?: boolean,
+    timeout?: number,
+    button?: [string, string],
+  }) => void;
+}
+
+export interface EventExpand extends EventHandler {
+  name: 'EXPAND';
+  handler: () => void;
 }
 
 /* App */
@@ -47,10 +58,24 @@ export interface EventConfigUpdate extends EventHandler {
   handler: (config: UserSettings) => void;
 }
 
+/** Props */
+
+export interface EventPropsSave extends EventHandler {
+  name: 'PROPS_SAVE';
+  handler: (props: {
+    [name: string]: TypeScriptComponent;
+  }) => void;
+}
+
 /* Node */
 
 export interface EventFocusNode extends EventHandler {
   name: 'NODE_FOCUS';
+  handler: (nodeId: string | null) => void;
+}
+
+export interface EventFocusedNode extends EventHandler {
+  name: 'NODE_FOCUSED';
   handler: (nodeId: string | null) => void;
 }
 
@@ -61,7 +86,7 @@ export interface EventNodeAttrSave extends EventHandler {
 
 export interface EventNodeAttrReq extends EventHandler {
   name: 'NODE_ATTR_REQ';
-  handler: (nodeId: string) => void;
+  handler: (nodeId: string, nodeSrc: string) => void;
 }
 
 export interface EventNodeAttrRes extends EventHandler {
@@ -103,6 +128,11 @@ export interface EventProjectTheme extends EventHandler {
   handler: (theme: string, current: string, hasStyles: boolean) => void;
 }
 
+export interface EventProjectBackground extends EventHandler {
+  name: 'PROJECT_BACKGROUND';
+  handler: (color: string) => void;
+}
+
 export interface EventProjectLanguage extends EventHandler {
   name: 'PROJECT_LANGUAGE';
   handler: (language: string) => void;
@@ -110,7 +140,12 @@ export interface EventProjectLanguage extends EventHandler {
 
 export interface EventProjectIcons extends EventHandler {
   name: 'PROJECT_ICONS';
-  handler: (sets: string[], list: string[], map: Record<string, string>) => void;
+  handler: (
+    sets: string[],
+    list: string[],
+    maps: Record<string, string>,
+    names: Record<string, string>,
+  ) => void;
 }
 
 export interface EventProjectExport extends EventHandler {
@@ -130,7 +165,7 @@ export interface EventProjectImportComponents extends EventHandler {
 
 export interface EventProjectImportIcons extends EventHandler {
   name: 'PROJECT_IMPORT_ICONS';
-  handler: (name: string, svgs: Record<string, string>) => void;
+  handler: (sets: IconifySetPayload) => void;
 }
 
 export interface EventProjectImportTheme extends EventHandler {
@@ -148,4 +183,21 @@ export interface EventStyleGenReq extends EventHandler {
 export interface EventStyleGenRes extends EventHandler {
   name: 'STYLE_GEN_RES';
   handler: (stylesheet: unknown) => void;
+}
+
+/* Icons */
+
+export interface IconFavoriteReq extends EventHandler {
+  name: 'ICON_FAVORITE_REQ';
+  handler: () => void;
+}
+
+export interface IconFavoriteRes extends EventHandler {
+  name: 'ICON_FAVORITE_RES';
+  handler: (prefixes: string[]) => void;
+}
+
+export interface IconFavoriteToggle extends EventHandler {
+  name: 'ICON_FAVORITE_TOGGLE';
+  handler: (prefix: string, state: boolean) => void;
 }

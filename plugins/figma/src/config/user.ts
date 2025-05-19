@@ -10,9 +10,10 @@ const user: UserSettings = {
   },
   monaco: {
     general: {
-      lineNumbers: 'off',
+      fontSize: 10,
+      folding: false,
       wordWrap: 'off',
-      fontSize: 11,
+      lineNumbers: 'off',
       minimap: {enabled: false},
       padding: {top: 10},
     }

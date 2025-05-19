@@ -1,0 +1,19 @@
+{
+  "name": "git-mem",
+  "type": "module",
+  "main": "build/index.js",
+  "types": "index.ts",
+  "private": true,
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "isomorphic-git": "^1.29.0",
+    "memfs": "^4.17.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^6.1.1",
+    "vite-plugin-node-polyfills": "^0.23.0"
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "version": "0.47.0",
+  "version": "0.48.0",
   "name": "@kat.tax/figma-to-react-native",
   "description": "Transform Figma Designs to React Native",
   "author": "ΚΛΤΤΛΧ",
@@ -13,6 +13,7 @@
     "vscode": "pnpm --filter ./plugins/vscode run dev",
     "build:figma": "pnpm --filter ./plugins/figma run build",
     "build:vscode": "pnpm --filter ./plugins/vscode run build",
+    "generate:git-mem": "pnpm --filter ./packages/git-mem run build",
     "generate:figma-ui": "pnpm --filter ./packages/figma-ui run build",
     "generate:figma-build": "pnpm --filter ./packages/figma-build run build",
     "generate:figma-schema": "pnpm --filter ./plugins/figma run schema",

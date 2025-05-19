@@ -14,7 +14,7 @@ const initial: ComponentBuild = {
   roster: {},
   assets: {},
   assetMap: {},
-  icons: [],
+  icons: {list: [], count: {}},
 };
 
 export function useBuild(): ComponentBuild {

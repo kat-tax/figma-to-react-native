@@ -1,7 +1,9 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
-import {focusNode, getNodeAttrs} from 'backend/parser/lib';
-import {F2RN_UI_WIDTH_MIN, F2RN_NODE_ATTRS} from 'config/consts';
-
+import {focusNode, getNode, getNodeAttrs, getNodeSrcProps, getTopFill, getColor} from 'backend/parser/lib';
+import {F2RN_UI_WIDTH_MIN, F2RN_ICONS_FAVORITES} from 'config/consts';
+import {MOTION_ATTRS, VISIBILITY_ATTRS} from 'interface/node/lib/consts';
+import {NodeAttrGroup} from 'types/node';
+import * as random from 'common/random';
 
 import * as project from 'backend/generator/project';
 import * as service from 'backend/generator/service';
@@ -18,14 +20,19 @@ import * as nav from 'backend/utils/nav';
 
 import type * as T from 'types/events';
 
+let isExpanded = false;
+const startHeight = Math.round(figma.viewport.bounds.height - 116);
+const startX = Math.round(figma.viewport.bounds.x - F2RN_UI_WIDTH_MIN);
+const startY = Math.round(figma.viewport.bounds.y + 74);
+
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
 if (!mode.isCodegen) {
-  const width = F2RN_UI_WIDTH_MIN;
-  const height = 999999;
-  const x = Math.round(figma.viewport.bounds.x);
-  const y = Math.round(figma.viewport.bounds.y) - 20;
-  showUI({width, height, position: {x, y}});
+  showUI({
+    position: {x: startX, y: startY},
+    width: F2RN_UI_WIDTH_MIN,
+    height: startHeight,
+  });
 }
 
 export default async function() {
@@ -48,7 +55,7 @@ export default async function() {
 
     // Handle update page (which tab the user is on)
     on<T.EventAppNavigate>('APP_NAVIGATE', (page) => {
-      console.log('navigate', page);
+      console.log('>> [navigate]', page);
     });
 
     // Handle update config from interface
@@ -67,8 +74,8 @@ export default async function() {
     });
 
     // Handle import icons
-    on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (name, svgs) => {
-      icons.importIcons(name, svgs);
+    on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (sets) => {
+      icons.importIcons(sets);
     });
 
     // Handle import components
@@ -86,17 +93,90 @@ export default async function() {
     });
 
     // Handle loading node attributes
-    on<T.EventNodeAttrReq>('NODE_ATTR_REQ', (nodeId) => {
-      const node = figma.getNodeById(nodeId);
-      const data = node && getNodeAttrs(node);
-      if (data) {
-        emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, data);
+    on<T.EventNodeAttrReq>('NODE_ATTR_REQ', async (nodeId, nodeSrc) => {
+      const node = getNode(nodeId);
+      const props = node && await getNodeSrcProps(nodeSrc);
+      const attrs = node && getNodeAttrs(node);
+      if (!attrs) return;
+
+      // Initialize arrays if they don't exist
+      if (!attrs[NodeAttrGroup.Motions])
+        attrs[NodeAttrGroup.Motions] = [];
+      if (!attrs[NodeAttrGroup.Visibilities])
+        attrs[NodeAttrGroup.Visibilities] = [];
+
+      // Add default motions that don't already exist by name
+      for (const ani of MOTION_ATTRS) {
+        if (!attrs[NodeAttrGroup.Motions].some(a => a.name === ani.name)) {
+          attrs[NodeAttrGroup.Motions].push({
+            uuid: random.uuid(),
+            data: null,
+            name: ani.name,
+            type: ani.type,
+            desc: ''
+          });
+        }
       }
+
+      // Add default visibilities that don't already exist by name
+      for (const vis of VISIBILITY_ATTRS) {
+        if (!attrs[NodeAttrGroup.Visibilities].some(v => v.name === vis.name)) {
+          attrs[NodeAttrGroup.Visibilities].push({
+            uuid: random.uuid(),
+            data: null,
+            name: vis.name,
+            type: vis.type,
+            opts: vis.opts,
+            desc: ''
+          });
+        }
+      }
+
+      // Props is the default props for the component type (Text / View)
+      // Attrs is the override property values for this node (props, motions, visibilities, etc.)
+      // Always provide all the props, and merge in the changed values from attrs
+      const mergedProps = [...props ?? []];
+      for (const prop of Object.values(attrs?.[NodeAttrGroup.Props] ?? [])) {
+        if (prop.name && typeof prop.data !== 'undefined') {
+          const index = mergedProps.findIndex(p => p.name === prop.name);
+          if (index !== -1) {
+            mergedProps[index] = prop;
+          } else {
+            mergedProps.push(prop);
+          }
+        }
+      }
+
+      attrs.props = mergedProps;
+      emit<T.EventNodeAttrRes>('NODE_ATTR_RES', nodeId, attrs);
+    });
+
+    // Handle icon favorites
+    on<T.IconFavoriteReq>('ICON_FAVORITE_REQ', async () => {
+      let favs: string[] = await figma.clientStorage.getAsync(F2RN_ICONS_FAVORITES) ?? [];
+      emit<T.IconFavoriteRes>('ICON_FAVORITE_RES', favs);
+    });
+
+    on<T.IconFavoriteToggle>('ICON_FAVORITE_TOGGLE', async (prefix, state) => {
+      let favs: string[] = await figma.clientStorage.getAsync(F2RN_ICONS_FAVORITES) ?? [];
+      if (state) {
+        favs = Array.from(new Set([...favs, prefix]));
+      } else {
+        favs = favs.filter((p: string) => p !== prefix);
+      }
+      await figma.clientStorage.setAsync(F2RN_ICONS_FAVORITES, favs);
     });
 
     // Handle notify event
-    on<T.EventNotify>('NOTIFY', (message, error) => {
-      figma.notify(message, {error});
+    on<T.EventNotify>('NOTIFY', (message, options) => {
+      figma.notify(message, {
+        error: options?.error,
+        timeout: options?.timeout,
+        button: options?.button ? {
+          text: options.button[0],
+          action: () => figma.openExternal(options.button[1]),
+        } : undefined,
+      });
     });
 
     // Handle open link event
@@ -104,9 +184,19 @@ export default async function() {
       figma.openExternal(link);
     });
 
+    // Handle expand event
+    on<T.EventExpand>('EXPAND', () => {
+      isExpanded = !isExpanded;
+      figma.ui.resize(isExpanded
+        ? Math.round(figma.viewport.bounds.width + F2RN_UI_WIDTH_MIN)
+        : F2RN_UI_WIDTH_MIN
+      , startHeight);
+    });
+
     // Handle resize event
     on('RESIZE_WINDOW', (size: {width: number; height: number}) => {
       figma.ui.resize(size.width, size.height);
+      isExpanded = false;
     });
 
     // Send event to show interface (remove spinner)
@@ -130,17 +220,22 @@ export default async function() {
     figma.on('selectionchange', () => {
       nav.targetSelectedComponent();
       nav.targetSelectedComponentVariant();
+      const node = figma.currentPage.selection?.[0];
+      if (node) emit<T.EventFocusedNode>('NODE_FOCUSED', node.id);
     });
 
-    // If there is a selected component, target it on init
-    setTimeout(() => {
-      nav.targetSelectedComponent();
-    }, 1000);
-
     // Start generation services
-    service.watchComponents(nav.targetSelectedComponent);
     service.watchTheme(config.state);
     service.watchIcons();
     service.watchLocales();
+    service.watchComponents(
+      nav.targetSelectedComponent,
+      () => {
+        const page = figma.currentPage;
+        const fill = getTopFill(page.backgrounds);
+        const color = getColor(fill?.color, fill?.opacity);
+        emit<T.EventProjectBackground>('PROJECT_BACKGROUND', color);
+      }
+    );
   });
 }

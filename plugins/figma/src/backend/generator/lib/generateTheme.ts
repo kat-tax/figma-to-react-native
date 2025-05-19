@@ -144,7 +144,7 @@ async function writeThemes(writer: CodeBlockWriter) {
 
   // Theme variable collection found, use variables + local styles
   if (collection) {
-    for await (const mode of collection.modes)
+    for (const mode of collection.modes)
       themes[mode.name] = await getColorTokens(mode.modeId);
   // No theme variable collection found, use local styles only
   } else {
@@ -266,7 +266,7 @@ async function getColorVariables(key: string, ns: string, themeId?: string): Pro
   const collection = await parser.getVariableCollection(key);
   if (!collection) return colors;
   const vars = await parser.getVariables(collection.variableIds);
-  for await (const v of vars) {
+  for (const v of vars) {
     setVariableCodeSyntax(v, ns);
     if (themeId) {
       const value = v.valuesByMode[themeId] as VariableAlias;
@@ -292,7 +292,7 @@ async function getFloatVariables(key: string, ns: string): Promise<Floats> {
   const collection = await parser.getVariableCollection(key);
   if (!collection) return scales;
   const vars = await parser.getVariables(collection.variableIds);
-  for await (const v of vars) {
+  for (const v of vars) {
     if (v.resolvedType === 'FLOAT') {
       setVariableCodeSyntax(v, ns);
       scales[v.name] = {
@@ -315,7 +315,7 @@ async function getFontVariables(key: string, ns: string): Promise<{names: string
 
   // Use variables from collection
   const vars = await parser.getVariables(collection.variableIds);
-  for await (const v of vars) {
+  for (const v of vars) {
     const value = v.valuesByMode[collection.defaultModeId] as any;
     const isRef = value?.type === 'VARIABLE_ALIAS';
     const alias = isRef ? await figma.variables.getVariableByIdAsync(value.id) : null;

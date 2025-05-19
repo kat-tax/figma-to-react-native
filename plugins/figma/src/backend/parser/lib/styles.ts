@@ -1,10 +1,13 @@
 import {emit, once} from '@create-figma-plugin/utilities';
+import {getNode} from './node';
+
 import * as consts from 'config/consts';
 
 import type {EventStyleGenReq, EventStyleGenRes} from 'types/events';
 import type {ParseStyleSheet, ParseVariantData} from 'types/parse';
 
 let _remoteStyleGenOnly = false;
+const _cacheCSS: {[nodeId: string]: StyleClass} = {};
 
 type StyleSheet = Record<string, StyleClass>;
 type StyleClass = {[key: string]: string};
@@ -12,28 +15,34 @@ type StyleClass = {[key: string]: string};
 export async function getStyleSheet(
   nodes: Set<string>,
   variants?: ParseVariantData,
+  skipCache: boolean = false,
 ): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
+  const _t1 = Date.now();
   const css: StyleSheet = {};
-  for await (const id of nodes) {
-    const node = figma.getNodeById(id);
-    css[id] = await node.getCSSAsync();
+  for (const id of nodes) {
+    css[id] = await getCSS(id, skipCache);
   }
 
   // Generate CSS from variant mappings
   if (variants?.mapping) {
-    for await (const id of Object.keys(variants.mapping)) {
-      for await (const [_, vid] of Object.entries(variants.mapping[id])) {
-        const vnode = figma.getNodeById(vid);
-        const vcss = await vnode.getCSSAsync();
-        css[vid] = vcss;
+    for (const id of Object.keys(variants.mapping)) {
+      for (const [_, vid] of Object.entries(variants.mapping[id])) {
+        css[vid] = await getCSS(vid, skipCache);
       }
     }
   }
 
-  // Convert CSS
-  const output = await convertStyles(css);
+  // Profile
+  console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
   
+  // Convert CSS
+  const _t2 = Date.now();
+  const output = await convertStyles(css);
+
+  // Profile
+  console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
+
   // Build Stylesheet
   const stylesheet: ParseStyleSheet = {};
 
@@ -56,6 +65,38 @@ export async function getStyleSheet(
   }
 
   return stylesheet;
+}
+
+async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClass> {  
+  // Memory cache
+  if (!skipCache && _cacheCSS[id]) {
+    return _cacheCSS[id];
+  }
+  
+  // Lookup node
+  const node = getNode(id);
+  const key = `${consts.F2RN_CACHE_CSS}:${id}`;
+  
+  // Disk cache
+  if (!skipCache) {
+    const data = await figma.clientStorage.getAsync(key);
+    if (data) {
+      try {
+        const css = JSON.parse(data) as StyleClass;
+        _cacheCSS[id] = css;
+        return css;
+      } catch (e) {}
+    }
+  }
+
+  // Generate CSS
+  const css = await node.getCSSAsync();
+  _cacheCSS[id] = css;
+
+  // Cache disk
+  await figma.clientStorage.setAsync(key, JSON.stringify(css));
+
+  return css;
 }
 
 async function convertStyles(css: StyleSheet): Promise<Record<string, any>> {

@@ -20,7 +20,7 @@ export async function patch(action: string) {
     }
 }
 
-export function init(monaco: Monaco, editor: Editor, onTriggerGPT: () => void) {
+export function init(monaco: Monaco, editor: Editor, run: () => void) {
   editor.addAction({
     id: 'f2rn-gpt',
     label: 'Patch with GPT-4',
@@ -29,7 +29,7 @@ export function init(monaco: Monaco, editor: Editor, onTriggerGPT: () => void) {
     precondition: null,
     keybindingContext: null,
     keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG],
-    run: () => onTriggerGPT(),
+    run,
   });
 }
 

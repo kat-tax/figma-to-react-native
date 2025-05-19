@@ -12,7 +12,7 @@ type MetaData = {[key: string]: string | boolean | number};
 
 export function init() {
   console.debug(`${NS} [init]`);
-  _queue.push((user: User) => LT.info('session', authMeta(user)));
+  _queue.push((user: User) => LT.info('session', augment(user)));
 }
 
 export function auth(user: User) {
@@ -22,26 +22,23 @@ export function auth(user: User) {
 
 export function log(message: string, metadata?: MetaData) {
   console.debug(`${NS} [log]`, message, metadata);
-  _queue.push((user: User) => LT.info(message, authMeta(user, metadata)));
+  _queue.push((user: User) => LT.info(message, augment(user, metadata)));
 }
 
 export function notify(error: Error, message?: string, metadata?: MetaData) {
   console.debug(`${NS} [notify]`, message, error, metadata);
-  _queue.push((user: User) => LT.error(error, authMeta(user, metadata)));
+  _queue.push((user: User) => LT.error(error, augment(user, metadata)));
 }
 
 export class ErrorBoundary extends Component {
   state = {error: null};
-
   static getDerivedStateFromError(error: Error) {
     return {error: error.message};
   }
-
   componentDidCatch(error: Error) {
     notify(error, 'Failed to render');
     this.setState({error: error.message});
   }
-
   render() {
     if (this.state.error) {
       return <p>Error: {this.state.error}</p>
@@ -66,8 +63,9 @@ function flush() {
   LT.flush();
 }
 
-function authMeta(user: User, metadata: MetaData = {}) {
-  metadata.userId = user.id;
-  metadata.userSessionId = user.sessionId.toString();
+function augment(user: User, metadata: MetaData = {}) {
+  metadata.url = '/';
+  metadata.user_id = user.id;
+  metadata.user_session_id = user.sessionId.toString();
   return metadata;
 }

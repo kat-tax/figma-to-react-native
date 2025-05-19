@@ -1,7 +1,8 @@
 import CodeBlockWriter from 'code-block-writer';
 import {diff} from 'deep-object-diff';
 
-import * as string from 'common/string';
+import {getInstanceStyles} from 'backend/parser/lib';
+import {createIdentifierCamel} from 'common/string';
 
 import type {ImportFlags} from './writeImports';
 import type {ParseData} from 'types/parse';
@@ -12,7 +13,6 @@ export async function writeStyleSheet(
   data: ParseData,
 ): Promise<ImportFlags> {
   flags.unistyles.createStyleSheet = true;
-
   writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
     // Root styles
     const rootStyles = data.stylesheet[data.root.node.id];
@@ -29,7 +29,7 @@ export async function writeStyleSheet(
             }
           }
           if (diffStyles && Object.keys(diffStyles).length > 0) {
-            const className = string.createIdentifierCamel(`root_${key}`.split(', ').join('_'));
+            const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
             writeStyle(writer, className, diffStyles);
           }
         }
@@ -38,7 +38,20 @@ export async function writeStyleSheet(
 
     // Children styles
     for (const child of data.children) {
-      const childStyles = data.stylesheet[child.node.id];
+      // Instance component styles should diff from master component root
+      // (if the instance component master is a variant, it should diff from that variant set)
+      let childStyles = data.stylesheet[child.node.id];
+      if (child.node.type === 'INSTANCE') {
+        const instance = child.node as InstanceNode;
+        const mainComponent = instance.mainComponent;
+        const nodeStyles = data.stylesheet[mainComponent.id];
+        if (nodeStyles) {
+          const {hasChanges, styles} = getInstanceStyles(nodeStyles, childStyles);
+          if (hasChanges) {
+            childStyles = styles;
+          }
+        }
+      }
       if (childStyles) {
         writeStyle(writer, child.slug, childStyles);
         const childVariants = data.variants?.classes[child.slug];
@@ -53,7 +66,7 @@ export async function writeStyleSheet(
                 }
               }
               if (diffStyles && Object.keys(diffStyles).length > 0) {
-                const className = string.createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+                const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
                 writeStyle(writer, className, diffStyles);
               }
             }
@@ -76,7 +89,7 @@ export async function writeStyleSheet(
             // TODO: Workaround to prevent placeholder from overriding instance icons
             if (childVariantIconData.name.includes(':placeholder'))
               delete childVariantIconData.name;
-            const className = string.createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
+            const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
             writeStyle(writer, className, diff(childIconData, childVariantIconData));
           });
         }
@@ -129,8 +142,9 @@ export function writeProp(writer: CodeBlockWriter, prop: string, val: unknown) {
       // Theme values
       if (value.startsWith('theme.')) {
         writer.write(value);
+      // Fill value (quoted)
       } else {
-        writer.quote(value);
+        writer.quote(value.replace(/^"|"$/g, ''));
       }
     // Unknown value
     } else {

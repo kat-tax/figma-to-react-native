@@ -15,23 +15,27 @@ function init(monaco: Monaco, editor: Editor) {
     sourceResolver,
     shareCache: false,
     preloadPackages: true,
-    debounceDuration: 700,
+    debounceDuration: 0,
+    fileRecursionDepth: 3,
+    packageRecursionDepth: 2,
     onlySpecifiedPackages: true,
     fileRootPath: F2RN_EDITOR_NS,
     versions: {
-      '@lingui/core': '4.10.0',
-      '@lingui/react': '4.10.0',
-      '@lingui/macro': '4.10.0',
-      '@types/react': '17.0.2',
-      'react': '17.0.2',
-      'react-native': '0.73.3',
-      'react-native-svg': '15.0.0',
-      'react-exo': '0.17.1',
-      'react-native-unistyles': '2.7.2',
+      'react': 'latest',
+      'react-dom': 'latest',
+      'react-exo': 'latest',
+      'react-native': 'latest',
+      'react-native-svg': 'latest',
+      'react-native-unistyles': 'latest',
+      'prop-types': 'latest',
+      'csstype': 'latest',
     },
-    onError(error) {
-      console.error('[at-error]', error);
-    },
+    // onUpdate(update, textual) {
+    //   console.log('>>> [at-update]', update, textual);
+    // },
+    // onError(error) {
+    //   console.error('>>> [at-error]', error);
+    // },
   });
 }
 

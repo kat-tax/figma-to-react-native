@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import parseFigmaComponent from 'backend/parser';
+import parseComponent from 'backend/parser';
 
 import * as consts from 'config/consts';
 import * as string from 'common/string';
@@ -13,7 +13,7 @@ import {generateComponent} from './generateComponent';
 import {writePropsAttributes} from './writePropsAttributes';
 import {writePropsImports} from './writePropsImports';
 
-import type {ComponentData, ComponentLinks} from 'types/component';
+import type {ComponentData, ComponentInfo, ComponentLinks} from 'types/component';
 import type {ProjectSettings} from 'types/settings';
 
 const emptyBundle: ComponentData = {
@@ -28,20 +28,30 @@ const emptyBundle: ComponentData = {
   width: 0,
   height: 0,
   links: {},
-  icons: [],
+  icons: {list: [], count: {}},
   assets: null,
   info: null,
 };
 
 export async function generateBundle(
   node: ComponentNode,
+  infoDb: Record<string, ComponentInfo> | null,
   settings: ProjectSettings,
+  skipCache: boolean = false,
 ): Promise<ComponentData> {
   // No node, return empty bundle
   if (!node) return emptyBundle;
 
   // Get component info
-  const component = parser.getComponentInfo(node);
+  const component = parser.getComponentInfo(node, infoDb);
+
+  // If error, return stub bundle (w/ message)
+  if (component.hasError) return {
+    ...emptyBundle,
+    id: component.target.id,
+    key: component.target.key,
+    info: component,
+  };
 
   // No target, return empty bundle
   if (!component.target) return emptyBundle;
@@ -64,45 +74,61 @@ export async function generateBundle(
   }
 
   // Normal component, parse figma data
-  const data = await parseFigmaComponent(node);
+  const data = await parseComponent(node, skipCache);
 
   // No data, return empty bundle
   if (!data) return emptyBundle;
+
+  // Profile
+  const _t1 = Date.now();
   
   // Component links
   const links: ComponentLinks = {};
   links[string.componentPathNormalize(component.path)] = component.target.id;
   Object.values(data.meta.components).forEach(([node]) => {
-    const info = parser.getComponentInfo(node);
+    const info = parser.getComponentInfo(node, infoDb);
     links[string.componentPathNormalize(info.path)] = info.target.id;
   });
 
+  // Get frame size
+  const {width, height} = parser.getComponentFrameSize(data.root.node, data.frame?.node);
+
+  const [props, imports, code, docs, story, index] = await Promise.all([
+    writePropsAttributes(new CodeBlockWriter(settings.writer), {
+      props: {...component.propDefs},
+      infoDb,
+    }),
+    writePropsImports(new CodeBlockWriter(settings.writer), {...component.propDefs}, infoDb),
+    generateComponent(data, settings, infoDb),
+    generateDocs(component, settings, infoDb),
+    generateStory(component, settings, infoDb),
+    generateIndex([component], settings, false),
+  ]);
+
   // Return bundle
-  return {
+  const bundle: ComponentData = {
     // Info
     id: component.target.id,
     key: component.target.key,
-    props: writePropsAttributes(
-      new CodeBlockWriter(settings.writer),
-      {...component.propDefs},
-    ),
-    imports: writePropsImports(
-      new CodeBlockWriter(settings.writer),
-      {...component.propDefs},
-    ),
+    props,
+    imports,
     // Text
-    code: await generateComponent(data, settings),
-    docs: await generateDocs(component, settings),
-    story: generateStory(component, settings),
-    index: generateIndex([component], settings, false),
-    // Rect
-    width: data.frame ? data.frame.node.width : data.root.node.width,
-    height: data.frame ? data.frame.node.height : data.root.node.height,
+    code,
+    docs,
+    story,
+    index,
     // Data
     assets: Object.values(data.assetData),
-    icons: Array.from(data.meta.iconsUsed),
+    icons: {list: Array.from(data.meta.iconsUsed), count: data.meta.iconCounts},
     // Meta
     info: component,
     links,
+    width,
+    height,
   };
+
+  // Profile
+  console.log(`>> [bundle] ${Date.now() - _t1}ms`, component?.name || 'unknown');
+
+  return bundle;
 }

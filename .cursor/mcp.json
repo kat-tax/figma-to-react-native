@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "figma-design-fov": {
+      "type": "stdio",
+      "command": "figma-to-react-native",
+      "args": [
+        "--mcp"
+      ],
+      "env": {
+        "F2RN": "34bc47f8910fa4875449fa73bbe2ca9b4243a8bf"
+      }
+    }
+  }
+}

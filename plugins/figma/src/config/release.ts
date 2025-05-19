@@ -5,7 +5,11 @@ const config: ProjectRelease = {
   scope: 'document',
   docKey: '',
   apiKey: '',
+  gitKey: '',
+  gitRepo: '',
+  gitBranch: '',
   includeAssets: true,
+  includeTemplate: true,
   enableAssetOptimizations: true,
 };
 

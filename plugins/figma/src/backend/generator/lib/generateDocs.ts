@@ -6,13 +6,17 @@ import * as parser from 'backend/parser/lib';
 import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
 
-export async function generateDocs(component: ComponentInfo, settings: ProjectSettings) {
+export async function generateDocs(
+  component: ComponentInfo,
+  settings: ProjectSettings,
+  infoDb: Record<string, ComponentInfo> | null,
+) {
   const writer = new CodeBlockWriter(settings?.writer);
   const pkgName = await getDesignProject();
-  const attrs = writePropsAttributes(
-    new CodeBlockWriter(settings?.writer),
-    component.propDefs,
-  );
+  const attrs = writePropsAttributes(new CodeBlockWriter(settings?.writer), {
+    props: component.propDefs,
+    infoDb,
+  });
 
   // Imports
   const regex = /(?<=<)([A-Z][a-zA-Z0-9]*)/g;

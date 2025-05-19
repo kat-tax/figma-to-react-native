@@ -1,31 +1,45 @@
 import CodeBlockWriter from 'code-block-writer';
 import {NodeAttrType} from 'types/node';
+import {getEasingPreset} from 'interface/node/lib/transition';
 
 import * as parser from 'backend/parser/lib';
 import * as string from 'common/string';
 
-import type {NodeAttrRule} from 'types/node';
+import type {NodeAttrRule, NodeMotionData, NodeMotionTransitionData} from 'types/node';
+import type {ComponentInfo} from 'types/component';
 
-export function writePropsAttributes(
-  writer: CodeBlockWriter,
-  props: ComponentPropertyDefinitions | ComponentProperties,
-  testProp?: string,
-  styleProp?: string,
-  attrProps?: Array<NodeAttrRule>,
-  extraProps?: Array<[string, string]>,
-) {
-  const _props = props ? Object.entries(props) : [];
+export interface WritePropsAttributesConfig {
+  props?: ComponentPropertyDefinitions | ComponentProperties;
+  infoDb?: Record<string, ComponentInfo> | null;
+  nodeId?: string;
+  styleProp?: string;
+  attrProps?: Array<NodeAttrRule>;
+  motionProps?: Array<NodeAttrRule>;
+  extraProps?: Array<[string, string]>;
+  forceMultiLine?: boolean;
+  isRoot?: boolean;
+}
+
+export function writePropsAttributes(writer: CodeBlockWriter, data: WritePropsAttributesConfig) {
+  const _props = data.props ? Object.entries(data.props) : [];
+  const _noAttrProps = !data.attrProps || data.attrProps?.every(attr => attr.data === null);
+  const _noMotionProps = !data.motionProps || data.motionProps?.every(attr => attr === null);
+
+  // Write test id prop
+  if (data.nodeId) {
+    writer.write(data.isRoot
+      ? ` testID={props.testID ?? "${data.nodeId}"}`
+      : ` testID="${data.nodeId}"`
+    );
+  }
 
   // Write inline props (no component/attr props)
-  if (!_props.length && !attrProps?.length) {
+  if (!_props.length && _noAttrProps && _noMotionProps && !data.forceMultiLine) {
     // Write style prop
-    if (styleProp)
-      writer.write(` style={${styleProp}}`);
-    // Write test prop
-    if (testProp)
-      writer.write(` testID="${testProp}"`);
+    if (data.styleProp)
+      writer.write(` style={${data.styleProp}}`);
     // Write extra props
-    extraProps?.forEach(prop =>
+    data.extraProps?.forEach(prop =>
       writer.writeLine(` ${prop[0]}=${prop[1]}`));
     return writer.toString().trimEnd();
   }
@@ -34,22 +48,93 @@ export function writePropsAttributes(
   writer.newLine();
   writer.indent(() => {
     // Write style prop
-    if (styleProp)
-      writer.writeLine(`style={${styleProp}}`);
-    // Write test prop
-    if (testProp)
-      writer.writeLine(`testID="${testProp}"`);
+    if (data.styleProp)
+      writer.writeLine(`style={${data.styleProp}}`);
     // Write component props
     _props.sort(parser.sortComponentPropsDef).forEach(prop =>
-      writeProp(writer, prop, props, !testProp));
+      writeProp(writer, prop, data.props, data.infoDb, !data.nodeId));
+    // Write motion props
+    writeMotion(writer, data.motionProps);
     // Write extra props
-    extraProps?.forEach(prop =>
+    data.extraProps?.forEach(prop =>
       writer.writeLine(`${prop[0]}=${prop[1]}`));
     // Write attribute props
-    attrProps?.forEach(attr =>
+    data.attrProps?.forEach(attr =>
       writeAttr(writer, attr));
   });
-  return writer.toString().trimEnd();
+  return writer.toString();
+}
+
+function writeMotion(writer: CodeBlockWriter, props?: Array<NodeAttrRule>) {
+  if (!props?.length) return;
+
+  let transition: NodeMotionTransitionData;
+
+  for (const prop of props) {
+    const data = prop?.data as NodeMotionData;
+    if (!data) continue;
+    const interaction = getMotionPropName(prop.name);
+    if (!interaction) continue;
+    // TODO: change UI for master transition and per prop transition
+    transition = data.trans;
+    // TODO: initial values should be set for initial interaction if set by another interaction
+    writer.write(`${interaction}={`).inlineBlock(() => {
+      if (data.opacity !== undefined)
+        writer.writeLine(`opacity: ${data.opacity},`);
+      if (data.scale !== undefined)
+        writer.writeLine(`scale: ${data.scale},`);
+      if (data.rotate?.mode === '2D') {
+        if (data.rotate?.x !== undefined)
+          writer.writeLine(`rotate: '${data.rotate.x}deg',`);
+      } else if (data.rotate?.mode === '3D') {
+        if (data.rotate?.x !== undefined)
+          writer.writeLine(`rotateX: '${data.rotate.x}deg',`);
+        if (data.rotate?.y !== undefined)
+          writer.writeLine(`rotateY: '${data.rotate.y}deg',`);
+        if (data.rotate?.z !== undefined)
+          writer.writeLine(`rotateZ: '${data.rotate.z}deg',`);
+      }
+      if (data.skew?.x !== undefined)
+        writer.writeLine(`skewX: '${data.skew.x}deg',`);
+      if (data.skew?.y !== undefined)
+        writer.writeLine(`skewY: '${data.skew.y}deg',`);
+      if (data.offset?.x !== undefined)
+        writer.writeLine(`x: ${data.offset.x},`);
+      if (data.offset?.y !== undefined)
+        writer.writeLine(`y: ${data.offset.y},`);
+    });
+    writer.write('}');
+    writer.newLine();
+  }
+
+  if (transition) {
+    writer.write('transition={').inlineBlock(() => {
+      writer.writeLine(`type: '${transition.type}',`);
+      // TODO: support loop
+      // writer.writeLine(`loop: -1,`);
+      if (transition.type === 'tween') {
+        const preset = getEasingPreset(transition.bezier);
+        writer.writeLine(`ease: '${preset ? preset.id : transition.bezier}',`);
+        if (transition.time)
+          writer.writeLine(`duration: ${transition.time * 1000},`);
+      } else {
+        const {spring} = transition;
+        if (spring.type === 'physics') {
+          writer.writeLine(`stiffness: ${spring.stiffness},`);
+          writer.writeLine(`damping: ${spring.damping},`);
+          writer.writeLine(`mass: ${spring.mass},`);
+        } else if (spring.type === 'time') {
+          writer.writeLine(`duration: ${transition.time * 1000},`);
+          writer.writeLine(`bounciness: ${spring.bounce},`);
+        }
+      }
+      if (transition.delay) {
+        writer.writeLine(`delay: ${transition.delay * 1000},`);
+      }
+    });
+    writer.write('}');
+    writer.newLine();
+  }
 }
 
 export function writeAttr(
@@ -79,6 +164,10 @@ export function writeAttr(
         ? `${attr.name}={\`${string.escapeBacktick(attr.data)}\`}`
         : `${attr.name}="${attr.data}"`);
       return;
+    case NodeAttrType.Function:
+      if (typeof attr.data !== 'string') return;
+      writer.writeLine(`${attr.name}={${attr.data}}`);
+      return;
     case NodeAttrType.Motion:
     case NodeAttrType.Blank:
       return;
@@ -90,6 +179,7 @@ export function writeProp(
   writer: CodeBlockWriter,
   [propId, prop]: [string, {type: string, value: string, defaultValue: string}],
   props: ComponentPropertyDefinitions | ComponentProperties,
+  infoDb: Record<string, ComponentInfo> | null,
   excludeTestIds?: boolean,
 ) {
   const k = parser.getComponentPropName(propId);
@@ -110,7 +200,7 @@ export function writeProp(
     writer.writeLine(`${k}="${string.createIdentifier(v)}"`);
   // Instance swap (JSX tag as prop value)
   } else if (prop.type === 'INSTANCE_SWAP') {
-    writePropComponent(writer, propId, k, v, props, excludeTestIds);
+    writePropComponent(writer, propId, k, v, props, infoDb, excludeTestIds);
   }
 }
 
@@ -120,11 +210,12 @@ export function writePropComponent(
   propName: string,
   componentId: string,
   props: ComponentPropertyDefinitions | ComponentProperties,
+  infoDb: Record<string, ComponentInfo> | null,
   excludeTestIds?: boolean,
   returnOnlyProps?: boolean,
 ) {
-  const node = figma.getNodeById(componentId) as ComponentNode | InstanceNode;
-  const info = parser.getComponentInfo(node);
+  const node = parser.getNode(componentId) as ComponentNode | InstanceNode;
+  const info = parser.getComponentInfo(node, infoDb);
   const isIcon = parser.isNodeIcon(info.target);
 
   // Props for this instance swap
@@ -151,14 +242,13 @@ export function writePropComponent(
   }
 
   // Generate JSX props
-  const jsxProps = writePropsAttributes(
-    new CodeBlockWriter(writer.getOptions()),
-    instance?.componentProperties,
-    jsxTestProp,
-    undefined,
-    [], // TODO: add attr props
-    jsxExtraProps,
-  );
+  const jsxProps = writePropsAttributes(new CodeBlockWriter(writer.getOptions()), {
+    props: instance?.componentProperties,
+    infoDb,
+    nodeId: jsxTestProp,
+    extraProps: jsxExtraProps,
+    attrProps: [], // TODO: add attr props
+  });
 
   // Write only props
   if (returnOnlyProps) {
@@ -173,4 +263,21 @@ export function writePropComponent(
     writer.writeLine(`<${tagName}${jsxProps}/>`);
   });
   writer.writeLine('}');
+}
+
+function getMotionPropName(name: string) {
+  switch (name) {
+    case 'initial':
+      return 'initial';
+    case 'hover':
+      return 'whileHover';
+    case 'press':
+      return 'whileTap';
+    case 'enter':
+      return 'animate';
+    case 'exit':
+      return 'exit';
+    default:
+      return null;
+  }
 }

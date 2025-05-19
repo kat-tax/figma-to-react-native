@@ -26,7 +26,8 @@ export interface ProjectInfo {
 export interface ProjectIcons {
   sets: string[],
   list: string[],
-  map: Record<string, string>,
+  maps: Record<string, string>,
+  names: Record<string, string>,
 }
 
 export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;
@@ -37,9 +38,22 @@ export interface ProjectRelease {
   scope: ProjectExportScope,
   apiKey: string,
   docKey: string,
+  gitKey: string,
+  gitRepo: string,
+  gitBranch: string,
   enableAssetOptimizations: boolean,
   includeAssets: boolean,
+  includeTemplate: boolean,
 }
 
-export type ProjectExportScope = 'document' | 'page' | 'selected';
-export type ProjectExportMethod = 'download' | 'preview' | 'release';
+export type ProjectExportScope =
+  | 'document'
+  | 'page'
+  | 'selected';
+
+export type ProjectExportMethod =
+  | 'download'
+  | 'push'
+  | 'sync'
+  | 'preview'
+  | 'release';

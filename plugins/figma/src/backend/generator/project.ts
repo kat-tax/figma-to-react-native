@@ -7,7 +7,7 @@ import * as consts from 'config/consts';
 import * as config from 'backend/utils/config';
 import * as parser from 'backend/parser/lib';
 
-import {bundle as generateBundle} from './service';
+import {generateBundle} from './lib/generateBundle';
 import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';
 
@@ -62,16 +62,23 @@ export function build(release: ProjectRelease) {
 
   // Export components, if any
   if (exportNodes.size > 0) {
-    figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
+    if (release.method !== 'sync') {
+      figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
+    }
     setTimeout(async () => {
       const components: ProjectBuildComponents = [];
       const buildAssets: ProjectBuildAssets = [];
       const componentInfo: Record<string, ComponentInfo> = {};
       const assets = new Map<string, ComponentAsset>();
 
-      for await (const component of exportNodes) {
+      for (const component of exportNodes) {
         try {
-          const {bundle} = await generateBundle(component, config.state);
+          const bundle = await generateBundle(
+            component,
+            null,
+            {...config.state},
+            release.method !== 'sync',
+          );
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
             componentInfo[bundle.key] = bundle.info;
@@ -83,7 +90,7 @@ export function build(release: ProjectRelease) {
               bundle.story,
               bundle.docs,
             ]);
-            // console.log('[project/bundle]', bundle);
+            // console.log('>> [project/bundle]', bundle);
           }
         } catch (e) {
           console.error('Failed to export', component, e);
@@ -113,7 +120,8 @@ export function build(release: ProjectRelease) {
         translations: getTranslations(collectionLocales, varsTranslations, modesLocales),
       };
       
-      if (release.method === 'release') {
+      // Increment design package version
+      if (release.method === 'release' || release.method === 'push') {
         const version = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
         if (version) {
           projectVersion = version;
@@ -133,18 +141,8 @@ export function build(release: ProjectRelease) {
         assets: buildAssets,
       };
 
-      // console.log('[project/build]', build, projectConfig);
-
+      // console.log('>> [project/build]', build, info);
       emit<EventProjectRelease>('PROJECT_RELEASE', build, info, release, user);
-      if (release.method === 'release') {
-        figma.notify('Release published.', {
-          timeout: 10000,
-          button: {
-            text: 'Open Dashboard',
-            action: () => figma.openExternal(`${consts.F2RN_SERVICE_URL}/dashboard`),
-          },
-        });
-      }
     }, 500);
   } else {
     emit<EventProjectRelease>('PROJECT_RELEASE', null, null, release, user);
@@ -191,9 +189,10 @@ function getAppConfig(
 
 function getLocales(modes: VariableModes): ProjectInfo['locales'] {
   return {
-    source: getLocaleData(modes.default.name)[0],
-    all: modes.modes.map(mode =>
-      getLocaleData(mode.name).map(s => s.trim()) as [string, string]),
+    source: modes?.default?.name ? getLocaleData(modes.default.name)[0] : 'en',
+    all: modes?.modes?.map(mode => mode?.name
+      ? getLocaleData(mode.name).map(s => s.trim()) as [string, string]
+      : ['en', 'English']),
   }
 }
 

@@ -49,9 +49,46 @@ iframe {
   height: 100%;
 }
 
+.no-first-span-overflow > span:first-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 #create-figma-plugin {
   display: flex;
   overflow: hidden;
+  height: 100%;
+}
+
+.node-toolbar-btn {
+  scale: 0.9;
+}
+
+.props-select {
+  max-height: 300px;
+  z-index: 99999;
+}
+
+.dialog-close > svg {
+  scale: 0.8;
+}
+
+/* Needed for color picker */
+.fp-SelectTrigger {
+  gap: 0;
+}
+
+/* Needed for node attributes */
+.fp-DialogBaseSection .fp-SelectTrigger span:first-child {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.fp-TabsContent {
+  outline: none;
+  overflow: auto;
   height: 100%;
 }
 
@@ -71,6 +108,14 @@ iframe {
   justify-content: space-between;
   background-color: var(--figma-color-bg);
   border-bottom: 1px solid var(--figma-color-border);
+}
+
+.search-mode.tab-menu,
+.search-mode div[role="tablist"],
+.search-mode div[role="tablist"] > div {
+  align-items: center;
+  width: 100%;
+  gap: 0;
 }
 
 .tab-bar {
@@ -118,7 +163,7 @@ iframe {
   padding: 0 8px;
   height: 32;
   border: 0;
-  border-radius: 2px;
+  border-radius: 5px;
 }
 
 .tab.icon {
@@ -141,12 +186,13 @@ iframe {
 }
 
 .tab-btn {
-  width: 32;
-  height: 32;
+  width: 24px;
+  height: 24px;
+  margin-block: 4px;
+  margin-right: 4px;
   padding: 0;
   border: 0;
-  opacity: 0.6;
-  border-radius: 2px;
+  border-radius: 5px;
   display: flex;
   background: none;
   justify-content: center;
@@ -290,6 +336,18 @@ iframe {
   align-self: center;
 }
 
+@media (max-width: 308px) {
+  .drop-mod-target [class*="_dropdown_"],
+  .drop-mod-target-unsaved [class*="_dropdown_"] {
+    min-width: 54px;
+    flex: 0;
+  }
+}
+
+body [class*="_menu_"] {
+  border-radius: 9px;
+}
+
 /* Status icon padding removed for unsaved target */
 .drop-mod-target-unsaved [class*="_optionValue_"] {
   padding: 4px var(--space-medium);
@@ -318,7 +376,10 @@ iframe {
 /* Virtual List */
 .virtuoso-grid-list {
   display: flex;
+  justify-content: center;
   flex-flow: wrap;
+  margin-top: 5px;
+  gap: 1px;
 }
 
 /* Theme Picker */

@@ -1,5 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import {translate} from 'backend/utils/translate';
+// import {translate} from 'backend/utils/translate';
 
 import * as string from 'common/string';
 import * as number from 'common/number';
@@ -12,14 +12,15 @@ import {NodeAttrType} from 'types/node';
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {NodeAttrData, NodeAttrRule} from 'types/node';
 import type {ProjectSettings} from 'types/settings';
+import type {ComponentInfo} from 'types/component';
 import type {ImportFlags} from './writeImports';
 
 type StylePrefixMapper = (slug: string, isDynamic: boolean) => string;
 type WriteChildrenState = {
   flags: ImportFlags,
   data: ParseData,
+  infoDb: Record<string, ComponentInfo> | null,
   settings: ProjectSettings,
-  language: VariableCollection,
   pressables?: string[][],
   getStyleProp: StylePrefixMapper,
   getIconProp: StylePrefixMapper,
@@ -76,6 +77,7 @@ function writeChild(
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
   const isAsset = child.node.type === 'VECTOR' || (child.node.isAsset && !isInstance);
+  const isInput = child.node.type === 'TEXT' && child.node.name.toLowerCase().startsWith('textinput');
   const isText = child.node.type === 'TEXT';
   const isSwap = Boolean(swapNodeProp);
   const isIcon = isInstance
@@ -156,25 +158,45 @@ function writeChild(
   let jsxTagWithProps: string;
   let jsxStyleProp: string;
   let jsxAttrProps: Array<NodeAttrRule> = [];
+  let jsxMotionProps: Array<NodeAttrRule> = [];
 
   // Custom props (via prototype interaction)
-  if (attrs?.properties?.length > 0) {
-    jsxAttrProps = attrs.properties;
+  if (attrs?.props?.length > 0) {
+    jsxAttrProps = attrs.props;
+  }
+
+  // Motion props
+  if (attrs?.motions?.length > 0) {
+    jsxMotionProps = attrs.motions;
+    state.flags.exoMotion.Motion = true;
+  }
+
+  // Instance style overrides
+  let hasStyleOverride = false;
+  if (isInstance) {
+    const masterStyles = data.stylesheet[(child.node as InstanceNode).mainComponent.id];
+    const instanceStyles = data.stylesheet[child.node.id];
+    if (masterStyles && instanceStyles) {
+      const {hasChanges} = parser.getInstanceStyles(masterStyles, instanceStyles);
+      hasStyleOverride = hasChanges;
+    }
   }
 
   // Styles prop
-  if (!isInstance && slug) {
+  if (slug && (!isInstance || hasStyleOverride)) {
     jsxStyleProp = `${getStyleProp(slug, isRootPressable)}`;
   }
 
   // Component props
-  const jsxProps = writePropsAttributes(
-    new CodeBlockWriter(state.settings.writer),
-    instance.node.componentProperties,
-    instance.node.id,
-    jsxStyleProp,
-    jsxAttrProps,
-  );
+  const jsxProps = writePropsAttributes(new CodeBlockWriter(state.settings.writer), {
+    props: instance.node.componentProperties,
+    infoDb: state.infoDb,
+    nodeId: instance.node.id,
+    styleProp: jsxStyleProp,
+    attrProps: jsxAttrProps,
+    motionProps: jsxMotionProps,
+    forceMultiLine: isInput,
+  });
 
   // Create instance tag
   if (isInstance) {
@@ -184,9 +206,10 @@ function writeChild(
       state.flags.exoIcon.Icon = true;
   // Create primitive tag
   } else {
-    jsxTag = getTagName(child.node.type);
+    jsxTag = getTagName(child.node.type, attrs?.motions?.length > 0);
     jsxTagWithProps = jsxTag + jsxProps;
-    state.flags.reactNative[jsxTag] = true;
+    if (!jsxTag.startsWith('Motion.'))
+      state.flags.reactNative[jsxTag] = true;
   }
 
   // No children, self closing tag
@@ -203,53 +226,44 @@ function writeChild(
     : (child.node as TextNode).characters || '';
 
   // Text input detected
-  if (child.node.type === 'TEXT'
-    && child.node.name.toLowerCase().startsWith('textinput')
-    && child.node.name.includes('|')) {
-    const [_, type, value, ...extra] = child.node.name.split('|');
+  if (isInput) {
     state.flags.reactNative.TextInput = true;
-    writer.write('<TextInput').indent(() => {
-      writer.writeLine(`style={${getStyleProp(slug, isRootPressable)}}`);
-      writer.writeLine(`testID="${child.node.id}"`);
-      // Type (none, text, decimal, numeric, tel, search, email, url)
-      writer.writeLine(`inputMode="${type.trim().toLowerCase()}"`);
-      // Default value
-      // TODO: support state
-      writer.writeLine(`defaultValue={${value.trim()}}`);
+    writer.write('<TextInput').write(jsxProps).indent(() => {
       // Placeholder (props value)
       if (textPropValue.startsWith('props.')) {
         writer.writeLine(`placeholder={${textPropValue}}`);
       // Placeholder (explict), translate
       } else if (settings?.addTranslate) {
         state.flags.lingui.t = true;
-        translate(state.language, textPropValue);
+        // translate(state.language, textPropValue);
         writer.writeLine(`placeholder={t\`${textPropValue}\`}`);
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
-      state.flags.useStylesTheme = true;
       writer.writeLine(`placeholderTextColor={${parser.getFillToken(child.node as TextNode)}}`);
-      extra?.forEach(p => p && writer.writeLine(p.trim()));
+      state.flags.useStylesTheme = true;
     });
     writer.write(`/>`);
     return;
   }
 
   // Child nodes, open tag and write children
-  writer.write(`<${jsxTagWithProps}>`).indent(() => {
+  writer.write(`<${jsxTagWithProps.trimEnd()}>`).indent(() => {
     switch (jsxTag) {
       case 'View':
+      case 'Motion.View':
         writeChildren(writer, child.children, {
           data,
           settings,
+          infoDb: state.infoDb,
           pressables,
           flags: state.flags,
-          language: state.language,
           getStyleProp,
           getIconProp,
         });
         break;
       case 'Text':
+      case 'Motion.Text':
         // Component property string
         if (textPropValue.startsWith('props.')) {
           writer.write(`{${textPropValue}}`);
@@ -257,7 +271,7 @@ function writeChild(
         } else {
           if (settings?.addTranslate) {
             state.flags.lingui.Trans = true;
-            translate(state.language, textPropValue);
+            // translate(state.language, textPropValue);
             writer.write('<Trans>{`' + textPropValue + '`}</Trans>');
           } else {
             writer.write(`{\`${textPropValue}\`}`);
@@ -299,6 +313,7 @@ function getConditional(
       case NodeAttrType.Boolean: return '';
       case NodeAttrType.String: return `'${r.data}'`;
       case NodeAttrType.Number: return r.data;
+      case NodeAttrType.Function: return r.data;
       case NodeAttrType.Motion: return `props.${parser.getComponentPropName(propRefs?.mainComponent)}`;
       case NodeAttrType.Tuple: return JSON.stringify(r.data);
       case NodeAttrType.Enum: return `'${r.data.toString().toLowerCase()}'`;
@@ -320,18 +335,18 @@ function getConditional(
   ].filter(Boolean);
 }
 
-function getTagName(type: string): 'View' | 'Text' | 'Image' {
+function getTagName(type: string, hasMotion: boolean): 'View' | 'Text' | 'Image' | 'Motion.View' | 'Motion.Text' | 'Motion.Image' {
   switch (type) {
     case 'TEXT':
-      return 'Text';
+      return hasMotion ? 'Motion.Text' : 'Text';
     case 'IMAGE':
-      return 'Image';
+      return hasMotion ? 'Motion.Image' : 'Image';
     case 'COMPONENT':
     case 'INSTANCE':
     case 'RECTANGLE':
     case 'ELLIPSE':
     case 'FRAME':
     default:
-      return 'View';
+      return hasMotion ? 'Motion.View' : 'View';
   }
 }

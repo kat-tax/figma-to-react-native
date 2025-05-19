@@ -7,13 +7,15 @@ export type ComponentInfo = {
   propDefs: ComponentPropertyDefinitions,
   isVariant: boolean,
   isInstance: boolean,
+  hasError?: boolean,
+  errorMessage?: string,
 }
 
 export type ComponentBuild = {
   roster: ComponentRoster,
   assets: Record<string, ComponentAsset>,
   assetMap: Record<string, string>,
-  icons: string[],
+  icons: {list: string[], count: Record<string, number>},
   pages: string[],
   links: ComponentLinks,
   total: number,
@@ -29,6 +31,8 @@ export type ComponentRosterEntry = {
   path: string,
   loading: boolean,
   preview: string,
+  hasError?: boolean,
+  errorMessage?: string,
 }
 
 export type ComponentData = {
@@ -42,7 +46,7 @@ export type ComponentData = {
   docs: string,
   width: number,
   height: number,
-  icons: string[],
+  icons: {list: string[], count: Record<string, number>},
   assets: ComponentAsset[] | null,
   links: ComponentLinks,
   info: ComponentInfo,

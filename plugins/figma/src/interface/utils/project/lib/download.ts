@@ -1,4 +1,4 @@
-import {create} from './create';
+import {create} from '../create';
 
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 

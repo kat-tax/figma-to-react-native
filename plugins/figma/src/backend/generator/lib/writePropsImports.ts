@@ -2,13 +2,15 @@ import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
 import type CodeBlockWriter from 'code-block-writer';
+import type {ComponentInfo} from 'types/component';
 
 export function writePropsImports(
   writer: CodeBlockWriter,
   propDefs: ComponentPropertyDefinitions,
+  infoDb: Record<string, ComponentInfo> | null,
   skipIconImport?: boolean,
 ) {
-  const components = getComponentImports(propDefs);
+  const components = getComponentImports(propDefs, infoDb);
   let hasIconImport = false;
 
   // No imports, return null
@@ -17,7 +19,7 @@ export function writePropsImports(
   // Loop through sub-components, import each one
   if (components.length > 0) {
     components.forEach(node => {
-      const component = parser.getComponentInfo(node);
+      const component = parser.getComponentInfo(node, infoDb);
       if (component.page.name === consts.PAGES_SPECIAL.ICONS) {
         hasIconImport = true;
         return;
@@ -42,7 +44,11 @@ export function writePropsImports(
   return writer.toString();
 }
 
-function getComponentImports(propDefs: ComponentPropertyDefinitions, components: BaseNode[] = []) {
+function getComponentImports(
+  propDefs: ComponentPropertyDefinitions,
+  infoDb: Record<string, ComponentInfo> | null,
+  components: BaseNode[] = [],
+) {
   const props = propDefs ? Object.entries(propDefs) : [];
 
   // No props, no imports
@@ -52,11 +58,11 @@ function getComponentImports(propDefs: ComponentPropertyDefinitions, components:
   props?.sort(parser.sortComponentProps).forEach(([_key, prop]) => {
     const {type, defaultValue} = prop;
     if (type === 'INSTANCE_SWAP' && typeof defaultValue === 'string') {
-      const node = figma.getNodeById(defaultValue);
-      const component = parser.getComponentInfo(node);
+      const node = parser.getNode(defaultValue);
+      const component = parser.getComponentInfo(node, infoDb);
       components.push(node);
       if (component.propDefs) {
-        return getComponentImports(component.propDefs, components);
+        return getComponentImports(component.propDefs, infoDb, components);
       }
     }
   });

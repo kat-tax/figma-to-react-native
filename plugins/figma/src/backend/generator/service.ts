@@ -1,8 +1,6 @@
 import {getAllIconComponents} from 'backend/importer/icons';
 import {on, emit} from '@create-figma-plugin/utilities';
-import {diff} from 'deep-object-diff';
 
-import * as delay from 'common/delay';
 import * as assert from 'common/assert';
 import * as string from 'common/string';
 import * as consts from 'config/consts';
@@ -13,77 +11,118 @@ import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
-import type {ComponentInfo, ComponentData, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave} from 'types/events';
+import type {ComponentInfo, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
+import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
-const _cache: Record<string, ComponentData> = {};
 let _lastThemeCode = '';
 let _lastThemeName = '';
+let _infoDb: Record<string, ComponentInfo> | null = null;
 
-export async function watchComponents(targetComponent: () => void) {
-  // Compile all components in background on init
+export async function watchComponents(
+  targetComponent: () => void,
+  updateBackground: () => void,
+) {
+  // Save component props when parsed
+  on<EventPropsSave>('PROPS_SAVE', async (props) => {
+    console.log('>> [props/save]', props);
+    for (const [key, value] of Object.entries(props)) {
+      figma.clientStorage.setAsync(`${consts.F2RN_CACHE_PROPS}:${key}`, value);
+    }
+  });
+
+  // Recompile component on node attribute change
+  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, newAttrs) => {
+    figma.commitUndo();
+    const node = parser.getNode(nodeId);
+    node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(
+      Object.fromEntries(
+        Object.entries(newAttrs).map(([group, groupAttrs]) => [
+          group,
+          groupAttrs.filter(attr => attr.data !== null)
+        ])
+      )
+    ));
+  });
+
+  // Init: update background preview color
+  updateBackground();
+
+  // Init: compile all components in background
   const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
   if (all.size > 0) {
-    const cached = await compile(all);
-    if (cached) {
-      // Select targeted component since it's available now
-      targetComponent();
-      // Refresh component cache
-      await compile(all, true);
-    }
+    await compile(all);
+    // Select targeted component since it's available now
+    targetComponent();
+    // TODO: Refresh component cache, needs heuristic to detect if we need to recompile all components
+    // await compile(all, true);
   }
 
   // Recompile changed components on doc change
   figma.on('documentchange', async (e) => {
-    // console.log('[change]', e.documentChanges);
+    // Page background update
+    if (e.documentChanges.length === 1
+      && e.documentChanges[0].type === 'PROPERTY_CHANGE'
+      && e.documentChanges[0].properties.includes('backgrounds')) {
+      updateBackground();
+      return;
+    }
+
+    // Theme change (all components are affected, ignore)
+    if (e.documentChanges?.some(c => c.type === 'PROPERTY_CHANGE' && c.node.type === 'SECTION')) {
+      return;
+    }
+
     // We need to get all components for the roster
     const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
+    
     // No components, do nothing
     if (all.size === 0) return;
-    // Get all components that were updated
-    const updates: SceneNode[] = [];
+
+    // All components that were updated
+    const updateDeep: SceneNode[] = [];    // Deep changes (style, asset, etc)
+    const updateShallow: SceneNode[] = []; // Shallow changes (pluginData)
+
+    // Process all changes
     e.documentChanges.forEach(change => {
+      // console.log('>> [event]', change);
+  
+      const isCreate = change.type === 'CREATE';
+      const isPropChange = change.type === 'PROPERTY_CHANGE';
+      const isDataOnlyChange = isPropChange && change.properties.every(p => p === 'pluginData');
+      
       // Ignore events that aren't relevant
-      if (change.type !== 'CREATE'
-        && change.type !== 'PROPERTY_CHANGE')
-          return;
-      // Ignore events only effecting pluginData (our cache)
-      if (change.type === 'PROPERTY_CHANGE'
-        && change.properties.includes('pluginData'))
-          return;
+      if (!isCreate && !isPropChange) return;
+      
       // Queue component to update
       if (change.node.type === 'COMPONENT') {
-        updates.push(change.node as SceneNode);
+        if (isDataOnlyChange) {
+          updateShallow.push(change.node as SceneNode);
+        } else {
+          updateDeep.push(change.node as SceneNode);
+        }
       } else {
         const target = parser.getComponentTarget(change.node as SceneNode);
         if (target) {
-          updates.push(target);
+          if (isDataOnlyChange) {
+            updateShallow.push(target);
+          } else {
+            updateDeep.push(target);
+          }
         }
       }
     });
-    // No updates, do nothing
-    if (updates.length === 0) return;
-    // Get updated targets and compile
-    const update = parser.getComponentTargets(updates);
-    await compile(all, true, update);
-    // console.log('[update]', Array.from(update));
-  });
 
-  // Recompile component on node attribute change
-  on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, data) => {
-    const node = figma.getNodeById(nodeId);
-    const attr = parser.getNodeAttrs(node);
-    const delta = Object.keys(diff(attr, data)).length;
-    if (delta > 0) {
-      // TODO: improve undo UX (recompile component / refresh node toolbar)
-      // figma.commitUndo();
-      node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(data));
-      const component = parser.getComponentTarget(node);
-      if (component) {
-        compile(all, true, new Set([component]));
-      }
-    }
+    // Compile updates
+    await Promise.all([
+      compile(all, true, parser.getComponentTargets(updateDeep)),
+      compile(all, false, parser.getComponentTargets(updateShallow)),
+    ]);
+
+    // console.log('>> [update]', {
+    //   deep: Array.from(updateDeep),
+    //   shallow: Array.from(updateShallow),
+    // });
   });
 }
 
@@ -108,28 +147,46 @@ export async function watchTheme(settings: ProjectSettings) {
 export async function watchIcons() {
   let _sets = new Set<string>();
   let _list = new Set<string>();
-  let _map = new Map<string, string>();
+  let _maps = new Map<string, string>();
+  let _names = new Map<string, string>();
 
   const updateIcons = () => {
     const icons = getAllIconComponents();
-    const sets = new Set(icons?.map((i) => i.name.split(':')[0]));
-    const list = new Set(icons?.map((i) => i.name));
-    const map = new Map(icons?.map((i) => [i.name, i.id]));
+    if (!icons?.length) return;
+    
+    const sets = new Set<string>();
+    const list = new Set<string>();
+    const maps = new Map<string, string>();
+    const names = new Map<string, string>();
 
-    if (assert.areMapsEqual(map, _map)
+    for (const icon of icons) {
+      const name = icon.name;
+      const prefix = name.split(':')[0];
+      const iconSet = icon.parent.name.split(',')[0];
+      sets.add(prefix);
+      list.add(name);
+      maps.set(name, icon.id);
+      names.set(prefix, iconSet);
+    }
+
+    if (assert.areMapsEqual(maps, _maps)
       && assert.areSetsEqual(sets, _sets)
-      && assert.areSetsEqual(list, _list))
+      && assert.areSetsEqual(list, _list)
+      && assert.areMapsEqual(names, _names)) {
       return;
+    }
 
     _sets = sets;
     _list = list;
-    _map = map;
+    _maps = maps;
+    _names = names;
 
     emit<EventProjectIcons>(
       'PROJECT_ICONS',
       Array.from(sets),
       Array.from(list),
-      Object.fromEntries(map),
+      Object.fromEntries(maps),
+      Object.fromEntries(names),
     );
   };
   setInterval(updateIcons, 500);
@@ -155,64 +212,72 @@ export async function compile(
   skipCache?: boolean,
   updated?: Set<ComponentNode>,
 ) {
+  if (components.size === 0) return;
+
   const _roster: ComponentRoster = {};
   const _info: Record<string, ComponentInfo> = {};
   const _assets: Record<string, ComponentAsset> = {};
-  const _icons = new Set<string>();
+  const _icons = {list: new Set<string>(), count: {}};
 
   let _links: ComponentLinks = {};
   let _total = 0;
   let _loaded = 0;
-  let _cached = false;
 
   // Iterate over all components, fill roster, info, and total
-  for await (const component of components) {
-    const info = parser.getComponentInfo(component);
+  for (const component of components) {
+    // @ts-ignore
+    const master = component.type === 'INSTANCE' ? component.mainComponent : component;
+    const cache = updated?.has(master) ? null : _infoDb;
+    const info = parser.getComponentInfo(master, cache);
     if (!info) continue;
     const {name, page, path, target} = info;
     const {id, key} = target;
-    const loading = !skipCache;
+    const loading = !_infoDb?.[key];
     const preview = ''; // data:image/png;base64,${await info.target.exportAsync({format: 'PNG'})}` : '';
     _total++;
     _info[key] = info;
     _roster[key] = {id, name, page: page.name, path, loading, preview};
   }
 
+  // Update component info cache
+  _infoDb = _info;
+
   // Generate index
   const index = generateIndex(Object.values(_info), config.state, true);
 
   // Compile either all components or just updated components if provided
-  const targets = updated || components;
-  for await (const component of targets) {
-    // Prevent UI from freezing
-    delay.wait(1);
+  for (const component of updated || components) {
     try {
+      if (!component) continue;
+
+      const _t1 = Date.now();
+
       // Compile component
-      const res = await bundle(component, config.state, skipCache);
+      const bundle = await generateBundle(component, _info, {...config.state}, skipCache);
 
       // Derive data
-      const {id, key, info, links, icons, assets} = res.bundle;
+      const {id, key, info, links, icons, assets} = bundle;
       const pages = figma.root.children?.map(p => p.name);
 
       // Aggregate data
       _loaded++;
-      _cached = res.cached;
       _links = {..._links, ...links};
-      _cache[component.id] = res.bundle;
       _roster[key] = {
         ..._roster[key],
         id,
         name: info.name,
         page: info.page.name,
+        hasError: info.hasError,
+        errorMessage: info.errorMessage,
         loading: false,
       };
 
       // Aggregate assets and icons
-      icons?.forEach(icon => {_icons.add(icon)});
       assets?.forEach(asset => {_assets[asset.hash] = asset});
-      
-      // Cache compilation to disk
-      component.setSharedPluginData('f2rn', 'data', JSON.stringify(res.bundle));
+      icons?.list?.forEach(icon => {_icons.list.add(icon)});
+      Object.entries(icons?.count).forEach(([icon, count]) => {
+        _icons.count[icon] = (icons?.count[icon] || 0) + count;
+      });
 
       // Send compilation to interface
       emit<EventComponentBuild>('COMPONENT_BUILD', {
@@ -223,53 +288,20 @@ export async function compile(
         loaded: _loaded,
         roster: _roster,
         assets: _assets,
-        icons: Array.from(_icons),
         assetMap: {},
-      }, res.bundle);
+        icons: {
+          list: Array.from(_icons.list),
+          count: _icons.count,
+        },
+      }, bundle);
 
-      //console.log('[compile]', info.name, res.bundle);
+      // Profile
+      console.log(`>> [compile] ${Date.now() - _t1}ms`, info.name);
+
+      // Throttle
+      // await delay.wait(1);
     } catch (e) {
       console.error('Failed to export', component, e);
     }
   }
-
-  return _cached;
-}
-
-export async function bundle(
-  node: ComponentNode,
-  settings: ProjectSettings,
-  skipCache?: boolean,
-) {
-  if (!node) return;
-
-  const instanceSettings = {...settings};
-
-  // Check cache
-  if (!skipCache) {
-    // Memory cache
-    if (_cache[node.key]) {
-      //console.log('[cache/memory]', node.name);
-      return {bundle: _cache[node.key], cached: true};
-    }
-    // Disk cache
-    const data = node.getSharedPluginData('f2rn', 'data');
-    if (data) {
-      try {
-        const bundle = JSON.parse(data) as ComponentData;
-        //console.log('[cache/disk]', node.name);
-        _cache[node.key] = bundle;
-        return {bundle, cached: true};
-      } catch (e) {
-        console.error('Failed to parse cached bundle', node, e);
-      }
-    }
-  }
-
-  //console.log('[cache/hit]', node.name);
-
-  const bundle: ComponentData = await generateBundle(node, instanceSettings);
-  _cache[node.key] = bundle;
-
-  return {bundle, cached: false};
 }

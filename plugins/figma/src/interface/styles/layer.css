@@ -1,0 +1,62 @@
+.layer {
+  display: flex;
+  position: relative;
+  align-items: center;
+  background: transparent;
+  padding-inline: 12px;
+  height: 32px;
+  width: 100%;
+}
+
+.layer--component .layer__label {
+  color: var(--figma-color-text-component);
+}
+
+.layer__content {
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  padding: 4px;
+  height: 25px;
+  width: 100%;
+  gap: 8px;
+}
+
+.layer__content:hover {
+  background: var(--figma-color-bg-hover);
+}
+
+.layer__content--active {
+  background: var(--figma-color-bg-selected);
+}
+
+
+.layer__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--figma-color-icon-component);
+}
+
+.layer__label {
+  color: var(--figma-color-text-component);
+  line-height: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.layer__desc {
+  color: var(--figma-color-text-secondary);
+  font-size: 10px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

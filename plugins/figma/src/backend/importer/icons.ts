@@ -3,24 +3,37 @@ import * as string from 'common/string';
 import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
-const SVG_SIZE = 16;
-const SVG_PROPS = `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 256 256"`;
+import type {IconifySetPayload, IconifySetData} from 'interface/icons/lib/iconify';
+
+const SVG_PROPS = (size: number) => `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${size}" height="${size}" viewBox="0 0 256 256"`;
+const SVG_SIZE = 32;
+const SVG_MODE = 'Normal';
 const COLOR_BACKGROUND = 'Background';
 const COLOR_FOREGROUND = 'Foreground';
 
-export async function importIcons(setName: string, icons: Record<string, string>) {
+export async function importIcons(sets: IconifySetPayload) {
+  for (const [prefix, set] of Object.entries(sets)) {
+    await createIconSet(prefix, set);
+  }
+}
+
+export async function createIconSet(prefix: string, set: IconifySetData) {
   // Number of icon columns
   const columns = 15;
+  const name = set.name;
+  const size = set.size || SVG_SIZE;
+  const mode = set.mode || SVG_MODE;
 
   // Create page
-  let page = figma.root.children.find(p => p.name === consts.PAGES_SPECIAL.ICONS);
+  let page = figma.root.children.find(p =>
+    p.name === consts.PAGES_SPECIAL.ICONS);
   if (!page) {
     page = figma.createPage();
     page.name = consts.PAGES_SPECIAL.ICONS;
     figma.root.appendChild(page);
-  // Page exists, remove all children
   } else {
-    page.children.forEach(c => c.remove());
+    // Page exists
+    // TODO: find starting x,y from existing section
   }
 
   // Get theme
@@ -31,7 +44,7 @@ export async function importIcons(setName: string, icons: Record<string, string>
   
   // Create icon set frame
   const frame = figma.createFrame();
-  frame.name = `${setName}, Normal, ${SVG_SIZE}`;
+  frame.name = `${name}, ${mode}, ${size}`;
   frame.cornerRadius = 3;
   frame.itemSpacing = 5;
   frame.counterAxisSpacing = 5;
@@ -42,7 +55,7 @@ export async function importIcons(setName: string, icons: Record<string, string>
   frame.layoutPositioning = 'AUTO';
   frame.layoutSizingVertical = 'HUG';
   frame.layoutSizingHorizontal = 'FIXED';
-  frame.resize((columns * SVG_SIZE)
+  frame.resize((columns * size)
     + ((columns - 1) * frame.itemSpacing)
     + frame.horizontalPadding * 2
   , 100);
@@ -60,7 +73,7 @@ export async function importIcons(setName: string, icons: Record<string, string>
   page.appendChild(frame);
 
   // Focus frame
-  figma.notify(`Importing ${string.titleCase(setName)} Icons...`, {
+  figma.notify(`Importing ${string.titleCase(name)} Icons...`, {
     timeout: 3000,
     button: {
       text: 'View',
@@ -70,22 +83,24 @@ export async function importIcons(setName: string, icons: Record<string, string>
     }
   });
 
-  // Get icon style / var
-  let iconStyle: PaintStyle;
-  let iconVariable: Variable;
+  // Get icon style & variable
+  let style: PaintStyle;
+  let variable: Variable;
   if (theme.isVariable) {
-    iconVariable = theme.foreground
+    variable = theme.foreground;
   } else if (theme.isVariable === false) {
-    iconStyle = theme.foreground;
+    style = theme.foreground;
   }
 
   // Create icons
-  await createIcons(frame, icons, iconStyle, iconVariable);
+  await createIcons(prefix, set.list, frame, size, style, variable);
 }
 
 export async function createIcons(
-  root: FrameNode,
+  prefix: string,
   icons: Record<string, string>,
+  root: FrameNode,
+  size: number,
   style?: PaintStyle,
   variable?: Variable,
 ) {
@@ -93,23 +108,18 @@ export async function createIcons(
   const ms = 5;
   let i = 0;
 
-  for await (const [name, svg] of Object.entries(icons)) {
+  for (const [name, svg] of Object.entries(icons)) {
     if (i++ % batch === 0)
       await delay.wait(ms);
   
     // Create icon component
     const component = figma.createComponent();
-    component.name = name;
-    component.layoutMode = 'VERTICAL';
-    component.layoutPositioning = 'AUTO';
-    component.primaryAxisAlignItems = 'CENTER';
-    component.counterAxisAlignItems = 'CENTER';
-    component.layoutSizingVertical = 'FIXED';
-    component.layoutSizingHorizontal = 'FIXED';
-    component.resize(SVG_SIZE, SVG_SIZE);
+    component.name = `${prefix}:${name}`;
+    component.lockAspectRatio();
+    component.resize(size, size);
 
     // Create icon frame
-    const frame = figma.createNodeFromSvg(`<svg ${SVG_PROPS}>${svg}</svg>`);
+    const frame = figma.createNodeFromSvg(`<svg ${SVG_PROPS(size)}>${svg}</svg>`);
     frame.name = 'Frame';
     frame.findAllWithCriteria({types: ['VECTOR']}).forEach(c => {
       if (style) {

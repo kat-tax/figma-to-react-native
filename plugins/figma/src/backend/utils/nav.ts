@@ -7,11 +7,15 @@ export function targetSelectedComponent() {
   if (!figma.currentPage.selection.length) return;
   const component = parser.getSelectedComponent();
   if (!component) return;
-  const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
-  const masterNode = (isVariant ? component?.parent : component) as ComponentNode;
-  emit<EventSelectComponent>('SELECT_COMPONENT', masterNode.key);
-  if (isVariant) {
-    targetSelectedComponentVariant();
+  try {
+    const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;
+    const masterNode = (isVariant ? component?.parent : component) as ComponentNode;
+    emit<EventSelectComponent>('SELECT_COMPONENT', masterNode.key);
+    if (isVariant) {
+      targetSelectedComponentVariant();
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 

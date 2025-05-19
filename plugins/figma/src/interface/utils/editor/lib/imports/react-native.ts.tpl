@@ -1,7 +1,10 @@
 /**
- * Overrides for react-native-web types)
+ * Augmentations for react-native types (for react-native-web support)
  */
 
+/// <reference types="react" />
+
+// Using module augmentation to extend the React Native types
 declare module 'react-native' {
   // The following list is sourced from:
   // - https://github.com/necolas/react-native-web/blob/0.17.5/packages/react-native-web/src/types/styles.js#L76
@@ -77,37 +80,33 @@ declare module 'react-native' {
     | 'strong'
     | 'summary'
     | 'text';
+
   interface PressableStateCallbackType {
     hovered?: boolean;
     focused?: boolean;
   }
-
-  interface ViewProps {
-    accessibilityRole?: WebAccessibilityRole;
-    href?: string;
-    hrefAttrs?: {
-      target?: '_blank' | '_self' | '_top' | 'blank' | 'self' | 'top';
-      rel?: string;
-      download?: boolean;
-    };
-    onMouseDown?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onMouseUp?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onMouseLeave?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onFocus?: (event: React.FocusEvent<HTMLDivElement>) => void;
-    onScroll?: (event: React.UIEvent<HTMLDivElement, UIEvent>) => void;
-    // For compatibility with RNW internals
-    onScrollShouldSetResponder?: unknown;
-    onScrollShouldSetResponderCapture?: unknown;
-    onSelectionChangeShouldSetResponder?: unknown;
-    onSelectionChangeShouldSetResponderCapture?: unknown;
+  interface TextInputKeyPressEventData {
+    key: string;
+    metaKey: boolean;
+    ctrlKey: boolean;
   }
-
+  interface GestureResponderEvent {
+    shiftKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+  }
+  interface ViewStyle {
+    cursor?: CursorValue;
+    transitionProperty?: string;
+    transitionDuration?: string;
+    display?: 'flex' | 'inline-flex' | 'none';
+  }
   interface TextProps {
     dir?: 'ltr' | 'rtl' | 'auto';
     focusable?: boolean;
     accessibilityRole?: WebAccessibilityRole;
+    accessibilityTraits?: never;
+    accessibilityComponentType?: never;
     accessibilityState?: {
       busy?: boolean;
       checked?: boolean | 'mixed';
@@ -167,15 +166,9 @@ declare module 'react-native' {
     color?: string | null;
   }
 
-  interface ViewStyle {
-    cursor?: CursorValue;
-    transitionProperty?: string;
-    display?: 'flex' | 'inline-flex' | 'none';
-  }
-
   interface TextStyle {
     // The following list is sourced from:
     // - https://github.com/necolas/react-native-web/blob/0.17.5/packages/react-native-web/src/types/styles.js#L128
     userSelect?: 'all' | 'auto' | 'contain' | 'none' | 'text';
   }
-}
+} 

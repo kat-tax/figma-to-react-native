@@ -1,12 +1,15 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {useState, Fragment} from 'react';
+import {useState, Fragment, useMemo} from 'react';
 import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
-import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16} from 'figma-ui';
+import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32, IconHyperlinkLinked32, IconButton} from 'figma-ui';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
+import {useSync} from 'interface/providers/Sync';
 import {titleCase} from 'common/string';
+import {F2RN_EXO_REPO_URL, F2RN_SERVICE_URL} from 'config/consts';
+import {docId} from 'store';
 
 import type {ProjectRelease, ProjectExportMethod, ProjectExportScope} from 'types/project';
-import type {EventProjectExport} from 'types/events';
+import type {EventProjectExport, EventOpenLink} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 
 interface ProjectExportProps {
@@ -15,47 +18,80 @@ interface ProjectExportProps {
 }
 
 export function ProjectExport(props: ProjectExportProps) {
-  const [hasSuccess, setHasSuccess] = useState(false);
-  const [isExporting, setExporting] = useState(false);
   const [exportCount, setExportCount] = useState(0);
+  const [isExporting, setExporting] = useState(false);
+  const [hasSuccess, setHasSuccess] = useState(false);
+  const [msgFailure, setMsgFailure] = useState('');
 
+  const sync = useSync();
   const form = useForm<ProjectRelease>(props.project, {
     close: () => {},
     validate: (_data) => true,
     submit: (data) => {
+      if (data.method === 'sync' && sync.active) {
+        sync.disconnect();
+        return;
+      }
+      if (data.method !== 'sync')
+        setExporting(true);
       setHasSuccess(false);
-      setExporting(true);
       emit<EventProjectExport>('PROJECT_EXPORT', data);
     },
   });
 
   const hasProjectKey = Boolean(form.formState.apiKey);
+  const isSyncing = Boolean(form.formState.method === 'sync');
+  const isPushing = Boolean(form.formState.method === 'push');
   const isDownloading = Boolean(form.formState.method === 'download');
+  const isPreviewing = Boolean(form.formState.method === 'preview');
   const isReleasing = Boolean(form.formState.method === 'release');
 
-  const resetOnSucccess = () => {
-    setExporting(false);
-    setHasSuccess(true);
+  const submitText = useMemo(() => {
+    switch (form.formState.method) {
+      case 'sync':
+        return sync.active ? 'Disconnect' : 'Sync';
+      default:
+        return titleCase(form.formState.method);
+    }
+  }, [form.formState.method, sync.active]);
+
+  const onSuccess = () => {
+    setMsgFailure('');
+    if (form.formState.method !== 'sync') {
+      setHasSuccess(true);
+      setExporting(false);
+    }
     setTimeout(() => {
-      setHasSuccess(false);
-      setExportCount(0);
+      if (form.formState.method !== 'sync') {
+        setHasSuccess(false);
+        setExportCount(0);
+      }
     }, 5000);
   };
-  const resetOnFail = () => {
+  const onError = (msg: string) => {
+    setMsgFailure(msg);
+    setHasSuccess(false);
+    setExporting(false);
     setTimeout(() => {
-      setExporting(false);
       setHasSuccess(false);
+      setMsgFailure('');
+      setExporting(false);
       setExportCount(0);
-    }, 500);
+    }, 10000);
   };
 
-  useProjectRelease(resetOnSucccess, resetOnFail, setExportCount);
+  useProjectRelease(onSuccess, onError, setExportCount);
 
   return (
     <Fragment>
       {hasSuccess &&
         <Banner icon={<IconComponent32/>} variant="success">
           {`Successfully exported ${exportCount} component${exportCount === 1 ? '' : 's'}!`}
+        </Banner>
+      }
+      {msgFailure &&
+        <Banner icon={<IconWarning32/>} variant="warning">
+          {msgFailure}
         </Banner>
       }
       {isExporting &&
@@ -85,16 +121,21 @@ export function ProjectExport(props: ProjectExportProps) {
                 Download
               </Text>
             </SegmentedControl.Item>
-            <SegmentedControl.Item value="preview" aria-label="Preview">
+            <SegmentedControl.Item value="push" aria-label="Git">
               <Text style={{paddingInline: 8}}>
-                Preview
+                Git
               </Text>
             </SegmentedControl.Item>
-            <SegmentedControl.Item value="release" aria-label="Release">
+            <SegmentedControl.Item value="sync" aria-label="Sync">
+              <Text style={{paddingInline: 8}}>
+                Sync
+              </Text>
+            </SegmentedControl.Item>
+            {/* <SegmentedControl.Item value="release" aria-label="Release">
               <Text style={{paddingInline: 8}}>
                 Release
               </Text>
-            </SegmentedControl.Item>
+            </SegmentedControl.Item> */}
           </SegmentedControl.Root>
           <VerticalSpace space="large"/>
         </Fragment>
@@ -127,14 +168,14 @@ export function ProjectExport(props: ProjectExportProps) {
             <VerticalSpace space="large"/>
           </Fragment>
         }
-        {!isDownloading &&
+        {(isSyncing || isPreviewing || isReleasing) &&
           <Fragment>
             <Flex align="center">
               <Text weight="strong">
                 Project Key
               </Text>
               <a
-                href="http://figma-to-react-native.com/dashboard"
+                href={`${F2RN_SERVICE_URL}/dashboard`}
                 target="_blank"
                 rel="noreferrer"
                 style={{marginLeft: '4px'}}>
@@ -143,10 +184,86 @@ export function ProjectExport(props: ProjectExportProps) {
             </Flex>
             <VerticalSpace space="small"/>
             <Input
-              disabled={isExporting}
+              type="password"
               value={form.formState.apiKey}
-              onChange={(e) => form.setFormState(e.target.value, 'apiKey')}
+              disabled={isExporting}
               placeholder="Your Figma -> React Native Project Key"
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'apiKey');
+              }}
+              onFocus={(e) => {
+                e.target.type = 'text';
+                e.target.select();
+              }}
+              onBlur={(e) => {
+                e.target.type = 'password';
+              }}
+            />
+            <VerticalSpace space="large"/>
+          </Fragment>
+        }
+        {isPushing &&
+          <Fragment>
+            <Flex align="center">
+              <Text weight="strong">
+                Repository
+              </Text>
+            </Flex>
+            <VerticalSpace space="small"/>
+            <Input
+              type="text"
+              disabled={isExporting}
+              value={form.formState.gitRepo}
+              placeholder={F2RN_EXO_REPO_URL}
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'gitRepo');
+              }}
+            />
+            <VerticalSpace space="large"/>
+            <Flex align="center">
+              <Text weight="strong">
+                Branch
+              </Text>
+            </Flex>
+            <VerticalSpace space="small"/>
+            <Input
+              type="text"
+              disabled={isExporting}
+              value={form.formState.gitBranch}
+              placeholder="master"
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'gitBranch');
+              }}
+            />
+            <VerticalSpace space="large"/>
+            <Flex align="center">
+              <Text weight="strong">
+                Token
+              </Text>
+              <a
+                href="https://github.com/settings/tokens"
+                target="_blank"
+                rel="noreferrer"
+                style={{marginLeft: '4px'}}>
+                <IconCircleHelp16 color="brand"/>
+              </a>
+            </Flex>
+            <VerticalSpace space="small"/>
+            <Input
+              type="password"
+              disabled={isExporting}
+              value={form.formState.gitKey}
+              placeholder="Your GitHub Personal Access Token"
+              onChange={(e) => {
+                form.setFormState(e.target.value, 'gitKey');
+              }}
+              onFocus={(e) => {
+                e.target.type = 'text';
+                e.target.select();
+              }}
+              onBlur={(e) => {
+                e.target.type = 'password';
+              }}
             />
             <VerticalSpace space="large"/>
           </Fragment>
@@ -167,11 +284,29 @@ export function ProjectExport(props: ProjectExportProps) {
                 <Text>Include assets</Text>
               </Checkbox.Label>
               <Checkbox.Description>
-                Extract images and vectors used in your components.
+                Extract images and vectors.
               </Checkbox.Description>
             </Checkbox.Root>
             <VerticalSpace space="small"/>
           </Fragment>
+          {isDownloading &&
+            <Fragment>
+              <Checkbox.Root>
+                <Checkbox.Input
+                  disabled={isExporting}
+                  checked={form.formState.includeTemplate}
+                  onChange={(e) => form.setFormState(e.target.checked, 'includeTemplate')}
+                />
+                <Checkbox.Label>
+                  <Text>Include template</Text>
+                </Checkbox.Label>
+                <Checkbox.Description>
+                  Use the latest EXO template.
+                </Checkbox.Description>
+              </Checkbox.Root>
+              <VerticalSpace space="small"/>
+            </Fragment>
+          }
           {isReleasing &&
             <Fragment>
               <Checkbox.Root>
@@ -193,15 +328,29 @@ export function ProjectExport(props: ProjectExportProps) {
         </Fragment>
         <Fragment>
           <VerticalSpace space="large"/>
-          <Button
-            fullWidth
-            size="medium"
-            variant="primary"
-            loading={isExporting ? 'true' : undefined}
-            disabled={isExporting || (!isDownloading && !hasProjectKey)}
-            onClick={form.handleSubmit}>
-            {`${titleCase(form.formState.method)} Components`}
-          </Button>
+          <Flex align="center">
+            <Flex align="center" gap="2" style={{width: '100%'}}>
+              <Button
+                size="medium"
+                fullWidth
+                style={{flex: 1}}
+                variant={sync.active && isSyncing ? 'destructive' : 'primary'}
+                loading={isExporting ? 'true' : undefined}
+                disabled={isExporting || (!isDownloading && !hasProjectKey)}
+                onClick={form.handleSubmit}>
+                {submitText}
+              </Button>
+              {sync.active && isSyncing && form.formState.apiKey && (
+                <>
+                  <IconButton
+                    onClick={() => emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/sync/${docId}`)}
+                    aria-label="Sync to desktop">
+                    <IconHyperlinkLinked32/>
+                  </IconButton>
+                </>
+              )}
+            </Flex>
+          </Flex>
         </Fragment>
         <VerticalSpace space="large"/>
         <div style={{display: 'none'}} {...form.initialFocus}/>

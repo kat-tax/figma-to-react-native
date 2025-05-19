@@ -1,7 +1,9 @@
 import {fs} from '@zip.js/zip.js';
 import {F2RN_EXO_REPO_ZIP, F2RN_EXO_PROXY_URL} from 'config/consts';
+import {DOC_INDEX_TEMPLATE} from './data/templates';
+import * as _ from './data/metadata';
 
-import type {ZipDirectoryEntry} from '@zip.js/zip.js';
+import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
 
 export async function create(
@@ -9,8 +11,7 @@ export async function create(
   info: ProjectInfo,
   release: ProjectRelease,
 ) {
-  // Debug
-  console.log('[export]', project, info, release);
+  const metadata = _.metadata(info);
   
   // Import EXO
   const zip = new fs.FS();
@@ -24,53 +25,23 @@ export async function create(
   const guides = tpl.getChildByName('guides') as ZipDirectoryEntry;
   const design = tpl.getChildByName('design') as ZipDirectoryEntry;
 
-  // Info
-  const linkDocs = info.appConfig?.Web?.DOCS?.toString();
-  const linkFigma = info.appConfig?.Web?.FIGMA?.toString();
-  const linkGithub = info.appConfig?.Web?.GITHUB?.toString();
-  const pkgVersion = info.appConfig?.Design?.PACKAGE_VERSION?.toString();
-  const pkgName = info.appConfig?.Design?.PACKAGE_NAME?.toString();
-
   // Config
   zip.remove(tpl.getChildByName('config.yaml'));
-  tpl.addText('config.yaml', Object.entries(info.appConfig)
-    .map(([group, section]) =>
-      `# ${group}\n ${Object.entries(section).map(([key, value]) =>
-        `${key}: ${value}`).join('\n')}`).join('\n\n'));
+  tpl.addText('config.yaml', _.appConfig(info));
 
   // Locales
   zip.remove(tpl.getChildByName('locales.ts'));
-  tpl.addText('locales.ts', [
-    '/** Supported languages **/',
-    '',
-    'export type Locales = keyof typeof locales;',
-    `export const sourceLocale: Locales = "${info.locales.source}";`,
-    `export const locales = ${JSON.stringify(info.locales.all.reduce((acc, [key, value]) => {
-      acc[key] = value;
-      return acc;
-    }, {}), null, 2)} as const;`,
-   ].join('\n'));
+  tpl.addText('locales.ts', _.localesConfig(info));
 
   // Docs
   const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
   zip.remove(docs.getChildByName('start'));
-  docs.addText('start/index.mdx', docIndexTemplate);
+  docs.addText('start/index.mdx', DOC_INDEX_TEMPLATE);
 
   // Storybook
   const sb = guides.getChildByName('storybook') as ZipDirectoryEntry;
   zip.remove(sb.getChildByName('get started.mdx'));
-  sb.addText('get started.mdx', [
-    `import {Meta} from \'@storybook/blocks\';`,
-    ' ',
-    `<Meta title="Get Started"/>`,
-    ' ',
-    `# ${pkgName || 'project'}`,
-    ' ',
-    `#### ${pkgVersion || '0.0.1'}`,
-    linkDocs && `- [Documentation](${linkDocs})`,
-    linkGithub && `- [GitHub](${linkGithub})`,
-    linkFigma && `- [Figma](${linkFigma})`,
-  ].filter(Boolean).join('\n'));
+  sb.addText('get started.mdx', _.storybookIndex(metadata));
 
   // Design
   zip.remove(design.getChildByName('index.ts'));
@@ -79,19 +50,14 @@ export async function create(
   design.addText('theme.ts', project.theme);
 
   // Design (custom lib name)
-  // TODO: to finish support, replace package json files
-  // that reference design package
-  if (pkgName !== 'design') {
-    zip.remove(design.getChildByName('package.json'));
-    design.addText('package.json', JSON.stringify(
-      {
-        name: pkgName,
-        version: pkgVersion,
-        ...designPackageDefault,
-      },
-      null,
-      2,
-    ));
+  if (metadata.pkgName !== 'design') {
+    const pkgFile = design.getChildByName('package.json') as ZipFileEntry<string, string>;
+    const pkgContent = await pkgFile.getText('utf-8');
+    zip.remove(pkgFile);
+    design.addText(
+      'package.json',
+      _.packageJson(pkgContent, metadata)
+    );
   }
 
   // Assets
@@ -126,117 +92,4 @@ export async function create(
 
   // Export
   return zip.exportBlob();
-}
-
-const docIndexTemplate = `# Getting Started
-
-::::steps
-
-### Install Dependencies
-
-:::code-group
-
-\`\`\`bash [npm]
-npm install
-\`\`\`
-
-\`\`\`bash [pnpm]
-pnpm install
-\`\`\`
-
-\`\`\`bash [yarn]
-yarn install
-\`\`\`
-
-\`\`\`bash [bun]
-bun install
-\`\`\`
-
-:::
-
-### Run Development Servers
-
-:::code-group
-
-\`\`\`bash [npm]
-npm start
-\`\`\`
-
-\`\`\`bash [pnpm]
-pnpm start
-\`\`\`
-
-\`\`\`bash [yarn]
-yarn start
-\`\`\`
-
-\`\`\`bash [bun]
-bun start
-\`\`\`
-
-:::
-
-:::info
-You may now access the following dev servers:
-- **Native**: *connect a device or simulator to Metro*
-- **Web**: http://localhost:6206
-- **Docs**: http://localhost:6106
-- **Storybook**: http://localhost:6006
-:::
-`;
-
-// TODO: this is not maintainable (instead read contents, extend w/ new values, write back)
-const designPackageDefault = {
-  "type": "module",
-  "scripts": {
-    "dev": "conc -c 'auto' 'pnpm:*:dev'",
-    "build": "conc -c 'auto' -g 'pnpm:*:build'",
-    "web:dev": "vite dev  -c ../toolkit/bundler/gen/libs/design.web.js --port 6406",
-    "web:build": "vite build -c ../toolkit/bundler/gen/libs/design.web.js",
-    "native-dev": "vite dev  -c ../toolkit/bundler/gen/libs/design.native.js --port 6506",
-    "native-build": "vite build -c ../toolkit/bundler/gen/libs/design.native.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./gen/types/index.d.ts",
-      "import": "./gen/web/index.js",
-      "require": "./gen/native/index.js"
-    },
-    "./theme": {
-      "types": "./gen/types/theme.d.ts",
-      "import": "./gen/web/theme.js",
-      "require": "./gen/native/theme.js"
-    },
-    "./styles": {
-      "types": "./gen/types/styles.d.ts",
-      "import": "./gen/web/styles.js",
-      "require": "./gen/native/styles.js"
-    },
-    "./types": {
-      "types": "./env.d.ts"
-    }
-  },
-  "dependencies": {
-    "@lingui/core": "^4.10.0",
-    "@lingui/macro": "^4.10.0",
-    "@lingui/react": "^4.10.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-exo": "workspace:*",
-    "react-native": "^0.73.6",
-    "react-native-svg": "^15.1.0",
-    "react-native-unistyles": "^2.7.1",
-    "react-native-web": "^0.19.10",
-    "react-redux": "^9.1.2",
-    "vite-plugin-node-polyfills": "^0.21.0"
-  },
-  "devDependencies": {
-    "@storybook/blocks": "^8.0.10",
-    "@storybook/react": "^8.0.8",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "bundler": "workspace:*",
-    "config": "workspace:*",
-    "typescript": "^5.3.2"
-  }
 }
