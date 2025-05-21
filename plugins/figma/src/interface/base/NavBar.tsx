@@ -3,7 +3,7 @@ import {useEffect, useState, Fragment} from 'react';
 import {Tabs, Text, IconButton} from 'figma-kit';
 import {Dropdown} from 'interface/figma/ui/dropdown';
 import {IconEllipsis} from 'interface/figma/icons/32/Ellipsis';
-import {IconComponent} from 'interface/figma/icons/32/Component';
+import {IconComponent} from 'interface/figma/icons/16/Component';
 import {patch, actions} from 'interface/utils/editor/lib/prompts';
 import {SearchBar} from 'interface/base/SearchBar';
 import {titleCase} from 'common/string';
@@ -168,7 +168,7 @@ export function NavBar(props: NavBarProps) {
       }
       {hasTarget && !hasChanges &&
         <Dropdown
-          icon={<IconComponent/>}
+          icon={<IconComponent color="component"/>}
           options={menuComponent}
           placeholder="Select a component"
           value={isTargetInRoster ? props.nav.component : null}

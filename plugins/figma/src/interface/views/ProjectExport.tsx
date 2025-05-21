@@ -6,7 +6,6 @@ import {Banner} from 'interface/figma/ui/banner';
 import {Container} from 'interface/figma/ui/container';
 import {IconButton} from 'interface/figma/ui/icon-button';
 import {VerticalSpace} from 'interface/figma/ui/vertical-space';
-import {IconComponent} from 'interface/figma/icons/32/Component';
 import {IconHyperlink} from 'interface/figma/icons/32/Hyperlink';
 import {IconCheck} from 'interface/figma/icons/32/Check';
 import {IconHelp} from 'interface/figma/icons/16/Help';
@@ -94,7 +93,7 @@ export function ProjectExport(props: ProjectExportProps) {
   return (
     <Fragment>
       {hasSuccess &&
-        <Banner icon={<IconComponent/>} variant="success">
+        <Banner icon={<IconCheck/>} variant="success">
           {`Successfully exported ${exportCount} component${exportCount === 1 ? '' : 's'}!`}
         </Banner>
       }
