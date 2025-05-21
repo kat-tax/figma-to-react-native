@@ -2,7 +2,13 @@ import {Text} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {useBlockNote, BlockNoteViewRaw} from '@blocknote/react';
-import {Stack, Layer, Button, Disclosure, IconWorld16, IconInfo32, IconTextAlignLeft16} from 'figma-ui';
+import {Stack} from 'interface/figma/ui/stack';
+import {Layer} from 'interface/figma/ui/layer';
+import {Button} from 'interface/figma/ui/button';
+import {Disclosure} from 'interface/figma/ui/disclosure';
+import {IconWorld} from 'interface/figma/icons/16/World';
+import {IconInfo} from 'interface/figma/icons/32/Info';
+import {IconTextAlignLeft} from 'interface/figma/icons/16/TextAlignLeft';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
@@ -111,7 +117,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
       <div className="list">
         <ProjectDocItem
           page="Root"
-          icon={<IconWorld16/>}
+          icon={<IconWorld/>}
           onSelect={selectDoc}
           isActive={active === 'root'}
           entry={rootDoc}
@@ -129,7 +135,7 @@ export function ProjectDocs(props: ProjectDocsProps) {
       {active === 'root'
         ? <ProjectDocEditor entry={rootDoc}/>
         : <div className="tip">
-            <IconInfo32 color="secondary"/>
+            <IconInfo color="secondary"/>
             <Text style={{color: 'var(--figma-color-text-secondary)'}}>
               Select a document
             </Text>
@@ -161,7 +167,7 @@ function ProjectDocSection(props: ProjectDocSectionProps) {
       {props?.entries?.map(entry =>
         <ProjectDocItem
           key={entry.item.name}
-          icon={<IconTextAlignLeft16/>}
+          icon={<IconTextAlignLeft/>}
           entry={entry}
           page={props.title}
           isActive={props.activeDoc === entry.item.id}

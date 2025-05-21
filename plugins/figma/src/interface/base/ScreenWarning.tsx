@@ -1,5 +1,5 @@
-import {IconWarning32} from 'figma-ui';
 import {Text} from 'figma-kit';
+import {IconWarning} from 'interface/figma/icons/32/Warning';
 
 interface ScreenWarningProps {
   message: string,
@@ -8,7 +8,7 @@ interface ScreenWarningProps {
 export function ScreenWarning(props: ScreenWarningProps) {
   return (
     <div className="center fill">
-      <IconWarning32 color="warning"/>
+      <IconWarning color="warning"/>
       <Text>{props.message}</Text>
     </div>
   );

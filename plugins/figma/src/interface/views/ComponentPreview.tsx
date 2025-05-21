@@ -2,7 +2,14 @@ import {Text} from 'figma-kit';
 import {emit, on} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
-import {LoadingIndicator, IconButton, IconToggleButton, IconSwap16, IconTarget16, IconLockLocked16, IconLockUnlocked16, IconCorners32} from 'figma-ui';
+import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
+import {IconButton} from 'interface/figma/ui/icon-button';
+import {IconToggleButton} from 'interface/figma/ui/icon-toggle-button';
+import {IconSwap} from 'interface/figma/icons/16/Swap';
+import {IconTarget} from 'interface/figma/icons/16/Target';
+import {IconLockOpen} from 'interface/figma/icons/16/LockOpen';
+import {IconLockClosed} from 'interface/figma/icons/16/LockClosed';
+import {IconCorners} from 'interface/figma/icons/32/Corners';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {NodeToolbar} from 'interface/node/NodeToolbar';
@@ -325,20 +332,20 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       }
       <div style={styles.header}>
         <IconToggleButton onValueChange={inspect} value={isInspect} disabled={!isLoaded}>
-          <IconTarget16/>
+          <IconTarget/>
         </IconToggleButton>
         <IconToggleButton onValueChange={lock} value={isLocked}>
-          {isLocked ? <IconLockLocked16/> : <IconLockUnlocked16/>}
+          {isLocked ? <IconLockClosed/> : <IconLockOpen/>}
         </IconToggleButton>
         <div style={styles.bar}>
           <Text>{previewBar ? previewBar[0] : ''}</Text>
           <Text style={styles.desc}>{previewBar ? previewBar[1] : ''}</Text>
         </div>   
         <IconButton onClick={reload}>
-          <IconSwap16/>
+          <IconSwap/>
         </IconButton>
         <IconButton onClick={expand}>
-          <IconCorners32/>
+          <IconCorners/>
         </IconButton>
       </div>
       {component && !isLoaded &&

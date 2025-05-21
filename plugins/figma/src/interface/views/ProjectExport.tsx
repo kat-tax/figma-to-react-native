@@ -1,7 +1,16 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment, useMemo} from 'react';
 import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
-import {useForm, Container, VerticalSpace, Banner, IconComponent32, IconCheckCircle32, IconCircleHelp16, IconWarning32, IconHyperlinkLinked32, IconButton} from 'figma-ui';
+import {useForm} from 'interface/figma/hooks/use-form';
+import {Banner} from 'interface/figma/ui/banner';
+import {Container} from 'interface/figma/ui/container';
+import {IconButton} from 'interface/figma/ui/icon-button';
+import {VerticalSpace} from 'interface/figma/ui/vertical-space';
+import {IconComponent} from 'interface/figma/icons/32/Component';
+import {IconHyperlink} from 'interface/figma/icons/32/Hyperlink';
+import {IconCheck} from 'interface/figma/icons/32/Check';
+import {IconHelp} from 'interface/figma/icons/16/Help';
+import {IconWarning} from 'interface/figma/icons/32/Warning';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {useSync} from 'interface/providers/Sync';
 import {titleCase} from 'common/string';
@@ -85,17 +94,17 @@ export function ProjectExport(props: ProjectExportProps) {
   return (
     <Fragment>
       {hasSuccess &&
-        <Banner icon={<IconComponent32/>} variant="success">
+        <Banner icon={<IconComponent/>} variant="success">
           {`Successfully exported ${exportCount} component${exportCount === 1 ? '' : 's'}!`}
         </Banner>
       }
       {msgFailure &&
-        <Banner icon={<IconWarning32/>} variant="warning">
+        <Banner icon={<IconWarning/>} variant="warning">
           {msgFailure}
         </Banner>
       }
       {isExporting &&
-        <Banner icon={<IconCheckCircle32/>}>
+        <Banner icon={<IconCheck/>}>
           {isReleasing 
             ? 'Publishing, please wait...'
             : `Exporting ${form.formState.scope}, please wait...`
@@ -179,7 +188,7 @@ export function ProjectExport(props: ProjectExportProps) {
                 target="_blank"
                 rel="noreferrer"
                 style={{marginLeft: '4px'}}>
-                <IconCircleHelp16 color="brand"/>
+                <IconHelp color="brand"/>
               </a>
             </Flex>
             <VerticalSpace space="small"/>
@@ -245,7 +254,7 @@ export function ProjectExport(props: ProjectExportProps) {
                 target="_blank"
                 rel="noreferrer"
                 style={{marginLeft: '4px'}}>
-                <IconCircleHelp16 color="brand"/>
+                <IconHelp color="brand"/>
               </a>
             </Flex>
             <VerticalSpace space="small"/>
@@ -345,7 +354,7 @@ export function ProjectExport(props: ProjectExportProps) {
                   <IconButton
                     onClick={() => emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/sync/${docId}`)}
                     aria-label="Sync to desktop">
-                    <IconHyperlinkLinked32/>
+                    <IconHyperlink/>
                   </IconButton>
                 </>
               )}

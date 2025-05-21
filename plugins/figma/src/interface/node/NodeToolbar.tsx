@@ -1,7 +1,13 @@
 import {on, emit} from '@create-figma-plugin/utilities';
 import {IconButton} from 'figma-kit';
 import {useEffect, useState} from 'react';
-import {useForm, IconAdjust32, IconAnimation32, IconEffects32, IconVisibilityVisible32, IconListDetailed32, IconCross32} from 'figma-ui';
+import {useForm} from 'interface/figma/hooks/use-form';
+import {IconAdjust} from 'interface/figma/icons/32/Adjust';
+import {IconAnimation} from 'interface/figma/icons/32/Animation';
+import {IconEffects} from 'interface/figma/icons/32/Effects';
+import {IconVisible} from 'interface/figma/icons/32/Visible';
+import {IconCross} from 'interface/figma/icons/32/Cross';
+import {IconList} from 'interface/figma/icons/32/List';
 import {NodeAttrGroup} from 'types/node';
 import {NodeGroup} from 'interface/node/NodeGroup';
 import {diff} from 'deep-object-diff';
@@ -39,11 +45,11 @@ export function NodeToolbar(props: NodeToolbarProps) {
     | 'update'
     | 'setDialogOpen'>
   > = [
-    {group: NodeAttrGroup.Props, icon: <IconAdjust32/>},
-    {group: NodeAttrGroup.Motions, icon: <IconAnimation32/>},
-    {group: NodeAttrGroup.Interactions, icon: <IconEffects32/>},
-    {group: NodeAttrGroup.Visibilities, icon: <IconVisibilityVisible32/>},
-    {group: NodeAttrGroup.Dynamics, icon: <IconListDetailed32/>},
+    {group: NodeAttrGroup.Props, icon: <IconAdjust/>},
+    {group: NodeAttrGroup.Motions, icon: <IconAnimation/>},
+    {group: NodeAttrGroup.Interactions, icon: <IconEffects/>},
+    {group: NodeAttrGroup.Visibilities, icon: <IconVisible/>},
+    {group: NodeAttrGroup.Dynamics, icon: <IconList/>},
   ];
 
   const form = useForm<NodeAttrData | null>(null, {
@@ -123,7 +129,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
           onClick={close}
           size="medium"
           className="node-toolbar-btn">
-          <IconCross32/>
+          <IconCross/>
         </IconButton>
       </div>
     </div>

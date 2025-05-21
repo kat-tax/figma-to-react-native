@@ -1,6 +1,6 @@
 import MonacoReact from '@monaco-editor/react';
 import {AutoForm} from 'uniforms-unstyled';
-import {LoadingIndicator} from 'figma-ui';
+import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {useMemo, useState, Fragment} from 'react';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import {debounce} from 'common/delay';

@@ -1,6 +1,8 @@
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
-import {Stack, Button, Disclosure} from 'figma-ui';
+import {Stack} from 'interface/figma/ui/stack';
+import {Button} from 'interface/figma/ui/button';
+import {Disclosure} from 'interface/figma/ui/disclosure';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';

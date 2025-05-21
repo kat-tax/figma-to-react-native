@@ -1,13 +1,14 @@
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useEffect, useState, Fragment} from 'react';
 import {Tabs, Text, IconButton} from 'figma-kit';
-import {Dropdown, IconEllipsis32} from 'figma-ui';
-import {IconComponent} from 'interface/figma/IconComponent';
+import {Dropdown} from 'interface/figma/ui/dropdown';
+import {IconEllipsis} from 'interface/figma/icons/32/Ellipsis';
+import {IconComponent} from 'interface/figma/icons/32/Component';
 import {patch, actions} from 'interface/utils/editor/lib/prompts';
 import {SearchBar} from 'interface/base/SearchBar';
 import {titleCase} from 'common/string';
 
-import type {DropdownOption} from 'figma-ui';
+import type {DropdownOption} from 'interface/figma/ui/dropdown';
 import type {ComponentBuild} from 'types/component';
 import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -158,7 +159,7 @@ export function NavBar(props: NavBarProps) {
       </Tabs.List>
       {!hasTarget && !props.searchMode && menuMainExt.length > 0 &&
         <Dropdown
-          icon={<IconEllipsis32/>}
+          icon={<IconEllipsis/>}
           options={menuMainExt}
           style={{marginRight: 4, transform: 'scale(0.9)'}}
           value={!mainTabs.includes(props.nav.tab as AppPagesMain) ? props.nav.tab : null}
@@ -176,7 +177,7 @@ export function NavBar(props: NavBarProps) {
       }
       {hasTarget && hasChanges &&
         <Dropdown
-          icon={<IconComponent warning/>}
+          icon={<IconComponent color="warning"/>}
           options={menuComponentUnsaved}
           placeholder="Review changes"
           value={null}

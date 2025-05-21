@@ -1,8 +1,8 @@
 import MonacoReact from '@monaco-editor/react';
 import {Fragment} from 'react';
-import {LoadingIndicator} from 'figma-ui';
-import {MonacoBinding} from 'interface/utils/editor/lib/sync';
 import {ThemePicker} from 'interface/base/ThemePicker';
+import {MonacoBinding} from 'interface/utils/editor/lib/sync';
+import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import * as $ from 'store';
 

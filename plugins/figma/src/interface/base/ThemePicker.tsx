@@ -1,6 +1,9 @@
 import {Text, Button, ColorPicker} from 'figma-kit';
 import {useState, Fragment} from 'react';
-import {useForm, Container, VerticalSpace, RadioButtons} from 'figma-ui';
+import {useForm} from 'interface/figma/hooks/use-form';
+import {Container} from 'interface/figma/ui/container';
+import {RadioButtons} from 'interface/figma/ui/radio-buttons';
+import {VerticalSpace} from 'interface/figma/ui/vertical-space';
 import {getCustomScale, getPresetScale, getPresetColor} from 'backend/importer/themes';
 import {emit} from '@create-figma-plugin/utilities';
 

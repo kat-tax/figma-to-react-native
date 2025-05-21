@@ -1,10 +1,10 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Button, Flex, Select, Slider} from 'figma-kit';
-import {IconPlus32} from 'figma-ui';
 import {VirtuosoGrid} from 'react-virtuoso';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useState, useEffect, useMemo, useCallback} from 'react';
+import {IconPlus} from 'interface/figma/icons/32/Plus';
 import {loadIconSets} from 'interface/icons/lib/iconify';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
@@ -179,7 +179,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
           size="small"
           style={{width: 32, padding: 0}}
           onClick={() => setAddingMore(true)}>
-          <IconPlus32/>
+          <IconPlus/>
         </Button>
         <div style={{flex: 1}}/>
         <Slider

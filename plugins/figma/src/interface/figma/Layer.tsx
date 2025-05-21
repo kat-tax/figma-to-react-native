@@ -1,4 +1,4 @@
-import {IconComponent} from 'interface/figma/IconComponent';
+import {IconComponent} from './icons/16/Component';
 
 interface LayerProps {
   active?: boolean;
@@ -23,7 +23,7 @@ export function Layer({
     <div className={`layer ${component ? 'layer--component' : ''}`}>
       <div className={`layer__content ${active ? 'layer__content--active' : ''}`} onClick={onChange}>
         <div className="layer__icon">
-          <IconComponent {...{warning}}/>
+          <IconComponent color={warning ? 'warning' : 'component'}/>
         </div>
         <span className="layer__label">
           {children}

@@ -1,7 +1,7 @@
-import {IconPlus32} from 'figma-ui';
 import {Flex, Popover, IconButton} from 'figma-kit';
 import {Fragment, useCallback, useState} from 'react';
 import {NodeAttrType} from 'types/node';
+import {IconPlus} from 'interface/figma/icons/32/Plus';
 import {NodeAttr} from 'interface/node/NodeAttr';
 import {uuid} from 'common/random';
 import {titleCase} from 'common/string';
@@ -124,7 +124,7 @@ export function NodeGroup(props: NodeGroupProps) {
               aria-label={`New ${group}`}
               disabled={!rules?.some(r => r.data === null)}
               size="medium">
-              <IconPlus32/>
+              <IconPlus/>
             </IconButton>
           </Popover.Controls>
         </Popover.Header>

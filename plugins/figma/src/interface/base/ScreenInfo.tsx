@@ -1,6 +1,6 @@
 import {Fragment} from 'react';
-import {IconNotice32} from 'figma-ui';
 import {Text} from 'figma-kit';
+import {IconNotice} from 'interface/figma/icons/32/Notice';
 
 interface ScreenInfoProps {
   message?: string,
@@ -15,7 +15,7 @@ export function ScreenInfo(props: ScreenInfoProps) {
       <Fragment>
         {props.message && 
           <div style={{marginLeft: '-10px', display: 'flex', alignItems: 'center'}}>
-            <IconNotice32 color="secondary"/>
+            <IconNotice color="secondary"/>
             <Text style={{color: 'var(--figma-color-text-secondary)'}}>
               {props.message}
             </Text>

@@ -1,6 +1,7 @@
 import {Icon} from '@iconify/react';
-import {IconButton, Flex} from 'figma-kit';
-import {IconStar16, IconStarFilled16, Text} from 'figma-ui';
+import {IconButton, Flex, Text} from 'figma-kit';
+import {IconStarUnfilled} from 'interface/figma/icons/16/StarUnfilled';
+import {IconStarFilled} from 'interface/figma/icons/16/StarFilled';
 
 import type {IconifySetPreview} from 'interface/icons/lib/iconify';
 
@@ -61,8 +62,8 @@ export function IconSet({
             onFavorite(set);
           }}>
           {favorited
-            ? <IconStarFilled16 color="secondary"/>
-            : <IconStar16 color="tertiary"/>
+            ? <IconStarFilled color="secondary"/>
+            : <IconStarUnfilled color="tertiary"/>
           }
         </IconButton>
       </Flex>

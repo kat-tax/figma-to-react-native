@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import {Tabs, TooltipProvider} from 'figma-kit';
-import {LoadingIndicator} from 'figma-ui';
+import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 
 import {NavBar} from 'interface/base/NavBar';
 import {DualPanel} from 'interface/base/DualPanel';
