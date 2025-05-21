@@ -10,7 +10,7 @@ const user: UserSettings = {
   },
   monaco: {
     general: {
-      fontSize: 10,
+      fontSize: 11,
       folding: false,
       wordWrap: 'off',
       lineNumbers: 'off',
