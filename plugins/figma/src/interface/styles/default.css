@@ -136,8 +136,14 @@ iframe {
   align-items: center;
   flex-direction: row;
   overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding: 4px;
   padding-right: 0;
+}
+
+.tab-bar-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-bar-nav .tab[title="Project Components"] {
