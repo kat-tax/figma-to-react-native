@@ -55,7 +55,6 @@
     "code-block-writer": "^13.0.3",
     "deep-object-diff": "^1.1.9",
     "figma-kit": "1.0.0-beta.19",
-    "figma-ui": "workspace:*",
     "fzf": "^0.5.2",
     "git-mem": "workspace:*",
     "lib0": "^0.2.100",

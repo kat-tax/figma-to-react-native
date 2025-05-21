@@ -14,8 +14,7 @@
   "scripts": {
     "prebuild": "npm run clean",
     "build": "tsc --build",
-    "clean": "rimraf --glob '*.log' lib tsconfig.tsbuildinfo",
-    "postinstall": "npm run build"
+    "clean": "rimraf --glob '*.log' lib tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "@create-figma-plugin/common": "^3.1.0",

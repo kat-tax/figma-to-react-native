@@ -2,7 +2,7 @@
   "json.schemas": [
     {
       "fileMatch": [
-        "plugins/figma/package.json"
+        "plugin/package.json"
       ],
       "url": "./packages/figma-build/src/figma-plugin.json"
     }

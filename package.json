@@ -9,13 +9,12 @@
     "url": "https://github.com/kat-tax/figma-to-react-native"
   },
   "scripts": {
-    "figma": "pnpm --filter ./plugins/figma run dev",
-    "vscode": "pnpm --filter ./plugins/vscode run dev",
-    "build:figma": "pnpm --filter ./plugins/figma run build",
-    "build:vscode": "pnpm --filter ./plugins/vscode run build",
+    "dev": "pnpm --filter ./plugin run dev",
+    "start": "pnpm --filter ./plugin run dev",
+    "build": "pnpm --filter ./plugin run build",
+    "generate:schema": "pnpm --filter ./plugin run schema",
     "generate:git-mem": "pnpm --filter ./packages/git-mem run build",
-    "generate:figma-build": "pnpm --filter ./packages/figma-build run build",
-    "generate:figma-schema": "pnpm --filter ./plugins/figma run schema",
+    "generate:build-figma": "pnpm --filter ./packages/figma-build run build",
     "generate:preview-inspector": "pnpm --filter ./packages/preview-inspector run build",
     "_postinstall": "concurrently pnpm:generate:* && concurrently pnpm:build:*"
   },
@@ -71,6 +70,9 @@
       "unbox-primitive": "npm:@nolyfill/unbox-primitive@latest",
       "which-boxed-primitive": "npm:@nolyfill/which-boxed-primitive@latest",
       "which-typed-array": "npm:@nolyfill/which-typed-array@latest"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
