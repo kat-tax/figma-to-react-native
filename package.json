@@ -12,14 +12,11 @@
     "dev": "pnpm --filter ./plugin run dev",
     "start": "pnpm --filter ./plugin run dev",
     "build": "pnpm --filter ./plugin run build",
-    "generate:schema": "pnpm --filter ./plugin run schema",
-    "generate:git-mem": "pnpm --filter ./packages/git-mem run build",
-    "generate:build-figma": "pnpm --filter ./packages/figma-build run build",
-    "generate:preview-inspector": "pnpm --filter ./packages/preview-inspector run build",
-    "_postinstall": "concurrently pnpm:generate:* && concurrently pnpm:build:*"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+    "gen:schema": "pnpm --filter ./plugin run schema",
+    "gen:git-mem": "pnpm --filter ./packages/git-mem run build",
+    "gen:builder": "pnpm --filter ./packages/figma-build run build",
+    "gen:inspector": "pnpm --filter ./packages/preview-inspector run build",
+    "postinstall": "pnpm gen:builder && pnpm gen:inspector && pnpm gen:git-mem && pnpm gen:schema"
   },
   "pnpm": {
     "overrides": {
