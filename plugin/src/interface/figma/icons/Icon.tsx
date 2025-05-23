@@ -69,8 +69,8 @@ export function Icon({color = 'currentColor', size = 16, path}: IconProps) {
       viewBox={`0 0 ${size} ${size}`}>
       <path
         fill={color === 'currentColor' ? 'currentColor' : `var(--figma-color-icon-${color})`}
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d={path}
       />
     </svg>

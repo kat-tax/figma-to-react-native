@@ -165,7 +165,7 @@ export function NodeGroup(props: NodeGroupProps) {
                     style={{cursor: 'grab', width: 16}}
                     size="small">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="32" viewBox="0 0 16 32">
-                      <path fill="var(--color-icon-secondary)" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M5 12.5h6v1H5zm0 3h6v1H5zm0 3h6v1H5z"></path>
+                      <path fill="var(--color-icon-secondary)" fillOpacity="1" fillRule="evenodd" stroke="none" d="M5 12.5h6v1H5zm0 3h6v1H5zm0 3h6v1H5z"></path>
                     </svg>
                   </IconButton>
                   <NodeAttr
@@ -178,7 +178,7 @@ export function NodeGroup(props: NodeGroupProps) {
                     aria-label={`Remove ${name}`}
                     size="small">
                     <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                      <path fill="var(--color-icon)" fill-rule="evenodd" d="M6 12a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 6 12" clip-rule="evenodd"></path>
+                      <path fill="var(--color-icon)" fillRule="evenodd" d="M6 12a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 6 12" clipRule="evenodd"></path>
                     </svg>
                   </IconButton>
                 </Flex>
