@@ -25,4 +25,7 @@
     "excludeDirectories": ["**/node_modules/**/*"],
     "synchronousWatchDirectory": true,
   },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true
 }
