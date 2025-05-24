@@ -167,7 +167,8 @@ function extractGridProperties(
 
   // flexGridColumns -> maxColumnRatioUnits (from grid-template-columns)
   if (styles['flexGridColumns']) {
-    gridProps.columns = Number(styles['flexGridColumns']) || 12;
+    const columns = Number(styles['flexGridColumns']);
+    gridProps.columns = (columns > 0 && columns <= 24) ? columns : 12; // Reasonable bounds
   }
 
   // gap -> itemContainerStyle with padding (already parsed by css-to-rn)
@@ -281,6 +282,7 @@ function renderGridItem(
           'end': 'flex-end',
           'center': 'center',
           'stretch': 'stretch',
+          'normal': 'stretch', // CSS Grid default
         };
         const alignValue = alignMapping[gridProps.justifyItems] || 'flex-start';
         writer.writeLine(`alignItems: '${alignValue}',`);
