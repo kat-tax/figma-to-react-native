@@ -23,8 +23,10 @@ export default (display: Display, options: ParseDeclarationOptionsWithValueWarni
           return options.addValueWarning(display.inside.type);
         case 'flex':
           return display.inside.type;
-        case 'box':
         case 'grid':
+          // Grid display is supported via react-native-flexible-grid
+          return display.inside.type;
+        case 'box':
         case 'ruby':
           return options.addValueWarning(display.inside.type);
       }
@@ -38,8 +40,10 @@ export default (display: Display, options: ParseDeclarationOptionsWithValueWarni
           return options.addValueWarning('inline-table');
         case 'flex':
           return options.addValueWarning('inline-flex');
-        case 'box':
         case 'grid':
+          // Inline grid not directly supported, but we can handle as grid
+          return 'grid';
+        case 'box':
           return options.addValueWarning('inline-grid');
         case 'ruby':
           return options.addValueWarning(display.inside.type);

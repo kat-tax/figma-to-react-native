@@ -151,6 +151,14 @@ export const validProperties = [
   'container-name',
   'container',
   'text-align',
+  // CSS Grid properties (converted to react-native-flexible-grid compatible properties)
+  'grid-template-columns',
+  'grid-template-rows',
+  'grid-auto-flow',
+  'grid-auto-columns',
+  'grid-auto-rows',
+  'justify-items',
+  'place-items',
 ] as const;
 
 export const validPropertiesLoose = new Set<string>(validProperties);

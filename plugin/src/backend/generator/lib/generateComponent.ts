@@ -29,6 +29,7 @@ export async function generateComponent(
     exoMotion: {},
     exoLottie: {},
     exoRive: {},
+    flexGrid: {},
     useStylesTheme: false,
   };
 
@@ -37,7 +38,7 @@ export async function generateComponent(
   // const t1 = Date.now();
   // console.log('>> [gen/function]', t1 - t0, 'ms');
 
-  // const t2 = Date.now(); 
+  // const t2 = Date.now();
   await writeStyleSheet(body, flags, data);
   // const t3 = Date.now();
   // console.log('>> [gen/stylesheet]', t3 - t2, 'ms');

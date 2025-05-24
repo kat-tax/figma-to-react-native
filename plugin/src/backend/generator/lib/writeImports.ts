@@ -59,6 +59,9 @@ export interface ImportFlags {
     isNative?: boolean,
     isTouch?: boolean,
   },
+  flexGrid: {
+    FlexGrid?: boolean,
+  },
   // Hook destructuring
   useStylesTheme: boolean,
 }
@@ -94,6 +97,7 @@ export async function writeImports(
   writeImport('react-exo/rive', flags.exoRive);
   writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('react-exo/motion', flags.exoMotion);
+  writeImport('react-native-flexible-grid', flags.flexGrid);
   writeImport('@lingui/macro', flags.lingui);
 
   // Component Imports

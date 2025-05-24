@@ -447,6 +447,40 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
       return addStyleProp(property, $.boxShadow(value, opts));
     case 'aspect-ratio':
       return addStyleProp(property, $.aspectRatio(value));
+    // CSS Grid Properties - converted to fake React Native properties for FlexGrid
+    case 'grid-template-columns':
+      // Convert to maxColumnRatioUnits for FlexGrid
+      return addStyleProp('flexGridColumns', $.gridTemplateColumns(value, opts));
+    case 'grid-template-rows':
+      // Store row template for potential future use in FlexGrid
+      if (value && typeof value === 'object' && value.type === 'track-list') {
+        // Count rows similar to columns
+        const rowCount = value.items ? value.items.length : 1;
+        return addStyleProp('flexGridRows', rowCount);
+      }
+      return addStyleProp('flexGridRows', String(value));
+    case 'grid-auto-flow':
+      // Convert grid-auto-flow to direction hints for FlexGrid
+      if (value && typeof value === 'object') {
+        let flowValue = 'row'; // default
+        if (value.direction === 'column') flowValue = 'column';
+        if (value.dense) flowValue += ' dense';
+        return addStyleProp('flexGridAutoFlow', flowValue);
+      }
+      return addStyleProp('flexGridAutoFlow', String(value));
+    case 'grid-auto-columns':
+      // Store auto column sizing for FlexGrid item width calculations
+      return addStyleProp('flexGridAutoColumns', String(value));
+    case 'grid-auto-rows':
+      // Store auto row sizing for FlexGrid item height calculations
+      return addStyleProp('flexGridAutoRows', String(value));
+
+    case 'justify-items':
+      // Store grid item justification
+      return addStyleProp('flexGridJustifyItems', String(value));
+    case 'place-items':
+      // Shorthand for align-items and justify-items
+      return addStyleProp('flexGridPlaceItems', String(value));
     case 'container-type':
     case 'container-name':
     case 'container':
