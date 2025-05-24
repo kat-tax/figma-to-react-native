@@ -170,9 +170,9 @@ function extractGridProperties(
     gridProps.columns = Number(styles['flexGridColumns']) || 12;
   }
 
-  // gap -> itemContainerStyle with padding
+  // gap -> itemContainerStyle with padding (already parsed by css-to-rn)
   if (styles['gap']) {
-    const gap = parseGapValue(styles['gap'] as string);
+    const gap = Number(styles['gap']) || 0;
     if (gap > 0) {
       gridProps.gap = gap;
       gridProps.itemContainerStyle = {
@@ -181,10 +181,10 @@ function extractGridProperties(
     }
   }
 
-  // row-gap and column-gap
+  // row-gap and column-gap (already parsed by css-to-rn)
   if (styles['row-gap'] || styles['column-gap']) {
-    const rowGap = parseGapValue((styles['row-gap'] || 0) as string);
-    const colGap = parseGapValue((styles['column-gap'] || 0) as string);
+    const rowGap = Number(styles['row-gap']) || 0;
+    const colGap = Number(styles['column-gap']) || 0;
 
     if (rowGap > 0 || colGap > 0) {
       gridProps.itemContainerStyle = {
@@ -231,28 +231,7 @@ function extractGridProperties(
 
 
 
-function parseGapValue(value: string | number): number {
-  if (typeof value === 'number') return value;
 
-  // Parse px values, rem values, etc.
-  const match = value.toString().match(/(\d+(?:\.\d+)?)(px|rem|em)?/);
-  if (match) {
-    const num = parseFloat(match[1]);
-    const unit = match[2];
-
-    // Convert to pixels (approximate)
-    switch (unit) {
-      case 'rem':
-        return num * 16; // Assume 16px base
-      case 'em':
-        return num * 16; // Simplified
-      default:
-        return num;
-    }
-  }
-
-  return 0;
-}
 
 function convertChildrenToGridData(
   children: ParseNodeTree,

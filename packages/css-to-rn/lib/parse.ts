@@ -328,7 +328,7 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
     case 'row-gap':
       return addStyleProp('row-gap', $.gap(value, opts));
     case 'column-gap':
-      return addStyleProp('row-gap', $.gap(value, opts));
+      return addStyleProp('column-gap', $.gap(value, opts));
     case 'gap':
       addStyleProp('row-gap', $.gap(value.row, opts));
       addStyleProp('column-gap', $.gap(value.column, opts));
