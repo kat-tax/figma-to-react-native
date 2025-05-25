@@ -154,11 +154,24 @@ export const validProperties = [
   // CSS Grid properties (converted to react-native-flexible-grid compatible properties)
   'grid-template-columns',
   'grid-template-rows',
+  'grid-template-areas',
+  'grid-template',
   'grid-auto-flow',
   'grid-auto-columns',
   'grid-auto-rows',
+  'grid',
+  'grid-column-start',
+  'grid-column-end',
+  'grid-row-start',
+  'grid-row-end',
+  'grid-column',
+  'grid-row',
+  'grid-area',
   'justify-items',
   'place-items',
+  'place-content',
+  'justify-self',
+  'place-self',
 ] as const;
 
 export const validPropertiesLoose = new Set<string>(validProperties);

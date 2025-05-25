@@ -447,40 +447,173 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
       return addStyleProp(property, $.boxShadow(value, opts));
     case 'aspect-ratio':
       return addStyleProp(property, $.aspectRatio(value));
-    // CSS Grid Properties - converted to fake React Native properties for FlexGrid
+    // CSS Grid Properties - converted to react-native-flexible-grid compatible properties
     case 'grid-template-columns':
-      // Convert to maxColumnRatioUnits for FlexGrid
-      return addStyleProp('flexGridColumns', $.gridTemplateColumns(value, opts));
+      // Convert to gridMaxColumnRatioUnits for FlexGrid
+      return addStyleProp('gridMaxColumnRatioUnits', $.gridTemplateColumns(value, opts));
     case 'grid-template-rows':
       // Store row template for potential future use in FlexGrid
       if (value && typeof value === 'object' && value.type === 'track-list') {
         // Count rows similar to columns
         const rowCount = value.items ? value.items.length : 1;
-        return addStyleProp('flexGridRows', rowCount);
+        return addStyleProp('gridRows', rowCount);
       }
-      return addStyleProp('flexGridRows', String(value));
+      return addStyleProp('gridRows', String(value));
+    case 'grid-template-areas':
+      // Store grid template areas for layout mapping
+      return addStyleProp('gridTemplateAreas', $.gridTemplateAreas(value, opts));
+    case 'grid-template':
+      // Shorthand for grid-template-rows, grid-template-columns, and grid-template-areas
+      if (value && typeof value === 'object') {
+        if ((value as any).rows) {
+          const rows = (value as any).rows;
+          const rowCount = rows && typeof rows === 'object' && rows.type === 'track-list' && rows.value ? rows.value.length : 1;
+          addStyleProp('gridRows', rowCount);
+        }
+        if ((value as any).columns) {
+          addStyleProp('gridMaxColumnRatioUnits', $.gridTemplateColumns((value as any).columns, opts));
+        }
+        if ((value as any).areas) {
+          addStyleProp('gridTemplateAreas', String((value as any).areas));
+        }
+      }
+      return;
     case 'grid-auto-flow':
       // Convert grid-auto-flow to direction hints for FlexGrid
       if (value && typeof value === 'object') {
         let flowValue = 'row'; // default
         if (value.direction === 'column') flowValue = 'column';
         if (value.dense) flowValue += ' dense';
-        return addStyleProp('flexGridAutoFlow', flowValue);
+        return addStyleProp('gridAutoFlow', flowValue);
       }
-      return addStyleProp('flexGridAutoFlow', String(value));
+      return addStyleProp('gridAutoFlow', String(value));
     case 'grid-auto-columns':
       // Store auto column sizing for FlexGrid item width calculations
-      return addStyleProp('flexGridAutoColumns', String(value));
+      return addStyleProp('gridAutoColumns', String(value));
     case 'grid-auto-rows':
       // Store auto row sizing for FlexGrid item height calculations
-      return addStyleProp('flexGridAutoRows', String(value));
+      return addStyleProp('gridAutoRows', String(value));
+    case 'grid':
+      // Shorthand for all grid properties - store as string for later processing
+      return addStyleProp('gridShorthand', String(value));
 
+    // Grid Item Properties
+    case 'grid-column-start':
+      return addStyleProp('gridColumnStart', String(value));
+    case 'grid-column-end':
+      return addStyleProp('gridColumnEnd', String(value));
+    case 'grid-row-start':
+      return addStyleProp('gridRowStart', String(value));
+    case 'grid-row-end':
+      return addStyleProp('gridRowEnd', String(value));
+    case 'grid-column':
+      // Shorthand for grid-column-start and grid-column-end
+      if (value && typeof value === 'object') {
+        if (value.start) addStyleProp('gridColumnStart', String(value.start));
+        if (value.end) addStyleProp('gridColumnEnd', String(value.end));
+      } else {
+        // Handle span syntax: "span 2" or "1 / 3"
+        const strValue = String(value);
+        if (strValue.includes('/')) {
+          const [start, end] = strValue.split('/').map(s => s.trim());
+          addStyleProp('gridColumnStart', start);
+          addStyleProp('gridColumnEnd', end);
+        } else if (strValue.includes('span')) {
+          const spanMatch = strValue.match(/span\s+(\d+)/);
+          if (spanMatch) {
+            addStyleProp('gridColumnSpan', parseInt(spanMatch[1], 10));
+          }
+        } else {
+          addStyleProp('gridColumn', strValue);
+        }
+      }
+      return;
+    case 'grid-row':
+      // Shorthand for grid-row-start and grid-row-end
+      if (value && typeof value === 'object') {
+        if (value.start) addStyleProp('gridRowStart', String(value.start));
+        if (value.end) addStyleProp('gridRowEnd', String(value.end));
+      } else {
+        // Handle span syntax: "span 2" or "1 / 3"
+        const strValue = String(value);
+        if (strValue.includes('/')) {
+          const [start, end] = strValue.split('/').map(s => s.trim());
+          addStyleProp('gridRowStart', start);
+          addStyleProp('gridRowEnd', end);
+        } else if (strValue.includes('span')) {
+          const spanMatch = strValue.match(/span\s+(\d+)/);
+          if (spanMatch) {
+            addStyleProp('gridRowSpan', parseInt(spanMatch[1], 10));
+          }
+        } else {
+          addStyleProp('gridRow', strValue);
+        }
+      }
+      return;
+    case 'grid-area':
+      // Shorthand for grid-row-start, grid-column-start, grid-row-end, grid-column-end
+      if (value && typeof value === 'object') {
+        if (value.rowStart) addStyleProp('gridRowStart', String(value.rowStart));
+        if (value.columnStart) addStyleProp('gridColumnStart', String(value.columnStart));
+        if (value.rowEnd) addStyleProp('gridRowEnd', String(value.rowEnd));
+        if (value.columnEnd) addStyleProp('gridColumnEnd', String(value.columnEnd));
+      } else {
+        // Handle named grid area or shorthand syntax
+        const strValue = String(value);
+        if (strValue.includes('/')) {
+          const parts = strValue.split('/').map(s => s.trim());
+          if (parts.length === 4) {
+            addStyleProp('gridRowStart', parts[0]);
+            addStyleProp('gridColumnStart', parts[1]);
+            addStyleProp('gridRowEnd', parts[2]);
+            addStyleProp('gridColumnEnd', parts[3]);
+          }
+        } else {
+          addStyleProp('gridArea', strValue);
+        }
+      }
+      return;
+
+    // Grid Alignment Properties
     case 'justify-items':
-      // Store grid item justification
-      return addStyleProp('flexGridJustifyItems', String(value));
-    case 'place-items':
-      // Shorthand for align-items and justify-items
-      return addStyleProp('flexGridPlaceItems', String(value));
+      // Store grid item justification - maps to FlexGrid item alignment
+      return addStyleProp('gridJustifyItems', String(value));
+        case 'place-items':
+      // Shorthand for align-items and justify-items in grid context
+      if (value && typeof value === 'object') {
+        addStyleProp('gridAlignItems', String((value as any).align || value));
+        addStyleProp('gridJustifyItems', String((value as any).justify || value));
+      } else {
+        const strValue = String(value);
+        addStyleProp('gridAlignItems', strValue);
+        addStyleProp('gridJustifyItems', strValue);
+      }
+      return;
+    case 'place-content':
+      // Shorthand for align-content and justify-content in grid context
+      if (value && typeof value === 'object') {
+        addStyleProp('gridAlignContent', String((value as any).align || value));
+        addStyleProp('gridJustifyContent', String((value as any).justify || value));
+      } else {
+        const strValue = String(value);
+        addStyleProp('gridAlignContent', strValue);
+        addStyleProp('gridJustifyContent', strValue);
+      }
+      return;
+    case 'justify-self':
+      // Grid item self-justification
+      return addStyleProp('gridJustifySelf', String(value));
+    case 'place-self':
+      // Shorthand for align-self and justify-self in grid context
+      if (value && typeof value === 'object') {
+        addStyleProp('gridAlignSelf', String((value as any).align || value));
+        addStyleProp('gridJustifySelf', String((value as any).justify || value));
+      } else {
+        const strValue = String(value);
+        addStyleProp('gridAlignSelf', strValue);
+        addStyleProp('gridJustifySelf', strValue);
+      }
+      return;
     case 'container-type':
     case 'container-name':
     case 'container':
