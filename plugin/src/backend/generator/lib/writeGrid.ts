@@ -79,7 +79,6 @@ interface GridProperties {
 
 export function writeGrid(
   writer: CodeBlockWriter,
-  node: SceneNode,
   children: ParseNodeTree,
   slug: string,
   options: WriteGridOptions,
@@ -91,7 +90,7 @@ export function writeGrid(
   flags.flexGrid.FlexGrid = true;
 
   // Get grid properties from the node's styles
-  const gridProps = extractGridProperties(node, data, slug);
+  const gridProps = extractGridProperties(data, slug);
 
   // Convert children to data items for FlexGrid
   const gridData = convertChildrenToGridData(children, data);
@@ -107,14 +106,18 @@ export function shouldUseGrid(node: SceneNode, data: ParseData): boolean {
   const styles = data.stylesheet[node.id];
   if (!styles) return false;
 
-  // Check for CSS grid properties (converted to fake RN properties by css-to-rn)
-  return Boolean(
-    styles['display'] === 'grid' ||
-    styles['flexGridColumns'] ||
-    styles['flexGridRows'] ||
-    styles['flexGridAutoFlow'] ||
-    styles['gap']
-  );
+  // Primary check: explicit display: grid (this should be sufficient)
+  if (styles['display'] === 'grid') {
+    return true;
+  }
+
+  // Minimal fallback: only if we have explicit grid template columns
+  // (in case display: grid wasn't converted properly by css-to-rn)
+  if (styles['flexGridColumns'] && styles['flexGridColumns'] !== '0') {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -131,34 +134,15 @@ export function maybeWriteAsGrid(
   if (!shouldUseGrid(node, options.data)) {
     return false;
   }
-
-  // Write as grid
-  writeGrid(writer, node, children, slug, options);
+  writeGrid(writer, children, slug, options);
   return true;
 }
 
-/**
- * Helper function to write a grid container with its children
- * This can be called from writeChildren when a grid layout is detected
- * Now uses the same writeChildren integration as the main writeGrid function
- */
-export function writeGridContainer(
-  writer: CodeBlockWriter,
-  node: SceneNode,
-  children: ParseNodeTree,
-  slug: string,
-  options: WriteGridOptions,
-) {
-  // Simply use the main writeGrid function since they now do the same thing
-  writeGrid(writer, node, children, slug, options);
-}
-
 function extractGridProperties(
-  node: SceneNode,
   data: ParseData,
   slug: string
 ): GridProperties {
-  const styles = data.stylesheet[node.id];
+  const styles = data.stylesheet[slug];
   const gridProps: GridProperties = {};
 
   if (!styles) return gridProps;
@@ -229,10 +213,6 @@ function extractGridProperties(
 
   return gridProps;
 }
-
-
-
-
 
 function convertChildrenToGridData(
   children: ParseNodeTree,
