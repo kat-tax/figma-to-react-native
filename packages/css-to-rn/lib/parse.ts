@@ -451,82 +451,39 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
       return addStyleProp(property, $.aspectRatio(value));
 
     /**
-     * CSS Grid to FlexGrid Conversion Strategy
-     * =====================================
+     * CSS Grid Properties
+     * ==================
      *
-     * CSS Grid and react-native-flexible-grid (FlexGrid) have fundamentally different approaches:
-     *
-     * CSS Grid:
-     * - Explicit grid with defined rows/columns
-     * - Items positioned by line numbers or named areas
-     * - Auto-placement with grid-auto-flow
-     *
-     * FlexGrid:
-     * - Ratio-based flexible grid system
-     * - Items sized by widthRatio/heightRatio relative to itemSizeUnit
-     * - Automatic flow based on available space and ratios
-     *
-     * Conversion Mapping:
-     * - grid-template-columns → maxColumnRatioUnits (column count)
-     * - grid-column: span N → widthRatio: N
-     * - grid-row: span N → heightRatio: N
-     * - Grid positioning (1/3) → calculated ratios
-     * - Grid alignment → standard flexbox alignment
-     *
-     * Limitations:
-     * - Named grid areas are not supported (stored as reference only)
-     * - Explicit row templates are not used (FlexGrid flows automatically)
-     * - Auto-placement strategies are not directly applicable
-     * - Complex grid functions (minmax, fit-content) are simplified
-     *
-     * Required FlexGrid Properties (no CSS equivalent):
-     * - itemSizeUnit: Base unit for ratio calculations
-     * - data: Array of items to render
-     * - renderItem: Function to render each item
+     * CSS Grid properties are passed through as strings to be handled by the
+     * @figma-to-react-native/react-native-css-grid component at runtime.
+     * This allows for proper responsive behavior and accurate CSS Grid layout.
      */
-    // CSS Grid Properties - pass through for Grid component
+    // CSS Grid Container Properties
     case 'grid-template-columns':
-      return addStyleProp(property, String(value));
-        case 'grid-template-rows':
-      return addStyleProp(property, String(value));
+    case 'grid-template-rows':
     case 'grid-template-areas':
-      return addStyleProp(property, String(value));
     case 'grid-template':
-      return addStyleProp(property, String(value));
     case 'grid-auto-flow':
-      return addStyleProp(property, String(value));
     case 'grid-auto-columns':
-      return addStyleProp(property, String(value));
     case 'grid-auto-rows':
-      return addStyleProp(property, String(value));
     case 'grid':
       return addStyleProp(property, String(value));
 
-    // Grid Item Properties - pass through for Grid component
+    // CSS Grid Item Properties
     case 'grid-column-start':
-      return addStyleProp(property, String(value));
     case 'grid-column-end':
-      return addStyleProp(property, String(value));
     case 'grid-row-start':
-      return addStyleProp(property, String(value));
     case 'grid-row-end':
-      return addStyleProp(property, String(value));
     case 'grid-column':
-      return addStyleProp(property, String(value));
     case 'grid-row':
-      return addStyleProp(property, String(value));
-        case 'grid-area':
+    case 'grid-area':
       return addStyleProp(property, String(value));
 
-    // Grid Alignment Properties - pass through for Grid component
+    // CSS Grid Alignment Properties
     case 'justify-items':
-      return addStyleProp(property, String(value));
     case 'place-items':
-      return addStyleProp(property, String(value));
     case 'place-content':
-      return addStyleProp(property, String(value));
     case 'justify-self':
-      return addStyleProp(property, String(value));
     case 'place-self':
       return addStyleProp(property, String(value));
     case 'container-type':
