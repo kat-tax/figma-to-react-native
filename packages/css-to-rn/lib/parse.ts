@@ -458,32 +458,25 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
      * @figma-to-react-native/react-native-css-grid component at runtime.
      * This allows for proper responsive behavior and accurate CSS Grid layout.
      */
-    // CSS Grid Container Properties
+    case 'grid':
+    case 'grid-area':
+    case 'grid-auto-columns':
+    case 'grid-auto-flow':
+    case 'grid-auto-rows':
+    case 'grid-column-end':
+    case 'grid-column-start':
+    case 'grid-column':
+    case 'grid-row-end':
+    case 'grid-row-start':
+    case 'grid-row':
+    case 'grid-template-areas':
     case 'grid-template-columns':
     case 'grid-template-rows':
-    case 'grid-template-areas':
     case 'grid-template':
-    case 'grid-auto-flow':
-    case 'grid-auto-columns':
-    case 'grid-auto-rows':
-    case 'grid':
-      return addStyleProp(property, String(value));
-
-    // CSS Grid Item Properties
-    case 'grid-column-start':
-    case 'grid-column-end':
-    case 'grid-row-start':
-    case 'grid-row-end':
-    case 'grid-column':
-    case 'grid-row':
-    case 'grid-area':
-      return addStyleProp(property, String(value));
-
-    // CSS Grid Alignment Properties
     case 'justify-items':
-    case 'place-items':
-    case 'place-content':
     case 'justify-self':
+    case 'place-content':
+    case 'place-items':
     case 'place-self':
       return addStyleProp(property, String(value));
     case 'container-type':
