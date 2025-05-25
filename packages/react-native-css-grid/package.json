@@ -23,9 +23,7 @@
     "react": ">=16.8.0",
     "react-native": ">=0.60.0"
   },
-  "dependencies": {
-    "react-native-flexible-grid": "0.2.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/react": "^18.0.0",
     "@types/react-native": "^0.72.0",

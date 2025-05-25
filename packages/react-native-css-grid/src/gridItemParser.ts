@@ -1,6 +1,5 @@
 import React, { ReactNode, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import type { FlexGridTile } from 'react-native-flexible-grid';
 
 export interface GridItemStyle {
   gridColumn?: string;
@@ -16,9 +15,14 @@ export interface GridItemStyle {
   [key: string]: any;
 }
 
-export interface GridItemData extends FlexGridTile {
+export interface GridItemData {
+  /** Ratio determining the width of the item relative to itemSizeUnit. */
+  widthRatio?: number;
+  /** Ratio determining the height of the item relative to itemSizeUnit. */
+  heightRatio?: number;
   component: ReactNode;
   originalStyle?: any;
+  [key: string]: any;
 }
 
 export interface GridContext {

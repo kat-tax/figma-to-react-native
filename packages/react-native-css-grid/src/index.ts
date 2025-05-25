@@ -1,10 +1,12 @@
-export { Grid, GridItem } from './Grid';
+export { CSSGrid, GridItem } from './CSSGrid';
 export type {
   GridProps,
   GridItemProps,
   CSSGridStyle,
-  GridItemStyle
-} from './Grid';
+  GridItemStyle,
+  GridItemData,
+  GridLayoutResult
+} from './CSSGrid';
 
 export {
   parseGridTemplateColumns,
@@ -19,6 +21,11 @@ export {
 } from './gridItemParser';
 
 export type {
-  GridItemData,
   GridContext
 } from './gridItemParser';
+
+export {
+  calculateCSSGridLayout
+} from './cssGridCalculator';
+
+export { useThrottle } from './hooks/useThrottle';

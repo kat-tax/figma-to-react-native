@@ -1,20 +1,21 @@
 # React Native CSS Grid
 
-A React Native component that brings CSS Grid layout to React Native using a familiar CSS-like API. Built on top of `react-native-flexible-grid` with automatic conversion and responsive behavior.
+A React Native component that brings CSS Grid layout to React Native using a purpose-built implementation. Built from scratch with native React Native layout calculations and CSS Grid property parsing.
 
 ## Features
 
 - 🎯 **CSS Grid API** - Use familiar CSS Grid properties
-- 📱 **React Native Compatible** - Works with React Native's layout system
+- 📱 **React Native Native** - Built specifically for React Native
 - 🔄 **Responsive** - Automatically recalculates on container resize
-- ⚡ **Performance** - Efficient conversion and rendering
+- ⚡ **Performance** - Efficient layout calculations and optional virtualization
 - 🎨 **Flexible** - Supports most CSS Grid features
-- 🧩 **Children-based** - Simple `<Grid><GridItem/></Grid>` pattern
+- 🧩 **Children-based** - Simple `<CSSGrid><GridItem/></CSSGrid>` pattern
+- 🚀 **From Scratch** - No external grid dependencies, purpose-built for CSS Grid
 
 ## Installation
 
 ```bash
-npm install @figma-to-react-native/react-native-css-grid react-native-flexible-grid
+npm install @figma-to-react-native/react-native-css-grid
 ```
 
 ## Quick Start
@@ -22,11 +23,11 @@ npm install @figma-to-react-native/react-native-css-grid react-native-flexible-g
 ```tsx
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Grid, GridItem } from '@figma-to-react-native/react-native-css-grid';
+import { CSSGrid, GridItem } from '@figma-to-react-native/react-native-css-grid';
 
 export default function App() {
   return (
-    <Grid style={{ gridTemplateColumns: '1fr 2fr 1fr', gap: 10 }}>
+    <CSSGrid style={{ gridTemplateColumns: '1fr 2fr 1fr', gap: 10 }}>
       <GridItem style={{ gridColumn: 'span 2' }}>
         <View style={{ backgroundColor: 'red', padding: 20 }}>
           <Text>Item 1 (spans 2 columns)</Text>
@@ -42,16 +43,16 @@ export default function App() {
           <Text>Item 3 (spans 2 rows)</Text>
         </View>
       </GridItem>
-    </Grid>
+    </CSSGrid>
   );
 }
 ```
 
 ## API Reference
 
-### Grid Component
+### CSSGrid Component
 
-The main container component that accepts CSS Grid properties.
+The main container component that accepts CSS Grid properties and renders them with native React Native layout calculations.
 
 #### Props
 
@@ -60,9 +61,15 @@ The main container component that accepts CSS Grid properties.
 | `style` | `CSSGridStyle` | CSS Grid container styles |
 | `children` | `ReactNode` | Child components to layout |
 | `containerWidth` | `number` | Override container width for calculations |
-| `flexGridProps` | `Partial<FlexGridProps>` | Override FlexGrid properties |
+| `containerHeight` | `number` | Override container height for calculations |
 | `onLayout` | `(event: LayoutChangeEvent) => void` | Layout change callback |
 | `debug` | `boolean` | Enable debug logging |
+| `virtualization` | `boolean` | Enable virtualization for performance (default: false) |
+| `virtualizedBufferFactor` | `number` | Virtualization buffer factor |
+| `scrollEventInterval` | `number` | Scroll event throttle interval |
+| `showScrollIndicator` | `boolean` | Show scroll indicators |
+| `horizontalScrollEnabled` | `boolean` | Enable horizontal scrolling |
+| `verticalScrollEnabled` | `boolean` | Enable vertical scrolling |
 
 #### Supported CSS Grid Properties
 
@@ -115,17 +122,17 @@ Wrapper component for grid items with CSS Grid item properties.
 ### Basic Grid Layout
 
 ```tsx
-<Grid style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+<CSSGrid style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
   <GridItem><Text>1</Text></GridItem>
   <GridItem><Text>2</Text></GridItem>
   <GridItem><Text>3</Text></GridItem>
-</Grid>
+</CSSGrid>
 ```
 
 ### Responsive Grid
 
 ```tsx
-<Grid style={{
+<CSSGrid style={{
   gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
   gap: 20
 }}>
@@ -134,13 +141,13 @@ Wrapper component for grid items with CSS Grid item properties.
       <Card data={item} />
     </GridItem>
   ))}
-</Grid>
+</CSSGrid>
 ```
 
 ### Complex Layout with Spans
 
 ```tsx
-<Grid style={{
+<CSSGrid style={{
   gridTemplateColumns: 'repeat(4, 1fr)',
   gridTemplateRows: 'repeat(3, 100px)',
   gap: 10
@@ -157,13 +164,13 @@ Wrapper component for grid items with CSS Grid item properties.
   <GridItem>
     <Text>Content</Text>
   </GridItem>
-</Grid>
+</CSSGrid>
 ```
 
 ### Named Grid Areas
 
 ```tsx
-<Grid style={{
+<CSSGrid style={{
   gridTemplateAreas: `
     "header header header"
     "sidebar main main"
@@ -184,62 +191,112 @@ Wrapper component for grid items with CSS Grid item properties.
   <GridItem style={{ gridArea: 'footer' }}>
     <Text>Footer</Text>
   </GridItem>
-</Grid>
+</CSSGrid>
+```
+
+### Performance with Virtualization
+
+```tsx
+<CSSGrid
+  style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}
+  virtualization={true}
+  virtualizedBufferFactor={2}
+  containerHeight={400}
+>
+  {largeDataSet.map((item, index) => (
+    <GridItem key={index}>
+      <ExpensiveComponent data={item} />
+    </GridItem>
+  ))}
+</CSSGrid>
 ```
 
 ## How It Works
 
-The component automatically converts CSS Grid properties to `react-native-flexible-grid` configuration:
+The component implements CSS Grid layout using native React Native positioning:
 
-1. **Parse CSS Grid** - Analyzes `gridTemplateColumns` and other properties
-2. **Calculate Layout** - Determines optimal `itemSizeUnit` and column ratios
+1. **Parse CSS Grid Properties** - Analyzes `gridTemplateColumns`, `gridTemplateRows`, and other properties
+2. **Calculate Layout** - Determines exact positions and sizes for each grid item
 3. **Extract Items** - Processes children and their grid properties
-4. **Convert to FlexGrid** - Maps to FlexGrid's ratio-based system
+4. **Position Absolutely** - Uses React Native's absolute positioning to place items
 5. **Responsive Updates** - Recalculates on container resize
+6. **Optional Virtualization** - Renders only visible items for performance
 
-### Conversion Examples
+### Layout Calculation Examples
 
 ```css
 /* CSS Grid */
 grid-template-columns: 100px 200px 100px;
+gap: 10px;
 ```
 ↓
 ```typescript
-// FlexGrid Config
+// Calculated Layout
 {
-  maxColumnRatioUnits: 4,  // Total ratio units (1+2+1)
-  itemSizeUnit: 100,       // Base unit (GCD of sizes)
-  // Column ratios: 1, 2, 1
+  columnSizes: [100, 200, 100],
+  totalWidth: 420, // 100 + 200 + 100 + 2*10 (gaps)
+  items: [
+    { left: 0, width: 100 },      // Column 1
+    { left: 110, width: 200 },    // Column 2 (100 + 10 gap)
+    { left: 320, width: 100 }     // Column 3 (100 + 200 + 2*10 gaps)
+  ]
 }
 ```
 
 ```css
-/* CSS Grid */
+/* CSS Grid with Fractional Units */
 grid-template-columns: 1fr 2fr 1fr;
+container-width: 400px;
+gap: 10px;
 ```
 ↓
 ```typescript
-// FlexGrid Config
+// Calculated Layout
 {
-  maxColumnRatioUnits: 4,  // Total fr units
-  itemSizeUnit: 100,       // Container width / 4fr
-  // Column ratios: 1, 2, 1
+  columnSizes: [95, 190, 95], // (400 - 2*10) / 4fr = 95 per fr
+  totalWidth: 400,
+  items: [
+    { left: 0, width: 95 },       // 1fr
+    { left: 105, width: 190 },    // 2fr
+    { left: 305, width: 95 }      // 1fr
+  ]
 }
 ```
 
-## Performance Considerations
+## Architecture
 
-- **Virtualization Disabled** - For CSS Grid compatibility
+### Purpose-Built Design
+
+Unlike adapters that try to convert CSS Grid to other grid systems, this component is built from scratch specifically for CSS Grid:
+
+- **Native CSS Grid Logic** - Implements actual CSS Grid positioning algorithms
+- **React Native Optimized** - Uses absolute positioning for precise control
+- **No External Dependencies** - Self-contained grid implementation
+- **TypeScript First** - Full type safety and IntelliSense support
+
+### Performance Considerations
+
+- **Efficient Calculations** - Optimized layout algorithms
+- **Optional Virtualization** - Render only visible items for large grids
 - **Responsive Recalculation** - Only on container resize
-- **Efficient Parsing** - Cached calculations where possible
-- **Memory Usage** - Minimal overhead over FlexGrid
+- **Memory Efficient** - Minimal overhead over native React Native
+
+### Comparison with Alternatives
+
+| Feature | CSS Grid Component | FlexGrid Adapter | CSS-in-JS |
+|---------|-------------------|------------------|-----------|
+| CSS Grid API | ✅ Native | ⚠️ Converted | ❌ Limited |
+| Performance | ✅ Optimized | ⚠️ Overhead | ✅ Fast |
+| Responsive | ✅ Automatic | ❌ Manual | ⚠️ Complex |
+| TypeScript | ✅ Full | ⚠️ Partial | ❌ Minimal |
+| Bundle Size | ✅ Small | ❌ Large | ✅ Small |
 
 ## Limitations
 
-- **No Subgrid** - Not supported by FlexGrid
+- **No Subgrid** - CSS Grid Level 2 feature not implemented
 - **Limited Auto-placement** - Basic auto-flow only
 - **No Grid Lines** - Named lines not supported
-- **Fractional Precision** - Limited by integer ratios
+- **Row Sizing** - Auto-calculated, explicit row templates partially supported
 
 ## Migration from CSS
 
@@ -260,11 +317,11 @@ Most CSS Grid layouts can be migrated directly:
 
 ```tsx
 {/* React Native */}
-<Grid style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+<CSSGrid style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
   <GridItem style={{ gridColumn: 'span 2' }}>
     <YourComponent />
   </GridItem>
-</Grid>
+</CSSGrid>
 ```
 
 ## Contributing
