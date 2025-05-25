@@ -7,7 +7,6 @@ import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
 import {writePropsAttributes} from './writePropsAttributes';
-import {maybeWriteAsGrid} from './writeGrid';
 import {NodeAttrType} from 'types/node';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
@@ -70,11 +69,6 @@ function writeChild(
   state: WriteChildrenState,
 ) {
   const {data, settings, pressables, getStyleProp, getIconProp} = state;
-
-  // Check for grid layout before processing as normal node
-  if (child.children && maybeWriteAsGrid(writer, child.node, child.children, slug, state)) {
-    return; // Grid was written, skip normal rendering
-  }
 
   // Derived data
   const propRefs = child.node.componentPropertyReferences;
