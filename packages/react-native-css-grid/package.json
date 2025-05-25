@@ -1,0 +1,39 @@
+{
+  "name": "@figma-to-react-native/react-native-css-grid",
+  "version": "1.0.0",
+  "description": "React Native CSS Grid component that accepts CSS Grid properties and renders using react-native-flexible-grid",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf lib"
+  },
+  "keywords": [
+    "react-native",
+    "css-grid",
+    "grid",
+    "layout",
+    "flexbox",
+    "responsive"
+  ],
+  "author": "Figma to React Native",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
+  },
+  "dependencies": {
+    "react-native-flexible-grid": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-native": "^0.72.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "lib",
+    "src",
+    "README.md"
+  ]
+}

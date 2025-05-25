@@ -4,26 +4,7 @@ import {isValid, validPropertiesLoose} from './val';
 import type {Declaration, TokenOrValue} from 'lightningcss-wasm';
 import type {ParseDeclarationOptions} from './types';
 
-/**
- * Helper function to add default FlexGrid properties that cannot be derived from CSS
- * These properties are required by FlexGrid but have no CSS equivalent
- */
-function addDefaultFlexGridProperties(addStyleProp: (property: string, value: any) => void) {
-  // Set default itemSizeUnit if not already set
-  // This is required by FlexGrid but has no CSS equivalent
-  addStyleProp('_flexGridDefaults', {
-    itemSizeUnit: 50, // Default base unit size
-    data: [], // Empty data array - must be populated by the consumer
-    renderItem: null, // Must be provided by the consumer
-    virtualization: true,
-    autoAdjustItemWidth: true,
-    virtualizedBufferFactor: 2,
-    scrollEventInterval: 200,
-    showScrollIndicator: true,
-    onHorizontalEndReachedThreshold: 0.5,
-    onVerticalEndReachedThreshold: 0.5
-  });
-}
+
 
 export function parseDeclaration(declaration: Declaration, options: ParseDeclarationOptions) {
   const {addStyleProp, addWarning, handleStyleShorthand} = options;
@@ -503,228 +484,51 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
      * - data: Array of items to render
      * - renderItem: Function to render each item
      */
-    // CSS Grid Properties - converted to react-native-flexible-grid compatible properties
+    // CSS Grid Properties - pass through for Grid component
     case 'grid-template-columns':
-      // Add default FlexGrid properties on first grid property encounter
-      addDefaultFlexGridProperties(addStyleProp);
-      // Convert to maxColumnRatioUnits for FlexGrid (this is correct)
-      return addStyleProp('maxColumnRatioUnits', $.gridTemplateColumns(value, opts));
-    case 'grid-template-rows':
-      // FlexGrid doesn't use explicit row templates - items flow based on ratios
-      // Store for potential itemSizeUnit calculation
-      return addStyleProp('_gridTemplateRows', String(value));
+      return addStyleProp(property, String(value));
+        case 'grid-template-rows':
+      return addStyleProp(property, String(value));
     case 'grid-template-areas':
-      // FlexGrid doesn't use named grid areas - store for reference only
-      return addStyleProp('_gridTemplateAreas', $.gridTemplateAreas(value, opts));
+      return addStyleProp(property, String(value));
     case 'grid-template':
-      // Shorthand for grid-template-rows, grid-template-columns, and grid-template-areas
-      if (value && typeof value === 'object') {
-        if ((value as any).columns) {
-          addStyleProp('maxColumnRatioUnits', $.gridTemplateColumns((value as any).columns, opts));
-        }
-        if ((value as any).rows) {
-          addStyleProp('_gridTemplateRows', String((value as any).rows));
-        }
-        if ((value as any).areas) {
-          addStyleProp('_gridTemplateAreas', String((value as any).areas));
-        }
-      }
-      return;
+      return addStyleProp(property, String(value));
     case 'grid-auto-flow':
-      // FlexGrid doesn't support auto-flow - items are positioned by ratios
-      return addStyleProp('_gridAutoFlow', String(value));
+      return addStyleProp(property, String(value));
     case 'grid-auto-columns':
-      // Store for potential itemSizeUnit calculation
-      return addStyleProp('_gridAutoColumns', String(value));
+      return addStyleProp(property, String(value));
     case 'grid-auto-rows':
-      // Store for potential itemSizeUnit calculation
-      return addStyleProp('_gridAutoRows', String(value));
+      return addStyleProp(property, String(value));
     case 'grid':
-      // Shorthand for all grid properties - store as reference
-      return addStyleProp('_gridShorthand', String(value));
+      return addStyleProp(property, String(value));
 
-    // Grid Item Properties - convert to FlexGrid ratio system
+    // Grid Item Properties - pass through for Grid component
     case 'grid-column-start':
-      return addStyleProp('_gridColumnStart', String(value));
+      return addStyleProp(property, String(value));
     case 'grid-column-end':
-      return addStyleProp('_gridColumnEnd', String(value));
+      return addStyleProp(property, String(value));
     case 'grid-row-start':
-      return addStyleProp('_gridRowStart', String(value));
+      return addStyleProp(property, String(value));
     case 'grid-row-end':
-      return addStyleProp('_gridRowEnd', String(value));
+      return addStyleProp(property, String(value));
     case 'grid-column':
-      // Parse and convert to widthRatio for FlexGrid
-      if (value && typeof value === 'object') {
-        if (value.start) addStyleProp('_gridColumnStart', String(value.start));
-        if (value.end) addStyleProp('_gridColumnEnd', String(value.end));
-        // Calculate widthRatio from span
-        const start = parseInt(String(value.start || 1), 10);
-        const end = parseInt(String(value.end || start + 1), 10);
-        const span = end - start;
-        if (span > 0) {
-          addStyleProp('widthRatio', span);
-        }
-      } else {
-        const strValue = String(value);
-        if (strValue.includes('/')) {
-          const [start, end] = strValue.split('/').map(s => s.trim());
-          addStyleProp('_gridColumnStart', start);
-          addStyleProp('_gridColumnEnd', end);
-          // Calculate widthRatio from span
-          const startNum = parseInt(start, 10);
-          const endNum = parseInt(end, 10);
-          if (!isNaN(startNum) && !isNaN(endNum)) {
-            const span = endNum - startNum;
-            if (span > 0) {
-              addStyleProp('widthRatio', span);
-            }
-          }
-        } else if (strValue.includes('span')) {
-          const spanMatch = strValue.match(/span\s+(\d+)/);
-          if (spanMatch) {
-            const span = parseInt(spanMatch[1], 10);
-            addStyleProp('widthRatio', span);
-          }
-        } else {
-          addStyleProp('_gridColumn', strValue);
-        }
-      }
-      return;
+      return addStyleProp(property, String(value));
     case 'grid-row':
-      // Parse and convert to heightRatio for FlexGrid
-      if (value && typeof value === 'object') {
-        if (value.start) addStyleProp('_gridRowStart', String(value.start));
-        if (value.end) addStyleProp('_gridRowEnd', String(value.end));
-        // Calculate heightRatio from span
-        const start = parseInt(String(value.start || 1), 10);
-        const end = parseInt(String(value.end || start + 1), 10);
-        const span = end - start;
-        if (span > 0) {
-          addStyleProp('heightRatio', span);
-        }
-      } else {
-        const strValue = String(value);
-        if (strValue.includes('/')) {
-          const [start, end] = strValue.split('/').map(s => s.trim());
-          addStyleProp('_gridRowStart', start);
-          addStyleProp('_gridRowEnd', end);
-          // Calculate heightRatio from span
-          const startNum = parseInt(start, 10);
-          const endNum = parseInt(end, 10);
-          if (!isNaN(startNum) && !isNaN(endNum)) {
-            const span = endNum - startNum;
-            if (span > 0) {
-              addStyleProp('heightRatio', span);
-            }
-          }
-        } else if (strValue.includes('span')) {
-          const spanMatch = strValue.match(/span\s+(\d+)/);
-          if (spanMatch) {
-            const span = parseInt(spanMatch[1], 10);
-            addStyleProp('heightRatio', span);
-          }
-        } else {
-          addStyleProp('_gridRow', strValue);
-        }
-      }
-      return;
-    case 'grid-area':
-      // Parse grid-area and convert to widthRatio/heightRatio
-      if (value && typeof value === 'object') {
-        if (value.rowStart) addStyleProp('_gridRowStart', String(value.rowStart));
-        if (value.columnStart) addStyleProp('_gridColumnStart', String(value.columnStart));
-        if (value.rowEnd) addStyleProp('_gridRowEnd', String(value.rowEnd));
-        if (value.columnEnd) addStyleProp('_gridColumnEnd', String(value.columnEnd));
+      return addStyleProp(property, String(value));
+        case 'grid-area':
+      return addStyleProp(property, String(value));
 
-        // Calculate ratios from spans
-        if (value.columnStart && value.columnEnd) {
-          const start = parseInt(String(value.columnStart), 10);
-          const end = parseInt(String(value.columnEnd), 10);
-          if (!isNaN(start) && !isNaN(end)) {
-            const span = end - start;
-            if (span > 0) addStyleProp('widthRatio', span);
-          }
-        }
-        if (value.rowStart && value.rowEnd) {
-          const start = parseInt(String(value.rowStart), 10);
-          const end = parseInt(String(value.rowEnd), 10);
-          if (!isNaN(start) && !isNaN(end)) {
-            const span = end - start;
-            if (span > 0) addStyleProp('heightRatio', span);
-          }
-        }
-      } else {
-        const strValue = String(value);
-        if (strValue.includes('/')) {
-          const parts = strValue.split('/').map(s => s.trim());
-          if (parts.length === 4) {
-            addStyleProp('_gridRowStart', parts[0]);
-            addStyleProp('_gridColumnStart', parts[1]);
-            addStyleProp('_gridRowEnd', parts[2]);
-            addStyleProp('_gridColumnEnd', parts[3]);
-
-            // Calculate ratios
-            const rowStart = parseInt(parts[0], 10);
-            const colStart = parseInt(parts[1], 10);
-            const rowEnd = parseInt(parts[2], 10);
-            const colEnd = parseInt(parts[3], 10);
-
-            if (!isNaN(rowStart) && !isNaN(rowEnd)) {
-              const rowSpan = rowEnd - rowStart;
-              if (rowSpan > 0) addStyleProp('heightRatio', rowSpan);
-            }
-            if (!isNaN(colStart) && !isNaN(colEnd)) {
-              const colSpan = colEnd - colStart;
-              if (colSpan > 0) addStyleProp('widthRatio', colSpan);
-            }
-          }
-        } else {
-          // Named grid area - store for reference
-          addStyleProp('_gridArea', strValue);
-        }
-      }
-      return;
-
-    // Grid Alignment Properties - FlexGrid uses standard flexbox alignment
+    // Grid Alignment Properties - pass through for Grid component
     case 'justify-items':
-      // Map to standard justifyContent for FlexGrid items
-      return addStyleProp('justifyContent', String(value));
+      return addStyleProp(property, String(value));
     case 'place-items':
-      // Shorthand for align-items and justify-items
-      if (value && typeof value === 'object') {
-        addStyleProp('alignItems', String((value as any).align || value));
-        addStyleProp('justifyContent', String((value as any).justify || value));
-      } else {
-        const strValue = String(value);
-        addStyleProp('alignItems', strValue);
-        addStyleProp('justifyContent', strValue);
-      }
-      return;
+      return addStyleProp(property, String(value));
     case 'place-content':
-      // Shorthand for align-content and justify-content
-      if (value && typeof value === 'object') {
-        addStyleProp('alignContent', String((value as any).align || value));
-        addStyleProp('justifyContent', String((value as any).justify || value));
-      } else {
-        const strValue = String(value);
-        addStyleProp('alignContent', strValue);
-        addStyleProp('justifyContent', strValue);
-      }
-      return;
+      return addStyleProp(property, String(value));
     case 'justify-self':
-      // Map to alignSelf for FlexGrid items
-      return addStyleProp('alignSelf', String(value));
+      return addStyleProp(property, String(value));
     case 'place-self':
-      // Shorthand for align-self and justify-self
-      if (value && typeof value === 'object') {
-        addStyleProp('alignSelf', String((value as any).align || value));
-        // justify-self maps to alignSelf in FlexGrid context
-        addStyleProp('alignSelf', String((value as any).justify || (value as any).align || value));
-      } else {
-        const strValue = String(value);
-        addStyleProp('alignSelf', strValue);
-      }
-      return;
+      return addStyleProp(property, String(value));
     case 'container-type':
     case 'container-name':
     case 'container':

@@ -63,6 +63,94 @@ export default (value: any, options: ParseDeclarationOptionsWithValueWarning) =>
 }
 
 /**
+ * Enhanced parser that extracts both column count and sizing information
+ * for optimal itemSizeUnit calculation
+ */
+export function parseGridTemplateColumnsWithSizing(
+  value: any,
+  options: ParseDeclarationOptionsWithValueWarning,
+  containerWidth?: number
+): {
+  maxColumnRatioUnits: number;
+  suggestedItemSizeUnit: number;
+  columnSizes: number[];
+  hasExplicitSizes: boolean;
+  hasFractionalUnits: boolean;
+} {
+  const result = {
+    maxColumnRatioUnits: 12,
+    suggestedItemSizeUnit: 50,
+    columnSizes: [] as number[],
+    hasExplicitSizes: false,
+    hasFractionalUnits: false
+  };
+
+  if (typeof value === 'string') {
+    const parsed = parseGridTemplateColumnsStringWithSizing(value, containerWidth);
+    return { ...result, ...parsed };
+  }
+
+  // Handle typed values with sizing extraction
+  if (value && typeof value === 'object' && value.type === 'track-list' && value.value) {
+    const trackList = value.value;
+    const explicitSizes: number[] = [];
+    let totalFr = 0;
+    let columnCount = 0;
+
+    for (const track of trackList) {
+      if (track.type === 'track-size') {
+        columnCount++;
+
+        // Extract size information
+        if (track.value && track.value.type === 'length-percentage') {
+          if (track.value.value.unit === 'px') {
+            explicitSizes.push(track.value.value.value);
+            result.hasExplicitSizes = true;
+          }
+        } else if (track.value && track.value.type === 'flex') {
+          totalFr += track.value.value || 1;
+          result.hasFractionalUnits = true;
+        }
+      }
+    }
+
+    result.maxColumnRatioUnits = Math.max(1, columnCount);
+    result.columnSizes = explicitSizes;
+
+    // Calculate suggested itemSizeUnit
+    if (result.hasExplicitSizes && explicitSizes.length > 0) {
+      result.suggestedItemSizeUnit = calculateGCD(explicitSizes);
+    } else if (result.hasFractionalUnits && containerWidth && totalFr > 0) {
+      result.suggestedItemSizeUnit = Math.floor(containerWidth / totalFr);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Utility function to calculate Greatest Common Divisor
+ * Used for finding optimal itemSizeUnit from explicit pixel sizes
+ */
+function calculateGCD(numbers: number[]): number {
+  if (numbers.length === 0) return 50;
+  if (numbers.length === 1) return numbers[0];
+
+  const gcd = (a: number, b: number): number => {
+    return b === 0 ? a : gcd(b, a % b);
+  };
+
+  let result = numbers[0];
+  for (let i = 1; i < numbers.length; i++) {
+    result = gcd(result, numbers[i]);
+    if (result === 1) break; // Can't get smaller
+  }
+
+  // Ensure minimum reasonable size
+  return Math.max(result, 4);
+}
+
+/**
  * Advanced string-based parser for grid-template-columns
  * Handles complex CSS Grid template patterns and converts them to column counts
  * suitable for react-native-flexible-grid's maxColumnRatioUnits
@@ -118,6 +206,104 @@ function parseGridTemplateColumnsString(value: string): number {
 
   // No repeat functions, count explicit column definitions
   return Math.max(1, countColumnPatterns(normalized));
+}
+
+/**
+ * Enhanced string parser that extracts sizing information
+ */
+function parseGridTemplateColumnsStringWithSizing(
+  value: string,
+  containerWidth?: number
+): {
+  maxColumnRatioUnits: number;
+  suggestedItemSizeUnit: number;
+  columnSizes: number[];
+  hasExplicitSizes: boolean;
+  hasFractionalUnits: boolean;
+} {
+  const result = {
+    maxColumnRatioUnits: 12,
+    suggestedItemSizeUnit: 50,
+    columnSizes: [] as number[],
+    hasExplicitSizes: false,
+    hasFractionalUnits: false
+  };
+
+  if (value === 'none' || !value.trim()) {
+    return result;
+  }
+
+  const normalized = value.trim().replace(/\s+/g, ' ');
+  const explicitSizes: number[] = [];
+  let totalFr = 0;
+
+  // Extract pixel values
+  const pxMatches = normalized.match(/(\d+(?:\.\d+)?)px/g);
+  if (pxMatches) {
+    for (const match of pxMatches) {
+      const size = parseFloat(match.replace('px', ''));
+      explicitSizes.push(size);
+    }
+    result.hasExplicitSizes = true;
+  }
+
+  // Extract fractional units
+  const frMatches = normalized.match(/(\d+(?:\.\d+)?)fr/g);
+  if (frMatches) {
+    for (const match of frMatches) {
+      const fr = parseFloat(match.replace('fr', ''));
+      totalFr += fr;
+    }
+    result.hasFractionalUnits = true;
+  }
+
+  // Handle repeat() with sizing
+  const repeatMatches = normalized.match(/repeat\s*\(\s*(\d+)\s*,\s*([^)]+)\)/g);
+  if (repeatMatches) {
+    for (const match of repeatMatches) {
+      const repeatContent = match.match(/repeat\s*\(\s*(\d+)\s*,\s*([^)]+)\)/);
+      if (repeatContent) {
+        const [, count, pattern] = repeatContent;
+        const repeatCount = parseInt(count, 10);
+
+        // Extract sizes from pattern
+        const patternPx = pattern.match(/(\d+(?:\.\d+)?)px/g);
+        if (patternPx) {
+          for (const px of patternPx) {
+            const size = parseFloat(px.replace('px', ''));
+            for (let i = 0; i < repeatCount; i++) {
+              explicitSizes.push(size);
+            }
+          }
+          result.hasExplicitSizes = true;
+        }
+
+        const patternFr = pattern.match(/(\d+(?:\.\d+)?)fr/g);
+        if (patternFr) {
+          for (const fr of patternFr) {
+            const frValue = parseFloat(fr.replace('fr', ''));
+            totalFr += frValue * repeatCount;
+          }
+          result.hasFractionalUnits = true;
+        }
+      }
+    }
+  }
+
+  result.columnSizes = explicitSizes;
+  result.maxColumnRatioUnits = parseGridTemplateColumnsString(value);
+
+  // Calculate optimal itemSizeUnit
+  if (result.hasExplicitSizes && explicitSizes.length > 0) {
+    result.suggestedItemSizeUnit = calculateGCD(explicitSizes);
+  } else if (result.hasFractionalUnits && containerWidth && totalFr > 0) {
+    result.suggestedItemSizeUnit = Math.floor(containerWidth / totalFr);
+  } else if (containerWidth) {
+    // Fallback: divide container by column count
+    result.suggestedItemSizeUnit = Math.floor(containerWidth / result.maxColumnRatioUnits);
+  }
+
+  return result;
 }
 
 /**
