@@ -242,9 +242,6 @@ importers:
       react-native:
         specifier: '>=0.60.0'
         version: 0.79.2(@babel/core@7.27.1)(@types/react@18.3.22)(react@18.2.0)
-      react-native-flexible-grid:
-        specifier: 0.2.4
-        version: 0.2.4(react-native@0.79.2(@babel/core@7.27.1)(@types/react@18.3.22)(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@types/react':
         specifier: ^18.0.0
@@ -5389,12 +5386,6 @@ packages:
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
-
-  react-native-flexible-grid@0.2.4:
-    resolution: {integrity: sha512-iZ3csxv5mqERZ/1dRoXW6gHgHdBjWFC2zYS1+ZYmEhsEUoEx2Q2BeDIt/4FznSq+D2arlnDHHQWswHJWfAX43w==}
-    peerDependencies:
-      react: '*'
-      react-native: '*'
 
   react-native@0.79.2:
     resolution: {integrity: sha512-AnGzb56JvU5YCL7cAwg10+ewDquzvmgrMddiBM0GAWLwQM/6DJfGd2ZKrMuKKehHerpDDZgG+EY64gk3x3dEkw==}
@@ -12084,11 +12075,6 @@ snapshots:
       react: 18.2.0
 
   react-is@18.3.1: {}
-
-  react-native-flexible-grid@0.2.4(react-native@0.79.2(@babel/core@7.27.1)(@types/react@18.3.22)(react@18.2.0))(react@18.2.0):
-    dependencies:
-      react: 18.2.0
-      react-native: 0.79.2(@babel/core@7.27.1)(@types/react@18.3.22)(react@18.2.0)
 
   react-native@0.79.2(@babel/core@7.27.1)(@types/react@18.3.22)(react@18.2.0):
     dependencies:
