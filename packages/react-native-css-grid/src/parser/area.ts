@@ -5,7 +5,7 @@ import type {GridItemData, GridColumnInfo, GridGaps} from 'types';
 /**
  * Calculate column sizes from grid-template-columns
  */
-export function columnSizes(
+export function cols(
   templateColumns: string,
   containerWidth: number,
   columnGap: number,
@@ -32,7 +32,7 @@ export function columnSizes(
 /**
  * Calculate row sizes from grid-template-rows
  */
-export function rowSizes(
+export function rows(
   gridTemplateRows: string,
   containerHeight: number,
   rowGap: number,
@@ -46,7 +46,7 @@ export function rowSizes(
 /**
  * Parse gap values from CSS Grid gap properties
  */
-export function gapValues(
+export function gaps(
   gap?: string | number,
   rowGap?: string | number,
   columnGap?: string | number,
@@ -71,7 +71,7 @@ export function gapValues(
 /**
  * Calculate total height based on grid items
  */
-export function totalHeight(
+export function height(
   maxRow: number,
   rowSizes: number[],
   rowGap: number,
@@ -87,7 +87,7 @@ export function totalHeight(
 /**
  * Calculate total width based on column sizes
  */
-export function totalWidth(columnSizes: number[], columnGap: number): number {
+export function width(columnSizes: number[], columnGap: number): number {
   return columnSizes.length > 0
     ? columnSizes.reduce((sum, size) => sum + size, 0)
       + (columnSizes.length - 1) * columnGap
@@ -97,7 +97,7 @@ export function totalWidth(columnSizes: number[], columnGap: number): number {
 /**
  * Calculate optimal itemSizeUnit based on grid configuration
  */
-export function itemSizeUnit(
+export function unitSize(
   templateColumns: string,
   containerWidth?: number,
   columnInfo?: GridColumnInfo

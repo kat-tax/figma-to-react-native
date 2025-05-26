@@ -32,10 +32,10 @@ export function layout (
   } = options;
 
   // Parse values
-  const gaps = area.gapValues(gap, rowGap, columnGap);
+  const gaps = area.gaps(gap, rowGap, columnGap);
   const info = values.templateColumns(gridTemplateColumns);
-  const rowSizes = gridTemplateRows ? area.rowSizes(gridTemplateRows, containerHeight || 0, gaps.row) : [];
-  const colSizes = area.columnSizes(gridTemplateColumns, containerWidth, gaps.col);
+  const rowSizes = gridTemplateRows ? area.rows(gridTemplateRows, containerHeight || 0, gaps.row) : [];
+  const colSizes = area.cols(gridTemplateColumns, containerWidth, gaps.col);
   const colCount = colSizes.length;
 
   // Generate grid items
@@ -52,8 +52,8 @@ export function layout (
 
   // Calculate dimensions
   const rowCount = Math.max(...items.map(item => item.options.rowEnd));
-  const width = area.totalWidth(colSizes, gaps.col);
-  const height = area.totalHeight(rowCount, rowSizes, gaps.row, items);
+  const width = area.width(colSizes, gaps.col);
+  const height = area.height(rowCount, rowSizes, gaps.row, items);
 
   // if (debug) {
   //   console.log('Grid Layout Calculation:', {
