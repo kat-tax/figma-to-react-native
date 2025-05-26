@@ -1,6 +1,6 @@
 import {useMemo, useState, useCallback} from 'react';
 import {ScrollView, View, StyleSheet, LayoutChangeEvent} from 'react-native';
-import {calculateLayout} from 'parser/cssGridCalculator';
+import {layout} from 'render';
 
 import type {GridViewProps, GridLayoutResult} from 'types';
 
@@ -21,10 +21,20 @@ import type {GridViewProps, GridLayoutResult} from 'types';
  */
 export function GridView({children, ...props}: GridViewProps) {
   const [size, setSize] = useState(props.initialSize ?? {width: 0, height: 0});
-  const layout = useMemo((): GridLayoutResult => {
-    if (!size.width || !size.height) return EMPTY_LAYOUT;
+  const {items, width, height} = useMemo((): GridLayoutResult => {
+    if (!size.width || !size.height) {
+      return {
+        items: [],
+        width: 0,
+        height: 0,
+        colCount: 0,
+        colSizes: [],
+        rowCount: 0,
+        rowSizes: [],
+      };
+    };
     const style = StyleSheet.flatten(props.style);
-    return calculateLayout(children, {
+    return layout(children, {
       gap: style.gap,
       rowGap: style.rowGap,
       columnGap: style.columnGap,
@@ -45,15 +55,10 @@ export function GridView({children, ...props}: GridViewProps) {
   return (
     <View onLayout={handleLayout}>
       <ScrollView {...props}>
-        <View
-          style={{
-            position: 'relative',
-            width: layout.width,
-            height: layout.height,
-          }}>
-          {layout.items.map(item => (
+        <View style={{width, height, position: 'relative'}}>
+          {items.map((item, index) => (
             <View
-              key={item.key}
+              key={`item-${index}`}
               style={{
                 position: 'absolute',
                 top: item.top,
@@ -68,14 +73,4 @@ export function GridView({children, ...props}: GridViewProps) {
       </ScrollView>
     </View>
   );
-}
-
-const EMPTY_LAYOUT: GridLayoutResult = {
-  items: [],
-  width: 0,
-  height: 0,
-  rowCount: 0,
-  rowSizes: [],
-  colCount: 0,
-  colSizes: [],
 }

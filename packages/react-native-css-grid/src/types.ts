@@ -43,11 +43,11 @@ export interface GridLayoutOptions {
 	gridTemplateRows?: string;
 	gridTemplateAreas?: string;
 	gap?: string | number;
+  gapValues?: GridGaps;
 	rowGap?: string | number;
 	columnGap?: string | number;
 	containerWidth: number;
 	containerHeight?: number;
-	debug?: boolean;
 }
 
 export type GridLayoutResult = {
@@ -74,21 +74,33 @@ export type GridColumnPattern = {
   fr: number;
 }
 
+export interface GridItemOptions {
+  rowSizes: number[];
+  rowStart: number;
+  rowEnd: number;
+  columnSizes: number[];
+  columnStart: number;
+  columnEnd: number;
+  gapValues: GridGaps;
+}
+
 export type GridItemData = {
-	/** Calculated position and size */
-	top: number;
-	left: number;
-	width: number;
-	height: number;
-	/** Grid positioning info */
-	columnStart: number;
-	columnEnd: number;
-	rowStart: number;
-	rowEnd: number;
-	/** React component to render */
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+  options: GridItemOptions;
 	component: ReactNode;
-	/** Original style for reference */
-	originalStyle?: any;
-	/** Unique key */
-	key: string;
+}
+
+export type GridPosition = {
+  columnStart: number;
+  columnEnd: number;
+  rowStart: number;
+  rowEnd: number;
+}
+
+export type GridGaps = {
+  row: number;
+  col: number;
 }
