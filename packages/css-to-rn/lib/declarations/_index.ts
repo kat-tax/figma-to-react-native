@@ -15,6 +15,7 @@ export {default as fontStyle} from './font-style';
 export {default as fontVariantCaps} from './font-variant-caps';
 export {default as fontWeight} from './font-weight';
 export {default as gap} from './gap';
+export {default as grid} from './grid';
 export {default as justifyContent} from './justify-content';
 export {default as length} from './length';
 export {default as lengthOrCoercePercentageToRuntime} from './length-or-coerce-percentage-to-runtime';

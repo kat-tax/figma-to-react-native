@@ -7,6 +7,7 @@ import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
 
 import {writePropsAttributes} from './writePropsAttributes';
+import {writeGrid} from './writeGrid';
 import {NodeAttrType} from 'types/node';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
@@ -252,7 +253,7 @@ function writeChild(
     switch (jsxTag) {
       case 'View':
       case 'Motion.View':
-        writeChildren(writer, child.children, {
+        writeGrid(writer, child.node.id, child.children, {
           data,
           settings,
           infoDb: state.infoDb,

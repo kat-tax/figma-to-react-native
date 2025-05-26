@@ -15,7 +15,7 @@ A React Native component that brings CSS Grid layout to React Native using a pur
 ## Installation
 
 ```bash
-npm install @figma-to-react-native/react-native-css-grid
+npm install react-exo/grid
 ```
 
 ## Quick Start
@@ -23,7 +23,7 @@ npm install @figma-to-react-native/react-native-css-grid
 ```tsx
 import React from 'react';
 import { Text, View } from 'react-native';
-import { CSSGrid, GridItem } from '@figma-to-react-native/react-native-css-grid';
+import { CSSGrid, GridItem } from 'react-exo/grid';
 
 export default function App() {
   return (

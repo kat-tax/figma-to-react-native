@@ -29,7 +29,7 @@ export async function generateComponent(
     exoMotion: {},
     exoLottie: {},
     exoRive: {},
-    flexGrid: {},
+    exoGrid: {},
     useStylesTheme: false,
   };
 

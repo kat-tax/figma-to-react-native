@@ -60,7 +60,8 @@ export interface ImportFlags {
     isTouch?: boolean,
   },
   exoGrid: {
-    Grid?: boolean,
+    GridView?: boolean,
+    GridViewItem?: boolean,
   },
   // Hook destructuring
   useStylesTheme: boolean,

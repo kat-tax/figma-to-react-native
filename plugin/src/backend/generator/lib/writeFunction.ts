@@ -7,6 +7,7 @@ import {writePropsInterface} from './writePropsInterface';
 import {writeStateHooks} from './writeStateHooks';
 import {writeStyleHooks} from './writeStyleHooks';
 import {writeChildren} from './writeChildren';
+import {writeRootGrid} from './writeGrid';
 import {writeTSDoc} from './writeTSDoc';
 
 import type {ImportFlags} from './writeImports';
@@ -129,7 +130,7 @@ function getComponentCode(
     writer.write(`<${tag}${isPressable ? `${props} {...props}` : props.trimEnd()}>`).indent(() => {
       writer.conditionalWriteLine(isPressable, `{e => <>`);
       writer.withIndentationLevel((isPressable ? 1 : 0) + writer.getIndentationLevel(), () => {
-        writeChildren(writer, data.tree, {
+        writeRootGrid(writer, masterNode.id, data.tree, {
           data,
           flags,
           infoDb,
