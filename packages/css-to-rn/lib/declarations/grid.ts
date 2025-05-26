@@ -35,21 +35,13 @@ export default function parseGrid(value: any, options: ParseDeclarationOptionsWi
 
   // For complex objects, try to serialize them as CSS strings
   if (typeof value === 'object' && value !== null) {
-    // Handle LightningCSS grid line objects
+    // Handle LightningCSS grid structures
     if (value.type && typeof value.type === 'string') {
-      if (value.type === 'line' && typeof value.index === 'number') {
-        // Grid line: line number with optional name
-        const line = String(value.index);
-        return value.name ? `${value.name} ${line}` : line;
-      } else if (value.type === 'span' && typeof value.index === 'number') {
-        // Grid span: span keyword with number
-        const span = `span ${value.index}`;
-        return value.name ? `${span} ${value.name}` : span;
-      } else if (value.type === 'auto') {
-        // Auto placement
-        return 'auto';
+      try {
+        return parseGridValue(value);
+      } catch {
+        // If parsing fails, fall through to warning
       }
-      // Other types we don't recognize - fall through to warning
     }
 
     // Check if it has a toString method that might give us a CSS string
@@ -88,4 +80,87 @@ export default function parseGrid(value: any, options: ParseDeclarationOptionsWi
 
   // Fallback for other primitive types
   return String(value);
+}
+
+/**
+ * Parse LightningCSS grid value objects into CSS strings
+ */
+function parseGridValue(value: any): string {
+  if (!value || typeof value !== 'object' || !value.type) {
+    throw new Error('Invalid grid value');
+  }
+
+  switch (value.type) {
+    case 'line':
+      // Grid line number with optional name
+      const line = String(value.index || 1);
+      return value.name ? `${value.name} ${line}` : line;
+
+    case 'span':
+      // Grid span keyword with number
+      const span = `span ${value.index || 1}`;
+      return value.name ? `${span} ${value.name}` : span;
+
+    case 'auto':
+      return 'auto';
+
+    case 'track-list':
+      // Grid template with track list
+      const items = value.items || [];
+      return items.map((item: any) => parseGridValue(item)).join(' ');
+
+    case 'track-repeat':
+      // repeat() function
+      const repeatValue = value.value || {};
+      const count = repeatValue.count?.value || repeatValue.count || 1;
+      const trackSizes = repeatValue.trackSizes || [];
+      const tracks = trackSizes.map((track: any) => parseGridValue(track)).join(' ');
+      return `repeat(${count}, ${tracks})`;
+
+    case 'track-size':
+      // Individual track size - extract the nested value
+      return parseGridValue(value.value);
+
+    case 'track-breadth':
+      // Track breadth - extract the nested value
+      return parseGridValue(value.value);
+
+    case 'min-max':
+      // minmax() function
+      const min = parseGridValue(value.min);
+      const max = parseGridValue(value.max);
+      return `minmax(${min}, ${max})`;
+
+    case 'length':
+      // Length value (px, em, etc.)
+      if (value.value && value.value.type === 'dimension') {
+        const dim = value.value.value;
+        return `${dim.value}${dim.unit}`;
+      }
+      return '0';
+
+    case 'flex':
+      // Fractional unit (fr)
+      return `${value.value || 1}fr`;
+
+    case 'percentage':
+      // Percentage value
+      return `${value.value || 0}%`;
+
+    case 'dimension':
+      // Direct dimension value
+      const dimValue = value.value || {};
+      return `${dimValue.value || 0}${dimValue.unit || 'px'}`;
+
+    case 'number':
+      // Plain number
+      return String(value.value || 0);
+
+    case 'keyword':
+      // CSS keyword
+      return value.value || 'auto';
+
+    default:
+      throw new Error(`Unknown grid value type: ${value.type}`);
+  }
 }
