@@ -1,5 +1,5 @@
 {
-  "name": "@figma-to-react-native/react-native-css-grid",
+  "name": "react-native-grid-view",
   "version": "1.0.0",
   "description": "React Native CSS Grid component that accepts CSS Grid properties and renders using react-native-flexible-grid",
   "main": "lib/index.js",

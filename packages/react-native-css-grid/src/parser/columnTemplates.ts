@@ -3,17 +3,11 @@
  * Converts CSS grid-template-columns to FlexGrid configuration
  */
 
-import { normalizeWhitespace, parseFloatWithFallback } from './utils';
-import type { ColumnInfo, ColumnPattern } from './types';
+import {toTrimmed, toFloat} from '../utils';
+import type {GridColumnInfo, GridColumnPattern} from 'types';
 
-/**
- * Parse CSS grid-template-columns string
- */
-export function parseGridTemplateColumns(
-  gridTemplateColumns: string,
-  containerWidth?: number
-): ColumnInfo {
-  if (!gridTemplateColumns || gridTemplateColumns === 'none') {
+export function parseTemplateColumns(tpl: string): GridColumnInfo {
+  if (!tpl || tpl === 'none') {
     return {
       maxColumnRatioUnits: 12,
       columnSizes: [],
@@ -23,7 +17,7 @@ export function parseGridTemplateColumns(
     };
   }
 
-  const normalized = normalizeWhitespace(gridTemplateColumns);
+  const normalized = toTrimmed(tpl);
   const explicitSizes: number[] = [];
   let totalFr = 0;
   let columnCount = 0;
@@ -75,9 +69,9 @@ export function parseGridTemplateColumns(
 }
 
 /**
- * Parse a column pattern (without repeat)
+ * Parse column pattern (without repeat) utility
  */
-export function parseColumnPattern(pattern: string): ColumnPattern {
+function parseColumnPattern(pattern: string): GridColumnPattern {
   const sizes: number[] = [];
   let fr = 0;
 
@@ -91,14 +85,14 @@ export function parseColumnPattern(pattern: string): ColumnPattern {
     // Extract pixel values
     const pxMatch = part.match(/^(\d+(?:\.\d+)?)px$/);
     if (pxMatch) {
-      sizes.push(parseFloatWithFallback(pxMatch[1], 0));
+      sizes.push(toFloat(pxMatch[1], 0));
       continue;
     }
 
     // Extract fractional units
     const frMatch = part.match(/^(\d+(?:\.\d+)?)fr$/);
     if (frMatch) {
-      fr += parseFloatWithFallback(frMatch[1], 0);
+      fr += toFloat(frMatch[1], 0);
       continue;
     }
 

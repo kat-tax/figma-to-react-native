@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
     "target": "ES2018",
     "lib": ["ES2018"],
     "allowJs": true,
