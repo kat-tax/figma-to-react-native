@@ -31,9 +31,15 @@ export function span(input: string): number {
 /**
  * Parse grid-area value (row-start / column-start / row-end / column-end)
  */
-export function area(value: string): { widthRatio: number; heightRatio: number } {
+export function area(value: string): {
+  widthRatio: number,
+  heightRatio: number,
+} {
   if (!value || typeof value !== 'string') {
-    return {widthRatio: 1, heightRatio: 1};
+    return {
+      widthRatio: 1,
+      heightRatio: 1,
+    };
   }
   const parts = value.split('/').map(s => s.trim());
   if (parts.length === 4) {

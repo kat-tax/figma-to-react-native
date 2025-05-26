@@ -5,5 +5,5 @@ import type {GridViewItemProps} from 'types';
  * A component that represents an individual grid item
  */
 export function GridViewItem(props: GridViewItemProps) {
-  return <View {...props} />;
+  return <View {...props}/>;
 }

@@ -3,7 +3,6 @@ import {isValidElement, cloneElement, Children} from 'react';
 import * as area from 'parser/area';
 import * as item from 'parser/items';
 import * as values from 'parser/values';
-import * as position from 'parser/position';
 
 import type {
   GridViewProps,
@@ -84,20 +83,16 @@ export function generate(
   children: GridViewItemProps[] | GridViewItemProps,
   rowSizes: number[],
   columnSizes: number[],
+  // TODO: investigate if this is needed
   maxColumns: number,
   gapValues: GridGaps,
 ): GridItemData[] {
   return Children.map(children, child => {
     if (!isValidElement<GridViewItemProps>(child))return;
-    const [props, styles] = item.parse(child.props.style);
-    return item.create(cloneElement<GridViewItemProps>(child, {
-      ...props,
-      ...styles,
-    }), {
-      ...position.item(props, maxColumns),
-      rowSizes,
-      columnSizes,
-      gapValues,
-    });
+    const [props, style] = item.parse(child.props.style);
+    const areaPos = area.position(props.gridArea ?? '');
+    const itemPos = item.position(props, areaPos);
+    const nodeItem = cloneElement<GridViewItemProps>(child, {...props, style});
+    return item.create(nodeItem, {...itemPos, gapValues, rowSizes, columnSizes});
   });
 }

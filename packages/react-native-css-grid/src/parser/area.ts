@@ -1,6 +1,6 @@
 import * as utils from 'utils';
 import * as values from 'parser/values';
-import type {GridItemData, GridColumnInfo, GridGaps} from 'types';
+import type {GridItemData, GridColumnInfo, GridGaps, GridPosition} from 'types';
 
 /**
  * Calculate column sizes from grid-template-columns
@@ -121,4 +121,34 @@ export function unitSize(
 
   // Fallback
   return 50;
+}
+
+/**
+ * Parse grid-area value for positioning
+ */
+export function position(value: string): GridPosition {
+  if (!value || typeof value !== 'string') {
+    return {
+      columnStart: 0,
+      columnEnd: 0,
+      rowStart: 0,
+      rowEnd: 0,
+    };
+  }
+  const parts = value.split('/').map(s => s.trim());
+  if (parts.length === 4) {
+    const [rowStart, colStart, rowEnd, colEnd] = parts;
+    return {
+      columnStart: utils.toInt(colStart, 0),
+      columnEnd: utils.toInt(colEnd, 0),
+      rowStart: utils.toInt(rowStart, 0),
+      rowEnd: utils.toInt(rowEnd, 0),
+    };
+  }
+  return {
+    columnStart: 0,
+    columnEnd: 0,
+    rowStart: 0,
+    rowEnd: 0,
+  };
 }
