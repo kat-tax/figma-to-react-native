@@ -2,27 +2,27 @@ export { CSSGrid, GridItem } from './CSSGrid';
 export type {
   GridProps,
   GridItemProps,
-  CSSGridStyle,
-  GridItemStyle,
+  CSSGridStyle
+} from './CSSGrid';
+
+export type {
+  GridItemStyle
+} from './parser';
+
+export type {
   GridItemData,
   GridLayoutResult
-} from './CSSGrid';
+} from './cssGridCalculator';
 
 export {
   parseGridTemplateColumns,
-  calculateItemSizeUnit
-} from './gridParser';
+  calculateItemSizeUnit,
+  extractGridItemProps
+} from './parser';
 
-export type { ColumnInfo } from './gridParser';
+export type { ColumnInfo } from './parser';
 
-export {
-  extractGridItemProps,
-  createGridItemData
-} from './gridItemParser';
 
-export type {
-  GridContext
-} from './gridItemParser';
 
 export {
   calculateCSSGridLayout

@@ -3,13 +3,8 @@
  * Converts CSS grid-template-columns to FlexGrid configuration
  */
 
-export interface ColumnInfo {
-  maxColumnRatioUnits: number;
-  columnSizes: number[];
-  hasExplicitSizes: boolean;
-  hasFractionalUnits: boolean;
-  totalFr: number;
-}
+import { normalizeWhitespace, parseFloatWithFallback } from './utils';
+import type { ColumnInfo, ColumnPattern } from './types';
 
 /**
  * Parse CSS grid-template-columns string
@@ -28,7 +23,7 @@ export function parseGridTemplateColumns(
     };
   }
 
-  const normalized = gridTemplateColumns.trim().replace(/\s+/g, ' ');
+  const normalized = normalizeWhitespace(gridTemplateColumns);
   const explicitSizes: number[] = [];
   let totalFr = 0;
   let columnCount = 0;
@@ -82,7 +77,7 @@ export function parseGridTemplateColumns(
 /**
  * Parse a column pattern (without repeat)
  */
-function parseColumnPattern(pattern: string): { count: number; sizes: number[]; fr: number } {
+export function parseColumnPattern(pattern: string): ColumnPattern {
   const sizes: number[] = [];
   let fr = 0;
 
@@ -96,14 +91,14 @@ function parseColumnPattern(pattern: string): { count: number; sizes: number[]; 
     // Extract pixel values
     const pxMatch = part.match(/^(\d+(?:\.\d+)?)px$/);
     if (pxMatch) {
-      sizes.push(parseFloat(pxMatch[1]));
+      sizes.push(parseFloatWithFallback(pxMatch[1], 0));
       continue;
     }
 
     // Extract fractional units
     const frMatch = part.match(/^(\d+(?:\.\d+)?)fr$/);
     if (frMatch) {
-      fr += parseFloat(frMatch[1]);
+      fr += parseFloatWithFallback(frMatch[1], 0);
       continue;
     }
 
@@ -125,53 +120,4 @@ function parseColumnPattern(pattern: string): { count: number; sizes: number[]; 
     sizes,
     fr
   };
-}
-
-/**
- * Calculate optimal itemSizeUnit based on grid configuration
- */
-export function calculateItemSizeUnit(
-  gridTemplateColumns: string,
-  containerWidth?: number,
-  columnInfo?: ColumnInfo
-): number {
-  const info = columnInfo || parseGridTemplateColumns(gridTemplateColumns, containerWidth);
-
-  // Method 1: Use GCD of explicit pixel sizes
-  if (info.hasExplicitSizes && info.columnSizes.length > 0) {
-    return calculateGCD(info.columnSizes);
-  }
-
-  // Method 2: Calculate from fractional units
-  if (info.hasFractionalUnits && containerWidth && info.totalFr > 0) {
-    return Math.floor(containerWidth / info.totalFr);
-  }
-
-  // Method 3: Divide container by column count
-  if (containerWidth && info.maxColumnRatioUnits > 0) {
-    return Math.floor(containerWidth / info.maxColumnRatioUnits);
-  }
-
-  // Fallback
-  return 50;
-}
-
-/**
- * Calculate Greatest Common Divisor
- */
-function calculateGCD(numbers: number[]): number {
-  if (numbers.length === 0) return 50;
-  if (numbers.length === 1) return Math.max(numbers[0], 4);
-
-  const gcd = (a: number, b: number): number => {
-    return b === 0 ? a : gcd(b, a % b);
-  };
-
-  let result = numbers[0];
-  for (let i = 1; i < numbers.length; i++) {
-    result = gcd(result, numbers[i]);
-    if (result === 1) break;
-  }
-
-  return Math.max(result, 4);
 }

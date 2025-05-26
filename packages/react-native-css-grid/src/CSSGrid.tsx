@@ -2,9 +2,8 @@ import React, { useMemo, useState, useCallback, ReactNode, useRef, useEffect } f
 import { View, ScrollView, LayoutChangeEvent, StyleProp, ViewStyle, StyleSheet } from 'react-native';
 import type { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 
-import { parseGridTemplateColumns, calculateItemSizeUnit } from './gridParser';
-import { extractGridItemProps, createGridItemData } from './gridItemParser';
-import { calculateCSSGridLayout } from './cssGridCalculator';
+import { parseGridTemplateColumns, calculateItemSizeUnit, extractGridItemProps, GridItemStyle } from './parser';
+import { calculateCSSGridLayout, GridItemData, GridLayoutResult } from './cssGridCalculator';
 import { useThrottle } from './hooks/useThrottle';
 
 export interface CSSGridStyle {
@@ -33,24 +32,7 @@ export interface CSSGridStyle {
   [key: string]: any;
 }
 
-export interface GridItemStyle {
-  // Item positioning
-  gridColumn?: string;
-  gridRow?: string;
-  gridArea?: string;
-  gridColumnStart?: string | number;
-  gridColumnEnd?: string | number;
-  gridRowStart?: string | number;
-  gridRowEnd?: string | number;
 
-  // Item alignment
-  justifySelf?: string;
-  alignSelf?: string;
-  placeSelf?: string;
-
-  // Standard style properties
-  [key: string]: any;
-}
 
 export interface GridProps {
   /** CSS Grid container styles */
@@ -101,38 +83,7 @@ export interface GridItemProps {
   key?: string | number;
 }
 
-export interface GridItemData {
-  /** Calculated position and size */
-  top: number;
-  left: number;
-  width: number;
-  height: number;
 
-  /** Grid positioning info */
-  columnStart: number;
-  columnEnd: number;
-  rowStart: number;
-  rowEnd: number;
-
-  /** React component to render */
-  component: ReactNode;
-
-  /** Original style for reference */
-  originalStyle?: any;
-
-  /** Unique key */
-  key: string;
-}
-
-export interface GridLayoutResult {
-  gridItems: GridItemData[];
-  totalWidth: number;
-  totalHeight: number;
-  columnSizes: number[];
-  rowSizes: number[];
-  columnCount: number;
-  rowCount: number;
-}
 
 /**
  * CSS Grid component for React Native

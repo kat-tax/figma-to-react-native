@@ -1,7 +1,6 @@
 import React, { ReactNode, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { parseGridTemplateColumns } from './gridParser';
-import { extractGridItemProps } from './gridItemParser';
+import { parseGridTemplateColumns, extractGridItemProps, parseGridSpan, cleanGridPropsFromStyle } from './parser';
 
 export interface GridItemData {
   /** Calculated position and size */
@@ -107,29 +106,17 @@ export function calculateCSSGridLayout(options: GridLayoutOptions): GridLayoutRe
     }
 
     const element = child as ReactElement<any>;
-    const { gridProps } = extractGridItemProps(element.props.style);
+    const gridProps = extractGridItemProps(element.props.style);
 
     // Parse grid positioning
     const positioning = parseGridItemPositioning(gridProps, columnInfo.maxColumnRatioUnits);
 
     // Create clean element without grid properties
-    const cleanStyle = element.props.style ? { ...StyleSheet.flatten(element.props.style) } : {};
-
-    // Remove grid-specific properties
-    delete cleanStyle.gridColumn;
-    delete cleanStyle.gridRow;
-    delete cleanStyle.gridArea;
-    delete cleanStyle.gridColumnStart;
-    delete cleanStyle.gridColumnEnd;
-    delete cleanStyle.gridRowStart;
-    delete cleanStyle.gridRowEnd;
-    delete cleanStyle.justifySelf;
-    delete cleanStyle.alignSelf;
-    delete cleanStyle.placeSelf;
+    const cleanStyle = cleanGridPropsFromStyle(element.props.style);
 
     const cleanElement = React.cloneElement(element, {
       ...element.props,
-      style: Object.keys(cleanStyle).length > 0 ? cleanStyle : undefined
+      style: cleanStyle
     });
 
     gridItems.push(createGridItem({
@@ -257,7 +244,7 @@ function parseGridItemPositioning(
 
   // Parse grid-area (row-start / column-start / row-end / column-end)
   if (gridProps.gridArea) {
-    const areaPositioning = parseGridArea(gridProps.gridArea);
+    const areaPositioning = parseGridAreaPositioning(gridProps.gridArea);
     if (areaPositioning.columnStart > 0) columnStart = areaPositioning.columnStart;
     if (areaPositioning.columnEnd > 0) columnEnd = areaPositioning.columnEnd;
     if (areaPositioning.rowStart > 0) rowStart = areaPositioning.rowStart;
@@ -267,43 +254,12 @@ function parseGridItemPositioning(
   return { columnStart, columnEnd, rowStart, rowEnd };
 }
 
-/**
- * Parse grid span value (e.g., "span 2", "1 / 3", "2")
- */
-function parseGridSpan(value: string): number {
-  if (!value || typeof value !== 'string') return 1;
 
-  const strValue = value.trim();
-
-  // Handle span syntax: "span 2"
-  const spanMatch = strValue.match(/span\s+(\d+)/);
-  if (spanMatch) {
-    return parseInt(spanMatch[1], 10) || 1;
-  }
-
-  // Handle range syntax: "1 / 3"
-  if (strValue.includes('/')) {
-    const [start, end] = strValue.split('/').map(s => s.trim());
-    const startNum = parseInt(start, 10);
-    const endNum = parseInt(end, 10);
-    if (!isNaN(startNum) && !isNaN(endNum)) {
-      return Math.max(1, endNum - startNum);
-    }
-  }
-
-  // Handle single number
-  const singleNum = parseInt(strValue, 10);
-  if (!isNaN(singleNum)) {
-    return Math.max(1, singleNum);
-  }
-
-  return 1;
-}
 
 /**
- * Parse grid-area value
+ * Parse grid-area value for positioning (different from parser module version)
  */
-function parseGridArea(value: string): {
+function parseGridAreaPositioning(value: string): {
   columnStart: number;
   columnEnd: number;
   rowStart: number;
