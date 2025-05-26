@@ -151,7 +151,7 @@ export const validProperties = [
   'container-name',
   'container',
   'text-align',
-  // CSS Grid properties (converted to react-native-flexible-grid compatible properties)
+  // CSS Grid properties (converted to react-exo/grid properties)
   'grid-template-columns',
   'grid-template-rows',
   'grid-template-areas',

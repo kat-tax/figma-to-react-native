@@ -24,7 +24,7 @@ export default (display: Display, options: ParseDeclarationOptionsWithValueWarni
         case 'flex':
           return display.inside.type;
         case 'grid':
-          // Grid display is supported via react-native-flexible-grid
+          // Grid display is supported via react-exo/grid
           return display.inside.type;
         case 'box':
         case 'ruby':
