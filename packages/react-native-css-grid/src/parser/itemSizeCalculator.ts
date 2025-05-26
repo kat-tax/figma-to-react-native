@@ -2,9 +2,9 @@
  * Item size calculation utilities
  */
 
-import { calculateGCD } from '../utils';
+import { toGCD } from '../utils';
 import { parseTemplateColumns } from './columnTemplates';
-import type { ColumnInfo } from '../types';
+import type { GridColumnInfo } from '../types';
 
 /**
  * Calculate optimal itemSizeUnit based on grid configuration
@@ -12,13 +12,13 @@ import type { ColumnInfo } from '../types';
 export function calculateItemSizeUnit(
   gridTemplateColumns: string,
   containerWidth?: number,
-  columnInfo?: ColumnInfo
+  columnInfo?: GridColumnInfo
 ): number {
-  const info = columnInfo || parseTemplateColumns(gridTemplateColumns, containerWidth);
+  const info = columnInfo || parseTemplateColumns(gridTemplateColumns);
 
   // Method 1: Use GCD of explicit pixel sizes
   if (info.hasExplicitSizes && info.columnSizes.length > 0) {
-    return calculateGCD(info.columnSizes);
+    return toGCD(info.columnSizes);
   }
 
   // Method 2: Calculate from fractional units
