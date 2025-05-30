@@ -1,0 +1,5 @@
+# Default line ending
+* text=auto eol=lf
+
+# Windows files
+*.bat text eol=crlf
