@@ -4,8 +4,6 @@ import {isValid, validPropertiesLoose} from './val';
 import type {Declaration, TokenOrValue} from 'lightningcss-wasm';
 import type {ParseDeclarationOptions} from './types';
 
-
-
 export function parseDeclaration(declaration: Declaration, options: ParseDeclarationOptions) {
   const {addStyleProp, addWarning, handleStyleShorthand} = options;
   const {property, value} = declaration;
@@ -449,15 +447,6 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
       return addStyleProp(property, $.boxShadow(value, opts));
     case 'aspect-ratio':
       return addStyleProp(property, $.aspectRatio(value));
-
-    /**
-     * CSS Grid Properties
-     * ==================
-     *
-     * CSS Grid properties are passed through as strings to be handled by the
-     * @figma-to-react-native/react-native-css-grid component at runtime.
-     * This allows for proper responsive behavior and accurate CSS Grid layout.
-     */
     case 'grid-auto-columns':
       return addStyleProp(property, $.grid(value, opts));
     case 'grid-auto-flow':
@@ -482,8 +471,6 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
       return addStyleProp(property, $.grid(value, opts));
     case 'justify-self':
       return addStyleProp(property, $.grid(value, opts));
-
-    // Grid shorthand properties
     case 'grid-column':
       // grid-column: <grid-line> [ / <grid-line> ]?
       if (value && typeof value === 'object' && value.start && value.end) {
