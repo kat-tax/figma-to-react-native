@@ -1,7 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-
-import * as parser from 'backend/parser/lib';
-import * as string from 'common/string';
+import {createIdentifierCamel} from 'common/string';
+import {getPage} from 'backend/parser/lib';
 
 import type {ImportFlags} from './writeImports';
 import type {ParseData} from 'types/parse';
@@ -12,12 +11,12 @@ export function writeStateHooks(
   data: ParseData,
 ) {
   const name = data.root.node.name;
-  const page = parser.getPage(data.root.node);
+  const page = getPage(data.root.node);
 
   data.localState?.[page.name]?.[name]?.forEach(([name, value]) => {
     flags.react.useState = true;
-    const getName = string.createIdentifierCamel(name);
-    const setName = string.createIdentifierCamel(`set_${name}`);
+    const getName = createIdentifierCamel(name);
+    const setName = createIdentifierCamel(`set_${name}`);
     writer.write(`const [${getName}, ${setName}] = useState(`);
     if (typeof value === 'string') {
       writer.quote(value);

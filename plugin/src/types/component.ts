@@ -36,20 +36,24 @@ export type ComponentRosterEntry = {
 }
 
 export type ComponentData = {
-  id: string,
-  key: string,
-  props: string,
+  // Meta
+  info: ComponentInfo,
+  links: ComponentLinks,
+  height: number,
+  width: number,
+  // Text
   imports: string,
+  props: string,
   code: string,
   index: string,
   story: string,
   docs: string,
-  width: number,
-  height: number,
-  icons: {list: string[], count: Record<string, number>},
+  // Data
   assets: ComponentAsset[] | null,
-  links: ComponentLinks,
-  info: ComponentInfo,
+  icons: {
+    list: string[],
+    count: Record<string, number>,
+  },
 }
 
 export type ComponentAsset = {

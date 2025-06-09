@@ -1,5 +1,5 @@
-import * as consts from 'config/consts';
-import * as parser from 'backend/parser/lib';
+import {getNode, getComponentInfo, sortComponentProps} from 'backend/parser/lib';
+import {PAGES_SPECIAL} from 'config/consts';
 
 import type CodeBlockWriter from 'code-block-writer';
 import type {ComponentInfo} from 'types/component';
@@ -19,8 +19,8 @@ export function writePropsImports(
   // Loop through sub-components, import each one
   if (components.length > 0) {
     components.forEach(node => {
-      const component = parser.getComponentInfo(node, infoDb);
-      if (component.page.name === consts.PAGES_SPECIAL.ICONS) {
+      const component = getComponentInfo(node, infoDb);
+      if (component.page.name === PAGES_SPECIAL.ICONS) {
         hasIconImport = true;
         return;
       }
@@ -55,11 +55,11 @@ function getComponentImports(
   if (props.length === 0) return components;
 
   // Look for components in props
-  props?.sort(parser.sortComponentProps).forEach(([_key, prop]) => {
+  props?.sort(sortComponentProps).forEach(([_key, prop]) => {
     const {type, defaultValue} = prop;
     if (type === 'INSTANCE_SWAP' && typeof defaultValue === 'string') {
-      const node = parser.getNode(defaultValue);
-      const component = parser.getComponentInfo(node, infoDb);
+      const node = getNode(defaultValue);
+      const component = getComponentInfo(node, infoDb);
       components.push(node);
       if (component.propDefs) {
         return getComponentImports(component.propDefs, infoDb, components);

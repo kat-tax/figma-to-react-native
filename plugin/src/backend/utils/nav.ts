@@ -1,11 +1,11 @@
 import {emit} from '@create-figma-plugin/utilities';
-import * as parser from 'backend/parser/lib';
+import {getSelectedComponent} from 'backend/parser/lib';
 
 import type {EventSelectComponent, EventSelectVariant} from 'types/events';
 
 export function targetSelectedComponent() {
   if (!figma.currentPage.selection.length) return;
-  const component = parser.getSelectedComponent();
+  const component = getSelectedComponent();
   if (!component) return;
   try {
     const isVariant = !!(component as SceneNode & VariantMixin).variantProperties;

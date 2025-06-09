@@ -6,25 +6,29 @@ import type {EventComponentBuild} from 'types/events';
 import type {ComponentBuild} from 'types/component';
 
 const initial: ComponentBuild = {
-  loaded: 0,
-  total: 0,
   index: '',
-  pages: [],
   links: {},
+  total: 0,
+  loaded: 0,
   roster: {},
+  pages: [],
   assets: {},
   assetMap: {},
-  icons: {list: [], count: {}},
+  icons: {
+    list: [],
+    count: {},
+  },
 };
 
 export function useBuild(): ComponentBuild {
   const [build, setBuild] = useState<ComponentBuild>(initial);
-  
-  useEffect(() => on<EventComponentBuild>('COMPONENT_BUILD', (newBuild, component) => {
+
+  useEffect(() => on<EventComponentBuild>('COMPONENT_BUILD', (key, newBuild, component) => {
     setBuild(newBuild);
     $.doc.transact(() => {
-      const {id, key, code, index, story, docs, info, props, imports, width, height} = component;
-      const {name, path} = info;
+      const {info, code, index, story, docs, props, imports, width, height} = component;
+      const {name, path, target} = info;
+      const {id} = target;
       const page = info.page.name;
       $.projectIndex.set(newBuild.index);
       $.projectFiles.set(Object.keys(newBuild.roster));

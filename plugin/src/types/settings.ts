@@ -1,6 +1,6 @@
 import type {BuildOptions} from 'syn-bundler';
-import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
+import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 
 export interface ProjectSettings {
   /**

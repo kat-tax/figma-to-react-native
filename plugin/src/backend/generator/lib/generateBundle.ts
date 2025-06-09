@@ -1,37 +1,20 @@
 import CodeBlockWriter from 'code-block-writer';
-import parseComponent from 'backend/parser';
+import parseComponentData from 'backend/parser';
 
-import * as consts from 'config/consts';
-import * as string from 'common/string';
-import * as parser from 'backend/parser/lib';
+import {getComponentInfo, getComponentFrameSize} from 'backend/parser/lib';
+import {componentPathNormalize} from 'common/string';
+import {PAGES_SPECIAL} from 'config/consts';
 
-import {generateNatives} from '../lib/natives';
+import {generateNatives} from './natives';
 import {generateIndex} from './generateIndex';
+import {generateCode} from './generateCode';
 import {generateDocs} from './generateDocs';
 import {generateStory} from './generateStory';
-import {generateCode} from './generateCode';
-import {writePropsAttributes} from './writePropsAttributes';
+import {writePropsAttrs} from './writePropsAttrs';
 import {writePropsImports} from './writePropsImports';
 
-import type {ComponentData, ComponentInfo, ComponentLinks} from 'types/component';
 import type {ProjectSettings} from 'types/settings';
-
-const emptyBundle: ComponentData = {
-  id: '',
-  key: '',
-  code: '',
-  docs: '',
-  story: '',
-  index: '',
-  props: '',
-  imports: '',
-  width: 0,
-  height: 0,
-  links: {},
-  icons: {list: [], count: {}},
-  assets: null,
-  info: null,
-};
+import type {ComponentData, ComponentInfo, ComponentLinks} from 'types/component';
 
 export async function generateBundle(
   node: ComponentNode,
@@ -39,96 +22,82 @@ export async function generateBundle(
   settings: ProjectSettings,
   skipCache: boolean = false,
 ): Promise<ComponentData> {
-  // No node, return empty bundle
-  if (!node) return emptyBundle;
 
-  // Get component info
-  const component = parser.getComponentInfo(node, infoDb);
+  // Resolve component info
+  const info = node && getComponentInfo(node, infoDb);
+  if (info?.hasError) return {...emptyBundle, info: info};
+  if (!info?.target) return emptyBundle;
 
-  // If error, return stub bundle (w/ message)
-  if (component.hasError) return {
-    ...emptyBundle,
-    id: component.target.id,
-    key: component.target.key,
-    info: component,
-  };
-
-  // No target, return empty bundle
-  if (!component.target) return emptyBundle;
-
-  // Generate exo natives (if any)
-  const isExo = component.page.name === consts.PAGES_SPECIAL.LIBRARY;
+  // Generate exo natives if matched
+  const isExo = info.page.name === PAGES_SPECIAL.LIBRARY;
   const exo = generateNatives();
-
-  // Native component
-  if (isExo && exo[node.name]) {
-    return {
-      ...emptyBundle,
-      id: node.id,
-      key: node.key,
-      width: node.width,
-      height: node.height,
-      code: exo[node.name],
-      info: component,
-    };
+  const tpl = exo[node.name];
+  if (isExo && tpl) {
+    const {width, height} = node;
+    return {...emptyBundle, code: tpl, info, width, height};
   }
 
   // Normal component, parse figma data
-  const data = await parseComponent(node, skipCache);
-
-  // No data, return empty bundle
+  const data = await parseComponentData(node, skipCache);
   if (!data) return emptyBundle;
 
-  // Profile
-  const _t1 = Date.now();
-
-  // Component links
+  // Map path to node id links
   const links: ComponentLinks = {};
-  links[string.componentPathNormalize(component.path)] = component.target.id;
-  Object.values(data.meta.components).forEach(([node]) => {
-    const info = parser.getComponentInfo(node, infoDb);
-    links[string.componentPathNormalize(info.path)] = info.target.id;
+  links[componentPathNormalize(info.path)] = info.target.id;
+  Object.values(data.meta.components).forEach(([linkNode]) => {
+    const linkInfo = getComponentInfo(linkNode, infoDb);
+    links[componentPathNormalize(linkInfo.path)] = linkInfo.target.id;
   });
 
-  // Get frame size
-  const {width, height} = parser.getComponentFrameSize(data.root.node, data.frame?.node);
+  // Dimensions for preview container
+  const {width, height} = getComponentFrameSize(data.root.node, data.frame?.node);
 
-  const [props, imports, code, docs, story, index] = await Promise.all([
-    writePropsAttributes(new CodeBlockWriter(settings.writer), {
-      props: {...component.propDefs},
-      infoDb,
-    }),
-    writePropsImports(new CodeBlockWriter(settings.writer), {...component.propDefs}, infoDb),
+  // Generate component code and other data
+  const [imports, props, code, docs, story, index] = await Promise.all([
+    writePropsImports(new CodeBlockWriter(settings.writer), {...info.propDefs}, infoDb),
+    writePropsAttrs(new CodeBlockWriter(settings.writer), {props: {...info.propDefs}, infoDb}),
     generateCode(data, settings, infoDb),
-    generateDocs(component, settings, infoDb),
-    generateStory(component, settings, infoDb),
-    generateIndex([component], settings, false),
+    generateDocs(info, settings, infoDb),
+    generateStory(info, settings, infoDb),
+    generateIndex([info], settings, false),
   ]);
 
-  // Return bundle
-  const bundle: ComponentData = {
-    // Info
-    id: component.target.id,
-    key: component.target.key,
-    props,
-    imports,
-    // Text
+  return {
+    // Meta
+    info,
+    links,
+    width,
+    height,
+    // Data
     code,
     docs,
     story,
     index,
-    // Data
+    props,
+    imports,
+    // Assets
     assets: Object.values(data.assetData),
-    icons: {list: Array.from(data.meta.iconsUsed), count: data.meta.iconCounts},
-    // Meta
-    info: component,
-    links,
-    width,
-    height,
-  };
-
-  // Profile
-  console.log(`>> [bundle] ${Date.now() - _t1}ms`, component?.name || 'unknown');
-
-  return bundle;
+    icons: {
+      list: Array.from(data.meta.iconsUsed),
+      count: data.meta.iconCounts,
+    },
+  } satisfies ComponentData;
 }
+
+const emptyBundle: ComponentData = {
+  info: null,
+  links: {},
+  width: 0,
+  height: 0,
+  code: '',
+  docs: '',
+  story: '',
+  index: '',
+  props: '',
+  imports: '',
+  assets: null,
+  icons: {
+    list: [],
+    count: {},
+  },
+};

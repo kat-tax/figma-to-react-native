@@ -1,8 +1,8 @@
 import CodeBlockWriter from 'code-block-writer';
 import {writeChildren} from './writeChildren';
 
-import type {ParseData, ParseNodeTree} from 'types/parse';
 import type {WriteChildrenState} from './writeChildren';
+import type {ParseData, ParseNodeTree} from 'types/parse';
 
 const EXPERIMENTAL_GRID_LAYOUT = false;
 

@@ -1,4 +1,4 @@
-import * as parser from 'backend/parser/lib';
+import {getFillToken} from 'backend/parser/lib';
 
 export function Slider(component: ComponentNode) {
   const nodeRange = component.findOne(c => c.name === 'Range' && c.type === 'RECTANGLE') as RectangleNode;
@@ -6,9 +6,9 @@ export function Slider(component: ComponentNode) {
   const nodeThumb = component.findOne(c => c.name === 'Thumb' && c.type === 'ELLIPSE') as EllipseNode;
 
   return template({
-    fillRange: parser.getFillToken(nodeRange),
-    fillTrack: parser.getFillToken(nodeTrack),
-    fillThumb: parser.getFillToken(nodeThumb),
+    fillRange: getFillToken(nodeRange),
+    fillTrack: getFillToken(nodeTrack),
+    fillThumb: getFillToken(nodeThumb),
     importStyles: `import {useStyles} from 'react-native-unistyles';\n`,
   }).slice(1);
 }

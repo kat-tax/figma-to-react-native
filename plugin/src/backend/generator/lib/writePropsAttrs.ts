@@ -1,14 +1,13 @@
 import CodeBlockWriter from 'code-block-writer';
-import {NodeAttrType} from 'types/node';
 import {getEasingPreset} from 'interface/node/lib/transition';
+import {createIdentifierPascal, createIdentifier, escapeBacktick} from 'common/string';
+import {isNodeIcon, getNode, getComponentPropName, getComponentInfo, sortComponentPropsDef} from 'backend/parser/lib';
+import {NodeAttrType} from 'types/node';
 
-import * as parser from 'backend/parser/lib';
-import * as string from 'common/string';
-
-import type {NodeAttrRule, NodeMotionData, NodeMotionTransitionData} from 'types/node';
 import type {ComponentInfo} from 'types/component';
+import type {NodeAttrRule, NodeMotionData, NodeMotionTransitionData} from 'types/node';
 
-export interface WritePropsAttributesConfig {
+export interface WritePropsAttrsConfig {
   props?: ComponentPropertyDefinitions | ComponentProperties;
   infoDb?: Record<string, ComponentInfo> | null;
   nodeId?: string;
@@ -20,7 +19,7 @@ export interface WritePropsAttributesConfig {
   isRoot?: boolean;
 }
 
-export function writePropsAttributes(writer: CodeBlockWriter, data: WritePropsAttributesConfig) {
+export function writePropsAttrs(writer: CodeBlockWriter, data: WritePropsAttrsConfig) {
   const _props = data.props ? Object.entries(data.props) : [];
   const _noAttrProps = !data.attrProps || data.attrProps?.every(attr => attr.data === null);
   const _noMotionProps = !data.motionProps || data.motionProps?.every(attr => attr === null);
@@ -51,7 +50,7 @@ export function writePropsAttributes(writer: CodeBlockWriter, data: WritePropsAt
     if (data.styleProp)
       writer.writeLine(`style={${data.styleProp}}`);
     // Write component props
-    _props.sort(parser.sortComponentPropsDef).forEach(prop =>
+    _props.sort(sortComponentPropsDef).forEach(prop =>
       writeProp(writer, prop, data.props, data.infoDb, !data.nodeId));
     // Write motion props
     writeMotion(writer, data.motionProps);
@@ -161,7 +160,7 @@ export function writeAttr(
     case NodeAttrType.String:
       if (typeof attr.data !== 'string') return;
       writer.writeLine(attr.data.includes('${') || attr.data.includes('"')
-        ? `${attr.name}={\`${string.escapeBacktick(attr.data)}\`}`
+        ? `${attr.name}={\`${escapeBacktick(attr.data)}\`}`
         : `${attr.name}="${attr.data}"`);
       return;
     case NodeAttrType.Function:
@@ -182,7 +181,7 @@ export function writeProp(
   infoDb: Record<string, ComponentInfo> | null,
   excludeTestIds?: boolean,
 ) {
-  const k = parser.getComponentPropName(propId);
+  const k = getComponentPropName(propId);
   const v = prop.value || prop.defaultValue;
   // Boolean prop
   if (prop.type === 'BOOLEAN') {
@@ -193,11 +192,11 @@ export function writeProp(
   // Text props k={v} and gets quotes escaped
   } else if (prop.type === 'TEXT') {
     writer.writeLine(v.includes('${') || v.includes('"')
-      ? `${k}={\`${string.escapeBacktick(v)}\`}`
+      ? `${k}={\`${escapeBacktick(v)}\`}`
       : `${k}="${v}"`);
   // Variants are sanitized for invalid identifier chars
   } else if (prop.type === 'VARIANT') {
-    writer.writeLine(`${k}="${string.createIdentifier(v)}"`);
+    writer.writeLine(`${k}="${createIdentifier(v)}"`);
   // Instance swap (JSX tag as prop value)
   } else if (prop.type === 'INSTANCE_SWAP') {
     writePropComponent(writer, propId, k, v, props, infoDb, excludeTestIds);
@@ -214,9 +213,9 @@ export function writePropComponent(
   excludeTestIds?: boolean,
   returnOnlyProps?: boolean,
 ) {
-  const node = parser.getNode(componentId) as ComponentNode | InstanceNode;
-  const info = parser.getComponentInfo(node, infoDb);
-  const isIcon = parser.isNodeIcon(info.target);
+  const node = getNode(componentId) as ComponentNode | InstanceNode;
+  const info = getComponentInfo(node, infoDb);
+  const isIcon = isNodeIcon(info.target);
 
   // Props for this instance swap
   let jsxTestProp: string;
@@ -242,7 +241,7 @@ export function writePropComponent(
   }
 
   // Generate JSX props
-  const jsxProps = writePropsAttributes(new CodeBlockWriter(writer.getOptions()), {
+  const jsxProps = writePropsAttrs(new CodeBlockWriter(writer.getOptions()), {
     props: instance?.componentProperties,
     infoDb,
     nodeId: jsxTestProp,
@@ -257,7 +256,7 @@ export function writePropComponent(
   }
 
   // Write full component prop
-  const tagName = !isIcon ? string.createIdentifierPascal(info.name) : 'Icon';
+  const tagName = !isIcon ? createIdentifierPascal(info.name) : 'Icon';
   writer.writeLine(`${propName}={`);
   writer.indent(() => {
     writer.writeLine(`<${tagName}${jsxProps}/>`);

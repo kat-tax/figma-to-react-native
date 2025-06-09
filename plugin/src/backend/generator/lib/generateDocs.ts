@@ -1,10 +1,11 @@
 import CodeBlockWriter from 'code-block-writer';
-import {writePropsAttributes} from './writePropsAttributes';
-import * as consts from 'config/consts';
-import * as parser from 'backend/parser/lib';
+import {VARIABLE_COLLECTIONS} from 'config/consts';
+import {getVariables, getVariableCollection} from 'backend/parser/lib';
 
-import type {ProjectSettings} from 'types/settings';
+import {writePropsAttrs} from './writePropsAttrs';
+
 import type {ComponentInfo} from 'types/component';
+import type {ProjectSettings} from 'types/settings';
 
 export async function generateDocs(
   component: ComponentInfo,
@@ -13,7 +14,7 @@ export async function generateDocs(
 ) {
   const writer = new CodeBlockWriter(settings?.writer);
   const pkgName = await getDesignProject();
-  const attrs = writePropsAttributes(new CodeBlockWriter(settings?.writer), {
+  const attrs = writePropsAttrs(new CodeBlockWriter(settings?.writer), {
     props: component.propDefs,
     infoDb,
   });
@@ -73,9 +74,9 @@ export async function generateDocs(
 async function getDesignProject() {
   let pkgName = 'design';
   try {
-    const config = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.APP_CONFIG);
+    const config = await getVariableCollection(VARIABLE_COLLECTIONS.APP_CONFIG);
     if (config) {
-      const variables = await parser.getVariables(config.variableIds);
+      const variables = await getVariables(config.variableIds);
       if (variables) {
         const variable = variables.find(v => v.name === 'Design/Package Name');
         if (variable && variable.resolvedType === 'STRING') {

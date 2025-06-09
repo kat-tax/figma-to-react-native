@@ -1,6 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-import * as parser from 'backend/parser/lib';
-
+import {getComponentInfo} from 'backend/parser/lib';
 import {writePropsImports} from './writePropsImports';
 
 import type {ParseData} from 'types/parse';
@@ -108,7 +107,7 @@ export async function writeImports(
     components
       .sort((a, b) => a[1][0].name?.localeCompare(b[1][0].name))
       .forEach(([_id, [node, _instance]]) => {
-        const component = parser.getComponentInfo(node, infoDb);
+        const component = getComponentInfo(node, infoDb);
         subwriter.write(`import {${component.name}} from`);
         subwriter.space();
         subwriter.quote(component.path);

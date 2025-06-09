@@ -2,8 +2,8 @@ import CodeBlockWriter from 'code-block-writer';
 import {isVariant, getNodeAttrs} from 'backend/parser/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 
-import {writePropsAttributes} from './writePropsAttributes';
 import {writePropsInterface} from './writePropsInterface';
+import {writePropsAttrs} from './writePropsAttrs';
 import {writeStateHooks} from './writeStateHooks';
 import {writeStyleHooks} from './writeStyleHooks';
 import {writeLayout} from './writeLayout';
@@ -110,7 +110,7 @@ function getComponentCode(
         : 'View';
 
     // Generate the JSX props
-    const props = writePropsAttributes(new CodeBlockWriter(settings.writer), {
+    const props = writePropsAttrs(new CodeBlockWriter(settings.writer), {
       props: undefined,
       infoDb,
       nodeId: masterNode.id,

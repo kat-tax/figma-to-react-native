@@ -85,7 +85,7 @@ function crawlChildren(
     includes: {},
     icons: {},
   };
-  
+
   for (const node of nodes) {
     // Skip nodes that are not visible and not conditionally rendered
     if (!parser.isNodeVisible(node)) continue;
@@ -163,7 +163,7 @@ function crawlChildren(
             if (type === 'INSTANCE_SWAP' && typeof value === 'string') {
               const swapComponent = parser.getNode(value);
               const swapPropsRef = (swapComponent as ComponentNode)?.instances?.[0]?.componentPropertyReferences;
-              let swapInvisible = false; 
+              let swapInvisible = false;
               // If a linked visible prop is false for the component swap, do not include component
               if (typeof node.componentProperties[swapPropsRef.visible] !== 'undefined') {
                 if ((node.componentProperties[swapPropsRef.visible] as any)?.value === false) {

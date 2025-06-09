@@ -1,6 +1,5 @@
-import CodeBlockWriter from 'code-block-writer';
 import {diff} from 'deep-object-diff';
-
+import CodeBlockWriter from 'code-block-writer';
 import {getInstanceStyles} from 'backend/parser/lib';
 import {createIdentifierCamel} from 'common/string';
 

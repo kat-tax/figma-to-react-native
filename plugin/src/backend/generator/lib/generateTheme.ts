@@ -1,9 +1,13 @@
 import CodeBlockWriter from 'code-block-writer';
+import {VARIABLE_COLLECTIONS} from 'config/consts';
+import {createIdentifierCamel} from 'common/string';
 import {isReadOnly} from 'backend/utils/mode';
-
-import * as string from 'common/string';
-import * as consts from 'config/consts';
-import * as parser from 'backend/parser/lib';
+import {
+  getColor,
+  getVariables,
+  getVariableCollection,
+  getVariableCollectionModes,
+} from 'backend/parser/lib';
 
 import type {ProjectSettings} from 'types/settings';
 
@@ -22,14 +26,14 @@ export async function generateTheme(settings: ProjectSettings) {
 // Sections
 
 async function writeBreakpoints(writer: CodeBlockWriter) {
-  const display = await getFloatVariables(consts.VARIABLE_COLLECTIONS.BREAKPOINTS, 'breakpoints');
+  const display = await getFloatVariables(VARIABLE_COLLECTIONS.BREAKPOINTS, 'breakpoints');
 
   writer.write('export const breakpoints = {').indent(() => {
     // Write breakpoints (if any)
     const keys = Object.keys(display);
     if (keys.length > 0) {
       keys.forEach(group => {
-        const groupId = string.createIdentifierCamel(group);
+        const groupId = createIdentifierCamel(group);
         const groupItem = display[group] as FloatToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
@@ -48,21 +52,21 @@ async function writeBreakpoints(writer: CodeBlockWriter) {
 }
 
 async function writeDisplay(writer: CodeBlockWriter) {
-  const display = await getFloatVariables(consts.VARIABLE_COLLECTIONS.SCALE_DISPLAY, 'display');
+  const display = await getFloatVariables(VARIABLE_COLLECTIONS.SCALE_DISPLAY, 'display');
 
   writer.write('export const display = {').indent(() => {
     // Write display scales (if any)
     const keys = Object.keys(display);
     if (keys.length > 0) {
       keys.forEach(group => {
-        const groupId = string.createIdentifierCamel(group);
+        const groupId = createIdentifierCamel(group);
         const groupItem = display[group] as FloatToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
     // No display scales found, write empty object
     } else {
-      writer.write(`// No "${consts.VARIABLE_COLLECTIONS.SCALE_DISPLAY}" variable collection found`);
+      writer.write(`// No "${VARIABLE_COLLECTIONS.SCALE_DISPLAY}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
@@ -70,15 +74,15 @@ async function writeDisplay(writer: CodeBlockWriter) {
 }
 
 async function writeFonts(writer: CodeBlockWriter) {
-  const font = await getFontVariables(consts.VARIABLE_COLLECTIONS.FONTS, 'font');
-  const typography = await getFloatVariables(consts.VARIABLE_COLLECTIONS.SCALE_FONTS, 'typography');
+  const font = await getFontVariables(VARIABLE_COLLECTIONS.FONTS, 'font');
+  const typography = await getFloatVariables(VARIABLE_COLLECTIONS.SCALE_FONTS, 'typography');
 
   writer.write('export const typography = {').indent(() => {
     // Write font scales (if any)
     const keys = Object.keys(typography);
     if (keys.length > 0) {
       keys.forEach(group => {
-        const groupId = string.createIdentifierCamel(group);
+        const groupId = createIdentifierCamel(group);
         const groupItem = typography[group] as FloatToken;
         // Hack: font weight needs to be a string
         if (groupId.startsWith('weight'))
@@ -88,7 +92,7 @@ async function writeFonts(writer: CodeBlockWriter) {
       });
     // No font scales found, write empty object
     } else {
-      writer.write(`// No "${consts.VARIABLE_COLLECTIONS.SCALE_FONTS}" variable collection found`);
+      writer.write(`// No "${VARIABLE_COLLECTIONS.SCALE_FONTS}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
@@ -99,14 +103,14 @@ async function writeFonts(writer: CodeBlockWriter) {
     const keys = Object.keys(font.refs);
     if (keys.length > 0) {
       keys.forEach(group => {
-        const groupId = string.createIdentifierCamel(group);
+        const groupId = createIdentifierCamel(group);
         const groupItem = font.refs[group] as FontToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
     // No fonts found, write empty object
     } else {
-      writer.write(`// No "${consts.VARIABLE_COLLECTIONS.FONTS}" variable collection found`);
+      writer.write(`// No "${VARIABLE_COLLECTIONS.FONTS}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
@@ -116,21 +120,21 @@ async function writeFonts(writer: CodeBlockWriter) {
 }
 
 async function writePalette(writer: CodeBlockWriter) {
-  const colors = await getColorVariables(consts.VARIABLE_COLLECTIONS.SCALE_COLORS, 'palette');
+  const colors = await getColorVariables(VARIABLE_COLLECTIONS.SCALE_COLORS, 'palette');
 
   writer.write('export const palette = {').indent(() => {
     // Write color scales (if any)
     const keys = Object.keys(colors);
     if (keys.length > 0) {
       keys.forEach(group => {
-        const groupId = string.createIdentifierCamel(group);
+        const groupId = createIdentifierCamel(group);
         const groupItem = colors[group] as ColorToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
       });
     // No colors found, write empty object
     } else {
-      writer.write(`// No "${consts.VARIABLE_COLLECTIONS.SCALE_COLORS}" variable collection found`);
+      writer.write(`// No "${VARIABLE_COLLECTIONS.SCALE_COLORS}" variable collection found`);
     }
   }).writeLine(`} as const;`);
 
@@ -138,7 +142,7 @@ async function writePalette(writer: CodeBlockWriter) {
 }
 
 async function writeThemes(writer: CodeBlockWriter) {
-  const collection = await parser.getVariableCollectionModes(consts.VARIABLE_COLLECTIONS.THEMES);
+  const collection = await getVariableCollectionModes(VARIABLE_COLLECTIONS.THEMES);
   const themes: {[key: string]: Colors} = {};
   let hasStyles = false;
 
@@ -153,7 +157,7 @@ async function writeThemes(writer: CodeBlockWriter) {
 
   writer.write('export const themes = {').indent(() => {
     for (const [name, colors] of Object.entries(themes)) {
-      writer.write(`${string.createIdentifierCamel(name)}: `).inlineBlock(() => {
+      writer.write(`${createIdentifierCamel(name)}: `).inlineBlock(() => {
         hasStyles = writeThemeColors(writer, colors);
         writer.writeLine('breakpoints,');
         writer.writeLine('display,');
@@ -172,7 +176,7 @@ async function writeThemes(writer: CodeBlockWriter) {
   const prefix = 'export const initialTheme: Themes = ';
   const suffix = ' as const';
   if (collection) {
-    const initialTheme = string.createIdentifierCamel(collection.default.name);
+    const initialTheme = createIdentifierCamel(collection.default.name);
     writer.writeLine(`${prefix}'${initialTheme}'`);
   } else {
     writer.writeLine(`${prefix}'main'${suffix}`);
@@ -207,7 +211,7 @@ function writeThemeColors(writer: CodeBlockWriter, colors: Colors) {
   if (keys.length > 0) {
     writer.write('colors: ').inlineBlock(() => {
       keys.forEach(group => {
-        const groupId = string.createIdentifierCamel(group);
+        const groupId = createIdentifierCamel(group);
         const groupItem = colors[group] as ColorToken;
         writeScaleToken(writer, groupId, groupItem);
         writer.newLine();
@@ -243,7 +247,7 @@ function writeScaleToken(writer: CodeBlockWriter, name: string, token: Token) {
 
 async function getColorTokens(themeId: string): Promise<Colors> {
   return {
-    ...await getColorVariables(consts.VARIABLE_COLLECTIONS.THEMES, 'colors', themeId),
+    ...await getColorVariables(VARIABLE_COLLECTIONS.THEMES, 'colors', themeId),
     ...await getColorLocalStyles(),
   };
 }
@@ -254,7 +258,7 @@ async function getColorLocalStyles(): Promise<Colors> {
   styles?.forEach(paint => {
     colors[paint.name] = {
       // @ts-ignore (TODO: expect only solid paints to fix this)
-      value: parser.getColor(paint.paints[0]?.color || {r: 0, g: 0, b: 0}),
+      value: getColor(paint.paints[0]?.color || {r: 0, g: 0, b: 0}),
       comment: paint.description,
     }
   });
@@ -263,9 +267,9 @@ async function getColorLocalStyles(): Promise<Colors> {
 
 async function getColorVariables(key: string, ns: string, themeId?: string): Promise<Colors> {
   const colors: Colors = {};
-  const collection = await parser.getVariableCollection(key);
+  const collection = await getVariableCollection(key);
   if (!collection) return colors;
-  const vars = await parser.getVariables(collection.variableIds);
+  const vars = await getVariables(collection.variableIds);
   for (const v of vars) {
     setVariableCodeSyntax(v, ns);
     if (themeId) {
@@ -274,12 +278,12 @@ async function getColorVariables(key: string, ns: string, themeId?: string): Pro
       const color = await figma.variables.getVariableByIdAsync(value.id);
       if (!color) continue;
       colors[v.name] = {
-        value: `palette.${string.createIdentifierCamel(color.name)}`,
+        value: `palette.${createIdentifierCamel(color.name)}`,
         comment: v.description,
       }
     } else {
       colors[v.name] = {
-        value: parser.getColor(v.valuesByMode[collection.defaultModeId] as RGBA),
+        value: getColor(v.valuesByMode[collection.defaultModeId] as RGBA),
         comment: v.description,
       }
     }
@@ -289,9 +293,9 @@ async function getColorVariables(key: string, ns: string, themeId?: string): Pro
 
 async function getFloatVariables(key: string, ns: string): Promise<Floats> {
   const scales: Floats = {};
-  const collection = await parser.getVariableCollection(key);
+  const collection = await getVariableCollection(key);
   if (!collection) return scales;
-  const vars = await parser.getVariables(collection.variableIds);
+  const vars = await getVariables(collection.variableIds);
   for (const v of vars) {
     if (v.resolvedType === 'FLOAT') {
       setVariableCodeSyntax(v, ns);
@@ -307,14 +311,14 @@ async function getFloatVariables(key: string, ns: string): Promise<Floats> {
 async function getFontVariables(key: string, ns: string): Promise<{names: string[], refs: Fonts}> {
   const names: string[] = [];
   const refs: Fonts = {};
-  const collection = await parser.getVariableCollection(key);
+  const collection = await getVariableCollection(key);
 
   // No variable collection found, use Inter as default font
   if (!collection)
     return {names: ['Inter'], refs};
 
   // Use variables from collection
-  const vars = await parser.getVariables(collection.variableIds);
+  const vars = await getVariables(collection.variableIds);
   for (const v of vars) {
     const value = v.valuesByMode[collection.defaultModeId] as any;
     const isRef = value?.type === 'VARIABLE_ALIAS';
@@ -323,7 +327,7 @@ async function getFontVariables(key: string, ns: string): Promise<{names: string
     refs[v.name] = {
       value: isRef
         ? alias.resolvedType === 'FLOAT'
-          ? `typography.${string.createIdentifierCamel(alias.name)}`
+          ? `typography.${createIdentifierCamel(alias.name)}`
           : Object.values(alias.valuesByMode).shift()
         : value,
       comment: v.description,
@@ -333,7 +337,7 @@ async function getFontVariables(key: string, ns: string): Promise<{names: string
 }
 
 function setVariableCodeSyntax(variable: Variable, namespace: string) {
-  const name = string.createIdentifierCamel(variable.name);
+  const name = createIdentifierCamel(variable.name);
   const id = `var(--theme-${namespace}-${name})`;
   if (!isReadOnly && variable.codeSyntax?.WEB !== id) {
     variable.setVariableCodeSyntax('WEB', id);

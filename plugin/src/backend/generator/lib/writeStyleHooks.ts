@@ -1,6 +1,5 @@
 import CodeBlockWriter from 'code-block-writer';
-
-import * as parser from 'backend/parser/lib';
+import {getComponentPropName} from 'backend/parser/lib';
 
 import type {ImportFlags} from './writeImports';
 import type {ParseStyles, ParseVariantData} from 'types/parse';
@@ -40,7 +39,7 @@ export function writeStyleHooks(
         .map(v => {
           const k = v.split(', ')?.map(part => {
             const [state, value] = part.split('=');
-            varIds.add(parser.getComponentPropName(state));
+            varIds.add(getComponentPropName(state));
             return value;
           });
           return [k, v];
@@ -57,7 +56,7 @@ export function writeStyleHooks(
         .map(v => {
           const k = v.split(', ')?.map(part => {
             const [state, value] = part.split('=');
-            varIds.add(parser.getComponentPropName(state));
+            varIds.add(getComponentPropName(state));
             return value;
           });
           return [k, v];

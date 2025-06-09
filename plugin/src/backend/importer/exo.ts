@@ -1,11 +1,10 @@
-import * as consts from 'config/consts';
-import * as parser from 'backend/parser/lib';
-
-import {getIconComponentMap} from './icons';
+import {getNode, focusNode, isNodeIcon} from 'backend/parser/lib';
+import {getIconComponentMap} from 'backend/importer/icons';
+import {PAGES_SPECIAL} from 'config/consts';
 
 type ExoComponents = Record<string, {
   list: Record<string, [string, boolean, number, number]>,
-  rect: {x: number, y: number, width: number, height: number}, 
+  rect: {x: number, y: number, width: number, height: number},
 }>
 
 export const EXO_COMPONENTS: ExoComponents = {
@@ -53,10 +52,10 @@ export async function importComponents(iconSet: string) {
   }
 
   // Create "Native" page
-  let natives = figma.root.children.find(p => p.name === consts.PAGES_SPECIAL.LIBRARY);
+  let natives = figma.root.children.find(p => p.name === PAGES_SPECIAL.LIBRARY);
   if (!natives) {
     natives = figma.createPage();
-    natives.name = consts.PAGES_SPECIAL.LIBRARY;
+    natives.name = PAGES_SPECIAL.LIBRARY;
     figma.root.appendChild(natives);
   // Page exists, clear it
   // TODO: only clear preset natives
@@ -69,14 +68,12 @@ export async function importComponents(iconSet: string) {
     timeout: 3000,
     button: {
       text: 'View',
-      action: () => {
-        parser.focusNode(base.id);
-      }
-    }
+      action: () => {focusNode(base.id)},
+    },
   });
+  const icons = getIconComponentMap();
 
   // Get relevant data
-  const icons = getIconComponentMap();
   const variables = figma.variables.getLocalVariables();
 
   // Create native components
@@ -153,15 +150,15 @@ async function replaceComponentSwaps(
     if (typeof value.defaultValue !== 'string')
       continue;
     // Not an icon swap
-    const originNode = parser.getNode(value.defaultValue);
-    if (parser.isNodeIcon(originNode))
+    const originNode = getNode(value.defaultValue);
+    if (isNodeIcon(originNode))
       continue;
     // Find icon in local set first, fallback to global set
     const [originSet, originName] = originNode.name.split(':');
     const uriOrigin = `${originSet}:${originName}`;
     const uriLocal = `${iconSet}:${originName}`;
-    const iconLocal = parser.getNode(icons[uriLocal]) as ComponentNode;
-    const iconNode = iconLocal || parser.getNode(icons[uriOrigin]) as ComponentNode;
+    const iconLocal = getNode(icons[uriLocal]) as ComponentNode;
+    const iconNode = iconLocal || getNode(icons[uriOrigin]) as ComponentNode;
     // No icon node found
     if (!iconNode)
       continue;
@@ -182,7 +179,8 @@ async function replaceBoundVariables(
   const nodes = [component, ...children];
   for (const node of nodes) {
     const vars = node.boundVariables || node.inferredVariables;
-    if (!vars) continue;
+    if (!vars)
+      continue;
     for (const [key, value] of Object.entries(vars)) {
       if (value instanceof Array) {
         for (const v of value) {

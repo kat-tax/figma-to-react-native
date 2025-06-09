@@ -1,15 +1,16 @@
-import * as delay from 'common/delay';
-import * as string from 'common/string';
-import * as consts from 'config/consts';
-import * as parser from 'backend/parser/lib';
+import {focusNode, getVariables, getVariableCollection} from 'backend/parser/lib';
+import {PAGES_SPECIAL, VARIABLE_COLLECTIONS} from 'config/consts';
+import {titleCase} from 'common/string';
+import {wait} from 'common/delay';
 
 import type {IconifySetPayload, IconifySetData} from 'interface/icons/lib/iconify';
 
-const SVG_PROPS = (size: number) => `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${size}" height="${size}" viewBox="0 0 256 256"`;
-const SVG_SIZE = 32;
-const SVG_MODE = 'Normal';
 const COLOR_BACKGROUND = 'Background';
 const COLOR_FOREGROUND = 'Foreground';
+const SVG_MODE = 'Normal';
+const SVG_SIZE = 32;
+const SVG_PROPS = (size: number) =>
+  `xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" role="img" width="${size}" height="${size}" viewBox="0 0 256 256"`;
 
 export async function importIcons(sets: IconifySetPayload) {
   for (const [prefix, set] of Object.entries(sets)) {
@@ -26,10 +27,10 @@ export async function createIconSet(prefix: string, set: IconifySetData) {
 
   // Create page
   let page = figma.root.children.find(p =>
-    p.name === consts.PAGES_SPECIAL.ICONS);
+    p.name === PAGES_SPECIAL.ICONS);
   if (!page) {
     page = figma.createPage();
-    page.name = consts.PAGES_SPECIAL.ICONS;
+    page.name = PAGES_SPECIAL.ICONS;
     figma.root.appendChild(page);
   } else {
     // Page exists
@@ -41,7 +42,7 @@ export async function createIconSet(prefix: string, set: IconifySetData) {
   if (!theme.background || !theme.foreground) {
     return;
   }
-  
+
   // Create icon set frame
   const frame = figma.createFrame();
   frame.name = `${name}, ${mode}, ${size}`;
@@ -73,13 +74,11 @@ export async function createIconSet(prefix: string, set: IconifySetData) {
   page.appendChild(frame);
 
   // Focus frame
-  figma.notify(`Importing ${string.titleCase(name)} Icons...`, {
+  figma.notify(`Importing ${titleCase(name)} Icons...`, {
     timeout: 3000,
     button: {
       text: 'View',
-      action: () => {
-        parser.focusNode(frame.id)
-      },
+      action: () => {focusNode(frame.id)},
     }
   });
 
@@ -110,8 +109,8 @@ export async function createIcons(
 
   for (const [name, svg] of Object.entries(icons)) {
     if (i++ % batch === 0)
-      await delay.wait(ms);
-  
+      await wait(ms);
+
     // Create icon component
     const component = figma.createComponent();
     component.name = `${prefix}:${name}`;
@@ -146,27 +145,19 @@ export async function getThemeTokens() {
   }
 }
 
-export async function getLocalStylesTokens(): Promise<{
-  background: PaintStyle,
-  foreground: PaintStyle,
-  isVariable: false,
-}> {
+export async function getLocalStylesTokens(): Promise<{background: PaintStyle, foreground: PaintStyle, isVariable: false}> {
   const styles = await figma.getLocalPaintStylesAsync();
   const background = styles.find(s => s.name === COLOR_BACKGROUND);
   const foreground = styles.find(s => s.name === COLOR_FOREGROUND);
   return {background, foreground, isVariable: false};
 }
 
-export async function getVariableTokens(): Promise<{
-  background: Variable,
-  foreground: Variable,
-  isVariable: true,
-}> {
+export async function getVariableTokens(): Promise<{background: Variable, foreground: Variable, isVariable: true}> {
   let background: Variable;
   let foreground: Variable;
-  const theme = await parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.THEMES);
+  const theme = await getVariableCollection(VARIABLE_COLLECTIONS.THEMES);
   if (theme) {
-    const variables = await parser.getVariables(theme.variableIds);
+    const variables = await getVariables(theme.variableIds);
     for (const variable of variables) {
       if (variable.name === COLOR_BACKGROUND)
         background = variable;
@@ -180,7 +171,7 @@ export async function getVariableTokens(): Promise<{
 }
 
 export function getAllIconComponents() {
-  const iconPage = figma.root?.children?.find(p => p.name === consts.PAGES_SPECIAL.ICONS);
+  const iconPage = figma.root?.children?.find(p => p.name === PAGES_SPECIAL.ICONS);
   const components = iconPage?.findAllWithCriteria({types: ['COMPONENT']});
   const icons = components?.filter(c => c.name.includes(':'));
   return icons;

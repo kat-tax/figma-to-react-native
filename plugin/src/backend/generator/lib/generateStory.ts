@@ -1,11 +1,16 @@
 import CodeBlockWriter from 'code-block-writer';
+import {createIdentifierPascal} from 'common/string';
+import {
+  getNode,
+  isNodeIcon,
+  getComponentInfo,
+  getComponentPropName,
+  sortComponentPropsDef,
+} from 'backend/parser/lib';
 
-import * as parser from 'backend/parser/lib';
-import * as string from 'common/string';
-
-import {writePropComponent} from './writePropsAttributes';
-import {writePropsImports} from './writePropsImports';
 import {sortImports} from './writeImports';
+import {writePropsImports} from './writePropsImports';
+import {writePropComponent} from './writePropsAttrs';
 
 import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
@@ -81,7 +86,7 @@ function writeStories(writer: CodeBlockWriter, component: ComponentInfo, infoDb:
   } else {
     let defaultVariant: string;
     component.target.children.forEach(child => {
-      const variant = string.createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
+      const variant = createIdentifierPascal(child.name.split(', ').map((n: string) => n.split('=').pop()).join(''));
       writer.write(`export const ${variant}: Story = `).inlineBlock(() => {
         if (!defaultVariant) defaultVariant = variant;
         if (variant === defaultVariant) {
@@ -100,10 +105,10 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo, info
   const props = component.propDefs ? Object.entries(component.propDefs) : [];
   if (props.length > 0) {
     writer.write('args: ').inlineBlock(() => {
-      props.sort(parser.sortComponentPropsDef).forEach(([key, prop]) => {
+      props.sort(sortComponentPropsDef).forEach(([key, prop]) => {
         const {type, defaultValue} = prop;
         const value = defaultValue.toString();
-        const name = parser.getComponentPropName(key);
+        const name = getComponentPropName(key);
         // String or state
         if (type === 'TEXT' || type === 'VARIANT') {
           writer.write(`${name}:`);
@@ -113,10 +118,10 @@ function writeStoryProps(writer: CodeBlockWriter, component: ComponentInfo, info
           writer.newLine();
         // Component
         } else if (type === 'INSTANCE_SWAP') {
-          const node = parser.getNode(value);
-          const swap = parser.getComponentInfo(node, infoDb);
-          const isIcon = parser.isNodeIcon(swap.target);
-          const tagName = !isIcon ? string.createIdentifierPascal(swap.name) : 'Icon';
+          const node = getNode(value);
+          const swap = getComponentInfo(node, infoDb);
+          const isIcon = isNodeIcon(swap.target);
+          const tagName = !isIcon ? createIdentifierPascal(swap.name) : 'Icon';
           writer.write(`${name}: (`);
           writer.indent(() => {
             writer.write(`<${tagName}`);

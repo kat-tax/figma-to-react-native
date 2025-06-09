@@ -84,11 +84,11 @@ export function getInstanceStyles(baseStyles: object, compareStyles: object) {
 
   // Special case: only one difference with flexShrink that's undefined
   // TODO: figure out why flexShrink is undefined in diff when there are no instance changes
-  const isOnlyFlexShrinkUndefined = 
-    diffCount === 1 && 
-    diffKeys[0] === 'flexShrink' && 
+  const isOnlyFlexShrinkUndefined =
+    diffCount === 1 &&
+    diffKeys[0] === 'flexShrink' &&
     styles['flexShrink'] === undefined;
-  
+
   return {
     styles,
     hasChanges: diffCount > 0 && !isOnlyFlexShrinkUndefined
@@ -129,9 +129,9 @@ export function getComponentInfo(node: BaseNode, infoDb?: Record<string, Compone
     return {
       target,
       name,
+      path: '',
       page: null,
       section: null,
-      path: '',
       propDefs: {},
       isVariant,
       isInstance,
@@ -144,7 +144,7 @@ export function getComponentInfo(node: BaseNode, infoDb?: Record<string, Compone
   let propDefs: ComponentPropertyDefinitions = {};
   let hasError = false;
   let errorMessage = '';
-  if (page?.name !== consts.PAGES_SPECIAL.ICONS) {  
+  if (page?.name !== consts.PAGES_SPECIAL.ICONS) {
     // Find the selected variant (if applicable)
     // TODO: fix this?, it should use the node target?
     const selectedVariant = (isVariant
@@ -160,7 +160,7 @@ export function getComponentInfo(node: BaseNode, infoDb?: Record<string, Compone
       Object.entries(selectedVariant?.variantProperties).forEach((v: any) => {
         propDefs[v[0]].defaultValue = v[1];
       });
-    }  
+    }
   }
 
   const path = 'components/'
@@ -169,15 +169,15 @@ export function getComponentInfo(node: BaseNode, infoDb?: Record<string, Compone
     + string.createPathKebab(section?.name || 'base')
     + '/'
     + string.createPathKebab(target.name);
-  
+
   const info: ComponentInfo = {
-    target, 
-    name, 
-    page, 
-    section, 
-    path, 
-    propDefs, 
-    isVariant, 
+    target,
+    name,
+    path,
+    page,
+    section,
+    propDefs,
+    isVariant,
     isInstance,
     hasError,
     errorMessage

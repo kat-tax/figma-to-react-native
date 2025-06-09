@@ -1,7 +1,6 @@
 import CodeBlockWriter from 'code-block-writer';
-
-import * as parser from 'backend/parser/lib';
-import * as string from 'common/string';
+import {createIdentifierPascal} from 'common/string';
+import {getComponentPropName, sortComponentPropsDef} from 'backend/parser/lib';
 
 import type {TSDocInfo} from './writeTSDoc';
 import type {ImportFlags} from './writeImports';
@@ -16,21 +15,20 @@ export function writePropsInterface(
   isRootPressable: boolean,
   isIcon: boolean,
 ) {
-  // Import pressable props
   flags.reactNativeTypes.PressableProps = isRootPressable;
 
   // Build props from Figma component property definitions
   const props = propDefs ? Object.entries(propDefs) : [];
   const propLines: string[] = [];
   const variantMap: Record<string, string[]> = {};
-  props.sort(parser.sortComponentPropsDef).forEach(([key, prop]) => {
+  props.sort(sortComponentPropsDef).forEach(([key, prop]) => {
     // Prop type
     const isBoolean = prop.type === 'BOOLEAN';
     const isVariant = prop.type === 'VARIANT';
     const isInstanceSwap = prop.type === 'INSTANCE_SWAP';
     const isConditional = isBoolean || isInstanceSwap;
     // Prop metadata
-    const propName = parser.getComponentPropName(key);
+    const propName = getComponentPropName(key);
     const propType: string = isVariant
       ? `typeof ${componentName}Variants.${propName}[number]`
       : isInstanceSwap
@@ -46,8 +44,7 @@ export function writePropsInterface(
     propLines.push(`${propName}${isConditional ? '?' : ''}: ${propType},`);
     // Record variant
     if (isVariant) {
-      variantMap[propName] = prop.variantOptions.map(v =>
-        string.createIdentifierPascal(v));
+      variantMap[propName] = prop.variantOptions.map(v => createIdentifierPascal(v));
     }
   });
 

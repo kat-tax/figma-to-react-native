@@ -1,12 +1,12 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
-import type {AppPages} from 'types/app';
-import type {UserSettings} from 'types/settings';
-import type {NodeAttrData} from 'types/node';
 import type {IconifySetPayload} from 'interface/icons/lib/iconify';
 import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
 import type {ComponentData, ComponentBuild} from 'types/component';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
 import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
+import type {UserSettings} from 'types/settings';
+import type {NodeAttrData} from 'types/node';
+import type {AppPages} from 'types/app';
 
 /* General */
 
@@ -98,7 +98,7 @@ export interface EventNodeAttrRes extends EventHandler {
 
 export interface EventComponentBuild extends EventHandler {
   name: 'COMPONENT_BUILD';
-  handler: (build: ComponentBuild, component: ComponentData) => void;
+  handler: (key: string, build: ComponentBuild, component: ComponentData) => void;
 }
 
 export interface EventSelectComponent extends EventHandler {

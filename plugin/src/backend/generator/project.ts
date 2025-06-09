@@ -81,7 +81,7 @@ export function build(release: ProjectRelease) {
           );
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
-            componentInfo[bundle.key] = bundle.info;
+            componentInfo[bundle.info.target.key] = bundle.info;
             components.push([
               bundle.info.path,
               bundle.info.name,
@@ -113,13 +113,13 @@ export function build(release: ProjectRelease) {
         parser.getVariables(collectionLocales?.variableIds),
         parser.getVariableCollectionModes(collectionLocales),
       ]);
-      
+
       const info: ProjectInfo = {
         appConfig: getAppConfig(collectionConfig, varsConfig),
         locales: getLocales(modesLocales),
         translations: getTranslations(collectionLocales, varsTranslations, modesLocales),
       };
-      
+
       // Increment design package version
       if (release.method === 'release' || release.method === 'push') {
         const version = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();

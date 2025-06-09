@@ -1,14 +1,19 @@
 import CodeBlockWriter from 'code-block-writer';
-// import {translate} from 'backend/utils/translate';
-
-import * as string from 'common/string';
-import * as number from 'common/number';
-import * as consts from 'config/consts';
-import * as parser from 'backend/parser/lib';
-
-import {writePropsAttributes} from './writePropsAttributes';
-import {writeLayout} from './writeLayout';
 import {NodeAttrType} from 'types/node';
+import {PAGES_SPECIAL} from 'config/consts';
+import {createIdentifierPascal} from 'common/string';
+import {round} from 'common/number';
+import {
+  getPage,
+  getFillToken,
+  getNodeAttrs,
+  getInstanceStyles,
+  getComponentPropName,
+  getComponentInstanceInfo,
+} from 'backend/parser/lib';
+
+import {writeLayout} from './writeLayout';
+import {writePropsAttrs} from './writePropsAttrs';
 
 import type {ParseData, ParseNodeTree, ParseNodeTreeItem} from 'types/parse';
 import type {NodeAttrData, NodeAttrRule} from 'types/node';
@@ -38,7 +43,7 @@ export function writeChildren(
     const isPress = Boolean(pressId);
     const isVariant = !!(child.node as SceneNode & VariantMixin).variantProperties;
     const master = isVariant ? child.node.parent : child.node;
-    const attrs = parser.getNodeAttrs(child.node);
+    const attrs = getNodeAttrs(child.node);
     const conds = getConditional(attrs, (master as SceneNode)?.componentPropertyReferences);
     const isCond = conds.length > 0;
     if (isPress)
@@ -73,8 +78,8 @@ function writeChild(
 
   // Derived data
   const propRefs = child.node.componentPropertyReferences;
-  const instance = parser.getComponentInstanceInfo(child.node as InstanceNode);
-  const swapNodeProp = parser.getComponentPropName(propRefs?.mainComponent);
+  const instance = getComponentInstanceInfo(child.node as InstanceNode);
+  const swapNodeProp = getComponentPropName(propRefs?.mainComponent);
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
   const isAsset = child.node.type === 'VECTOR' || (child.node.isAsset && !isInstance);
@@ -83,7 +88,7 @@ function writeChild(
   const isSwap = Boolean(swapNodeProp);
   const isIcon = isInstance
     && child.node.name.includes(':')
-    && parser.getPage((child.node as InstanceNode).mainComponent)?.name === consts.PAGES_SPECIAL.ICONS
+    && getPage((child.node as InstanceNode).mainComponent)?.name === PAGES_SPECIAL.ICONS
 
   // Icon node
   if (isIcon) {
@@ -113,8 +118,8 @@ function writeChild(
       // Asset node
       } else {
         const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
-        const width = number.round(asset.width);
-        const height = number.round(asset.height);
+        const width = round(asset.width);
+        const height = round(asset.height);
         const sizeProps = `width={${width}} height={${height}}`;
         const animProps = assetProps?.length
           ? ' ' + assetProps.map(a => a.trim()).join(' ')
@@ -178,7 +183,7 @@ function writeChild(
     const masterStyles = data.stylesheet[(child.node as InstanceNode).mainComponent.id];
     const instanceStyles = data.stylesheet[child.node.id];
     if (masterStyles && instanceStyles) {
-      const {hasChanges} = parser.getInstanceStyles(masterStyles, instanceStyles);
+      const {hasChanges} = getInstanceStyles(masterStyles, instanceStyles);
       hasStyleOverride = hasChanges;
     }
   }
@@ -189,7 +194,7 @@ function writeChild(
   }
 
   // Component props
-  const jsxProps = writePropsAttributes(new CodeBlockWriter(state.settings.writer), {
+  const jsxProps = writePropsAttrs(new CodeBlockWriter(state.settings.writer), {
     props: instance.node.componentProperties,
     infoDb: state.infoDb,
     nodeId: instance.node.id,
@@ -201,7 +206,7 @@ function writeChild(
 
   // Create instance tag
   if (isInstance) {
-    jsxTag = string.createIdentifierPascal(instance.main.name);
+    jsxTag = createIdentifierPascal(instance.main.name);
     jsxTagWithProps = jsxTag + jsxProps;
     if (jsxTagWithProps.includes('<Icon'))
       state.flags.exoIcon.Icon = true;
@@ -221,7 +226,7 @@ function writeChild(
 
   // Text properties
   const textPropId = propRefs?.characters;
-  const textPropName = textPropId ? parser.getComponentPropName(textPropId) : null;
+  const textPropName = textPropId ? getComponentPropName(textPropId) : null;
   const textPropValue = textPropName
     ? `props.${textPropName}`
     : (child.node as TextNode).characters || '';
@@ -241,7 +246,7 @@ function writeChild(
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
-      writer.writeLine(`placeholderTextColor={${parser.getFillToken(child.node as TextNode)}}`);
+      writer.writeLine(`placeholderTextColor={${getFillToken(child.node as TextNode)}}`);
       state.flags.useStylesTheme = true;
     });
     writer.write(`/>`);
@@ -315,7 +320,7 @@ function getConditional(
       case NodeAttrType.String: return `'${r.data}'`;
       case NodeAttrType.Number: return r.data;
       case NodeAttrType.Function: return r.data;
-      case NodeAttrType.Motion: return `props.${parser.getComponentPropName(propRefs?.mainComponent)}`;
+      case NodeAttrType.Motion: return `props.${getComponentPropName(propRefs?.mainComponent)}`;
       case NodeAttrType.Tuple: return JSON.stringify(r.data);
       case NodeAttrType.Enum: return `'${r.data.toString().toLowerCase()}'`;
       case NodeAttrType.Blank: return 'null';
@@ -328,7 +333,7 @@ function getConditional(
 
   return [
     Boolean(propRefs?.visible)
-      && `props.${parser.getComponentPropName(propRefs?.visible)}`,
+      && `props.${getComponentPropName(propRefs?.visible)}`,
     ...attrs?.visibilities
       ?.filter(v => v.data !== null && v.name !== '')
       ?.filter(v => !ignoredAttrs.includes(v.name))

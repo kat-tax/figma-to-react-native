@@ -75,7 +75,7 @@ export async function watchComponents(
 
     // We need to get all components for the roster
     const all = parser.getComponentTargets(figma.root.findAllWithCriteria({types: ['COMPONENT']}));
-    
+
     // No components, do nothing
     if (all.size === 0) return;
 
@@ -85,15 +85,16 @@ export async function watchComponents(
 
     // Process all changes
     e.documentChanges.forEach(change => {
+      // Debug
       // console.log('>> [event]', change);
-  
+
       const isCreate = change.type === 'CREATE';
       const isPropChange = change.type === 'PROPERTY_CHANGE';
       const isDataOnlyChange = isPropChange && change.properties.every(p => p === 'pluginData');
-      
+
       // Ignore events that aren't relevant
       if (!isCreate && !isPropChange) return;
-      
+
       // Queue component to update
       if (change.node.type === 'COMPONENT') {
         if (isDataOnlyChange) {
@@ -119,6 +120,7 @@ export async function watchComponents(
       compile(all, false, parser.getComponentTargets(updateShallow)),
     ]);
 
+    // Debug
     // console.log('>> [update]', {
     //   deep: Array.from(updateDeep),
     //   shallow: Array.from(updateShallow),
@@ -153,7 +155,7 @@ export async function watchIcons() {
   const updateIcons = () => {
     const icons = getAllIconComponents();
     if (!icons?.length) return;
-    
+
     const sets = new Set<string>();
     const list = new Set<string>();
     const maps = new Map<string, string>();
@@ -214,10 +216,10 @@ export async function compile(
 ) {
   if (components.size === 0) return;
 
-  const _roster: ComponentRoster = {};
   const _info: Record<string, ComponentInfo> = {};
   const _assets: Record<string, ComponentAsset> = {};
   const _icons = {list: new Set<string>(), count: {}};
+  const _roster: ComponentRoster = {};
 
   let _links: ComponentLinks = {};
   let _total = 0;
@@ -250,14 +252,10 @@ export async function compile(
     try {
       if (!component) continue;
 
-      const _t1 = Date.now();
-
-      // Compile component
       const bundle = await generateBundle(component, _info, {...config.state}, skipCache);
-
-      // Derive data
-      const {id, key, info, links, icons, assets} = bundle;
-      const pages = figma.root.children?.map(p => p.name);
+      const {info, links, icons, assets} = bundle;
+      const {name, page, target} = info;
+      const {key, id} = target;
 
       // Aggregate data
       _loaded++;
@@ -265,8 +263,8 @@ export async function compile(
       _roster[key] = {
         ..._roster[key],
         id,
-        name: info.name,
-        page: info.page.name,
+        name: name,
+        page: page.name,
         hasError: info.hasError,
         errorMessage: info.errorMessage,
         loading: false,
@@ -280,13 +278,13 @@ export async function compile(
       });
 
       // Send compilation to interface
-      emit<EventComponentBuild>('COMPONENT_BUILD', {
+      emit<EventComponentBuild>('COMPONENT_BUILD', key, {
         index,
-        pages,
         links: _links,
         total: _total,
         loaded: _loaded,
         roster: _roster,
+        pages: figma.root.children?.map(p => p.name),
         assets: _assets,
         assetMap: {},
         icons: {
@@ -294,12 +292,6 @@ export async function compile(
           count: _icons.count,
         },
       }, bundle);
-
-      // Profile
-      console.log(`>> [compile] ${Date.now() - _t1}ms`, info.name);
-
-      // Throttle
-      // await delay.wait(1);
     } catch (e) {
       console.error('Failed to export', component, e);
     }

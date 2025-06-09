@@ -1,12 +1,11 @@
-import * as config from 'backend/utils/config';
-
 import {generateBundle} from './lib/generateBundle';
 import {generateTheme} from './lib/generateTheme';
+import {state, update} from '../utils/config';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];
-  const bundle = await generateBundle(node, null, config.state, true);
-  const {code} = (await generateTheme(config.state)).themes;
+  const bundle = await generateBundle(node, null, state, true);
+  const {code} = (await generateTheme(state)).themes;
   return bundle.code ? [
     {
       language: 'TYPESCRIPT',
@@ -28,46 +27,45 @@ export async function render(node: SceneNode): Promise<CodegenResult[]> {
 
 export function handleConfigChange() {
   const settings = Object.entries(figma.codegen.preferences.customSettings);
-  const newConfig = {...config.state};
-  let configChanged = false;
+  const config = {...state};
+  let updated = false;
   settings.forEach(([key, value]) => {
     switch (key) {
       case 'tab-size': {
         const newValue = parseInt(value, 10);
-        if (newValue !== config.state.writer.indentNumberOfSpaces) {
-          newConfig.writer.indentNumberOfSpaces = newValue;
-          configChanged = true;
+        if (newValue !== state.writer.indentNumberOfSpaces) {
+          config.writer.indentNumberOfSpaces = newValue;
+          updated = true;
         }
         break;
       }
       case 'quote-style': {
         const newValue = value === 'single';
-        if (newValue != config.state.writer.useSingleQuote) {
-          newConfig.writer.useSingleQuote = newValue;
-          configChanged = true;
+        if (newValue != state.writer.useSingleQuote) {
+          config.writer.useSingleQuote = newValue;
+          updated = true;
         }
         break;
       }
       case 'white-space': {
         const newValue = value === 'tabs';
-        if (newValue !== config.state.writer.useTabs) {
-          newConfig.writer.useTabs = newValue;
-          configChanged = true;
+        if (newValue !== state.writer.useTabs) {
+          config.writer.useTabs = newValue;
+          updated = true;
         }
         break;
       }
       case 'translate': {
         const newValue = value === 'on';
-        if (newValue !== config.state.addTranslate) {
-          newConfig.addTranslate = newValue;
-          configChanged = true;
+        if (newValue !== state.addTranslate) {
+          config.addTranslate = newValue;
+          updated = true;
         }
         break;
       }
     }
   });
-
-  if (configChanged) {
-    config.update(newConfig, false);
+  if (updated) {
+    update(config, false);
   }
 }
