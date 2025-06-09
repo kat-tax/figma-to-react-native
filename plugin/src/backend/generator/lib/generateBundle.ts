@@ -31,7 +31,7 @@ export async function generateBundle(
   // Generate exo natives if matched
   const isExo = info.page.name === PAGES_SPECIAL.LIBRARY;
   const exo = generateNatives();
-  const tpl = exo[node.name];
+  const tpl = exo?.[node.name];
   if (isExo && tpl) {
     const {width, height} = node;
     return {...emptyBundle, code: tpl, info, width, height};
