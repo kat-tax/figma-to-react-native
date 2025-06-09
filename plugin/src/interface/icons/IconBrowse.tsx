@@ -1,8 +1,10 @@
-import {emit, on} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useEffect, useMemo} from 'react';
-import {Button, Flex, Select} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
+import {Button, Select} from 'figma-kit';
+import {emit, on} from '@create-figma-plugin/utilities';
+import {StatusBar} from 'interface/base/StatusBar';
+
 import {getPreviewSets} from './lib/iconify';
 import {IconSet} from './IconSet';
 
@@ -23,7 +25,7 @@ export function IconBrowse(props: IconBrowseProps) {
   const [chosenSets, setChosenSets] = useState<IconifySetPreview[]>([]);
   const [favSets, setFavSets] = useState<string[]>();
   const screen = useWindowSize();
-  
+
   // Build search index for icon sets
   const searchIndex = useMemo(() => new Fzf(previewSets, {
     selector: (item) => item.name,
@@ -33,14 +35,14 @@ export function IconBrowse(props: IconBrowseProps) {
   // Get filtered sets based on search and category
   const filteredSets = useMemo(() => {
     let sets = previewSets;
-    
+
     // Apply search filter if query exists
     if (props.searchQuery) {
       const results = searchIndex.find(props.searchQuery);
       console.log('>>> ', props.searchQuery, results);
       sets = results.map(result => result.item);
     }
-    
+
     // Apply category and other filters
     return sets
       .sort((a, b) => Number(favSets?.includes(b.prefix) ?? false) - Number(favSets?.includes(a.prefix) ?? false))
@@ -112,14 +114,14 @@ export function IconBrowse(props: IconBrowseProps) {
       flexDirection: 'column',
       outline: 'none',
     }}>
-      <div style={{ 
-        display: 'grid', 
-        overflow: 'auto', 
+      <div style={{
+        display: 'grid',
+        overflow: 'auto',
         gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
         scrollbarWidth: 'none',
         paddingBottom: 0,
         padding: 12,
-        flex: 1, 
+        flex: 1,
         gap: 12,
       }}>
         {filteredSets.map(set =>
@@ -134,13 +136,7 @@ export function IconBrowse(props: IconBrowseProps) {
           />
         )}
       </div>
-      <Flex
-        gap="2"
-        direction="row"
-        style={{
-          borderTop: '1px solid var(--figma-color-border)',
-          padding: '12px',
-        }}>
+      <StatusBar>
         <Button variant="secondary" onClick={props.onClose}>
           Back
         </Button>
@@ -176,7 +172,7 @@ export function IconBrowse(props: IconBrowseProps) {
             ? `Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`
             : `Import (${chosenSets.length})`}
         </Button>
-      </Flex>
+      </StatusBar>
     </div>
   );
 }

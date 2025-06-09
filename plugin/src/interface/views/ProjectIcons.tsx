@@ -1,15 +1,17 @@
-import {emit} from '@create-figma-plugin/utilities';
-import {Button, Flex, Select, Slider} from 'figma-kit';
-import {VirtuosoGrid} from 'react-virtuoso';
-import {Fzf, byLengthAsc} from 'fzf';
-import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useState, useEffect, useMemo, useCallback} from 'react';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
+import {Button, Select, Slider} from 'figma-kit';
+import {Fzf, byLengthAsc} from 'fzf';
+import {VirtuosoGrid} from 'react-virtuoso';
+import {emit} from '@create-figma-plugin/utilities';
+
 import {IconPlus} from 'interface/figma/icons/32/Plus';
+import {IconTile} from 'interface/icons/IconTile';
+import {IconBrowse} from 'interface/icons/IconBrowse';
 import {loadIconSets} from 'interface/icons/lib/iconify';
 import {ProgressBar} from 'interface/base/ProgressBar';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {IconBrowse} from 'interface/icons/IconBrowse';
-import {IconTile} from 'interface/icons/IconTile';
+import {StatusBar} from 'interface/base/StatusBar';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {IconifySetPreview} from 'interface/icons/lib/iconify';
@@ -151,13 +153,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
           }
         />
       </div>
-      <Flex
-        gap="2"
-        direction="row"
-        style={{
-          borderTop: '1px solid var(--figma-color-border)',
-          padding: '12px',
-        }}>
+      <StatusBar>
         <Select.Root
           value={prefix}
           onValueChange={setPrefix}>
@@ -190,7 +186,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
           onValueChange={([value]) => setIconScale(value)}
           style={{maxWidth: 200}}
         />
-      </Flex>
+      </StatusBar>
     </div>
   );
 }
