@@ -108,15 +108,14 @@ export function build(release: ProjectRelease) {
         parser.getVariableCollection(consts.VARIABLE_COLLECTIONS.LOCALES),
       ]);
 
-      const [varsConfig, varsTranslations, modesLocales] = await Promise.all([
+      const [varsConfig, varsLocales] = await Promise.all([
         parser.getVariables(collectionConfig?.variableIds),
         parser.getVariables(collectionLocales?.variableIds),
-        parser.getVariableCollectionModes(collectionLocales),
       ]);
 
       const info: ProjectInfo = {
         appConfig: getAppConfig(collectionConfig, varsConfig),
-        locales: getLocales(modesLocales),
+        locales: getLocales(collectionLocales, varsLocales),
       };
 
       // Increment design package version
@@ -186,17 +185,19 @@ function getAppConfig(
   }, {} as ProjectInfo['appConfig']);
 }
 
-function getLocales(modes: VariableModes): ProjectInfo['locales'] {
-  return {
-    source: modes?.default?.name ? getLocaleData(modes.default.name)[0] : 'en',
-    all: modes?.modes?.map(mode => mode?.name
-      ? getLocaleData(mode.name).map(s => s.trim()) as [string, string]
-      : ['en', 'English']),
-  }
-}
-
-function getLocaleData(locale: string) {
-  return locale.split(' – ');
+function getLocales(
+  collection: VariableCollection,
+  variables: Variable[],
+): ProjectInfo['locales'] {
+  // Default source locale is first in the collection
+  const mode = collection.defaultModeId;
+  const source = variables[0]?.valuesByMode[mode]?.toString().trim();
+  // Add all locales from the collection to the list
+  const all = variables.map(v => {
+    const value = v.valuesByMode[mode]?.toString().trim();
+    return [value, v.name] as [string, string];
+  });
+  return {source, all};
 }
 
 async function setProjectVersion(version: string) {
