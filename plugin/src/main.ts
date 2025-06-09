@@ -227,7 +227,6 @@ export default async function() {
     // Start generation services
     service.watchTheme(config.state);
     service.watchIcons();
-    service.watchLocales();
     service.watchComponents(
       nav.targetSelectedComponent,
       () => {
