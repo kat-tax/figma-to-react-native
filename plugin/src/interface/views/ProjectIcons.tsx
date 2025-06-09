@@ -159,8 +159,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
           onValueChange={setPrefix}>
           <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
           <Select.Content
-            position="popper"
             side="top"
+            position="popper"
             alignOffset={-28}>
             <Select.Item value="all">All Icons</Select.Item>
             {props.icons.sets.map(set => (
@@ -171,8 +171,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
           </Select.Content>
         </Select.Root>
         <Button
-          variant="secondary"
           size="small"
+          variant="secondary"
           style={{width: 32, padding: 0}}
           onClick={() => setAddingMore(true)}>
           <IconPlus/>

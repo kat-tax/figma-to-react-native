@@ -269,6 +269,10 @@ iframe {
   font-weight: 600;
 }
 
+.components [class*="_children_"] {
+  padding: 0 !important;
+}
+
 /* Documents */
 
 .documents {

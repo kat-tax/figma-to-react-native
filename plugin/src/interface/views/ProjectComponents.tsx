@@ -1,12 +1,14 @@
-import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
+import {Fzf, byLengthAsc} from 'fzf';
+import {Button} from 'figma-kit';
 import {Stack} from 'interface/figma/ui/stack';
-import {Button} from 'interface/figma/ui/button';
 import {Disclosure} from 'interface/figma/ui/disclosure';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
+import {StatusBar} from 'interface/base/StatusBar';
+import {IconPlus} from 'interface/figma/icons/32/Plus';
 import {Layer} from 'interface/figma/Layer';
 import {emit} from '@create-figma-plugin/utilities';
 import * as $ from 'store';
@@ -37,12 +39,11 @@ type ProjectComponentEntry = {
 }
 
 export function ProjectComponents(props: ProjectComponentsProps) {
-  const [importing, setImporting] = useState(false);
   const [list, setList] = useState<ProjectComponentIndex>({});
+  const [importing, setImporting] = useState<boolean>(false);
 
-  const hasImport = !props.isReadOnly && false;
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
-  
+  const hasImport = !props.isReadOnly && false;
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
     const entries = _entries
@@ -55,7 +56,6 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     });
   }, [props?.build, hasComponents]);
 
-  // Import EXO components
   const importComponents = async () => {
     if (!props.hasStyles) {
       props.nav.gotoTab('theme');
@@ -72,7 +72,6 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     setImporting(true);
     emit<EventProjectImportComponents>('PROJECT_IMPORT_COMPONENTS', props.iconSet);
   };
-  
 
   const select = (id: string) => {
     emit<EventFocusNode>('NODE_FOCUS', id);
@@ -115,22 +114,35 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       className="components"
       style={{
         flex: 1,
+        height: '100%',
+        display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
       }}>
-      {props.build?.pages?.map(page =>        
+      <div style={{flex: 1, overflow: 'auto', width: '100%', paddingBottom: 12}}>
+        {props.build?.pages?.map(page =>
+          <ProjectPageGroup
+            key={page}
+            title={page}
+            onSelect={select}
+            entries={list[page]}
+          />
+        )}
         <ProjectPageGroup
-          key={page}
-          title={page}
+          title="Assets"
           onSelect={select}
-          entries={list[page]}
+          component={<ProjectAssets {...props}/>}
         />
-      )}
-      <ProjectPageGroup
-        title="Assets"
-        onSelect={select}
-        component={<ProjectAssets {...props}/>}
-      />
+      </div>
+      <StatusBar>
+        <Button
+          size="small"
+          variant="secondary"
+          style={{width: 32, padding: 0}}
+          onClick={() => importComponents()}>
+          <IconPlus/>
+        </Button>
+      </StatusBar>
     </div>
   );
 }
