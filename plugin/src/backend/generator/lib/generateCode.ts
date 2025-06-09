@@ -9,7 +9,7 @@ import type {ProjectSettings} from 'types/settings';
 import type {ComponentInfo} from 'types/component';
 import type {ParseData} from 'types/parse';
 
-export async function generateComponent(
+export async function generateCode(
   data: ParseData,
   settings: ProjectSettings,
   infoDb: Record<string, ComponentInfo> | null,

@@ -9,7 +9,7 @@ import {generateNatives} from '../lib/natives';
 import {generateIndex} from './generateIndex';
 import {generateDocs} from './generateDocs';
 import {generateStory} from './generateStory';
-import {generateComponent} from './generateComponent';
+import {generateCode} from './generateCode';
 import {writePropsAttributes} from './writePropsAttributes';
 import {writePropsImports} from './writePropsImports';
 
@@ -81,7 +81,7 @@ export async function generateBundle(
 
   // Profile
   const _t1 = Date.now();
-  
+
   // Component links
   const links: ComponentLinks = {};
   links[string.componentPathNormalize(component.path)] = component.target.id;
@@ -99,7 +99,7 @@ export async function generateBundle(
       infoDb,
     }),
     writePropsImports(new CodeBlockWriter(settings.writer), {...component.propDefs}, infoDb),
-    generateComponent(data, settings, infoDb),
+    generateCode(data, settings, infoDb),
     generateDocs(component, settings, infoDb),
     generateStory(component, settings, infoDb),
     generateIndex([component], settings, false),
