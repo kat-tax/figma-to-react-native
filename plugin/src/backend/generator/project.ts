@@ -117,7 +117,6 @@ export function build(release: ProjectRelease) {
       const info: ProjectInfo = {
         appConfig: getAppConfig(collectionConfig, varsConfig),
         locales: getLocales(modesLocales),
-        translations: getTranslations(collectionLocales, varsTranslations, modesLocales),
       };
 
       // Increment design package version
@@ -194,25 +193,6 @@ function getLocales(modes: VariableModes): ProjectInfo['locales'] {
       ? getLocaleData(mode.name).map(s => s.trim()) as [string, string]
       : ['en', 'English']),
   }
-}
-
-function getTranslations(
-  locales: VariableCollection,
-  messages: Variable[],
-  modes: VariableModes,
-): ProjectInfo['translations'] {
-  return messages.reduce((acc, cur) => {
-    const defaultMode = locales.defaultModeId;
-    const defaultValue = cur.valuesByMode[defaultMode]?.toString().trim();
-    const otherValues = Object.entries(cur.valuesByMode);
-    acc[defaultValue] = otherValues.reduce((acc, [modeId, value]) => {
-      if (modeId === defaultMode) return acc;
-      const [locale] = getLocaleData(modes.modes?.find(mode => mode.modeId === modeId)?.name);
-      if (locale) acc[locale] = value.toString().trim();
-      return acc;
-    }, {} as Record<string, string>);
-    return acc;
-  }, {} as ProjectInfo['translations']);
 }
 
 function getLocaleData(locale: string) {

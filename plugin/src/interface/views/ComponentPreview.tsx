@@ -31,7 +31,6 @@ interface ComponentPreviewProps {
   settings: SettingsData,
   lastResize: number,
   background: string,
-  language: string,
   isDark: boolean,
   theme: string,
   nav: Navigation,
@@ -55,7 +54,7 @@ interface PreviewNodeInfo {
 }
 
 export function ComponentPreview(props: ComponentPreviewProps) {
-  const {compKey, nav, build, variant, theme, background, language, isDark, showDiff} = props;
+  const {compKey, nav, build, variant, theme, background, isDark, showDiff} = props;
   const [previewNodeMap, setPreviewNodeMap] = useState<PreviewNodeMap | null>(null);
   const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
   const [previewFocused, setPreviewFocused] = useState<[string, string] | null>(null);
@@ -150,11 +149,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     if (!loaded.current) return
     const {name, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
-    preview({tag, name, path, imports, theme, background, language, settings, build}).then(bundle => {
+    preview({tag, name, path, imports, theme, background, settings, build}).then(bundle => {
       post('preview::load', {bundle, name, width, height, theme, background});
     });
     if (fs && showDiff) {
-      preview({tag, name, path, imports, theme, background, language, settings, build}, fs).then(bundle => {
+      preview({tag, name, path, imports, theme, background, settings, build}, fs).then(bundle => {
         post('preview::load', {bundle, name, width, height, theme, background, head: true});
       });
     }
@@ -224,9 +223,6 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   // Update the preview background when it changes
   useEffect(() => {post('preview::background', {background})}, [background]);
-
-  // Update the preview language when it changes
-  useEffect(() => {post('preview::language', {language})}, [language]);
 
   // Update the preview variant when it changes
   useEffect(() => {post('preview::variant', {variant})}, [variant]);
@@ -340,7 +336,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <div style={styles.bar}>
           <Text>{previewBar ? previewBar[0] : ''}</Text>
           <Text style={styles.desc}>{previewBar ? previewBar[1] : ''}</Text>
-        </div>   
+        </div>
         <IconButton onClick={reload}>
           <IconSwap/>
         </IconButton>

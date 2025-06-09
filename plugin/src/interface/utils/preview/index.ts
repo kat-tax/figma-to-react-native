@@ -18,7 +18,6 @@ interface PreviewOptions {
   name: string,
   path: string,
   imports: string,
-  language: string,
   settings: UserSettings,
   background: string,
   theme: string,
@@ -26,7 +25,7 @@ interface PreviewOptions {
 }
 
 export async function preview(options: PreviewOptions, gitFs: IFs | null = null) {
-  const {tag, name, path, imports, theme, background, language, settings, build} = options;
+  const {tag, name, path, imports, theme, background, settings, build} = options;
 
   const files = gitFs
     ? getGitFiles(build, gitFs)
@@ -39,7 +38,6 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
     files.set(ENTRY_POINT, previewApp
       .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n${imports}`)
       .replace('__CURRENT_BACKGROUND__', background)
-      .replace('__CURRENT_LANGUAGE__', language)
       .replace('__CURRENT_THEME__', theme)
       .replace('__COMPONENT_TAG__', tag)
       .replace('__ROOT_TAG__', gitFs ? 'diff' : 'component'));
@@ -54,7 +52,7 @@ export async function init(settings: UserSettings, isDark: boolean) {
   // Build filesystem
   const files = new Map<string, string>();
   files.set(ENTRY_POINT, atob(loader.toString()));
-  
+
   // Build preview loader
   try {
     const output = await bundle(ENTRY_POINT, files, settings.esbuild, importMap);

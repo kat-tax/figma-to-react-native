@@ -12,7 +12,7 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectLanguage, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 let _lastThemeCode = '';
@@ -193,20 +193,6 @@ export async function watchIcons() {
   };
   setInterval(updateIcons, 500);
   updateIcons();
-}
-
-export async function watchLocales() {
-  let _lastLanguage = '';
-  const updateLanguage = async () => {
-    const language = await parser.getVariableCollectionModes(consts.VARIABLE_COLLECTIONS.LOCALES);
-    if (!language || !language.current) return;
-    const name = language.current.name;
-    if (name === _lastLanguage) return;
-    _lastLanguage = name;
-    emit<EventProjectLanguage>('PROJECT_LANGUAGE', name);
-  };
-  setInterval(updateLanguage, 300);
-  updateLanguage();
 }
 
 export async function compile(

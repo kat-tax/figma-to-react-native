@@ -15,25 +15,9 @@ declare module 'react-native-unistyles' {
 
 const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 const initialBackground = '__CURRENT_BACKGROUND__';
-const initialLanguage = '__CURRENT_LANGUAGE__';
 const initialTheme = '__CURRENT_THEME__';
 
-// TODO: replace with real translations
-window.__messages__ = {
-  'en-US': {
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt..." : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt...",
-    "Footer": "Footer",
-    "Value: ${slider}": "Value: ${slider}",
-  },
-  'es-ES': {
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt..." : "Hola ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt...",
-    "Footer": "Hola",
-    "Value: ${slider}": "Hola: ${slider}",
-  },
-};
-
-window.__lang__ = initialLanguage;
-window.__trans__ = (msg: string) => window.__messages__?.[window.__lang__]?.[msg] || msg;
+window.__trans__ = (msg: string) => msg;
 
 __COMPONENT_IMPORTS__
 
@@ -49,10 +33,6 @@ export function App() {
           return;
         case 'preview::figma-theme':
           document.documentElement.className = e.data.isDark ? 'dark' : 'light';
-          return;
-        case 'preview::language':
-          // console.log('[changed language]', e.data.language);
-          __lang__ = e.data.language;
           return;
         case 'preview::variant': {
           // console.log('[changed variant]', e.data.variant);

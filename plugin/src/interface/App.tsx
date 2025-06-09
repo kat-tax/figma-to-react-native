@@ -29,7 +29,6 @@ import {useUserSettings} from 'interface/hooks/useUserSettings';
 import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
 import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {useProjectBackground} from 'interface/hooks/useProjectBackground';
-import {useProjectLanguage} from 'interface/hooks/useProjectLanguage';
 import {useProjectConfig} from 'interface/hooks/useProjectConfig';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
@@ -72,7 +71,6 @@ export function App(props: AppProps) {
   const theme = useProjectTheme();
   const icons = useProjectIcons();
   const project = useProjectConfig();
-  const language = useProjectLanguage();
   const background = useProjectBackground();
   const settings = useUserSettings();
   const variant = useSelectedVariant();
@@ -142,7 +140,7 @@ export function App(props: AppProps) {
             <Tabs.Content value="component/code">
               <DualPanel
                 primary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme, showDiff, setShowDiff}}/>}
-                secondary={<ComponentPreview {...{nav, compKey, build, variant, theme, background, language, settings, lastResize, isDark, showDiff}}/>}
+                secondary={<ComponentPreview {...{nav, compKey, build, variant, theme, background, settings, lastResize, isDark, showDiff}}/>}
                 onResize={() => setLastResize(Date.now())}
               />
             </Tabs.Content>

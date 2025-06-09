@@ -16,11 +16,6 @@ export interface ProjectInfo {
     source: string,
     all: Array<[string, string]>,
   },
-  translations: {
-    [locale: string]: {
-      [key: string]: string,
-    },
-  },
 }
 
 export interface ProjectIcons {

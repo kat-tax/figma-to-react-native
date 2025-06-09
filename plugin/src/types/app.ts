@@ -11,12 +11,11 @@ export type AppPagesMain =
   | 'assets'
   | 'theme'
   | 'fonts'
-  | 'language'
   | 'docs'
   | 'export'
   | 'settings';
 
-export type AppPagesComponent = 
+export type AppPagesComponent =
   | 'component/code'
   | 'component/preview'
   | 'component/story'
