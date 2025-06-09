@@ -328,7 +328,7 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
     case 'row-gap':
       return addStyleProp('row-gap', $.gap(value, opts));
     case 'column-gap':
-      return addStyleProp('row-gap', $.gap(value, opts));
+      return addStyleProp('column-gap', $.gap(value, opts));
     case 'gap':
       addStyleProp('row-gap', $.gap(value.row, opts));
       addStyleProp('column-gap', $.gap(value.column, opts));
@@ -447,6 +447,159 @@ export function parseDeclaration(declaration: Declaration, options: ParseDeclara
       return addStyleProp(property, $.boxShadow(value, opts));
     case 'aspect-ratio':
       return addStyleProp(property, $.aspectRatio(value));
+    case 'grid-auto-columns':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-auto-flow':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-auto-rows':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-column-end':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-column-start':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-row-end':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-row-start':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-template-areas':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-template-columns':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-template-rows':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'justify-items':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'justify-self':
+      return addStyleProp(property, $.grid(value, opts));
+    case 'grid-column':
+      // grid-column: <grid-line> [ / <grid-line> ]?
+      if (value && typeof value === 'object' && value.start && value.end) {
+        addStyleProp('grid-column-start', $.grid(value.start, opts));
+        addStyleProp('grid-column-end', $.grid(value.end, opts));
+      } else {
+        // Fallback for unparsed values
+        addStyleProp(property, $.grid(value, opts));
+      }
+      return;
+    case 'grid-row':
+      // grid-row: <grid-line> [ / <grid-line> ]?
+      if (value && typeof value === 'object' && value.start && value.end) {
+        addStyleProp('grid-row-start', $.grid(value.start, opts));
+        addStyleProp('grid-row-end', $.grid(value.end, opts));
+      } else {
+        // Fallback for unparsed values
+        addStyleProp(property, $.grid(value, opts));
+      }
+      return;
+    case 'grid-area':
+      // grid-area: <grid-line> [ / <grid-line> [ / <grid-line> [ / <grid-line> ]? ]? ]?
+      // Order: row-start / column-start / row-end / column-end
+      if (value && typeof value === 'object') {
+        if (value.rowStart) addStyleProp('grid-row-start', $.grid(value.rowStart, opts));
+        if (value.columnStart) addStyleProp('grid-column-start', $.grid(value.columnStart, opts));
+        if (value.rowEnd) addStyleProp('grid-row-end', $.grid(value.rowEnd, opts));
+        if (value.columnEnd) addStyleProp('grid-column-end', $.grid(value.columnEnd, opts));
+        // Only add fallback if no individual properties were found
+        if (!value.rowStart && !value.columnStart && !value.rowEnd && !value.columnEnd) {
+          addStyleProp(property, $.grid(value, opts));
+        }
+      } else {
+        // Fallback for unparsed values (named areas, etc.)
+        addStyleProp(property, $.grid(value, opts));
+      }
+      return;
+    case 'grid-template':
+      // grid-template: none | [ <'grid-template-rows'> / <'grid-template-columns'> ] | [ <line-names>? <string> <track-size>? <line-names>? ]+ [ / <explicit-track-list> ]?
+      if (value && typeof value === 'object') {
+        if (value.rows) addStyleProp('grid-template-rows', $.grid(value.rows, opts));
+        if (value.columns) addStyleProp('grid-template-columns', $.grid(value.columns, opts));
+        if (value.areas) addStyleProp('grid-template-areas', $.grid(value.areas, opts));
+        // Only add fallback if no individual properties were found
+        if (!value.rows && !value.columns && !value.areas) {
+          addStyleProp(property, $.grid(value, opts));
+        }
+      } else {
+        // Fallback for unparsed values
+        addStyleProp(property, $.grid(value, opts));
+      }
+      return;
+    case 'grid':
+      // grid: <'grid-template'> | <'grid-template-rows'> / [ auto-flow && dense? ] <'grid-auto-columns'>? | [ auto-flow && dense? ] <'grid-auto-rows'>? / <'grid-template-columns'>
+      if (value && typeof value === 'object') {
+        // Handle grid-template shorthand within grid
+        if ('template' in value && value.template) {
+          const template = value.template as any;
+          if (template.rows) addStyleProp('grid-template-rows', $.grid(template.rows, opts));
+          if (template.columns) addStyleProp('grid-template-columns', $.grid(template.columns, opts));
+          if (template.areas) addStyleProp('grid-template-areas', $.grid(template.areas, opts));
+        }
+        // Handle auto-flow syntax
+        if ('autoFlow' in value && value.autoFlow) addStyleProp('grid-auto-flow', $.grid(value.autoFlow, opts));
+        if ('autoRows' in value && value.autoRows) addStyleProp('grid-auto-rows', $.grid(value.autoRows, opts));
+        if ('autoColumns' in value && value.autoColumns) addStyleProp('grid-auto-columns', $.grid(value.autoColumns, opts));
+        if ('templateRows' in value && (value as any).templateRows) addStyleProp('grid-template-rows', $.grid((value as any).templateRows, opts));
+        if ('templateColumns' in value && (value as any).templateColumns) addStyleProp('grid-template-columns', $.grid((value as any).templateColumns, opts));
+
+        // Only add fallback if no individual properties were found
+        const hasProps = ('template' in value && value.template) ||
+                        ('autoFlow' in value && value.autoFlow) ||
+                        ('autoRows' in value && value.autoRows) ||
+                        ('autoColumns' in value && value.autoColumns) ||
+                        ('templateRows' in value && (value as any).templateRows) ||
+                        ('templateColumns' in value && (value as any).templateColumns);
+        if (!hasProps) {
+          addStyleProp(property, $.grid(value, opts));
+        }
+      } else {
+        // Fallback for unparsed values
+        addStyleProp(property, $.grid(value, opts));
+      }
+      return;
+    case 'place-content':
+      // place-content: <'align-content'> <'justify-content'>?
+      if (value && typeof value === 'object' && (value.align || value.justify)) {
+        handleStyleShorthand('place-content', {
+          'align-content': $.grid(value.align || value, opts),
+          'justify-content': $.grid(value.justify || value.align || value, opts),
+        });
+      } else {
+        // Single value applies to both or fallback
+        handleStyleShorthand('place-content', {
+          'align-content': $.grid(value, opts),
+          'justify-content': $.grid(value, opts),
+        });
+      }
+      return;
+    case 'place-items':
+      // place-items: <'align-items'> <'justify-items'>?
+      if (value && typeof value === 'object' && (value.align || value.justify)) {
+        handleStyleShorthand('place-items', {
+          'align-items': $.grid(value.align || value, opts),
+          'justify-items': $.grid(value.justify || value.align || value, opts),
+        });
+      } else {
+        // Single value applies to both or fallback
+        handleStyleShorthand('place-items', {
+          'align-items': $.grid(value, opts),
+          'justify-items': $.grid(value, opts),
+        });
+      }
+      return;
+    case 'place-self':
+      // place-self: <'align-self'> <'justify-self'>?
+      if (value && typeof value === 'object' && (value.align || value.justify)) {
+        handleStyleShorthand('place-self', {
+          'align-self': $.grid(value.align || value, opts),
+          'justify-self': $.grid(value.justify || value.align || value, opts),
+        });
+      } else {
+        // Single value applies to both or fallback
+        handleStyleShorthand('place-self', {
+          'align-self': $.grid(value, opts),
+          'justify-self': $.grid(value, opts),
+        });
+      }
+      return;
     case 'container-type':
     case 'container-name':
     case 'container':
