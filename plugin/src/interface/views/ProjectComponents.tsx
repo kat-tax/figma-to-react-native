@@ -11,7 +11,7 @@ import {IconPlus} from 'interface/figma/icons/32/Plus';
 import {Disclosure} from 'interface/figma/ui/disclosure';
 import {Stack} from 'interface/figma/ui/stack';
 import {Layer} from 'interface/figma/Layer';
-import {useSync} from 'interface/providers/Sync';
+import {SyncButton} from 'interface/base/SyncButton';
 import * as $ from 'store';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -23,7 +23,6 @@ interface ProjectComponentsProps {
   project: ProjectConfig,
   build: ComponentBuild,
   nav: Navigation,
-  user: User,
   iconSet: string,
   hasIcons: boolean,
   hasStyles: boolean,
@@ -43,17 +42,11 @@ type ProjectComponentEntry = {
 }
 
 export function ProjectComponents(props: ProjectComponentsProps) {
-  const {active, connect, disconnect} = useSync();
   const [importing, setImporting] = useState<boolean>(false);
   const [list, setList] = useState<ProjectComponentIndex>({});
 
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   const hasImport = !props.isReadOnly && false;
-
-  const projectName = props.project.name;
-  const components = Object.keys(props.build?.roster || {}).length || 0;
-  const assets = Object.keys(props.build?.assets || {}).length || 0;
-  const user = props.user || figma.currentUser;
 
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
@@ -154,20 +147,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           <IconPlus/>
         </Button>
         <div style={{flex: 1}}/>
-        <Button
-          size="small"
-          variant={`${active ? 'success' : 'secondary'}`}
-          onClick={() => active
-            ? disconnect()
-            : connect(props.project.docKey, props.project.apiKey, {
-              projectName,
-              components,
-              assets,
-              user,
-            })
-          }>
-          SYNC
-        </Button>
+        <SyncButton/>
       </StatusBar>
     </div>
   );

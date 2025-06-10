@@ -111,7 +111,7 @@ export function App(props: AppProps) {
 
   return hasTabs ? (
     <TooltipProvider disableHoverableContent>
-      <SyncProvider user={user}>
+      <SyncProvider {...{user, build, project}}>
         <GitProvider url={project.gitRepo} branch={project.gitBranch} username={project.gitKey}>
           <Tabs.Root
             style={{height: 'calc(100% - 41px)'}}
@@ -119,7 +119,7 @@ export function App(props: AppProps) {
             onValueChange={nav.gotoTab}>
             <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
-              <ProjectComponents {...{nav, build, project, user, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectComponents {...{nav, build, project, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
               <ProjectIcons {...{nav, build, project, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
