@@ -2,7 +2,6 @@ import {useEffect} from 'react';
 import {on} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
 import {update} from 'interface/utils/project/update';
-import {useSync} from 'interface/providers/Sync';
 import {release} from 'interface/utils/project/lib/release';
 import {download} from 'interface/utils/project/lib/download';
 import * as consts from 'config/consts';
@@ -13,37 +12,33 @@ export function useProjectRelease(
   onError: (msg: string) => void,
   setExportCount: React.Dispatch<number>,
 ): void {
-  const {connect} = useSync();
-  useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (project, info, config) => {
-    if (project === null)
+  useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (info, build, settings, config, form) => {
+    if (build === null)
       return onError('Unable to build project.');
-    const assets = project.assets.length;
-    const components = project.components.length;
+    const assets = build.assets.length;
+    const components = build.components.length;
     setExportCount(components);
     try {
-      switch (config.method) {
-        case 'download':
-          await download(project, info, config);
+      switch (form.method) {
+        case 'zip':
+          await download(build, info, config);
           break;
-        case 'push':
-          await update(project, info, config);
+        case 'git':
+          await update(build, info, config);
           break;
-        case 'sync':
-          connect(project, config);
+        case 'npm':
+          await release(build, info, config);
           break;
-        case 'release':
-          await release(project, info, config);
-          break;
-        case 'preview':
+        case 'run':
           open(`${consts.F2RN_PREVIEW_URL}/#/${config.docKey}`);
           break;
-        default: config.method satisfies never;
+        default: form.method satisfies never;
       }
       onSuccess();
     } catch(e) {
       console.error('>>> Failed to export', e);
       onError(e instanceof Error ? e.message : 'Unknown error');
     }
-    log(`export_${config.method}_complete`, {components, assets});
+    log(`export_${form.method}_complete`, {components, assets});
   }), [onSuccess, onError, setExportCount]);
 }

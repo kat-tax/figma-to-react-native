@@ -1,9 +1,18 @@
 import {useState, useCallback, useContext, createContext} from 'react';
 import * as store from 'store';
 
-import type {ProjectBuild, ProjectRelease} from 'types/project';
-
 const SyncContext = createContext<SyncContextType | null>(null);
+
+export type SyncConnectFunction = (
+  docKey: string,
+  apiKey: string,
+  meta: {
+    projectName: string,
+    components: number,
+    assets: number,
+    user: User,
+  },
+) => void;
 
 export interface SyncProviderProps {
   user: User;
@@ -11,17 +20,17 @@ export interface SyncProviderProps {
 
 export interface SyncContextType {
   active: boolean;
-  connect: (project: ProjectBuild, release: ProjectRelease) => void;
+  connect: SyncConnectFunction;
   disconnect: () => void;
 }
 
 export function SyncProvider({user, children}: React.PropsWithChildren<SyncProviderProps>) {
   const [active, setActive] = useState(false);
 
-  const connect = useCallback((project: ProjectBuild, release: ProjectRelease) => {
+  const connect = useCallback<SyncConnectFunction>((docKey, apiKey, meta) => {
     if (!user) return;
     setActive(true);
-    return store.connect(user, project, release);
+    return store.connect(docKey, apiKey, meta);
   }, [user]);
 
   const disconnect = useCallback(() => {

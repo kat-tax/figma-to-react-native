@@ -78,12 +78,14 @@ export function App(props: AppProps) {
   const isDark = useDarkMode();
   const nav = useNavigation(build);
 
+  const writer = settings.config.writer;
+  const addTranslate = settings.config.addTranslate;
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
   const hasIcons = Boolean(icons?.list?.length);
   const hasTabs = Boolean(isReady && project && monaco);
-  const iconSet = icons.sets[0];
   const compKey = build.roster[nav.component] ? nav.component: null;
+  const iconSet = icons.sets[0];
 
   // Monaco options
   const editorTheme: Theme = isDark ? 'vs-dark' : 'light';
@@ -117,10 +119,10 @@ export function App(props: AppProps) {
             onValueChange={nav.gotoTab}>
             <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
-              <ProjectComponents {...{nav, build, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectComponents {...{nav, build, project, user, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
-              <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectIcons {...{nav, build, project, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
             </Tabs.Content>
             <Tabs.Content value="theme">
               <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
@@ -132,7 +134,7 @@ export function App(props: AppProps) {
               <ProjectDocs {...{nav, build, isReadOnly, searchQuery}}/>
             </Tabs.Content>
             <Tabs.Content value="export">
-              <ProjectExport {...{project, build}}/>
+              <ProjectExport {...{project, build, writer, addTranslate}}/>
             </Tabs.Content>
             <Tabs.Content value="settings">
               <ProjectSettings {...{monaco, settings, editorOptions, editorTheme}}/>

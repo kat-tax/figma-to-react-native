@@ -1,16 +1,12 @@
-import type {ProjectRelease} from 'types/project';
+import type {ProjectConfig} from 'types/project';
 
-const config: ProjectRelease = {
-  method: 'download',
-  scope: 'document',
+const config: ProjectConfig = {
+  name: '',
   docKey: '',
   apiKey: '',
   gitKey: '',
   gitRepo: '',
   gitBranch: '',
-  includeAssets: true,
-  includeTemplate: true,
-  enableAssetOptimizations: true,
 };
 
 export default config;

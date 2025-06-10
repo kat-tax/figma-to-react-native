@@ -11,74 +11,54 @@ import {generateBundle} from './lib/generateBundle';
 import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';
 
-import type {ProjectBuild, ProjectInfo, ProjectRelease, ProjectBuildAssets, ProjectBuildComponents} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectConfig, ProjectBuildAssets, ProjectBuildComponents, ProjectExport} from 'types/project';
 import type {EventProjectRelease, EventProjectConfigLoad} from 'types/events';
 import type {ComponentInfo, ComponentAsset} from 'types/component';
-import type {VariableModes} from 'types/figma';
+import type {ProjectSettings} from 'types/settings';
 
-export function build(release: ProjectRelease) {
+export function build(
+  form: ProjectExport,
+  config: ProjectConfig,
+  settings: ProjectSettings,
+) {
   const user = figma.currentUser;
 
   // Send new project config to the interface to use
-  emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', release);
+  emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', config);
 
   // Save submitted project config to the document
-  // except for the method & scope, those should be ephemeral
-  figma.root.setPluginData(consts.F2RN_PROJECT_RELEASE, JSON.stringify({
-    ...release,
-    method: 'download',
-    scope: 'document',
-  } as ProjectRelease));
+  figma.root.setPluginData(consts.F2RN_PROJECT_RELEASE, JSON.stringify(config));
 
-  // Determine which components to export
-  let projectName = 'Components';
-  let exportNodes: Set<ComponentNode> = new Set();
-  switch (release.scope) {
-    case 'document':
-    case 'page':
-      const useDoc = release.scope === 'document';
-      const target = useDoc ? figma.root : figma.currentPage;
-      projectName = useDoc ? figma.root.name : figma.currentPage.name;
-      const targets = (target as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
-      exportNodes = parser.getComponentTargets(targets);
-      exportNodes.forEach(node => {
-        if (release.scope === 'document') {
-          const pageName = parser.getPage(node).name;
-          if (pageName === consts.PAGES_SPECIAL.TESTS
-            || pageName === consts.PAGES_SPECIAL.LIBRARY
-            || pageName === consts.PAGES_SPECIAL.ICONS
-            || pageName === consts.PAGES_SPECIAL.NAVIGATION) {
-            exportNodes.delete(node);
-          }
-        }
-      });
-      break;
-    case 'selected':
-      exportNodes = parser.getComponentTargets(figma.currentPage.selection);
-      break;
-  }
+  // Get project name and components to export
+  const target = figma.root;
+  const projectName = target.name;
+  const componentNodes = (target as unknown as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
+  const exportNodes = parser.getComponentTargets(componentNodes);
 
-  let projectVersion = '';
+  // Filter out special pages
+  exportNodes.forEach(node => {
+      const pageName = parser.getPage(node).name;
+      if (pageName === consts.PAGES_SPECIAL.TESTS
+        || pageName === consts.PAGES_SPECIAL.LIBRARY
+        || pageName === consts.PAGES_SPECIAL.ICONS
+        || pageName === consts.PAGES_SPECIAL.NAVIGATION) {
+        exportNodes.delete(node);
+      }
+  });
 
   // Export components, if any
+  let projectVersion = '';
   if (exportNodes.size > 0) {
-    if (release.method !== 'sync') {
-      figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
-    }
+    figma.notify(`Exporting ${exportNodes.size} component${exportNodes.size === 1 ? '' : 's'}…`, {timeout: 3500});
     setTimeout(async () => {
+      // Generate components
       const components: ProjectBuildComponents = [];
       const buildAssets: ProjectBuildAssets = [];
       const componentInfo: Record<string, ComponentInfo> = {};
       const assets = new Map<string, ComponentAsset>();
-
       for (const component of exportNodes) {
         try {
-          const bundle = await generateBundle(
-            component,
-            null,
-            {...config.state},
-            release.method !== 'sync',
-          );
+          const bundle = await generateBundle(component, null, settings);
           if (bundle.code) {
             bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
             componentInfo[bundle.info.target.key] = bundle.info;
@@ -119,31 +99,31 @@ export function build(release: ProjectRelease) {
       };
 
       // Increment design package version
-      if (release.method === 'release' || release.method === 'push') {
+      if (form.method === 'npm' || form.method === 'git') {
         const version = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
         if (version) {
-          projectVersion = version;
           const [major, minor, patch] = version.split('.').map(Number);
           const newVersion = `${major}.${minor}.${patch + 1}`;
-          await setProjectVersion(newVersion);
+          projectVersion = newVersion;
           info.appConfig['Design']['PACKAGE_VERSION'] = newVersion;
         }
+        await setProjectVersion(projectVersion);
       }
 
       const build: ProjectBuild = {
         components,
         time: Date.now(),
         name: projectName,
-        index: generateIndex(Object.values(componentInfo), config.state, true),
-        theme: (await generateTheme(config.state)).themes.code,
+        index: generateIndex(Object.values(componentInfo), settings, true),
+        theme: (await generateTheme(settings)).themes.code,
         assets: buildAssets,
       };
 
       // console.log('>> [project/build]', build, info);
-      emit<EventProjectRelease>('PROJECT_RELEASE', build, info, release, user);
+      emit<EventProjectRelease>('PROJECT_RELEASE', info, build, settings, config, form, user);
     }, 500);
   } else {
-    emit<EventProjectRelease>('PROJECT_RELEASE', null, null, release, user);
+    emit<EventProjectRelease>('PROJECT_RELEASE', null, null, settings, config, form, user);
     figma.notify('No components found to export', {error: true});
     if (projectVersion) {
       setProjectVersion(projectVersion);
@@ -153,13 +133,15 @@ export function build(release: ProjectRelease) {
 
 // TODO: reload project config on root document update
 export function loadConfig() {
-  let release: ProjectRelease;
+  let release: ProjectConfig;
   try {
     const rawConfig = figma.root.getPluginData(consts.F2RN_PROJECT_RELEASE);
     const parsedConfig = JSON.parse(rawConfig);
     release = parsedConfig;
   } catch (e) {}
   const loadedConfig = release || defaultReleaseConfig;
+  // Update project name to latest document name
+  loadedConfig.name = figma.root.name;
   // If docKey is empty, generate one and save immediately
   if (!loadedConfig.docKey) {
     loadedConfig.docKey = random.generateToken(22);
@@ -186,9 +168,14 @@ function getAppConfig(
 }
 
 function getLocales(
-  collection: VariableCollection,
-  variables: Variable[],
+  collection?: VariableCollection,
+  variables?: Variable[],
 ): ProjectInfo['locales'] {
+  // No locales collection or variable
+  if (!collection || !variables) return {
+    source: 'en',
+    all: [['en', 'English']],
+  };
   // Default source locale is first in the collection
   const mode = collection.defaultModeId;
   const source = variables[0]?.valuesByMode[mode]?.toString().trim();

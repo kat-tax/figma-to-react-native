@@ -3,8 +3,8 @@ import type {IconifySetPayload} from 'interface/icons/lib/iconify';
 import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
 import type {ComponentData, ComponentBuild} from 'types/component';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
-import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
-import type {UserSettings} from 'types/settings';
+import type {ProjectBuild, ProjectInfo, ProjectConfig, ProjectExport} from 'types/project';
+import type {ProjectSettings, UserSettings} from 'types/settings';
 import type {NodeAttrData} from 'types/node';
 import type {AppPages} from 'types/app';
 
@@ -120,7 +120,14 @@ export interface DropComponentHandler extends EventHandler {
 
 export interface EventProjectRelease extends EventHandler {
   name: 'PROJECT_RELEASE';
-  handler: (project: ProjectBuild | null, info: ProjectInfo | null, config: ProjectRelease, user: User) => void;
+  handler: (
+    info: ProjectInfo | null,
+    project: ProjectBuild | null,
+    settings: ProjectSettings,
+    config: ProjectConfig,
+    form: ProjectExport,
+    user: User,
+  ) => void;
 }
 
 export interface EventProjectTheme extends EventHandler {
@@ -145,12 +152,16 @@ export interface EventProjectIcons extends EventHandler {
 
 export interface EventProjectExport extends EventHandler {
   name: 'PROJECT_EXPORT';
-  handler: (config: ProjectRelease) => void;
+  handler: (
+    form: ProjectExport,
+    config: ProjectConfig,
+    settings: ProjectSettings,
+  ) => void;
 }
 
 export interface EventProjectConfigLoad extends EventHandler {
   name: 'PROJECT_CONFIG_LOAD';
-  handler: (config: ProjectRelease) => void;
+  handler: (config: ProjectConfig) => void;
 }
 
 export interface EventProjectImportComponents extends EventHandler {

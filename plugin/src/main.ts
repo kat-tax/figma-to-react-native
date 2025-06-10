@@ -64,8 +64,8 @@ export default async function() {
     });
 
     // Handle export project
-    on<T.EventProjectExport>('PROJECT_EXPORT', (newConfig) => {
-      project.build(newConfig);
+    on<T.EventProjectExport>('PROJECT_EXPORT', (form, config, settings) => {
+      project.build(form, config, settings);
     });
 
     // Handle import themes

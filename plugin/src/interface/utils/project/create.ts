@@ -4,15 +4,15 @@ import {DOC_INDEX_TEMPLATE} from './data/templates';
 import * as _ from './data/metadata';
 
 import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
-import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectConfig} from 'types/project';
 
 export async function create(
   project: ProjectBuild,
   info: ProjectInfo,
-  release: ProjectRelease,
+  release: ProjectConfig,
 ) {
   const metadata = _.metadata(info);
-  
+
   // Import EXO
   const zip = new fs.FS();
   const src = F2RN_EXO_PROXY_URL + encodeURIComponent(`${F2RN_EXO_REPO_ZIP}?_c=${Math.random()}`);
@@ -61,20 +61,18 @@ export async function create(
   }
 
   // Assets
-  if (release.includeAssets) {
-    const added = new Set();
-    for (const [name, isVector, bytes] of project.assets) {
-      const ext = isVector ? 'svg' : 'png';
-      const type = isVector ? 'svg' : 'img';
-      const mime = isVector ? 'image/svg+xml' : 'image/png';
-      const blob = new Blob([bytes], {type: mime});
-      const path = `assets/${type}/${name.toLowerCase()}.${ext}`;
-      if (added.has(path)) return;
-      const category = design.getChildByName(`assets/${type}`);
-      if (category) zip.remove(category);
-      design.addBlob(path, blob);
-      added.add(path);
-    }
+  const added = new Set();
+  for (const [name, isVector, bytes] of project.assets) {
+    const ext = isVector ? 'svg' : 'png';
+    const type = isVector ? 'svg' : 'img';
+    const mime = isVector ? 'image/svg+xml' : 'image/png';
+    const blob = new Blob([bytes], {type: mime});
+    const path = `assets/${type}/${name.toLowerCase()}.${ext}`;
+    if (added.has(path)) return;
+    const category = design.getChildByName(`assets/${type}`);
+    if (category) zip.remove(category);
+    design.addBlob(path, blob);
+    added.add(path);
   }
 
   // Components

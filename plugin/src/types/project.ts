@@ -1,11 +1,25 @@
-export interface ProjectBuild {
+export interface ProjectConfig {
   name: string,
-  time: number,
-  index: string,
-  theme: string,
-  assets: ProjectBuildAssets,
-  components: ProjectBuildComponents,
+  apiKey: string,
+  docKey: string,
+  gitKey: string,
+  gitRepo: string,
+  gitBranch: string,
 }
+
+export interface ProjectExport {
+  method: ProjectExportMethod,
+  template: ProjectExportTemplate | null,
+}
+
+export type ProjectExportTemplate =
+  | 'exo'
+
+export type ProjectExportMethod =
+  | 'git'
+  | 'zip'
+  | 'run'
+  | 'npm'
 
 export interface ProjectInfo {
   appConfig: {
@@ -25,30 +39,26 @@ export interface ProjectIcons {
   names: Record<string, string>,
 }
 
-export type ProjectBuildAssets = Array<[string, boolean, Uint8Array]>;
-export type ProjectBuildComponents = Array<[string, string, string, string, string, string]>;
-
-export interface ProjectRelease {
-  method: ProjectExportMethod,
-  scope: ProjectExportScope,
-  apiKey: string,
-  docKey: string,
-  gitKey: string,
-  gitRepo: string,
-  gitBranch: string,
-  enableAssetOptimizations: boolean,
-  includeAssets: boolean,
-  includeTemplate: boolean,
+export interface ProjectBuild {
+  name: string,
+  time: number,
+  index: string,
+  theme: string,
+  assets: ProjectBuildAssets,
+  components: ProjectBuildComponents,
 }
 
-export type ProjectExportScope =
-  | 'document'
-  | 'page'
-  | 'selected';
+export type ProjectBuildAssets = Array<[
+  string,
+  boolean,
+  Uint8Array,
+]>;
 
-export type ProjectExportMethod =
-  | 'download'
-  | 'push'
-  | 'sync'
-  | 'preview'
-  | 'release';
+export type ProjectBuildComponents = Array<[
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+]>;

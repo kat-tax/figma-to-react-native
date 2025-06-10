@@ -7,7 +7,6 @@ import {F2RN_SERVICE_URL} from 'config/consts';
 
 import type {Text} from 'yjs';
 import type {YSweetProvider} from '@y-sweet/client';
-import type {ProjectBuild, ProjectRelease} from 'types/project';
 import type {EventNotify} from 'types/events';
 
 export const doc = new Doc();
@@ -18,11 +17,16 @@ export const docId = generateToken(22);
 export let provider: YSweetProvider;
 
 export function connect(
-  user: User,
-  project: ProjectBuild,
-  release: ProjectRelease,
+  docKey: string,
+  apiKey: string,
+  meta: {
+    projectName: string,
+    components: number,
+    assets: number,
+    user: User,
+  },
 ) {
-  const {apiKey, docKey} = release;
+  const {projectName, components, assets, user} = meta;
   provider = createYjsProvider(doc, docId, async () => {
     const response = await fetch(`${F2RN_SERVICE_URL}/api/sync`, {
       body: JSON.stringify({docId}),
@@ -35,9 +39,9 @@ export function connect(
         'X-Figma-User-Name': user.name,
         'X-Figma-User-Color': user.color,
         'X-Figma-User-Photo': user.photoUrl,
-        'X-Figma-Project-Name': project.name,
-        'X-Figma-Project-Assets': project.assets.length.toString(),
-        'X-Figma-Project-Components': project.components.length.toString(),
+        'X-Figma-Project-Name': projectName,
+        'X-Figma-Project-Assets': assets.toString(),
+        'X-Figma-Project-Components': components.toString(),
       },
     });
     return await response.json();
