@@ -5,8 +5,8 @@ import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
 import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {IconButton} from 'interface/figma/ui/icon-button';
 import {IconToggleButton} from 'interface/figma/ui/icon-toggle-button';
-import {IconSwap} from 'interface/figma/icons/16/Swap';
-import {IconTarget} from 'interface/figma/icons/16/Target';
+import {IconRefresh} from 'interface/figma/icons/24/Refresh';
+import {IconTarget} from 'interface/figma/icons/24/Target';
 import {IconLockOpen} from 'interface/figma/icons/16/LockOpen';
 import {IconLockClosed} from 'interface/figma/icons/16/LockClosed';
 import {IconCorners} from 'interface/figma/icons/32/Corners';
@@ -330,19 +330,19 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <IconToggleButton onValueChange={inspect} value={isInspect} disabled={!isLoaded}>
           <IconTarget/>
         </IconToggleButton>
-        <IconToggleButton onValueChange={lock} value={isLocked}>
+        {/* <IconToggleButton onValueChange={lock} value={isLocked}>
           {isLocked ? <IconLockClosed/> : <IconLockOpen/>}
-        </IconToggleButton>
+        </IconToggleButton> */}
         <div style={styles.bar}>
           <Text>{previewBar ? previewBar[0] : ''}</Text>
           <Text style={styles.desc}>{previewBar ? previewBar[1] : ''}</Text>
         </div>
         <IconButton onClick={reload}>
-          <IconSwap/>
+          <IconRefresh/>
         </IconButton>
-        <IconButton onClick={expand}>
+        {/* <IconButton onClick={expand}>
           <IconCorners/>
-        </IconButton>
+        </IconButton> */}
       </div>
       {component && !isLoaded &&
         <div style={styles.loading}>

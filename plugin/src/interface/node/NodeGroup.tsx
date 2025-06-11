@@ -1,7 +1,7 @@
 import {Flex, Popover, IconButton} from 'figma-kit';
 import {Fragment, useCallback, useState} from 'react';
 import {NodeAttrType} from 'types/node';
-import {IconPlus} from 'interface/figma/icons/32/Plus';
+import {IconPlus} from 'interface/figma/icons/24/Plus';
 import {NodeAttr} from 'interface/node/NodeAttr';
 import {uuid} from 'common/random';
 import {titleCase} from 'common/string';
@@ -139,7 +139,7 @@ export function NodeGroup(props: NodeGroupProps) {
                   backgroundColor: 'var(--figma-color-border-brand-strong)',
                 }}/>
               )}
-              <Popover.Section 
+              <Popover.Section
                 size="small"
                 draggable={true}
                 onDragStart={(e) => dragStart(e, uuid)}

@@ -5,7 +5,7 @@ import {Fzf, byLengthAsc} from 'fzf';
 import {VirtuosoGrid} from 'react-virtuoso';
 import {emit} from '@create-figma-plugin/utilities';
 
-import {IconPlus} from 'interface/figma/icons/32/Plus';
+import {IconPlus} from 'interface/figma/icons/24/Plus';
 import {IconTile} from 'interface/icons/IconTile';
 import {IconBrowse} from 'interface/icons/IconBrowse';
 import {loadIconSets} from 'interface/icons/lib/iconify';

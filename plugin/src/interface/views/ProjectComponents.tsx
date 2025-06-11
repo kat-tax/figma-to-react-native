@@ -7,7 +7,7 @@ import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {StatusBar} from 'interface/base/StatusBar';
-import {IconPlus} from 'interface/figma/icons/32/Plus';
+import {IconPlus} from 'interface/figma/icons/24/Plus';
 import {Disclosure} from 'interface/figma/ui/disclosure';
 import {Stack} from 'interface/figma/ui/stack';
 import {Layer} from 'interface/figma/Layer';

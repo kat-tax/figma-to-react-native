@@ -18,14 +18,14 @@ export default function Loader() {
       customTransform={getMatrixTransformStyles}
       centerZoomedOut={false}
       doubleClick={{mode: 'reset'}}
-      wheel={{smoothStep: 0.03}}
+      wheel={{smoothStep: 0.005}}
       onTransformed={(e) => {
         const defSize = 16;
         const minSize = 11.4;
         const maxSize = 22.6;
         // Scale < 1: interpolate between minSize and defSize
         // Scale > 1: interpolate between defSize and maxSize
-        const size = e.state.scale <= 1 
+        const size = e.state.scale <= 1
           ? minSize + (defSize - minSize) * e.state.scale
           : defSize + (maxSize - defSize) * Math.min(e.state.scale - 1, 1);
         const halfSize = size / 2;
@@ -109,7 +109,7 @@ export function Preview(props: {
         setIsDragging(true);
       }
     };
-    
+
     const onMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       const rect = _wrapper?.getBoundingClientRect();
@@ -118,12 +118,12 @@ export function Preview(props: {
       if (_diff) _diff.style.width = `${width}%`;
       if (_handle) _handle.style.left = `${width}%`;
     };
-    
+
     const onMouseUp = () => {
       setIsDragging(false);
       props.setLockTemp(false);
     };
-    
+
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
