@@ -1,5 +1,5 @@
-import {Fragment} from 'react';
 import {Text, DropdownMenu} from 'figma-kit';
+import {useMemo, Fragment} from 'react';
 import {useComponent} from 'interface/hooks/useComponent';
 import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {IconToggleButton} from 'interface/figma/ui/icon-toggle-button';
@@ -43,6 +43,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     actions,
     loaded,
     iframe,
+    screen,
     src,
   } = useComponent(
     props.compKey,
@@ -57,6 +58,52 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     props.showDiff,
   );
 
+  const maxBarCharLength = useMemo(() => {
+    if (!screen.width) return 15;
+    const padding = 8;
+    const buttonSpace = 60;
+    const availableTextWidth = screen.width - buttonSpace - padding;
+    // Estimate ~8px per character (average character width in UI)
+    const avgCharWidth = 8;
+    const maxPossibleChars = Math.floor(availableTextWidth / avgCharWidth);
+    // Set reasonable bounds
+    const minChars = 8;
+    const maxChars = 50;
+    return Math.max(minChars, Math.min(maxChars, maxPossibleChars));
+  }, [screen.width]);
+
+  const [barTitle, barLocation] = useMemo(() => {
+    if (!previewBar) return ['', ''];
+    let [title, location] = previewBar;
+    if (title.length > maxBarCharLength) {
+      const segments = title.split('/');
+      // If full path is too long, try progressively shorter versions
+      if (segments.length > 1) {
+        // Try showing last 2 segments, then last 1 segment
+        for (let i = Math.max(1, segments.length - 2); i < segments.length; i++) {
+          const subPath = segments.slice(i).join('/');
+          if (subPath.length <= maxBarCharLength) {
+            title = '~/' + subPath;
+            break;
+          }
+        }
+        // If even the last segment is too long, use ellipsis
+        if (title.length > maxBarCharLength) {
+          const lastSegment = segments[segments.length - 1];
+          const ellipsisLength = maxBarCharLength - 3;
+          if (lastSegment.length > ellipsisLength) {
+            title = '...' + lastSegment.slice(-ellipsisLength);
+          }
+        }
+      } else {
+        // Single segment that's too long - use ellipsis
+        const ellipsisLength = maxBarCharLength - 3;
+        title = '...' + title.slice(-ellipsisLength);
+      }
+    }
+    return [title, location];
+  }, [previewBar, maxBarCharLength]);
+
   return (
     <Fragment>
       {!component &&
@@ -70,8 +117,8 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <IconTarget/>
         </IconToggleButton>
         <div style={styles.bar}>
-          <Text>{previewBar ? previewBar[0] : ''}</Text>
-          <Text style={styles.desc}>{previewBar ? previewBar[1] : ''}</Text>
+          <Text>{barTitle}</Text>
+          <Text style={styles.desc}>{barLocation}</Text>
         </div>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>

@@ -348,6 +348,7 @@ export function useComponent(
     actions,
     loaded,
     iframe,
+    screen,
     src,
   }
 }
