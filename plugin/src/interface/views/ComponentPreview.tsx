@@ -1,13 +1,13 @@
-import {Text} from 'figma-kit';
 import {Fragment} from 'react';
-import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
-import {IconButton} from 'interface/figma/ui/icon-button';
-import {IconToggleButton} from 'interface/figma/ui/icon-toggle-button';
-import {IconRefresh} from 'interface/figma/icons/24/Refresh';
-import {IconTarget} from 'interface/figma/icons/24/Target';
-import {ScreenWarning} from 'interface/base/ScreenWarning';
-import {NodeToolbar} from 'interface/node/NodeToolbar';
+import {Text, DropdownMenu} from 'figma-kit';
 import {useComponent} from 'interface/hooks/useComponent';
+import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
+import {IconToggleButton} from 'interface/figma/ui/icon-toggle-button';
+import {IconEllipsis} from 'interface/figma/icons/24/Ellipsis';
+import {IconButton} from 'interface/figma/ui/icon-button';
+import {IconTarget} from 'interface/figma/icons/24/Target';
+import {NodeToolbar} from 'interface/node/NodeToolbar';
+import {ScreenWarning} from 'interface/base/ScreenWarning';
 
 import type {CSSProperties} from 'react';
 import type {ComponentBuild} from 'types/component';
@@ -30,13 +30,14 @@ interface ComponentPreviewProps {
 
 export function ComponentPreview(props: ComponentPreviewProps) {
   const {
-    initLoader,
     initApp,
+    initLoader,
     previewRect,
     previewNode,
     previewDesc,
     previewBar,
     isInspect,
+    isLocked,
     isLoaded,
     component,
     actions,
@@ -68,19 +69,64 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           disabled={!isLoaded}>
           <IconTarget/>
         </IconToggleButton>
-        {/* <IconToggleButton onValueChange={lock} value={isLocked}>
-          {isLocked ? <IconLockClosed/> : <IconLockOpen/>}
-        </IconToggleButton> */}
         <div style={styles.bar}>
           <Text>{previewBar ? previewBar[0] : ''}</Text>
           <Text style={styles.desc}>{previewBar ? previewBar[1] : ''}</Text>
         </div>
-        <IconButton onClick={actions.reload}>
-          <IconRefresh/>
-        </IconButton>
-        {/* <IconButton onClick={expand}>
-          <IconCorners/>
-        </IconButton> */}
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <IconButton>
+              <IconEllipsis/>
+            </IconButton>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                Copy...
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent>
+                <DropdownMenu.Item onClick={() => actions.copy('component')}>
+                  Component
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onClick={() => actions.copy('story')}>
+                  Story
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onClick={() => actions.copy('docs')}>
+                  Docs
+                </DropdownMenu.Item>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                Download...
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent>
+                <DropdownMenu.Item onClick={() => actions.download('component')}>
+                  Component
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onClick={() => actions.download('story')}>
+                  Story
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onClick={() => actions.download('docs')}>
+                  Docs
+                </DropdownMenu.Item>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item onClick={actions.reload}>
+              Reload preview
+            </DropdownMenu.Item>
+            <DropdownMenu.Item onClick={actions.expand}>
+              Toggle full screen
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator />
+            <DropdownMenu.CheckboxItem
+              checked={!isLocked}
+              onCheckedChange={() => actions.lock(!isLocked)}>
+              Enable Panning
+            </DropdownMenu.CheckboxItem>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       </div>
       {component && !isLoaded &&
         <div style={styles.loading}>

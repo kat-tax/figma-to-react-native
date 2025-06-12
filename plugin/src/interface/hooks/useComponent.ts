@@ -1,22 +1,22 @@
 import {emit, on} from '@create-figma-plugin/utilities';
-import {useWindowSize} from '@uidotdev/usehooks';
+import {useWindowSize, useCopyToClipboard} from '@uidotdev/usehooks';
 import {useState, useCallback, useEffect, useMemo, useRef} from 'react';
 import {init, preview} from 'interface/utils/preview';
 import {useGit} from 'interface/providers/Git';
 import * as string from 'common/string';
 import * as $ from 'store';
 
+import type {EventExpand, EventFocusNode, EventFocusedNode, EventNotify} from 'types/events';
 import type {ComponentBuild} from 'types/component';
-import type {EventExpand, EventFocusNode, EventFocusedNode} from 'types/events';
 import type {UserSettings} from 'types/settings';
 import type {VariantData} from 'interface/hooks/useSelectedVariant';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
-interface PreviewNodeMap {
+type PreviewNodeMap = {
   [nodeId: string]: PreviewNodeInfo
 }
 
-interface PreviewNodeInfo {
+type PreviewNodeInfo = {
   nodeId: string,
   name: string,
   path: string | null,
@@ -27,6 +27,8 @@ interface PreviewNodeInfo {
     column: number,
   }
 }
+
+type ModelTarget = 'component' | 'story' | 'docs';
 
 export function useComponent(
   compKey: string,
@@ -54,6 +56,7 @@ export function useComponent(
   const [src, setSrc] = useState('');
   const {fs} = useGit();
 
+  const [_, copy] = useCopyToClipboard();
   const screen = useWindowSize();
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
@@ -61,6 +64,18 @@ export function useComponent(
   const component = $.components.get(compKey);
   const previewBar = previewHover || previewFocused || previewDefault;
   const pathComponent = string.componentPathNormalize(component?.path);
+
+  const getCode = useCallback((src: ModelTarget) => {
+    switch (src) {
+      case 'component':
+        return $.component.code(compKey).get().toString();
+      case 'story':
+        return $.component.story(compKey).get().toString();
+      case 'docs':
+        return $.component.docs(compKey).get().toString();
+      default: src satisfies never;
+    }
+  }, [compKey]);
 
   const actions = useMemo(() => {
     return {
@@ -87,6 +102,19 @@ export function useComponent(
           setPreviewFocused(null);
         }
       },
+      copy: (src: ModelTarget) => {
+        copy(getCode(src));
+        emit<EventNotify>('NOTIFY', `Copied "${component?.name}" code to clipboard`);
+      },
+      download: (src: ModelTarget) => {
+        const blob = new Blob([getCode(src)], {type: 'text/plain'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${component?.name}.tsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
     }
   }, []);
 
@@ -302,13 +330,14 @@ export function useComponent(
   }, [nav.cursorPos, component]);
 
   return {
-    initLoader,
     initApp,
+    initLoader,
     previewRect,
     previewNode,
     previewDesc,
     previewBar,
     isInspect,
+    isLocked,
     isLoaded,
     component,
     actions,
