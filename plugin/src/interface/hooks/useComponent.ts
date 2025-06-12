@@ -107,11 +107,16 @@ export function useComponent(
         emit<EventNotify>('NOTIFY', `Copied "${component?.name}" code to clipboard`);
       },
       download: (src: ModelTarget) => {
+        const ext = src === 'component'
+          ? 'tsx'
+          : src === 'story'
+            ? 'story.tsx'
+            : 'docs.mdx';
         const blob = new Blob([getCode(src)], {type: 'text/plain'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${component?.name}.tsx`;
+        a.download = `${component?.name}.${ext}`;
         a.click();
         URL.revokeObjectURL(url);
       }
