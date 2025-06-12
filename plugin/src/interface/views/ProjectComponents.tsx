@@ -2,6 +2,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {Button, IconButton, SegmentedControl} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
+import {ProjectSettings} from 'interface/views/ProjectSettings';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
@@ -24,6 +25,12 @@ import type {ProjectConfig} from 'types/project';
 import type {ComponentBuild, ComponentRosterEntry} from 'types/component';
 import type {EventProjectImportComponents, EventNotify, EventFocusNode} from 'types/events';
 
+// Temp
+import type {Theme} from '@monaco-editor/react';
+import type {Monaco} from 'interface/utils/editor';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
+import type {UserSettings} from 'types/settings';
+
 interface ProjectComponentsProps {
   project: ProjectConfig,
   build: ComponentBuild,
@@ -34,6 +41,11 @@ interface ProjectComponentsProps {
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
+  // Temp
+  monaco: Monaco,
+  settings: SettingsData,
+  editorOptions: UserSettings['monaco']['general'],
+  editorTheme: Theme,
 }
 
 type ProjectComponentLayout = 'grid' | 'list';
@@ -49,6 +61,7 @@ type ProjectComponentEntry = {
 }
 
 export function ProjectComponents(props: ProjectComponentsProps) {
+  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
   const [layout, setLayout] = useState<ProjectComponentLayout>('list');
   const [list, setList] = useState<ProjectComponentIndex>({});
@@ -131,6 +144,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         flexDirection: 'column',
         alignItems: 'flex-start',
       }}>
+      {!showSettings && (
       <div style={{flex: 1, overflow: 'auto', width: '100%', paddingBottom: 12}}>
         {props.build?.pages?.map(page =>
           <ProjectPageGroup
@@ -146,6 +160,15 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           component={<ProjectAssets {...props}/>}
         />
       </div>
+      )}
+      {showSettings && (
+        <ProjectSettings
+          monaco={props.monaco}
+          settings={props.settings}
+          editorOptions={props.editorOptions}
+          editorTheme={props.editorTheme}
+        />
+      )}
       <StatusBar>
         <SegmentedControl.Root
           value={layout}
@@ -179,7 +202,8 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         <IconButton
           aria-label="Change Settings"
           size="small"
-          onClick={() => importComponents()}>
+          className={showSettings ? 'icon-button-active' : ''}
+          onClick={() => setShowSettings(!showSettings)}>
           <IconGear/>
         </IconButton>
         {/* <SyncButton/> */}

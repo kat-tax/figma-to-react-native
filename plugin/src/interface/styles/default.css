@@ -74,6 +74,10 @@ iframe {
   scale: 0.8;
 }
 
+.icon-button-active {
+  background-color: var(--figma-color-bg-selected-strong) !important;
+}
+
 /* Needed for color picker */
 .fp-SelectTrigger {
   gap: 0;

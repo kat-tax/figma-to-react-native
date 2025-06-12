@@ -13,6 +13,7 @@ declare const styles: {
   readonly "fp-TabsContent": string;
   readonly "highlight": string;
   readonly "icon": string;
+  readonly "icon-button-active": string;
   readonly "list": string;
   readonly "no-first-span-overflow": string;
   readonly "node-toolbar-btn": string;
