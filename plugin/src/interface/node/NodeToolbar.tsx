@@ -4,8 +4,8 @@ import {useEffect, useState} from 'react';
 import {useForm} from 'interface/figma/hooks/use-form';
 import {IconAdjust} from 'interface/figma/icons/24/Adjust';
 import {IconAnimation} from 'interface/figma/icons/24/Animation';
+import {IconConditional} from 'interface/figma/icons/24/Conditional';
 import {IconEffects} from 'interface/figma/icons/32/Effects';
-import {IconVisible} from 'interface/figma/icons/24/Visible';
 import {IconCross} from 'interface/figma/icons/24/Cross';
 import {IconList} from 'interface/figma/icons/32/List';
 import {NodeAttrGroup} from 'types/node';
@@ -48,7 +48,7 @@ export function NodeToolbar(props: NodeToolbarProps) {
     {group: NodeAttrGroup.Props, icon: <IconAdjust/>},
     {group: NodeAttrGroup.Motions, icon: <IconAnimation/>},
     {group: NodeAttrGroup.Interactions, icon: <IconEffects/>},
-    {group: NodeAttrGroup.Visibilities, icon: <IconVisible/>},
+    {group: NodeAttrGroup.Visibilities, icon: <IconConditional/>},
     {group: NodeAttrGroup.Dynamics, icon: <IconList/>},
   ];
 

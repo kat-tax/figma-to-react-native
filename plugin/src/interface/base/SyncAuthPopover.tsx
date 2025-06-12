@@ -29,7 +29,7 @@ export function SyncAuthPopover({
         }}>
         <Popover.Header>
           <Popover.Title>
-            Enter API Key
+            Sync to File
           </Popover.Title>
         </Popover.Header>
         <Popover.Section>

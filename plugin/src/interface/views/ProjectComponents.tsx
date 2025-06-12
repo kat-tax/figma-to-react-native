@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {Button} from 'figma-kit';
+import {Button, IconButton, SegmentedControl} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {ProjectAssets} from 'interface/views/ProjectAssets';
@@ -7,7 +7,12 @@ import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {StatusBar} from 'interface/base/StatusBar';
-import {IconPlus} from 'interface/figma/icons/24/Plus';
+import {IconTemplates} from 'interface/figma/icons/24/Templates';
+import {IconGrid} from 'interface/figma/icons/24/Grid';
+import {IconGear} from 'interface/figma/icons/24/Gear';
+import {IconList} from 'interface/figma/icons/24/List';
+import {IconSync} from 'interface/figma/icons/24/Sync';
+import {IconDownload} from 'interface/figma/icons/24/Download';
 import {Disclosure} from 'interface/figma/ui/disclosure';
 import {Stack} from 'interface/figma/ui/stack';
 import {Layer} from 'interface/figma/Layer';
@@ -31,6 +36,8 @@ interface ProjectComponentsProps {
   searchQuery: string,
 }
 
+type ProjectComponentLayout = 'grid' | 'list';
+
 type ProjectComponentIndex = Record<
   string,
   ProjectComponentEntry[]
@@ -43,6 +50,7 @@ type ProjectComponentEntry = {
 
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [importing, setImporting] = useState<boolean>(false);
+  const [layout, setLayout] = useState<ProjectComponentLayout>('list');
   const [list, setList] = useState<ProjectComponentIndex>({});
 
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
@@ -139,15 +147,42 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         />
       </div>
       <StatusBar>
-        <Button
-          size="small"
-          variant="secondary"
-          style={{width: 32, padding: 0}}
-          onClick={() => importComponents()}>
-          <IconPlus/>
-        </Button>
+        <SegmentedControl.Root
+          value={layout}
+          onValueChange={(v: ProjectComponentLayout) => setLayout(v)}>
+          <SegmentedControl.Item value="list" aria-label="View as list">
+            <IconList/>
+          </SegmentedControl.Item>
+          <SegmentedControl.Item value="grid" aria-label="View as grid">
+            <IconGrid/>
+          </SegmentedControl.Item>
+        </SegmentedControl.Root>
         <div style={{flex: 1}}/>
-        <SyncButton/>
+        <IconButton
+          aria-label="Add Component"
+          size="small"
+          onClick={() => importComponents()}>
+          <IconTemplates/>
+        </IconButton>
+        <IconButton
+          aria-label="Export Project"
+          size="small"
+          onClick={() => importComponents()}>
+          <IconDownload/>
+        </IconButton>
+        <IconButton
+          aria-label="Start Sync"
+          size="small"
+          onClick={() => importComponents()}>
+          <IconSync/>
+        </IconButton>
+        <IconButton
+          aria-label="Change Settings"
+          size="small"
+          onClick={() => importComponents()}>
+          <IconGear/>
+        </IconButton>
+        {/* <SyncButton/> */}
       </StatusBar>
     </div>
   );

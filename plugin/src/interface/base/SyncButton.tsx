@@ -46,7 +46,7 @@ export function SyncButton() {
         size="small"
         variant={authError ? 'destructive' : sync.active ? 'success' : 'secondary'}
         onClick={() => handleSyncClick()}>
-        SYNC
+        Sync
       </Button>
     </SyncAuthPopover>
   );

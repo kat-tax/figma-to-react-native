@@ -253,6 +253,13 @@ iframe {
   width: 100%;
 }
 
+.components [class*="_title_"] {
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 16px;
+  letter-spacing: 0.05504px;
+}
+
 .component {
   background-color: #000000;
   border-radius: 4px;

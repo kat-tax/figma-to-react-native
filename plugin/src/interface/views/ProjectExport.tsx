@@ -5,7 +5,7 @@ import {useForm} from 'interface/figma/hooks/use-form';
 import {Banner} from 'interface/figma/ui/banner';
 import {Container} from 'interface/figma/ui/container';
 import {VerticalSpace} from 'interface/figma/ui/vertical-space';
-import {IconCheck} from 'interface/figma/icons/32/Check';
+import {IconCheck} from 'interface/figma/icons/24/Check';
 import {IconHelp} from 'interface/figma/icons/16/Help';
 import {IconWarning} from 'interface/figma/icons/32/Warning';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';

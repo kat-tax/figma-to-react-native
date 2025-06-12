@@ -1,15 +1,12 @@
 import {Text} from 'figma-kit';
 import {emit, on} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
-import {useState, useCallback, useEffect, useRef, Fragment} from 'react';
+import {useState, useCallback, useEffect, useMemo, useRef, Fragment} from 'react';
 import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {IconButton} from 'interface/figma/ui/icon-button';
 import {IconToggleButton} from 'interface/figma/ui/icon-toggle-button';
 import {IconRefresh} from 'interface/figma/icons/24/Refresh';
 import {IconTarget} from 'interface/figma/icons/24/Target';
-import {IconLockOpen} from 'interface/figma/icons/16/LockOpen';
-import {IconLockClosed} from 'interface/figma/icons/16/LockClosed';
-import {IconCorners} from 'interface/figma/icons/32/Corners';
 import {init, preview} from 'interface/utils/preview';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
 import {NodeToolbar} from 'interface/node/NodeToolbar';
@@ -73,8 +70,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const loaded = useRef(false);
 
-  // Derived data
-  const settings = props.settings.config;
+  const {esbuild} = props.settings.config;
   const component = $.components.get(compKey);
   const previewBar = previewHover || previewFocused || previewDefault;
   const pathComponent = string.componentPathNormalize(component?.path);
@@ -134,14 +130,14 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   // Inits the loader that renders component apps
   const initLoader = useCallback(() => {
-    init(settings, isDark).then(code => {
+    init(esbuild, isDark).then(code => {
       loaded.current = true;
       setSrc(code);
       if (component) {
         initApp();
       }
     });
-  }, [component, settings]);
+  }, [component, esbuild]);
 
   // Inits a component app in the loader
   const initApp = useCallback(() => {
@@ -149,15 +145,15 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     if (!loaded.current) return
     const {name, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
-    preview({tag, name, path, imports, theme, background, settings, build}).then(bundle => {
+    preview({tag, name, path, imports, theme, background, esbuild, build}).then(bundle => {
       post('preview::load', {bundle, name, width, height, theme, background});
     });
     if (fs && showDiff) {
-      preview({tag, name, path, imports, theme, background, settings, build}, fs).then(bundle => {
+      preview({tag, name, path, imports, theme, background, esbuild, build}, fs).then(bundle => {
         post('preview::load', {bundle, name, width, height, theme, background, head: true});
       });
     }
-  }, [component, settings, build, fs, showDiff]);
+  }, [component, esbuild, build, fs, showDiff]);
 
   // TEMP: Workaround to force the preview app to refresh on variant change
   const refresh = useCallback(() => {
@@ -170,42 +166,40 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     });
   }, []);
 
-  // Enable inspect mode in the app
-  const inspect = useCallback((enabled: boolean) => {
-    setIsInspect(enabled);
-    post('preview::inspect', {enabled});
-    if (!enabled) {
-      setFigmaFocus(null);
-      setPreviewRect(null);
-      setPreviewNode(null);
-      setPreviewDesc(null);
-      setPreviewHover(null);
-      setPreviewFocused(null);
+  // Component preview actions
+  const actions = useMemo(() => {
+    return {
+      lock: (enabled: boolean) => {
+        setIsLocked(enabled);
+        post('preview::lock', {enabled});
+      },
+      expand: () => {
+        emit<EventExpand>('EXPAND');
+      },
+      reload: () => {
+        iframe.current?.contentWindow?.location.reload();
+        actions.inspect(false);
+      },
+      inspect: (enabled: boolean) => {
+        setIsInspect(enabled);
+        post('preview::inspect', {enabled});
+        if (!enabled) {
+          setFigmaFocus(null);
+          setPreviewRect(null);
+          setPreviewNode(null);
+          setPreviewDesc(null);
+          setPreviewHover(null);
+          setPreviewFocused(null);
+        }
+      },
     }
   }, []);
 
-  // Disable zooming / panning in preview
-  const lock = useCallback((enabled: boolean) => {
-    setIsLocked(enabled);
-    post('preview::lock', {enabled});
-  }, []);
-
-  // Reload the iframe command
-  const reload = useCallback(() => {
-    iframe.current?.contentWindow?.location.reload();
-    inspect(false);
-  }, []);
-
-  // Expands the plugin to full screen
-  const expand = useCallback(() => {
-    emit<EventExpand>('EXPAND');
-  }, []);
-
   // Render the loader when the settings change
-  useEffect(initLoader, [settings]);
+  useEffect(initLoader, [esbuild]);
 
   // Render the app when the component or settings change
-  useEffect(initApp, [component, settings]);
+  useEffect(initApp, [component, esbuild]);
 
   // Rebuild app when editor content changes or showDiff changes
   useEffect(() => {
@@ -213,7 +207,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   }, [nav.lastEditorRev, showDiff]);
 
   // Update the dimensions when screen or component change & clear inspection
-  useEffect(() => {post('preview::resize', {}); inspect(false)}, [screen, props.lastResize]);
+  useEffect(() => {post('preview::resize', {}); actions.inspect(false)}, [screen, props.lastResize]);
 
   // Update the preview theme when it changes
   useEffect(() => {post('preview::theme', {theme})}, [theme]);
@@ -256,7 +250,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
         // Clear inspection when the user zooms / pans
         case 'loader::interaction': {
-          inspect(false);
+          actions.inspect(false);
           break;
         }
 
@@ -296,12 +290,12 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     const valKeyEvent = (e: KeyboardEvent) => e.key === 'Meta' || e.key === 'Alt';
     const onKeyDown = (e: KeyboardEvent) => {
       if (valKeyEvent(e)) {
-        inspect(true);
+        actions.inspect(true);
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
       if (valKeyEvent(e) && !previewNode) {
-        inspect(false);
+        actions.inspect(false);
       }
     };
     addEventListener('keydown', onKeyDown);
@@ -327,7 +321,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <ScreenWarning message="Component not found"/>
       }
       <div style={styles.header}>
-        <IconToggleButton onValueChange={inspect} value={isInspect} disabled={!isLoaded}>
+        <IconToggleButton
+          onValueChange={actions.inspect}
+          value={isInspect}
+          disabled={!isLoaded}>
           <IconTarget/>
         </IconToggleButton>
         {/* <IconToggleButton onValueChange={lock} value={isLocked}>
@@ -337,7 +334,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <Text>{previewBar ? previewBar[0] : ''}</Text>
           <Text style={styles.desc}>{previewBar ? previewBar[1] : ''}</Text>
         </div>
-        <IconButton onClick={reload}>
+        <IconButton onClick={actions.reload}>
           <IconRefresh/>
         </IconButton>
         {/* <IconButton onClick={expand}>
@@ -395,7 +392,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
           <NodeToolbar
             node={previewNode}
             nodeSrc={previewDesc}
-            close={() => inspect(false)}
+            close={() => actions.inspect(false)}
             className="preview-node-toolbar"
             style={{
               top: previewRect.top - 40,

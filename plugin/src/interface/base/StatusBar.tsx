@@ -8,7 +8,7 @@ export function StatusBar(props: React.PropsWithChildren<{}>) {
       justify="between"
       style={{
         borderTop: '1px solid var(--figma-color-border)',
-        padding: '12px',
+        padding: '6px 12px',
       }}>
       {props.children}
     </Flex>

@@ -1,5 +1,5 @@
 export interface IconProps {
-  color?: IconColor | 'currentColor';
+  color?: IconColor | 'currentColor' | `#${string}`;
   size?: number;
   path?: string;
 }
@@ -68,7 +68,11 @@ export function Icon({color = 'currentColor', size = 16, path}: IconProps) {
       fill="none"
       viewBox={`0 0 ${size} ${size}`}>
       <path
-        fill={color === 'currentColor' ? 'currentColor' : `var(--figma-color-icon-${color})`}
+        fill={color === 'currentColor'
+          ? 'currentColor'
+          : typeof color === 'string' && color.startsWith('#')
+            ? color
+            : `var(--figma-color-icon-${color})`}
         fillRule="evenodd"
         clipRule="evenodd"
         d={path}

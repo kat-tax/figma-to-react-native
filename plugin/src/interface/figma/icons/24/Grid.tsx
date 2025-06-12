@@ -1,6 +1,6 @@
 import {Icon, type IconProps} from '../Icon';
 
-export function IconAdjust(props: IconProps) {
+export function IconGrid(props: IconProps) {
   return (
     <Icon
       {...props}

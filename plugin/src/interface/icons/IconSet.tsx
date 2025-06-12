@@ -23,7 +23,7 @@ export function IconSet({
   onFavorite,
 }: IconSetProps) {
   return (
-    <div 
+    <div
       key={set.prefix}
       onClick={(e) => {
         if (e.altKey) {
@@ -34,7 +34,7 @@ export function IconSet({
       }}
       style={{
         opacity: installed ? 0.5 : 1,
-        padding: '12px', 
+        padding: '12px',
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'var(--figma-color-bg)',
@@ -62,7 +62,7 @@ export function IconSet({
             onFavorite(set);
           }}>
           {favorited
-            ? <IconStarFilled color="secondary"/>
+            ? <IconStarFilled color="#f3c11b"/>
             : <IconStarUnfilled color="tertiary"/>
           }
         </IconButton>
@@ -77,7 +77,7 @@ export function IconSet({
           while (samples.length < 6)
             samples.push(...set.samples.slice(0, Math.min(6 - samples.length, set.samples.length)));
           return samples.slice(0, 6).map((name, index) => (
-            <div 
+            <div
               key={index}
               style={{
                 display: 'flex',
@@ -88,10 +88,10 @@ export function IconSet({
                 padding: '8px',
                 height: '32px'
               }}>
-              <Icon 
-                icon={`${set.prefix}:${name}`} 
+              <Icon
+                icon={`${set.prefix}:${name}`}
                 color="var(--figma-color-text)"
-                width={18} 
+                width={18}
                 height={18}
               />
             </div>
