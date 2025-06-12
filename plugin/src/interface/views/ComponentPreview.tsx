@@ -68,7 +68,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     const maxPossibleChars = Math.floor(availableTextWidth / avgCharWidth);
     // Set reasonable bounds
     const minChars = 8;
-    const maxChars = 50;
+    const maxChars = 200;
     return Math.max(minChars, Math.min(maxChars, maxPossibleChars));
   }, [screen.width]);
 
