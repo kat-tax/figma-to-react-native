@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {Button, IconButton, SegmentedControl} from 'figma-kit';
+import {Button, IconButton, SegmentedControl, Input, Text} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {ProjectSettings} from 'interface/views/ProjectSettings';
@@ -13,11 +13,11 @@ import {IconGrid} from 'interface/figma/icons/24/Grid';
 import {IconGear} from 'interface/figma/icons/24/Gear';
 import {IconList} from 'interface/figma/icons/24/List';
 import {IconSync} from 'interface/figma/icons/24/Sync';
+import {IconBack} from 'interface/figma/icons/24/Back';
 import {IconDownload} from 'interface/figma/icons/24/Download';
 import {Disclosure} from 'interface/figma/ui/disclosure';
 import {Stack} from 'interface/figma/ui/stack';
 import {Layer} from 'interface/figma/Layer';
-import {SyncButton} from 'interface/base/SyncButton';
 import * as $ from 'store';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
@@ -63,23 +63,14 @@ type ProjectComponentEntry = {
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
+  const [showSync, setShowSync] = useState<boolean>(false);
+  const [syncKey, setSyncKey] = useState<string>(props.project.gitKey ?? '');
   const [layout, setLayout] = useState<ProjectComponentLayout>('list');
-  const [list, setList] = useState<ProjectComponentIndex>({});
-
-  const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
-  const hasImport = !props.isReadOnly && false;
-
-  const index = useMemo(() => {
-    const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
-    const entries = _entries
-      .sort((a, b) => a[1].path?.localeCompare(b[1].path))
-      .map(([key, item]) => ({...item, key}));
-    return new Fzf(entries, {
-      selector: (item) => `${item.page}/${item.name}`,
-      tiebreakers: [byLengthAsc],
-      forward: false,
-    });
-  }, [props?.build, hasComponents]);
+  const viewState = useMemo(() => {
+    if (showSettings)
+      return 'settings';
+    return 'components';
+  }, [showSettings, showSync]);
 
   const importComponents = async () => {
     if (!props.hasStyles) {
@@ -97,6 +88,153 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     setImporting(true);
     emit<EventProjectImportComponents>('PROJECT_IMPORT_COMPONENTS', props.iconSet);
   };
+
+  return (
+    <div
+      className="components"
+      style={{
+        flex: 1,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+      }}>
+      {viewState === 'components' && (
+        <ProjectComponentList
+          build={props.build}
+          isReadOnly={props.isReadOnly}
+          searchMode={props.searchMode}
+          searchQuery={props.searchQuery}
+          importing={importing}
+          importComponents={importComponents}
+        />
+      )}
+      {viewState === 'settings' && (
+        <ProjectSettings
+          monaco={props.monaco}
+          settings={props.settings}
+          editorOptions={props.editorOptions}
+          editorTheme={props.editorTheme}
+        />
+      )}
+      {/*viewState === 'sync' && (
+        <div style={{
+          flex: 1,
+          gap: 12,
+          padding: 12,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Text>Setup your project token</Text>
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => {
+              window.open('http://localhost:3000/dashboard', '_blank');
+            }}>
+            Dashboard
+          </Button>
+        </div>
+      )}*/}
+      <StatusBar>
+        {showSync && (
+          <div style={{display: 'flex', flexDirection: 'row', gap: 12}}>
+            <IconButton
+              aria-label="Go back"
+              size="small"
+              onClick={() => setShowSync(false)}>
+              <IconBack/>
+            </IconButton>
+            <Input
+              autoFocus
+              type="password"
+              value={syncKey}
+              onChange={e => setSyncKey(e.target.value)}
+              placeholder="Project Token"
+              style={{width: '100%'}}
+            />
+            <Button
+              size="small"
+              onClick={() => {
+                // TODO: Save to project
+                console.log('>>> project token', syncKey);
+                setShowSync(false);
+              }}>
+              Save
+            </Button>
+          </div>
+        )}
+        {!showSync && (
+          <>
+            <SegmentedControl.Root
+              value={layout}
+              onValueChange={(v: ProjectComponentLayout) => setLayout(v)}>
+              <SegmentedControl.Item value="list" aria-label="View as list">
+                <IconList/>
+              </SegmentedControl.Item>
+              <SegmentedControl.Item value="grid" aria-label="View as grid">
+                <IconGrid/>
+              </SegmentedControl.Item>
+            </SegmentedControl.Root>
+            <div style={{flex: 1}}/>
+            <IconButton
+              aria-label="Add Component"
+              size="small"
+              onClick={() => importComponents()}>
+              <IconTemplates/>
+            </IconButton>
+            <IconButton
+              aria-label="Export Project"
+              size="small"
+              onClick={() => console.log('export')}>
+              <IconDownload/>
+            </IconButton>
+            <IconButton
+              aria-label="Start Sync"
+              size="small"
+              onClick={() => setShowSync(!showSync)}>
+              <IconSync/>
+            </IconButton>
+            <IconButton
+              aria-label="Change Settings"
+              size="small"
+              className={showSettings ? 'icon-button-active' : ''}
+              onClick={() => setShowSettings(!showSettings)}>
+              <IconGear/>
+            </IconButton>
+          </>
+        )}
+      </StatusBar>
+    </div>
+  );
+}
+
+interface ProjectComponentListProps {
+  build: ComponentBuild,
+  isReadOnly: boolean,
+  searchMode: boolean,
+  searchQuery: string,
+  importing: boolean,
+  importComponents: () => void,
+}
+
+function ProjectComponentList(props: ProjectComponentListProps) {
+  const [list, setList] = useState<ProjectComponentIndex>({});
+  const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
+  const hasImport = !props.isReadOnly && false;
+  const index = useMemo(() => {
+    const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
+    const entries = _entries
+      .sort((a, b) => a[1].path?.localeCompare(b[1].path))
+      .map(([key, item]) => ({...item, key}));
+    return new Fzf(entries, {
+      selector: (item) => `${item.page}/${item.name}`,
+      tiebreakers: [byLengthAsc],
+      forward: false,
+    });
+  }, [props?.build, hasComponents]);
 
   const select = (id: string) => {
     emit<EventFocusNode>('NODE_FOCUS', id);
@@ -124,8 +262,8 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         action={hasImport
           ? <Button
               secondary
-              loading={importing}
-              onClick={() => importComponents()}>
+              loading={props.importing}
+              onClick={() => props.importComponents()}>
               Import from EXO
             </Button>
           : null
@@ -135,79 +273,20 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   }
 
   return (
-    <div
-      className="components"
-      style={{
-        flex: 1,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-      }}>
-      {!showSettings && (
-      <div style={{flex: 1, overflow: 'auto', width: '100%', paddingBottom: 12}}>
-        {props.build?.pages?.map(page =>
-          <ProjectPageGroup
-            key={page}
-            title={page}
-            onSelect={select}
-            entries={list[page]}
-          />
-        )}
+    <div style={{flex: 1, overflow: 'auto', width: '100%', paddingBottom: 12}}>
+      {props.build?.pages?.map(page =>
         <ProjectPageGroup
-          title="Assets"
+          key={page}
+          title={page}
           onSelect={select}
-          component={<ProjectAssets {...props}/>}
-        />
-      </div>
-      )}
-      {showSettings && (
-        <ProjectSettings
-          monaco={props.monaco}
-          settings={props.settings}
-          editorOptions={props.editorOptions}
-          editorTheme={props.editorTheme}
+          entries={list[page]}
         />
       )}
-      <StatusBar>
-        <SegmentedControl.Root
-          value={layout}
-          onValueChange={(v: ProjectComponentLayout) => setLayout(v)}>
-          <SegmentedControl.Item value="list" aria-label="View as list">
-            <IconList/>
-          </SegmentedControl.Item>
-          <SegmentedControl.Item value="grid" aria-label="View as grid">
-            <IconGrid/>
-          </SegmentedControl.Item>
-        </SegmentedControl.Root>
-        <div style={{flex: 1}}/>
-        <IconButton
-          aria-label="Add Component"
-          size="small"
-          onClick={() => importComponents()}>
-          <IconTemplates/>
-        </IconButton>
-        <IconButton
-          aria-label="Export Project"
-          size="small"
-          onClick={() => importComponents()}>
-          <IconDownload/>
-        </IconButton>
-        <IconButton
-          aria-label="Start Sync"
-          size="small"
-          onClick={() => importComponents()}>
-          <IconSync/>
-        </IconButton>
-        <IconButton
-          aria-label="Change Settings"
-          size="small"
-          className={showSettings ? 'icon-button-active' : ''}
-          onClick={() => setShowSettings(!showSettings)}>
-          <IconGear/>
-        </IconButton>
-        {/* <SyncButton/> */}
-      </StatusBar>
+      <ProjectPageGroup
+        title="Assets"
+        onSelect={select}
+        component={<ProjectAssets {...props}/>}
+      />
     </div>
   );
 }
