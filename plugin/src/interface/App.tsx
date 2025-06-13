@@ -9,12 +9,10 @@ import {GitProvider} from 'interface/providers/Git';
 import {SyncProvider} from 'interface/providers/Sync';
 
 import {ProjectComponents} from 'interface/views/ProjectComponents';
-import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {ProjectIcons} from 'interface/views/ProjectIcons';
 import {ProjectTheme} from 'interface/views/ProjectTheme';
-import {ProjectDocs} from 'interface/views/ProjectDocs';
 import {ProjectExport} from 'interface/views/ProjectExport';
-import {ProjectSettings} from 'interface/views/ProjectSettings';
+import {ProjectSettings} from 'interface/project/ProjectSettings';
 
 import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentDocs} from 'interface/views/ComponentDocs';
@@ -48,10 +46,7 @@ const tabs: AppTabs = {
     'components',
     'icons',
     'theme',
-    //'docs',
-    //'assets',
-    'export',
-    'settings',
+    // 'export',
   ],
   component: [
     'component/code',
@@ -126,12 +121,6 @@ export function App(props: AppProps) {
             </Tabs.Content>
             <Tabs.Content value="theme">
               <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
-            </Tabs.Content>
-            <Tabs.Content value="assets">
-              <ProjectAssets {...{build, searchMode, searchQuery}}/>
-            </Tabs.Content>
-            <Tabs.Content value="docs">
-              <ProjectDocs {...{nav, build, isReadOnly, searchQuery}}/>
             </Tabs.Content>
             <Tabs.Content value="export">
               <ProjectExport {...{project, build, writer, addTranslate}}/>

@@ -1,3 +1,12 @@
+import type {ComponentRosterEntry} from 'types/component';
+
+export type ProjectComponentLayout = 'grid' | 'list';
+export type ProjectComponentIndex = Record<string, ProjectComponentEntry[]>;
+export type ProjectComponentEntry = {
+  item: ComponentRosterEntry & {key: string},
+  positions: Set<number>,
+}
+
 export interface ProjectConfig {
   name: string,
   apiKey: string,

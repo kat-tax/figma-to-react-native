@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {useState, useEffect, useCallback, useContext, createContext} from 'react';
+import {useState, useCallback, useContext, createContext} from 'react';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import * as store from 'store';
 

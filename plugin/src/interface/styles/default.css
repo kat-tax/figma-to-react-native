@@ -142,8 +142,9 @@ iframe {
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 4px;
+  padding: 4px 8px;
   padding-right: 0;
+  gap: 2px;
 }
 
 .tab-bar-nav::-webkit-scrollbar {
