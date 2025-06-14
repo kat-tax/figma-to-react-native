@@ -87,7 +87,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               onClick={() => {
                 if (syncLoading) return;
                 // Missing or invalid sync key
-                if (!syncKey || syncError) {
+                if (!syncKey || syncKey.length !== 40 || syncError) {
                   props.setShowSync(!props.showSync);
                 // Start syncing
                 } else {
