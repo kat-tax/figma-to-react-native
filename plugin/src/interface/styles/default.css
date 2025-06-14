@@ -74,6 +74,15 @@ iframe {
   scale: 0.8;
 }
 
+.rotate {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
 .icon-button-active {
   background-color: var(--figma-color-bg-selected-strong) !important;
 }
