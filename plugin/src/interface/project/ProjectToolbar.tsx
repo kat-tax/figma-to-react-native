@@ -1,8 +1,9 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {useMemo, useState} from 'react';
 import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
-import {IconTemplates} from 'interface/figma/icons/24/Templates';
+import {useMemo, useState} from 'react';
+import {useSync} from 'interface/providers/Sync';
 import {IconDownload} from 'interface/figma/icons/24/Download';
+import {IconTemplates} from 'interface/figma/icons/24/Templates';
 import {IconGrid} from 'interface/figma/icons/24/Grid';
 import {IconGear} from 'interface/figma/icons/24/Gear';
 import {IconList} from 'interface/figma/icons/24/List';
@@ -26,9 +27,9 @@ interface ProjectToolbarProps {
 }
 
 export function ProjectToolbar(props: ProjectToolbarProps) {
+  const sync = useSync();
   const [syncKey, setSyncKey] = useState<string>(props.project.gitKey ?? '');
   const [syncError, setSyncError] = useState<string>('');
-  const [syncActive, setSyncActive] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const viewState = useMemo(() => {
     if (props.showSync) return 'sync';
@@ -80,11 +81,11 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-          {!syncActive && (
+          {!sync.active && (
             <IconButton
               aria-label="Start Sync"
               size="small"
-              onClick={() => {
+              onClick={async () => {
                 if (syncLoading) return;
                 // Missing or invalid sync key
                 if (!syncKey || syncKey.length !== 40 || syncError) {
@@ -93,10 +94,11 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                 } else {
                   console.log('>>> sync key', syncKey);
                   setSyncLoading(true);
-                  setTimeout(() => {
-                    setSyncLoading(false);
-                    setSyncActive(true);
-                  }, 3000);
+                  try {
+                    await sync.connect(syncKey);
+                  } catch (error) {
+                    setSyncError(error.message);
+                  }
                 }
               }}>
               <div className={syncLoading ? 'rotate' : ''}>
@@ -104,7 +106,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               </div>
             </IconButton>
           )}
-          {syncActive && (
+          {sync.active && (
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
                 <IconButton aria-label="Sync Active" size="small">
@@ -115,7 +117,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                 <DropdownMenu.Item>
                   <Text>Copy Link</Text>
                 </DropdownMenu.Item>
-                <DropdownMenu.Item onSelect={() => setSyncActive(false)}>
+                <DropdownMenu.Item onSelect={() => {
+                  sync.disconnect();
+                  setSyncLoading(false);
+                }}>
                   <Text style={{color: 'var(--figma-color-text-danger)'}}>
                     Disconnect
                   </Text>

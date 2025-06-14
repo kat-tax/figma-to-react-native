@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {useState, useCallback, useContext, createContext} from 'react';
+import {useState, useEffect, useCallback, useContext, createContext, useRef} from 'react';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import * as store from 'store';
 
@@ -37,6 +37,7 @@ export interface SyncContextType {
 
 export function SyncProvider({user, build, project, children}: React.PropsWithChildren<SyncProviderProps>) {
   const [active, setActive] = useState(false);
+  const setupHandler = useRef<(status: YSweetStatus) => void>(null);
 
   const connect = useCallback(async (apiKey?: string) => {
     const token = apiKey ?? project.apiKey;
@@ -47,39 +48,55 @@ export function SyncProvider({user, build, project, children}: React.PropsWithCh
       assets: Object.keys(build?.assets || {}).length || 0,
       user,
     });
-    store.provider.on('connection-status', (status: YSweetStatus) => {
-      if (status === 'connected') {
-        // Read-only token, plugin requires write, disconnect
-        if (store?.provider?.clientToken?.authorization === 'read-only') {
-          emit<EventNotify>('NOTIFY', 'Invalid Project Key.', {
-            timeout: 5000,
-            error: true,
-          });
-          setActive(false);
-          disconnect();
-        // We are connected with proper permissions
-        } else if (store?.provider?.clientToken?.authorization === 'full') {
-          setActive(true);
-          emit<EventNotify>('NOTIFY', 'Connected to Sync.', {
-            button: ['Open Link', `${F2RN_SERVICE_URL}/sync/${project.docKey}`],
-            timeout: 10000,
-          });
-        }
-      } else if (status === 'offline') {
-        if (active) {
-          emit<EventNotify>('NOTIFY', 'Disconnected from Sync.', {
-            timeout: 3000,
-          });
-        }
-        setActive(false);
-      }
-    });
+    syncStatus();
   }, [project, build, user]);
 
   const disconnect = useCallback(() => {
-    store.disconnect();
-    setActive(false);
+    store?.disconnect();
   }, []);
+
+  const syncStatus = useCallback(() => {
+    if (setupHandler.current) return
+    const handler = (status: YSweetStatus) => {
+      console.log('>>> connection-status', status);
+      switch (status) {
+        case 'connected': {
+          // Read-only token, plugin requires write, disconnect
+          if (store?.provider?.clientToken?.authorization === 'read-only') {
+            emit<EventNotify>('NOTIFY', 'Invalid Project Key.', {
+              timeout: 5000,
+              error: true,
+            });
+            setActive(false);
+            disconnect();
+          // We are connected with proper permissions
+          } else if (store?.provider?.clientToken?.authorization === 'full') {
+            setActive(true);
+            emit<EventNotify>('NOTIFY', 'Connected to Sync.', {
+              button: ['Open Link', `${F2RN_SERVICE_URL}/sync/${project.docKey}`],
+              timeout: 10000,
+            });
+          }
+          break;
+        }
+        case 'offline': {
+          setActive(false);
+          emit<EventNotify>('NOTIFY', 'Disconnected from Sync.', {timeout: 3000});
+          store?.provider?.off('connection-status', setupHandler.current);
+          setupHandler.current = null;
+          break;
+        }
+      }
+    }
+    store.provider.on('connection-status', handler);
+    setupHandler.current = handler;
+  }, []);
+
+  useEffect(() => {
+    if (!store?.provider) return;
+    console.log('>>> provider', store.provider);
+
+  }, [store?.provider]);
 
   return (
     <SyncContext.Provider value={{
