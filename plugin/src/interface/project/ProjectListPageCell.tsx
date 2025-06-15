@@ -1,21 +1,44 @@
 import {useState} from 'react';
-import {TextCollabDots} from 'interface/base/TextCollabDots';
-import {TextUnderline} from 'interface/base/TextUnderline';
 import {Flex, Text} from 'figma-kit';
+import {TextUnderline} from 'interface/base/TextUnderline';
+import {TextCollabDots} from 'interface/base/TextCollabDots';
+import {useComponent} from 'interface/hooks/useComponent';
 import * as $ from 'store';
 
 import type {ProjectComponentEntry} from 'types/project';
+import type {ComponentBuild} from 'types/component';
+import type {UserSettings} from 'types/settings';
 
 interface ProjectListPageCellProps {
   page: string,
+  build: ComponentBuild,
+  settings: UserSettings,
   entry: ProjectComponentEntry,
+  compKey: string,
   onSelect: (id: string) => void,
 }
 
 export function ProjectListPageCell(props: ProjectListPageCellProps) {
-  const {id, name, page, path, preview, loading, hasError, errorMessage} = props.entry.item;
+  const {id, name, page, path, loading, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
-  const hasUnsavedChanges = false;
+
+  const {
+    initApp,
+    initLoader,
+    isLoaded,
+    loaded,
+    iframe,
+    src,
+  } = useComponent(
+    props.compKey,
+    {name: '', props: {}},
+    props.build,
+    props.settings.esbuild,
+    0, // lastResize
+    'transparent', // background
+    false, // isDark
+    'light', // theme
+  );
 
   return (
     <div
@@ -52,7 +75,8 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
         const $code = $.component.code(name);
         const code = $code.get().toString();
         const img = new Image(100, 100);
-        img.src = preview;
+        // Use a placeholder image for drag preview
+        img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNGRkYiLz48L3N2Zz4=';
         e.dataTransfer.setDragImage(img, 0, 0);
         e.dataTransfer.setData('text/plain', code);
       }}
@@ -77,27 +101,55 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
                 ? errorMessage || 'Unknown error'
                 : loading
                   ? 'loading...'
-                  : hasUnsavedChanges
-                    ? '(modified)'
-                    : path.split('/').slice(2, -1).join('/')
+                  : path.split('/').slice(2, -1).join('/')
               }
             </Text>
           </div>
         </div>
-        <iframe
-          src={preview}
-          title={name}
-          style={{
-            width: '100%',
-            border: 'none',
-            overflow: 'hidden',
-            height: 120,
-            padding: 8,
-            marginTop: 6,
-            borderRadius: 6,
-            backgroundColor: 'var(--figma-color-bg-secondary)',
-          }}
-        />
+        <div style={{
+          position: 'relative',
+          height: 120,
+          marginTop: 6,
+          borderRadius: 6,
+          backgroundColor: 'var(--figma-color-bg-secondary)',
+          overflow: 'hidden',
+        }}>
+          {!isLoaded && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'var(--figma-color-bg-secondary)',
+            }}>
+              <Text style={{color: 'var(--figma-color-text-secondary)'}}>
+                Loading...
+              </Text>
+            </div>
+          )}
+          <iframe
+            ref={iframe}
+            srcDoc={src}
+            style={{
+              opacity: src ? 1 : 0,
+              transition: 'opacity .5s',
+              height: '100%',
+            }}
+            onLoad={() => {
+              if (loaded.current) {
+                initApp();
+                console.log('>>> initApp');
+              } else {
+                initLoader();
+                console.log('>>> initLoader');
+              }
+            }}
+          />
+        </div>
       </Flex>
     </div>
   );

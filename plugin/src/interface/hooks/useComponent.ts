@@ -39,8 +39,8 @@ export function useComponent(
   background: string,
   isDark: boolean,
   theme: string,
-  nav: Navigation,
-  showDiff: boolean,
+  nav?: Navigation,
+  showDiff?: boolean,
 ) {
   const [previewNodeMap, setPreviewNodeMap] = useState<PreviewNodeMap | null>(null);
   const [previewDefault, setPreviewDefault] = useState<[string, string] | null>(null);
@@ -163,10 +163,10 @@ export function useComponent(
 
     // Focus, but we're navigating to another file, wait for component to load
     if (uri !== pathComponent) {
-      setTimeout(() => nav.setCodeFocus(source), 200);
+      setTimeout(() => nav?.setCodeFocus(source), 200);
     // Focus editor immediately
     } else {
-      nav.setCodeFocus(source);
+      nav?.setCodeFocus(source);
     }
   }
 
@@ -190,10 +190,13 @@ export function useComponent(
   // Inits a component app in the loader
   const initApp = useCallback(() => {
     if (!component) return;
-    if (!loaded.current) return
+    if (!loaded.current) return;
+    console.log('>>> initApp::component', component);
     const {name, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
+    console.log('>>> initApp::preview', {tag, name, path, imports, theme, background, esbuild, build});
     preview({tag, name, path, imports, theme, background, esbuild, build}).then(bundle => {
+      console.log('>>> initApp::bundle', bundle);
       post('preview::load', {bundle, name, width, height, theme, background});
     });
     if (fs && showDiff) {
@@ -222,8 +225,8 @@ export function useComponent(
 
   // Rebuild app when editor content changes or showDiff changes
   useEffect(() => {
-    if (nav.lastEditorRev) initApp();
-  }, [nav.lastEditorRev, showDiff]);
+    if (nav?.lastEditorRev) initApp();
+  }, [nav?.lastEditorRev, showDiff]);
 
   // Update the dimensions when screen or component change & clear inspection
   useEffect(() => {post('preview::resize', {}); actions.inspect(false)}, [screen, lastResize]);
@@ -327,12 +330,13 @@ export function useComponent(
 
   // Update preview default when cursor position changes
   useEffect(() => {
-    if (nav.codeFocus) return;
+    if (!nav) return;
+    if (nav?.codeFocus) return;
     //console.log('[preview default]', nav.cursorPos);
-    const {line, column} = nav.cursorPos || {};
+    const {line, column} = nav?.cursorPos || {};
     setPreviewDefault([pathComponent, `${line || 1}:${column || 1}`]);
     setPreviewFocused(null);
-  }, [nav.cursorPos, component]);
+  }, [nav?.cursorPos, component]);
 
   return {
     initApp,

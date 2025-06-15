@@ -6,12 +6,14 @@ import {ScreenInfo} from 'interface/base/ScreenInfo';
 
 import {ProjectListPage} from './ProjectListPage';
 
-import type {EventFocusNode} from 'types/events';
-import type {ComponentBuild} from 'types/component';
 import type {ProjectComponentIndex, ProjectComponentLayout} from 'types/project';
+import type {ComponentBuild} from 'types/component';
+import type {EventFocusNode} from 'types/events';
+import type {UserSettings} from 'types/settings';
 
 interface ProjectListProps {
   build: ComponentBuild,
+  settings: UserSettings,
   layout: ProjectComponentLayout,
   isReadOnly: boolean,
   searchMode: boolean,
@@ -78,6 +80,8 @@ export function ProjectList(props: ProjectListProps) {
         <ProjectListPage
           key={page}
           title={page}
+          build={props.build}
+          settings={props.settings}
           layout={props.layout}
           onSelect={select}
           entries={list[page]}

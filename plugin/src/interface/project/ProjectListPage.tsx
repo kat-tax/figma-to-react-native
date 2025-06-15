@@ -5,12 +5,15 @@ import {ProjectListPageRow} from './ProjectListPageRow';
 import {ProjectListPageCell} from './ProjectListPageCell';
 
 import type {ProjectComponentEntry, ProjectComponentLayout} from 'types/project';
+import type {ComponentBuild} from 'types/component';
+import type {UserSettings} from 'types/settings';
 
 interface ProjectListPageProps {
   title: string;
+  build: ComponentBuild;
   layout: ProjectComponentLayout;
+  settings: UserSettings;
   entries?: ProjectComponentEntry[],
-  component?: JSX.Element,
   onSelect: (id: string) => void;
 }
 
@@ -25,7 +28,6 @@ export function ProjectListPage(props: ProjectListPageProps) {
       title={props.title}
       open={isExpanded}
       onClick={() => setExpanded(!isExpanded)}>
-      {props?.component}
       {props.layout === 'list' ? (
         props?.entries?.map(entry => (
           <ProjectListPageRow
@@ -47,8 +49,11 @@ export function ProjectListPage(props: ProjectListPageProps) {
           {props?.entries?.map(entry => (
             <ProjectListPageCell
               key={entry.item.key}
-              entry={entry}
               page={props.title}
+              entry={entry}
+              build={props.build}
+              compKey={entry.item.key}
+              settings={props.settings}
               onSelect={props.onSelect}
             />
           ))}
