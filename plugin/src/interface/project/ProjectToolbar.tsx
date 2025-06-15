@@ -1,6 +1,7 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
 import {useMemo, useState} from 'react';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useSync} from 'interface/providers/Sync';
 import {IconDownload} from 'interface/figma/icons/24/Download';
 import {IconTemplates} from 'interface/figma/icons/24/Templates';
@@ -11,6 +12,7 @@ import {IconSync} from 'interface/figma/icons/24/Sync';
 import {IconBack} from 'interface/figma/icons/24/Back';
 import {StatusBar} from 'interface/base/StatusBar';
 import {F2RN_SERVICE_URL} from 'config/consts';
+import {docId} from 'store';
 
 import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
 import type {EventNotify, EventOpenLink} from 'types/events';
@@ -28,8 +30,8 @@ interface ProjectToolbarProps {
 
 export function ProjectToolbar(props: ProjectToolbarProps) {
   const sync = useSync();
+  const [_, copy] = useCopyToClipboard();
   const [syncKey, setSyncKey] = useState<string>(props.project.gitKey ?? '');
-  const [syncError, setSyncError] = useState<string>('');
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const viewState = useMemo(() => {
     if (props.showSync) return 'sync';
@@ -83,26 +85,21 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </DropdownMenu.Root>
           {!sync.active && (
             <IconButton
-              aria-label="Start Sync"
+              aria-label={sync.error ?? 'Start Sync'}
               size="small"
               onClick={async () => {
-                if (syncLoading) return;
+                if (syncLoading && !sync.error) return;
                 // Missing or invalid sync key
-                if (!syncKey || syncKey.length !== 40 || syncError) {
-                  props.setShowSync(!props.showSync);
+                if (!syncKey || syncKey.length !== 40 || sync.error) {
+                  props.setShowSync(true);
                 // Start syncing
                 } else {
-                  console.log('>>> sync key', syncKey);
                   setSyncLoading(true);
-                  try {
-                    await sync.connect(syncKey);
-                  } catch (error) {
-                    setSyncError(error.message);
-                  }
+                  sync.connect(syncKey);
                 }
               }}>
-              <div className={syncLoading ? 'rotate' : ''}>
-                <IconSync color={syncError ? 'danger' : undefined}/>
+              <div className={syncLoading && !sync.error ? 'rotate' : ''}>
+                <IconSync color={sync.error ? 'danger' : undefined}/>
               </div>
             </IconButton>
           )}
@@ -114,7 +111,11 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                 </IconButton>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content>
-                <DropdownMenu.Item>
+                <DropdownMenu.Item onSelect={() => {
+                  console.log('>>> copied', `${F2RN_SERVICE_URL}/sync/${docId}`);
+                  emit<EventNotify>('NOTIFY', 'Link copied to clipboard', {timeout: 3000});
+                  setTimeout(() => copy(`${F2RN_SERVICE_URL}/sync/${docId}`), 100);
+                }}>
                   <Text>Copy Link</Text>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item onSelect={() => {
@@ -178,6 +179,8 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               // TODO: Save to project
               console.log('>>> project token', syncKey);
               props.setShowSync(false);
+              setSyncLoading(true);
+              sync.connect(syncKey);
             }}>
             Save
           </Button>
