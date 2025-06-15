@@ -71,6 +71,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       {viewState === 'components' && (
         <ProjectList
           build={props.build}
+          layout={layout}
           isReadOnly={props.isReadOnly}
           searchMode={props.searchMode}
           searchQuery={props.searchQuery}

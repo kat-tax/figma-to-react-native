@@ -7,13 +7,13 @@ import * as $ from 'store';
 
 import type {ProjectComponentEntry} from 'types/project';
 
-interface ProjectListPageItemProps {
+interface ProjectListPageCellProps {
   page: string,
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
 }
 
-export function ProjectListPageItem(props: ProjectListPageItemProps) {
+export function ProjectListPageCell(props: ProjectListPageCellProps) {
   const {id, name, page, path, preview, loading, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const hasUnsavedChanges = false;

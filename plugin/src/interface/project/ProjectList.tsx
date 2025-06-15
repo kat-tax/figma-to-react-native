@@ -8,10 +8,11 @@ import {ProjectListPage} from './ProjectListPage';
 
 import type {EventFocusNode} from 'types/events';
 import type {ComponentBuild} from 'types/component';
-import type {ProjectComponentIndex} from 'types/project';
+import type {ProjectComponentIndex, ProjectComponentLayout} from 'types/project';
 
 interface ProjectListProps {
   build: ComponentBuild,
+  layout: ProjectComponentLayout,
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
@@ -77,6 +78,7 @@ export function ProjectList(props: ProjectListProps) {
         <ProjectListPage
           key={page}
           title={page}
+          layout={props.layout}
           onSelect={select}
           entries={list[page]}
         />
