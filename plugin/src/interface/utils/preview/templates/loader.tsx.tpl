@@ -6,13 +6,14 @@ import {useControls, getMatrixTransformStyles, TransformWrapper, TransformCompon
 import {Inspector} from 'preview-inspector';
 
 export default function Loader() {
+  const isList = __IS_LIST__;
   const [lockUser, setLockUser] = useState(false);
   const [lockTemp, setLockTemp] = useState(false);
   return (
     <TransformWrapper
       smooth
       minScale={0.5}
-      disabled={lockUser || lockTemp}
+      disabled={lockUser || lockTemp || isList}
       initialPositionY={-99999}
       initialPositionX={window.innerWidth / 2}
       customTransform={getMatrixTransformStyles}
@@ -192,7 +193,7 @@ export function Preview(props: {
                   const elRect = el.getBoundingClientRect();
                   const windowWidth = window.innerWidth;
                   const windowHeight = window.innerHeight;
-                  const viewportRatio = 0.9; // percentage of viewport to use (80%)
+                  const viewportRatio = 0.9; // percentage of viewport to use
                   const widthScale = elRect.width > windowWidth * viewportRatio ? windowWidth * viewportRatio / elRect.width : 1;
                   const heightScale = elRect.height > windowHeight * viewportRatio ? windowHeight * viewportRatio / elRect.height : 1;
                   const scale = Math.min(widthScale, heightScale, 1);

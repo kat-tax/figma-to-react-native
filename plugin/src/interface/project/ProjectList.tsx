@@ -15,6 +15,9 @@ interface ProjectListProps {
   build: ComponentBuild,
   settings: UserSettings,
   layout: ProjectComponentLayout,
+  isDark: boolean,
+  theme: string,
+  background: string,
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
@@ -81,6 +84,9 @@ export function ProjectList(props: ProjectListProps) {
           key={page}
           title={page}
           build={props.build}
+          background={props.background}
+          isDark={props.isDark}
+          theme={props.theme}
           settings={props.settings}
           layout={props.layout}
           onSelect={select}

@@ -54,6 +54,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     props.background,
     props.isDark,
     props.theme,
+    false, // isList
     props.nav,
     props.showDiff,
   );

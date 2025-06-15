@@ -18,6 +18,9 @@ interface ProjectComponentsProps {
   settings: SettingsData,
   project: ProjectConfig,
   build: ComponentBuild,
+  background: string,
+  isDark: boolean,
+  theme: string,
   nav: Navigation,
   monaco: Monaco,
   iconSet: string,
@@ -72,7 +75,10 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         <ProjectList
           layout={layout}
           build={props.build}
+          theme={props.theme}
+          isDark={props.isDark}
           settings={props.settings.config}
+          background={props.background}
           isReadOnly={props.isReadOnly}
           searchMode={props.searchMode}
           searchQuery={props.searchQuery}

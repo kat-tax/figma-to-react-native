@@ -39,6 +39,7 @@ export function useComponent(
   background: string,
   isDark: boolean,
   theme: string,
+  isList?: boolean,
   nav?: Navigation,
   showDiff?: boolean,
 ) {
@@ -178,7 +179,7 @@ export function useComponent(
 
   // Inits the loader that renders component apps
   const initLoader = useCallback(() => {
-    init(esbuild, isDark).then(code => {
+    init(esbuild, isDark, isList).then(code => {
       loaded.current = true;
       setSrc(code);
       if (component) {
@@ -191,12 +192,9 @@ export function useComponent(
   const initApp = useCallback(() => {
     if (!component) return;
     if (!loaded.current) return;
-    console.log('>>> initApp::component', component);
     const {name, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
-    console.log('>>> initApp::preview', {tag, name, path, imports, theme, background, esbuild, build});
     preview({tag, name, path, imports, theme, background, esbuild, build}).then(bundle => {
-      console.log('>>> initApp::bundle', bundle);
       post('preview::load', {bundle, name, width, height, theme, background});
     });
     if (fs && showDiff) {
@@ -208,6 +206,7 @@ export function useComponent(
 
   // TEMP: Workaround to force the preview app to refresh on variant change
   const refresh = useCallback(() => {
+    if (isList) return;
     if (!iframe.current) return;
     requestAnimationFrame(() => {
       iframe.current.style.width = '99%';

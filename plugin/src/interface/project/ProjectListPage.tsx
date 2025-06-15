@@ -11,6 +11,9 @@ import type {UserSettings} from 'types/settings';
 interface ProjectListPageProps {
   title: string;
   build: ComponentBuild;
+  background: string;
+  isDark: boolean;
+  theme: string;
   layout: ProjectComponentLayout;
   settings: UserSettings;
   entries?: ProjectComponentEntry[],
@@ -52,6 +55,9 @@ export function ProjectListPage(props: ProjectListPageProps) {
               page={props.title}
               entry={entry}
               build={props.build}
+              theme={props.theme}
+              isDark={props.isDark}
+              background={props.background}
               compKey={entry.item.key}
               settings={props.settings}
               onSelect={props.onSelect}

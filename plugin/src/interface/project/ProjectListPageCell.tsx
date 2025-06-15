@@ -13,6 +13,9 @@ interface ProjectListPageCellProps {
   page: string,
   build: ComponentBuild,
   settings: UserSettings,
+  background: string,
+  isDark: boolean,
+  theme: string,
   entry: ProjectComponentEntry,
   compKey: string,
   onSelect: (id: string) => void,
@@ -35,9 +38,10 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
     props.build,
     props.settings.esbuild,
     0, // lastResize
-    'transparent', // background
-    false, // isDark
-    'light', // theme
+    props.background, // background
+    props.isDark, // isDark
+    props.theme, // theme
+    true, // isList
   );
 
   return (

@@ -48,10 +48,11 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
   }
 }
 
-export async function init(esbuild: UserSettings['esbuild'], isDark: boolean) {
+export async function init(esbuild: UserSettings['esbuild'], isDark: boolean, isList?: boolean) {
   // Build filesystem
   const files = new Map<string, string>();
-  files.set(ENTRY_POINT, atob(loader.toString()));
+  files.set(ENTRY_POINT, atob(loader)
+    .replace('__IS_LIST__', isList ? 'true' : 'false'));
 
   // Build preview loader
   try {

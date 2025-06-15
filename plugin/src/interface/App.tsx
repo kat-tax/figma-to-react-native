@@ -114,7 +114,7 @@ export function App(props: AppProps) {
             onValueChange={nav.gotoTab}>
             <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
-              <ProjectComponents {...{nav, build, project, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, settings, editorOptions, editorTheme}}/>
+              <ProjectComponents {...{nav, build, project, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, settings, editorOptions, editorTheme}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
               <ProjectIcons {...{nav, build, project, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
