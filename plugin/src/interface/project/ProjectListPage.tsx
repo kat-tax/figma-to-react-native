@@ -16,7 +16,9 @@ interface ProjectListPageProps {
 
 export function ProjectListPage(props: ProjectListPageProps) {
   const [isExpanded, setExpanded] = useState<boolean>(true);
+
   if (!props?.entries?.length) return null;
+
   return (
     <Disclosure
       style={{width: '100%'}}
@@ -24,22 +26,33 @@ export function ProjectListPage(props: ProjectListPageProps) {
       open={isExpanded}
       onClick={() => setExpanded(!isExpanded)}>
       {props?.component}
-      {props?.entries?.map(entry =>
-        props.layout === 'list' ? (
+      {props.layout === 'list' ? (
+        props?.entries?.map(entry => (
           <ProjectListPageRow
             key={entry.item.key}
             entry={entry}
             page={props.title}
             onSelect={props.onSelect}
           />
-        ) : (
-          <ProjectListPageCell
-            key={entry.item.key}
-            entry={entry}
-            page={props.title}
-            onSelect={props.onSelect}
-          />
-        )
+        ))
+      ) : (
+        <div style={{
+          display: 'grid',
+          overflow: 'auto',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          scrollbarWidth: 'none',
+          padding: '4px 12px 12px',
+          gap: 12,
+        }}>
+          {props?.entries?.map(entry => (
+            <ProjectListPageCell
+              key={entry.item.key}
+              entry={entry}
+              page={props.title}
+              onSelect={props.onSelect}
+            />
+          ))}
+        </div>
       )}
     </Disclosure>
   );

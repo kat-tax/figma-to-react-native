@@ -1,8 +1,7 @@
 import {useState} from 'react';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
 import {TextUnderline} from 'interface/base/TextUnderline';
-import {Stack} from 'interface/figma/ui/stack';
-import {Layer} from 'interface/figma/Layer';
+import {Flex, Text} from 'figma-kit';
 import * as $ from 'store';
 
 import type {ProjectComponentEntry} from 'types/project';
@@ -19,9 +18,21 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
   const hasUnsavedChanges = false;
 
   return (
-    <Stack
-      space="extraLarge"
-      style={{width: '100%'}}
+    <div
+      style={{
+        opacity: loading || hasError ? 0.5 : 1,
+        padding: '12px',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'var(--figma-color-bg)',
+        borderRadius: '6px',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: name === dragging
+          ? 'var(--figma-color-bg-brand)'
+          : 'var(--figma-color-border)',
+        cursor: !loading && !hasError ? 'grab' : 'default',
+      }}
       draggable={!loading && !hasError}
       onDragEnd={(e) => {
         setDragging(null);
@@ -44,31 +55,50 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
         img.src = preview;
         e.dataTransfer.setDragImage(img, 0, 0);
         e.dataTransfer.setData('text/plain', code);
-      }}>
-      <Layer
-        component
-        active={name === dragging}
-        warning={hasError}
-        onChange={() => id
-          ? props.onSelect(id)
-          : undefined
-        }
-        description={hasError
-          ? errorMessage || 'Unknown error'
-          : loading
-            ? 'loading...'
-            : hasUnsavedChanges
-              ? '(modified)'
-              : path.split('/').slice(2, -1).join('/')
-        }>
-        <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
-          <TextUnderline
-            str={`${page}/${name}`}
-            indices={props.entry.positions}
-          />
-          <TextCollabDots target={name}/>
-        </span>
-      </Layer>
-    </Stack>
+      }}
+      onClick={() => id ? props.onSelect(id) : undefined}>
+      <Flex direction="column" style={{flex: 1}}>
+        <div style={{flex: 1}}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '4px'
+          }}>
+            <Text style={{fontWeight: 'bold', color: 'var(--figma-color-text)'}}>
+              <TextUnderline
+                str={`${page}/${name}`}
+                indices={props.entry.positions}
+              />
+              <TextCollabDots target={name}/>
+            </Text>
+            <Text size="medium" style={{color: 'var(--figma-color-text-secondary)'}}>
+              {hasError
+                ? errorMessage || 'Unknown error'
+                : loading
+                  ? 'loading...'
+                  : hasUnsavedChanges
+                    ? '(modified)'
+                    : path.split('/').slice(2, -1).join('/')
+              }
+            </Text>
+          </div>
+        </div>
+        <iframe
+          src={preview}
+          title={name}
+          style={{
+            width: '100%',
+            border: 'none',
+            overflow: 'hidden',
+            height: 120,
+            padding: 8,
+            marginTop: 6,
+            borderRadius: 6,
+            backgroundColor: 'var(--figma-color-bg-secondary)',
+          }}
+        />
+      </Flex>
+    </div>
   );
 }
