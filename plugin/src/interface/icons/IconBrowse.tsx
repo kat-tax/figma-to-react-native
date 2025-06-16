@@ -117,9 +117,10 @@ export function IconBrowse(props: IconBrowseProps) {
     }}>
       <div style={{
         display: 'grid',
-        overflow: 'auto',
+        overflow: 'overlay',
+        scrollbarWidth: 'thin',
+        scrollbarGutter: 'stable',
         gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-        scrollbarWidth: 'none',
         paddingBottom: 0,
         padding: 12,
         flex: 1,

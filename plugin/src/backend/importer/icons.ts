@@ -18,6 +18,7 @@ export async function importIcons(sets: IconifySetPayload) {
   }
 }
 
+// TODO: update existing icon svgs, not just add new ones
 export async function updateIcons(prefix: string, set: IconifySetData) {
   // Find icon set frame
   const frame = (await getIconSetFrames(prefix))?.[0];

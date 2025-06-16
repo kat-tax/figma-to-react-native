@@ -173,7 +173,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
         <VirtuosoGrid
           style={{
             height: '100%',
-            scrollbarWidth: 'none',
+            scrollbarWidth: 'thin',
+            scrollbarGutter: 'stable',
           }}
           overscan={200}
           totalCount={list.length}

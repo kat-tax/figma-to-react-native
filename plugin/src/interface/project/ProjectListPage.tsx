@@ -36,9 +36,10 @@ export function ProjectListPage(props: ProjectListPageProps) {
       ) : (
         <div style={{
           display: 'grid',
-          overflow: 'auto',
+          overflow: 'overlay',
+          scrollbarWidth: 'thin',
+          scrollbarGutter: 'stable',
           gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          scrollbarWidth: 'none',
           padding: '4px 12px 12px',
           gap: 12,
         }}>

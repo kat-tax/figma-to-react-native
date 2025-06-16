@@ -73,7 +73,14 @@ export function ProjectList(props: ProjectListProps) {
   }
 
   return (
-    <div style={{flex: 1, overflow: 'auto', width: '100%', paddingBottom: 12}}>
+    <div style={{
+      flex: 1,
+      width: '100%',
+      overflow: 'overlay',
+      scrollbarWidth: 'thin',
+      scrollbarGutter: 'stable',
+      paddingBottom: 12,
+    }}>
       {props.build?.pages?.map(page =>
         <ProjectListPage
           key={page}
