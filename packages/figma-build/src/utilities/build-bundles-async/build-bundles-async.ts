@@ -1,8 +1,9 @@
+import {lodashOptimizeImports} from '@optimize-lodash/esbuild-plugin';
 import {constants} from '@create-figma-plugin/common';
-import {build} from 'esbuild';
-import Sonda from 'sonda/esbuild';
-import {globby} from 'globby';
 import {resolve} from 'node:path';
+import {build} from 'esbuild';
+import {globby} from 'globby';
+import Sonda from 'sonda/esbuild';
 import indentString from 'indent-string';
 
 import {importFresh} from '../import-fresh.js';
@@ -74,10 +75,6 @@ async function buildMainBundleAsync(options: {
       minify,
       outfile: resolve(outputDirectory, constants.build.pluginCodeFilePath),
       platform: 'neutral',
-      alias: {
-        'path': 'path-browserify'
-      },
-      plugins: [],
       stdin: {
         contents: js,
         resolveDir: process.cwd()
@@ -133,7 +130,7 @@ async function buildUiBundleAsync(options: {
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
       alias: {
-        'path': 'path-browserify'
+        'path': 'path-browserify',
       },
       loader: {
         '.gif': 'dataurl',
@@ -142,14 +139,14 @@ async function buildUiBundleAsync(options: {
         '.svg': 'dataurl'
       },
       logLevel: 'silent',
+      format: 'esm',
       minify,
       sourcemap: true,
       outfile: resolve(outputDirectory, constants.build.pluginUiFilePath),
       plugins: [
         esbuildCssModulesPlugin(minify),
-        Sonda({
-          sources: true,
-        }),
+        lodashOptimizeImports(),
+        Sonda({sources: true, open: true}),
       ],
       stdin: {
         contents: js,
