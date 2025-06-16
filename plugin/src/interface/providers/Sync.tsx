@@ -73,7 +73,11 @@ export function SyncProvider({user, build, project, children}: React.PropsWithCh
           if (store?.provider?.clientToken?.authorization === 'read-only') {
             setActive(false);
             disconnect();
-            emit<EventNotify>('NOTIFY', ERROR_MESSAGE, {timeout: 5000, error: true});
+            emit<EventNotify>('NOTIFY', ERROR_MESSAGE, {
+              timeout: 5000,
+              error: true,
+              button: ['Dashboard', `${F2RN_SERVICE_URL}/dashboard`],
+            });
           // We are connected with proper permissions
           } else if (store?.provider?.clientToken?.authorization === 'full') {
             setActive(true);
@@ -94,7 +98,11 @@ export function SyncProvider({user, build, project, children}: React.PropsWithCh
         case 'error': {
           setError(ERROR_MESSAGE);
           setActive(false);
-          emit<EventNotify>('NOTIFY', ERROR_MESSAGE, {timeout: 5000, error: true});
+          emit<EventNotify>('NOTIFY', ERROR_MESSAGE, {
+            timeout: 5000,
+            error: true,
+            button: ['Dashboard', `${F2RN_SERVICE_URL}/dashboard`],
+          });
           store?.provider?.off('connection-status', setupHandler.current);
           disconnect();
           setupHandler.current = null;

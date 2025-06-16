@@ -44,6 +44,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
         <>
           <SegmentedControl.Root
             value={props.layout}
+            onClick={() => props.setShowSettings(false)}
             onValueChange={(v: ProjectComponentLayout) => props.setLayout(v)}>
             <SegmentedControl.Item value="list" aria-label="View as list">
               <IconList/>
@@ -55,7 +56,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           <div style={{flex: 1}}/>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <IconButton aria-label="Add Component" size="small">
+              <IconButton aria-label="Add Component" size="small" onClick={() => props.setShowSettings(false)}>
                 <IconTemplates/>
               </IconButton>
             </DropdownMenu.Trigger>
@@ -70,7 +71,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </DropdownMenu.Root>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <IconButton aria-label="Export Project" size="small">
+              <IconButton aria-label="Export Project" size="small" onClick={() => props.setShowSettings(false)}>
                 <IconDownload/>
               </IconButton>
             </DropdownMenu.Trigger>
