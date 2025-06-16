@@ -31,6 +31,7 @@ declare const styles: {
   readonly "tabs": string;
   readonly "theme-picker-colors": string;
   readonly "theme-picker-palette": string;
+  readonly "tile": string;
   readonly "tip": string;
   readonly "virtuoso-grid-list": string;
 };

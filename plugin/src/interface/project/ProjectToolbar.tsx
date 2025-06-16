@@ -54,7 +54,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </SegmentedControl.Root>
           <div style={{flex: 1}}/>
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
+            <DropdownMenu.Trigger asChild>
               <IconButton aria-label="Add Component" size="small">
                 <IconTemplates/>
               </IconButton>
@@ -69,7 +69,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             </DropdownMenu.Content>
           </DropdownMenu.Root>
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
+            <DropdownMenu.Trigger asChild>
               <IconButton aria-label="Export Project" size="small">
                 <IconDownload/>
               </IconButton>
@@ -105,7 +105,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           )}
           {sync.active && (
             <DropdownMenu.Root>
-              <DropdownMenu.Trigger>
+              <DropdownMenu.Trigger asChild>
                 <IconButton aria-label="Sync Active" size="small">
                   <IconSync color="success"/>
                 </IconButton>

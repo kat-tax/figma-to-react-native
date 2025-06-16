@@ -5,17 +5,10 @@ import {ProjectListPageRow} from './ProjectListPageRow';
 import {ProjectListPageCell} from './ProjectListPageCell';
 
 import type {ProjectComponentEntry, ProjectComponentLayout} from 'types/project';
-import type {ComponentBuild} from 'types/component';
-import type {UserSettings} from 'types/settings';
 
 interface ProjectListPageProps {
   title: string;
-  build: ComponentBuild;
-  background: string;
-  isDark: boolean;
-  theme: string;
   layout: ProjectComponentLayout;
-  settings: UserSettings;
   entries?: ProjectComponentEntry[],
   onSelect: (id: string) => void;
 }
@@ -54,12 +47,6 @@ export function ProjectListPage(props: ProjectListPageProps) {
               key={entry.item.key}
               page={props.title}
               entry={entry}
-              build={props.build}
-              theme={props.theme}
-              isDark={props.isDark}
-              background={props.background}
-              compKey={entry.item.key}
-              settings={props.settings}
               onSelect={props.onSelect}
             />
           ))}

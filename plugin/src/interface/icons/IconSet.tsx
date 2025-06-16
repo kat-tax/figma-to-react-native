@@ -32,6 +32,7 @@ export function IconSet({
           onSelect(set);
         }
       }}
+      className={`${installed ? '' : 'tile'}`}
       style={{
         opacity: installed ? 0.5 : 1,
         padding: '12px',

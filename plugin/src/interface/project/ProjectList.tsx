@@ -9,15 +9,10 @@ import {ProjectListPage} from './ProjectListPage';
 import type {ProjectComponentIndex, ProjectComponentLayout} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 import type {EventFocusNode} from 'types/events';
-import type {UserSettings} from 'types/settings';
 
 interface ProjectListProps {
   build: ComponentBuild,
-  settings: UserSettings,
   layout: ProjectComponentLayout,
-  isDark: boolean,
-  theme: string,
-  background: string,
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
@@ -83,11 +78,6 @@ export function ProjectList(props: ProjectListProps) {
         <ProjectListPage
           key={page}
           title={page}
-          build={props.build}
-          background={props.background}
-          isDark={props.isDark}
-          theme={props.theme}
-          settings={props.settings}
           layout={props.layout}
           onSelect={select}
           entries={list[page]}

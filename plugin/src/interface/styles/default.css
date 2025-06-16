@@ -49,6 +49,10 @@ iframe {
   height: 100%;
 }
 
+.tile:hover {
+  background-color: var(--figma-color-bg-hover) !important;
+}
+
 .no-first-span-overflow > span:first-child {
   overflow: hidden;
   white-space: nowrap;

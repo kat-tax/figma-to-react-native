@@ -1,51 +1,39 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {Flex, Text} from 'figma-kit';
+import {IconComponent} from 'interface/figma/icons/16/Component';
 import {TextUnderline} from 'interface/base/TextUnderline';
 import {TextCollabDots} from 'interface/base/TextCollabDots';
-import {useComponent} from 'interface/hooks/useComponent';
 import * as $ from 'store';
 
 import type {ProjectComponentEntry} from 'types/project';
-import type {ComponentBuild} from 'types/component';
-import type {UserSettings} from 'types/settings';
 
 interface ProjectListPageCellProps {
   page: string,
-  build: ComponentBuild,
-  settings: UserSettings,
-  background: string,
-  isDark: boolean,
-  theme: string,
   entry: ProjectComponentEntry,
-  compKey: string,
   onSelect: (id: string) => void,
 }
 
 export function ProjectListPageCell(props: ProjectListPageCellProps) {
-  const {id, name, page, path, loading, hasError, errorMessage} = props.entry.item;
+  const {id, name, page, path, loading, preview, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
 
-  const {
-    initApp,
-    initLoader,
-    isLoaded,
-    loaded,
-    iframe,
-    src,
-  } = useComponent(
-    props.compKey,
-    {name: '', props: {}},
-    props.build,
-    props.settings.esbuild,
-    0, // lastResize
-    props.background, // background
-    props.isDark, // isDark
-    props.theme, // theme
-    true, // isList
-  );
+  useEffect(() => {
+    if (preview) {
+      const blob = new Blob([preview], {type: 'image/png'});
+      const url = URL.createObjectURL(blob);
+      setImage(url);
+    }
+    return () => {
+      if (image) {
+        URL.revokeObjectURL(image);
+      }
+    };
+  }, [preview]);
 
   return (
     <div
+      className="tile"
       style={{
         opacity: loading || hasError ? 0.5 : 1,
         padding: '12px',
@@ -58,7 +46,6 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
         borderColor: name === dragging
           ? 'var(--figma-color-bg-brand)'
           : 'var(--figma-color-border)',
-        cursor: !loading && !hasError ? 'grab' : 'default',
       }}
       draggable={!loading && !hasError}
       onDragEnd={(e) => {
@@ -86,71 +73,53 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
       }}
       onClick={() => id ? props.onSelect(id) : undefined}>
       <Flex direction="column" style={{flex: 1}}>
-        <div style={{flex: 1}}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '4px'
+        <Flex direction="row" style={{gap: 6}}>
+          <IconComponent color="component"/>
+          <Text weight="strong" style={{
+            color: 'var(--figma-color-text-component)',
+            flex: 1,
+            minWidth: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
           }}>
-            <Text style={{fontWeight: 'bold', color: 'var(--figma-color-text)'}}>
-              <TextUnderline
-                str={`${page}/${name}`}
-                indices={props.entry.positions}
-              />
-              <TextCollabDots target={name}/>
-            </Text>
-            <Text size="medium" style={{color: 'var(--figma-color-text-secondary)'}}>
-              {hasError
-                ? errorMessage || 'Unknown error'
-                : loading
-                  ? 'loading...'
-                  : path.split('/').slice(2, -1).join('/')
-              }
-            </Text>
-          </div>
-        </div>
+            <TextUnderline
+              str={`${page}/${name}`}
+              indices={props.entry.positions}
+            />
+            <TextCollabDots target={name}/>
+          </Text>
+          <div style={{width: 8}}/>
+          <Text size="medium" style={{
+            color: 'var(--figma-color-text-secondary)',
+            maxWidth: '40%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>
+            {hasError
+              ? errorMessage || 'Unknown error'
+              : loading
+                ? 'loading...'
+                : path.split('/').slice(2, -1).join('/')
+            }
+          </Text>
+        </Flex>
         <div style={{
           position: 'relative',
           height: 120,
+          padding: 6,
           marginTop: 6,
           borderRadius: 6,
           backgroundColor: 'var(--figma-color-bg-secondary)',
           overflow: 'hidden',
         }}>
-          {!isLoaded && (
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'var(--figma-color-bg-secondary)',
-            }}>
-              <Text style={{color: 'var(--figma-color-text-secondary)'}}>
-                Loading...
-              </Text>
-            </div>
-          )}
-          <iframe
-            ref={iframe}
-            srcDoc={src}
+          <img
+            src={image}
             style={{
-              opacity: src ? 1 : 0,
-              transition: 'opacity .5s',
+              width: '100%',
               height: '100%',
-            }}
-            onLoad={() => {
-              if (loaded.current) {
-                initApp();
-                console.log('>>> initApp');
-              } else {
-                initLoader();
-                console.log('>>> initLoader');
-              }
+              objectFit: 'contain',
             }}
           />
         </div>
