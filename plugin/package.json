@@ -68,6 +68,7 @@
     "yjs": "^13.6.24"
   },
   "devDependencies": {
+    "@vscode/src": "https://github.com/microsoft/vscode.git",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@figma/plugin-typings": "latest",
     "@types/lodash": "^4.17.17",
