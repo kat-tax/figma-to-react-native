@@ -1,0 +1,191 @@
+import {emit} from '@create-figma-plugin/utilities';
+import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
+import {useMemo, useState} from 'react';
+import {useCopyToClipboard} from '@uidotdev/usehooks';
+import {useSync} from 'interface/providers/Sync';
+import {IconDownload} from 'interface/figma/icons/24/Download';
+import {IconTemplates} from 'interface/figma/icons/24/Templates';
+import {IconGrid} from 'interface/figma/icons/24/Grid';
+import {IconGear} from 'interface/figma/icons/24/Gear';
+import {IconList} from 'interface/figma/icons/24/List';
+import {IconSync} from 'interface/figma/icons/24/Sync';
+import {IconBack} from 'interface/figma/icons/24/Back';
+import {StatusBar} from 'interface/base/StatusBar';
+import {F2RN_SERVICE_URL} from 'config/consts';
+import {docId} from 'store';
+
+import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
+import type {EventNotify, EventOpenLink} from 'types/events';
+
+interface ProjectToolbarProps {
+  project: ProjectConfig,
+  layout: ProjectComponentLayout,
+  setLayout: (layout: ProjectComponentLayout) => void,
+  showSync: boolean,
+  setShowSync: (show: boolean) => void,
+  showSettings: boolean,
+  setShowSettings: (show: boolean) => void,
+  importComponents: () => void,
+}
+
+export function ProjectToolbar(props: ProjectToolbarProps) {
+  const sync = useSync();
+  const [_, copy] = useCopyToClipboard();
+  const [syncKey, setSyncKey] = useState<string>(props.project.gitKey ?? '');
+  const [syncLoading, setSyncLoading] = useState<boolean>(false);
+  const viewState = useMemo(() => {
+    if (props.showSync) return 'sync';
+    return 'overview';
+  }, [props.showSync]);
+
+  return (
+    <StatusBar>
+      {viewState === 'overview' && (
+        <>
+          <SegmentedControl.Root
+            value={props.layout}
+            onClick={() => props.setShowSettings(false)}
+            onValueChange={(v: ProjectComponentLayout) => props.setLayout(v)}>
+            <SegmentedControl.Item value="list" aria-label="View as list">
+              <IconList/>
+            </SegmentedControl.Item>
+            <SegmentedControl.Item value="grid" aria-label="View as grid">
+              <IconGrid/>
+            </SegmentedControl.Item>
+          </SegmentedControl.Root>
+          <div style={{flex: 1}}/>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <IconButton aria-label="Add Component" size="small" onClick={() => props.setShowSettings(false)}>
+                <IconTemplates/>
+              </IconButton>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item onSelect={() => console.log('create new')}>
+                <Text>Create New</Text>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => props.importComponents()}>
+                <Text>Import EXO</Text>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <IconButton aria-label="Export Project" size="small" onClick={() => props.setShowSettings(false)}>
+                <IconDownload/>
+              </IconButton>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item>
+                <Text>Download Zip</Text>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item>
+                <Text>Publish to Git</Text>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          {!sync.active && (
+            <IconButton
+              aria-label={sync.error ?? 'Start Sync'}
+              size="small"
+              onClick={async () => {
+                if (syncLoading && !sync.error) return;
+                // Missing or invalid sync key
+                if (!syncKey || syncKey.length !== 40 || sync.error) {
+                  props.setShowSync(true);
+                // Start syncing
+                } else {
+                  setSyncLoading(true);
+                  sync.connect(syncKey);
+                }
+              }}>
+              <div className={syncLoading && !sync.error ? 'rotate' : ''}>
+                <IconSync color={sync.error ? 'danger' : undefined}/>
+              </div>
+            </IconButton>
+          )}
+          {sync.active && (
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <IconButton aria-label="Sync Active" size="small">
+                  <IconSync color="success"/>
+                </IconButton>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content>
+                <DropdownMenu.Item onSelect={() => {
+                  emit<EventNotify>('NOTIFY', 'Link copied to clipboard', {timeout: 3000});
+                  setTimeout(() => copy(`${F2RN_SERVICE_URL}/sync/${docId}`), 100);
+                }}>
+                  <Text>Copy Link</Text>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onSelect={() => {
+                  sync.disconnect();
+                  setSyncLoading(false);
+                }}>
+                  <Text style={{color: 'var(--figma-color-text-danger)'}}>
+                    Disconnect
+                  </Text>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          )}
+          <IconButton
+            aria-label="Change Settings"
+            size="small"
+            className={props.showSettings ? 'icon-button-active' : ''}
+            onClick={() => props.setShowSettings(!props.showSettings)}>
+            <IconGear/>
+          </IconButton>
+        </>
+      )}
+      {viewState === 'sync' && (
+        <div style={{display: 'flex', flexDirection: 'row', gap: 12, flex: 1}}>
+          <IconButton
+            aria-label="Go back"
+            size="small"
+            onClick={() => props.setShowSync(false)}>
+            <IconBack/>
+          </IconButton>
+          <div style={{position: 'relative', flex: 1}}>
+            <Input
+              autoFocus
+              type="password"
+              value={syncKey}
+              onChange={e => setSyncKey(e.target.value)}
+              placeholder="Project Token"
+              style={{width: '100%', paddingRight: !syncKey ? 43 : '0.5rem'}}
+            />
+            {!syncKey && (
+              <Button
+                size="small"
+                variant="success"
+                onClick={() => {
+                  emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/dashboard`);
+                }}
+                style={{
+                  transform: 'scale(0.9)',
+                  position: 'absolute',
+                  height: '20px',
+                  right: 2,
+                  top: 2,
+                }}>
+                Buy
+              </Button>
+            )}
+          </div>
+          <Button
+            size="small"
+            onClick={() => {
+              // TODO: Save to project
+              console.log('>>> project token', syncKey);
+              props.setShowSync(false);
+              setSyncLoading(true);
+              sync.connect(syncKey);
+            }}>
+            Save
+          </Button>
+        </div>
+      )}
+    </StatusBar>
+  );
+}

@@ -64,8 +64,8 @@ export default async function() {
     });
 
     // Handle export project
-    on<T.EventProjectExport>('PROJECT_EXPORT', (newConfig) => {
-      project.build(newConfig);
+    on<T.EventProjectExport>('PROJECT_EXPORT', (form, config, settings) => {
+      project.build(form, config, settings);
     });
 
     // Handle import themes
@@ -76,6 +76,11 @@ export default async function() {
     // Handle import icons
     on<T.EventProjectImportIcons>('PROJECT_IMPORT_ICONS', (sets) => {
       icons.importIcons(sets);
+    });
+
+    // Handle update icons
+    on<T.EventProjectUpdateIcons>('PROJECT_UPDATE_ICONS', (prefix, set) => {
+      icons.updateIcons(prefix, set);
     });
 
     // Handle import components

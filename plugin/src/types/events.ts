@@ -1,10 +1,10 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
-import type {IconifySetPayload} from 'interface/icons/lib/iconify';
 import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
-import type {ComponentData, ComponentBuild} from 'types/component';
+import type {IconifySetPayload, IconifySetData} from 'interface/icons/lib/iconify';
+import type {ProjectBuild, ProjectInfo, ProjectConfig, ProjectExport} from 'types/project';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
-import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
-import type {UserSettings} from 'types/settings';
+import type {ComponentData, ComponentBuild} from 'types/component';
+import type {ProjectSettings, UserSettings} from 'types/settings';
 import type {NodeAttrData} from 'types/node';
 import type {AppPages} from 'types/app';
 
@@ -120,7 +120,14 @@ export interface DropComponentHandler extends EventHandler {
 
 export interface EventProjectRelease extends EventHandler {
   name: 'PROJECT_RELEASE';
-  handler: (project: ProjectBuild | null, info: ProjectInfo | null, config: ProjectRelease, user: User) => void;
+  handler: (
+    info: ProjectInfo | null,
+    project: ProjectBuild | null,
+    settings: ProjectSettings,
+    config: ProjectConfig,
+    form: ProjectExport,
+    user: User,
+  ) => void;
 }
 
 export interface EventProjectTheme extends EventHandler {
@@ -145,12 +152,16 @@ export interface EventProjectIcons extends EventHandler {
 
 export interface EventProjectExport extends EventHandler {
   name: 'PROJECT_EXPORT';
-  handler: (config: ProjectRelease) => void;
+  handler: (
+    form: ProjectExport,
+    config: ProjectConfig,
+    settings: ProjectSettings,
+  ) => void;
 }
 
 export interface EventProjectConfigLoad extends EventHandler {
   name: 'PROJECT_CONFIG_LOAD';
-  handler: (config: ProjectRelease) => void;
+  handler: (config: ProjectConfig) => void;
 }
 
 export interface EventProjectImportComponents extends EventHandler {
@@ -158,14 +169,24 @@ export interface EventProjectImportComponents extends EventHandler {
   handler: (iconSet: string) => void;
 }
 
+export interface EventProjectImportTheme extends EventHandler {
+  name: 'PROJECT_IMPORT_THEME';
+  handler: (theme: ThemePresets | 'Brand', scale: ThemeScale, radius: ThemeRadius) => void;
+}
+
 export interface EventProjectImportIcons extends EventHandler {
   name: 'PROJECT_IMPORT_ICONS';
   handler: (sets: IconifySetPayload) => void;
 }
 
-export interface EventProjectImportTheme extends EventHandler {
-  name: 'PROJECT_IMPORT_THEME';
-  handler: (theme: ThemePresets | 'Brand', scale: ThemeScale, radius: ThemeRadius) => void;
+export interface EventProjectUpdateIcons extends EventHandler {
+  name: 'PROJECT_UPDATE_ICONS';
+  handler: (prefix: string, icons: IconifySetData) => void;
+}
+
+export interface EventProjectUpdateIconsDone extends EventHandler {
+  name: 'PROJECT_UPDATE_ICONS_DONE';
+  handler: (prefix: string) => void;
 }
 
 /* Style Gen */

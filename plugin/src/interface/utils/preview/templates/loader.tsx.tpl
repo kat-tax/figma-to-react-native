@@ -6,26 +6,27 @@ import {useControls, getMatrixTransformStyles, TransformWrapper, TransformCompon
 import {Inspector} from 'preview-inspector';
 
 export default function Loader() {
+  const isList = __IS_LIST__;
   const [lockUser, setLockUser] = useState(false);
   const [lockTemp, setLockTemp] = useState(false);
   return (
     <TransformWrapper
       smooth
       minScale={0.5}
-      disabled={lockUser || lockTemp}
+      disabled={lockUser || lockTemp || isList}
       initialPositionY={-99999}
       initialPositionX={window.innerWidth / 2}
       customTransform={getMatrixTransformStyles}
       centerZoomedOut={false}
       doubleClick={{mode: 'reset'}}
-      wheel={{smoothStep: 0.03}}
+      wheel={{smoothStep: 0.005}}
       onTransformed={(e) => {
         const defSize = 16;
         const minSize = 11.4;
         const maxSize = 22.6;
         // Scale < 1: interpolate between minSize and defSize
         // Scale > 1: interpolate between defSize and maxSize
-        const size = e.state.scale <= 1 
+        const size = e.state.scale <= 1
           ? minSize + (defSize - minSize) * e.state.scale
           : defSize + (maxSize - defSize) * Math.min(e.state.scale - 1, 1);
         const halfSize = size / 2;
@@ -109,7 +110,7 @@ export function Preview(props: {
         setIsDragging(true);
       }
     };
-    
+
     const onMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       const rect = _wrapper?.getBoundingClientRect();
@@ -118,12 +119,12 @@ export function Preview(props: {
       if (_diff) _diff.style.width = `${width}%`;
       if (_handle) _handle.style.left = `${width}%`;
     };
-    
+
     const onMouseUp = () => {
       setIsDragging(false);
       props.setLockTemp(false);
     };
-    
+
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
@@ -192,7 +193,7 @@ export function Preview(props: {
                   const elRect = el.getBoundingClientRect();
                   const windowWidth = window.innerWidth;
                   const windowHeight = window.innerHeight;
-                  const viewportRatio = 0.9; // percentage of viewport to use (80%)
+                  const viewportRatio = 0.9; // percentage of viewport to use
                   const widthScale = elRect.width > windowWidth * viewportRatio ? windowWidth * viewportRatio / elRect.width : 1;
                   const heightScale = elRect.height > windowHeight * viewportRatio ? windowHeight * viewportRatio / elRect.height : 1;
                   const scale = Math.min(widthScale, heightScale, 1);

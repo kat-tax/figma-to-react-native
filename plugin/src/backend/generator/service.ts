@@ -221,7 +221,14 @@ export async function compile(
     const {name, page, path, target} = info;
     const {id, key} = target;
     const loading = !_infoDb?.[key];
-    const preview = ''; // data:image/png;base64,${await info.target.exportAsync({format: 'PNG'})}` : '';
+    const preview = await master.exportAsync({
+      format: 'PNG',
+      contentsOnly: true,
+      constraint: {
+        type: 'HEIGHT',
+        value: 240,
+      },
+    });
     _total++;
     _info[key] = info;
     _roster[key] = {id, name, page: page.name, path, loading, preview};

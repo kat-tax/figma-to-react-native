@@ -1,5 +1,4 @@
 import {Doc} from 'yjs';
-import {emit} from '@create-figma-plugin/utilities';
 import {createYjsProvider} from '@y-sweet/client';
 import {applyTextDiff} from 'utils/text-diff';
 import {generateToken} from 'common/random';
@@ -7,8 +6,6 @@ import {F2RN_SERVICE_URL} from 'config/consts';
 
 import type {Text} from 'yjs';
 import type {YSweetProvider} from '@y-sweet/client';
-import type {ProjectBuild, ProjectRelease} from 'types/project';
-import type {EventNotify} from 'types/events';
 
 export const doc = new Doc();
 export const docId = generateToken(22);
@@ -17,41 +14,67 @@ export const docId = generateToken(22);
 
 export let provider: YSweetProvider;
 
-export function connect(
-  user: User,
-  project: ProjectBuild,
-  release: ProjectRelease,
+export async function connect(
+  docKey: string,
+  apiKey: string,
+  meta: {
+    projectName: string,
+    components: number,
+    assets: number,
+    user: User,
+  },
 ) {
-  const {apiKey, docKey} = release;
-  provider = createYjsProvider(doc, docId, async () => {
-    const response = await fetch(`${F2RN_SERVICE_URL}/api/sync`, {
-      body: JSON.stringify({docId}),
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'X-Figma-Doc-Key': docKey,
-        'X-Figma-User-Id': user.id,
-        'X-Figma-User-Name': user.name,
-        'X-Figma-User-Color': user.color,
-        'X-Figma-User-Photo': user.photoUrl,
-        'X-Figma-Project-Name': project.name,
-        'X-Figma-Project-Assets': project.assets.length.toString(),
-        'X-Figma-Project-Components': project.components.length.toString(),
-      },
+  const {projectName, components, assets, user} = meta;
+
+  try {
+    provider = createYjsProvider(doc, docId, async () => {
+      const response = await fetch(`${F2RN_SERVICE_URL}/api/sync`, {
+        body: JSON.stringify({docId}),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'X-Figma-Doc-Key': docKey,
+          'X-Figma-User-Id': user.id,
+          'X-Figma-User-Name': user.name,
+          'X-Figma-User-Color': user.color,
+          'X-Figma-User-Photo': user.photoUrl,
+          'X-Figma-Project-Name': projectName,
+          'X-Figma-Project-Assets': assets.toString(),
+          'X-Figma-Project-Components': components.toString(),
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Invalid API key. Please check your credentials.');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. Please check your permissions.');
+        } else if (response.status >= 500) {
+          throw new Error('Server error. Please try again later.');
+        } else {
+          throw new Error(`Connection failed with status ${response.status}`);
+        }
+      }
+
+      return await response.json();
     });
-    return await response.json();
-  });
-  emit<EventNotify>('NOTIFY', 'Sync is active.', {
-    button: ['Open Link', `${F2RN_SERVICE_URL}/sync/${docId}`],
-    timeout: 10000,
-  });
-  provider.awareness.setLocalState({user});
-  return () => provider.disconnect();
+
+    provider.awareness.setLocalState({user});
+    return () => provider.disconnect();
+  } catch (error) {
+    // Clean up any partial state
+    if (provider) {
+      provider.disconnect();
+    }
+    throw error;
+  }
 }
 
 export function disconnect() {
   provider?.disconnect();
+  provider?.destroy();
+  provider = undefined;
 }
 
 /* Schema */

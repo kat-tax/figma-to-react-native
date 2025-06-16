@@ -4,7 +4,9 @@ export {
 
 export {
   getFillToken,
+  getStrokeToken,
   getTopFill,
+  getTopStroke,
   getColor,
   getRGB,
 } from './colors';

@@ -4,8 +4,8 @@ export function IconPlus(props: IconProps) {
   return (
     <Icon
       {...props}
-      size={32}
-      path="M15.5 15.5V10.5H16.5V15.5H21.5V16.5H16.5V21.5H15.5V16.5H10.5V15.5H15.5Z"
+      size={24}
+      path="M11.5 6a.5.5 0 0 1 .5.5V11h4.5a.5.5 0 0 1 0 1H12v4.5a.5.5 0 0 1-1 0V12H6.5a.5.5 0 0 1 0-1H11V6.5a.5.5 0 0 1 .5-.5"
     />
   );
 }

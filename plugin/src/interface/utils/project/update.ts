@@ -7,10 +7,10 @@ import {F2RN_EXO_REPO_URL, F2RN_EXO_PROXY_URL} from 'config/consts';
 import {emit} from '@create-figma-plugin/utilities';
 import * as _ from './data/metadata';
 
-import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectConfig} from 'types/project';
 import type {EventNotify} from 'types/events';
 
-export async function update(project: ProjectBuild, info: ProjectInfo, release: ProjectRelease) {
+export async function update(project: ProjectBuild, info: ProjectInfo, release: ProjectConfig) {
   const metadata = _.metadata(info);
   const corsProxy = `${F2RN_EXO_PROXY_URL}https:/`;
   const username = release.gitKey;
@@ -56,18 +56,16 @@ export async function update(project: ProjectBuild, info: ProjectInfo, release: 
   }
 
   // Assets
-  if (release.includeAssets) {
-    const added = new Set();
-    for (const [name, isVector, bytes] of project.assets) {
-      const ext = isVector ? 'svg' : 'png';
-      const type = isVector ? 'svg' : 'img';
-      const path = `design/assets/${type}/${name.toLowerCase()}.${ext}`;
-      if (added.has(path)) continue;
-      fs.mkdirSync(`design/assets/${type}`, {recursive: true});
-      fs.writeFileSync(path, bytes);
-      added.add(path);
-      changes.add(path);
-    }
+  const added = new Set();
+  for (const [name, isVector, bytes] of project.assets) {
+    const ext = isVector ? 'svg' : 'png';
+    const type = isVector ? 'svg' : 'img';
+    const path = `design/assets/${type}/${name.toLowerCase()}.${ext}`;
+    if (added.has(path)) continue;
+    fs.mkdirSync(`design/assets/${type}`, {recursive: true});
+    fs.writeFileSync(path, bytes);
+    added.add(path);
+    changes.add(path);
   }
 
   // Components

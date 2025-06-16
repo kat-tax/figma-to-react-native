@@ -1,60 +1,45 @@
-import {useState, useMemo, useEffect} from 'react';
-import {Fzf, byLengthAsc} from 'fzf';
-import {Button} from 'figma-kit';
-import {Stack} from 'interface/figma/ui/stack';
-import {Disclosure} from 'interface/figma/ui/disclosure';
-import {ProjectAssets} from 'interface/views/ProjectAssets';
-import {TextCollabDots} from 'interface/base/TextCollabDots';
-import {TextUnderline} from 'interface/base/TextUnderline';
-import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {StatusBar} from 'interface/base/StatusBar';
-import {IconPlus} from 'interface/figma/icons/32/Plus';
-import {Layer} from 'interface/figma/Layer';
 import {emit} from '@create-figma-plugin/utilities';
-import * as $ from 'store';
+import {useState, useMemo} from 'react';
 
+import {ProjectSettings} from 'interface/project/ProjectSettings';
+import {ProjectToolbar} from 'interface/project/ProjectToolbar';
+import {ProjectList} from 'interface/project/ProjectList';
+
+import type {Theme} from '@monaco-editor/react';
+import type {Monaco} from 'interface/utils/editor';
 import type {Navigation} from 'interface/hooks/useNavigation';
-import type {ComponentBuild, ComponentRosterEntry} from 'types/component';
-import type {EventNotify, EventFocusNode, EventProjectImportComponents} from 'types/events';
+import type {UserSettings} from 'types/settings';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
+import type {ComponentBuild} from 'types/component';
+import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
+import type {EventProjectImportComponents, EventNotify} from 'types/events';
 
 interface ProjectComponentsProps {
+  settings: SettingsData,
+  project: ProjectConfig,
   build: ComponentBuild,
   nav: Navigation,
+  monaco: Monaco,
   iconSet: string,
   hasIcons: boolean,
   hasStyles: boolean,
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
-}
-
-type ProjectComponentIndex = Record<
-  string,
-  ProjectComponentEntry[]
->
-
-type ProjectComponentEntry = {
-  item: ComponentRosterEntry & {key: string},
-  positions: Set<number>,
+  editorOptions: UserSettings['monaco']['general'],
+  editorTheme: Theme,
 }
 
 export function ProjectComponents(props: ProjectComponentsProps) {
-  const [list, setList] = useState<ProjectComponentIndex>({});
+  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
-
-  const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
-  const hasImport = !props.isReadOnly && false;
-  const index = useMemo(() => {
-    const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
-    const entries = _entries
-      .sort((a, b) => a[1].path?.localeCompare(b[1].path))
-      .map(([key, item]) => ({...item, key}));
-    return new Fzf(entries, {
-      selector: (item) => `${item.page}/${item.name}`,
-      tiebreakers: [byLengthAsc],
-      forward: false,
-    });
-  }, [props?.build, hasComponents]);
+  const [showSync, setShowSync] = useState<boolean>(false);
+  const [layout, setLayout] = useState<ProjectComponentLayout>('list');
+  const viewState = useMemo(() => {
+    if (showSettings)
+      return 'settings';
+    return 'components';
+  }, [showSettings, showSync]);
 
   const importComponents = async () => {
     if (!props.hasStyles) {
@@ -73,42 +58,6 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     emit<EventProjectImportComponents>('PROJECT_IMPORT_COMPONENTS', props.iconSet);
   };
 
-  const select = (id: string) => {
-    emit<EventFocusNode>('NODE_FOCUS', id);
-  };
-
-  useEffect(() => {
-    const entries = index.find(props.searchQuery);
-    const newList: ProjectComponentIndex = hasComponents
-      ? Object.values(entries).reduce((group, entry) => {
-        const {item, positions} = entry;
-          group[item.page] = [
-            ...(group[item.page] || []),
-            {item, positions},
-          ];
-          return group;
-        }, {})
-      : {};
-    setList(newList);
-  }, [index, props.searchQuery, hasComponents]);
-
-  if (!hasComponents) {
-    return (
-      <ScreenInfo
-        message="No components found"
-        action={hasImport
-          ? <Button
-              secondary
-              loading={importing}
-              onClick={() => importComponents()}>
-              Import from EXO
-            </Button>
-          : null
-        }
-      />
-    );
-  }
-
   return (
     <div
       className="components"
@@ -119,126 +68,35 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         flexDirection: 'column',
         alignItems: 'flex-start',
       }}>
-      <div style={{flex: 1, overflow: 'auto', width: '100%', paddingBottom: 12}}>
-        {props.build?.pages?.map(page =>
-          <ProjectPageGroup
-            key={page}
-            title={page}
-            onSelect={select}
-            entries={list[page]}
-          />
-        )}
-        <ProjectPageGroup
-          title="Assets"
-          onSelect={select}
-          component={<ProjectAssets {...props}/>}
-        />
-      </div>
-      <StatusBar>
-        <Button
-          size="small"
-          variant="secondary"
-          style={{width: 32, padding: 0}}
-          onClick={() => importComponents()}>
-          <IconPlus/>
-        </Button>
-      </StatusBar>
-    </div>
-  );
-}
-
-interface ProjectPageGroupProps {
-  title: string;
-  entries?: ProjectComponentEntry[],
-  component?: JSX.Element,
-  onSelect: (id: string) => void;
-}
-
-function ProjectPageGroup(props: ProjectPageGroupProps) {
-  const [isExpanded, setExpanded] = useState<boolean>(true);
-  if (!props?.entries?.length) return null;
-
-  return (
-    <Disclosure
-      style={{width: '100%'}}
-      title={props.title}
-      open={isExpanded}
-      onClick={() => setExpanded(!isExpanded)}>
-      {props?.component}
-      {props?.entries?.map(entry =>
-        <ProjectPageComponent
-          key={entry.item.key}
-          entry={entry}
-          page={props.title}
-          onSelect={props.onSelect}
+      {viewState === 'components' && (
+        <ProjectList
+          layout={layout}
+          build={props.build}
+          isReadOnly={props.isReadOnly}
+          searchMode={props.searchMode}
+          searchQuery={props.searchQuery}
+          importing={importing}
+          importComponents={importComponents}
         />
       )}
-    </Disclosure>
-  );
-}
-
-interface ProjectPageComponentProps {
-  page: string,
-  entry: ProjectComponentEntry,
-  onSelect: (id: string) => void,
-}
-
-function ProjectPageComponent(props: ProjectPageComponentProps) {
-  const {id, name, page, path, preview, loading, hasError, errorMessage} = props.entry.item;
-  const [dragging, setDragging] = useState<string | null>(null);
-  const hasUnsavedChanges = false;
-
-  return (
-    <Stack
-      space="extraLarge"
-      style={{width: '100%'}}
-      draggable={!loading && !hasError}
-      onDragEnd={(e) => {
-        setDragging(null);
-        window.parent.postMessage({
-          pluginDrop: {
-            clientX: e.clientX,
-            clientY: e.clientY,
-            items: [{
-              type: 'figma/node-id',
-              data: id,
-            }],
-          }
-        }, '*');
-      }}
-      onDragStart={(e) => {
-        setDragging(name);
-        const $code = $.component.code(name);
-        const code = $code.get().toString();
-        const img = new Image(100, 100);
-        img.src = preview;
-        e.dataTransfer.setDragImage(img, 0, 0);
-        e.dataTransfer.setData('text/plain', code);
-      }}>
-      <Layer
-        component
-        active={name === dragging}
-        warning={hasError}
-        onChange={() => id
-          ? props.onSelect(id)
-          : undefined
-        }
-        description={hasError
-          ? errorMessage || 'Unknown error'
-          : loading
-            ? 'loading...'
-            : hasUnsavedChanges
-              ? '(modified)'
-              : path.split('/').slice(2, -1).join('/')
-        }>
-        <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
-          <TextUnderline
-            str={`${page}/${name}`}
-            indices={props.entry.positions}
-          />
-          <TextCollabDots target={name}/>
-        </span>
-      </Layer>
-    </Stack>
+      {viewState === 'settings' && (
+        <ProjectSettings
+          monaco={props.monaco}
+          settings={props.settings}
+          editorOptions={props.editorOptions}
+          editorTheme={props.editorTheme}
+        />
+      )}
+      <ProjectToolbar
+        project={props.project}
+        layout={layout}
+        setLayout={setLayout}
+        showSync={showSync}
+        setShowSync={setShowSync}
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        importComponents={importComponents}
+      />
+    </div>
   );
 }

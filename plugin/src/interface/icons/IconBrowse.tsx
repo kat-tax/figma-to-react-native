@@ -1,9 +1,10 @@
+import {emit, on} from '@create-figma-plugin/utilities';
+import {Fzf, byLengthAsc} from 'fzf';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useState, useEffect, useMemo} from 'react';
-import {Fzf, byLengthAsc} from 'fzf';
-import {Button, Select} from 'figma-kit';
-import {emit, on} from '@create-figma-plugin/utilities';
+import {Button, IconButton, Select} from 'figma-kit';
 import {StatusBar} from 'interface/base/StatusBar';
+import {IconBack} from 'interface/figma/icons/24/Back';
 
 import {getPreviewSets} from './lib/iconify';
 import {IconSet} from './IconSet';
@@ -16,6 +17,7 @@ interface IconBrowseProps {
   onSubmit: (sets: IconifySetPreview[]) => void,
   onClose: () => void,
   searchQuery: string,
+  addingSets?: boolean,
   searchMode?: boolean,
 }
 
@@ -116,9 +118,10 @@ export function IconBrowse(props: IconBrowseProps) {
     }}>
       <div style={{
         display: 'grid',
-        overflow: 'auto',
+        overflow: 'overlay',
+        scrollbarWidth: 'thin',
+        scrollbarGutter: 'auto',
         gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-        scrollbarWidth: 'none',
         paddingBottom: 0,
         padding: 12,
         flex: 1,
@@ -137,9 +140,12 @@ export function IconBrowse(props: IconBrowseProps) {
         )}
       </div>
       <StatusBar>
-        <Button variant="secondary" onClick={props.onClose}>
-          Back
-        </Button>
+        <IconButton
+          aria-label="Go back"
+          size="small"
+          onClick={props.onClose}>
+          <IconBack/>
+        </IconButton>
         <Select.Root
           value={category}
           onValueChange={setCategory}>
@@ -166,11 +172,13 @@ export function IconBrowse(props: IconBrowseProps) {
         <div style={{flex: 1}}/>
         <Button
           variant="primary"
-          disabled={!chosenSets.length}
+          disabled={!chosenSets.length || props.addingSets}
           onClick={() => props.onSubmit(chosenSets)}>
-          {screen.width >= 308
-            ? `Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`
-            : `Import (${chosenSets.length})`}
+          {props.addingSets
+            ? 'Importing...'
+            : screen.width >= 308
+              ? `Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`
+              : `Import (${chosenSets.length})`}
         </Button>
       </StatusBar>
     </div>

@@ -1,11 +1,14 @@
 import {loadIcons, getIcon} from '@iconify/react';
 import {ICONIFY_HOST} from './consts';
 
+import type {IconifyIcon} from '@iconify/react';
+
 export type IconifySetPreview = {
   prefix: string;
   name: string;
   total: number;
   height: number;
+  palette: boolean;
   samples: string[];
   category: string;
   hidden: boolean;
@@ -19,14 +22,16 @@ export type IconifySetData = {
   name: string,
   mode: string,
   size: number,
+  view: number,
+  fill: boolean,
   list: {
     // Icon name => Icon SVG
-    [icon: string]: string,
+    [icon: string]: IconifyIcon,
   },
 }
 
-export async function getPreviewSets(): Promise<Array<IconifySetPreview>> {
-  const res = await fetch(`${ICONIFY_HOST}/collections`);
+export async function getPreviewSets(prefix?: string): Promise<Array<IconifySetPreview>> {
+  const res = await fetch(`${ICONIFY_HOST}/collections${prefix ? `?prefix=${prefix}` : ''}`);
   const val = await res.json();
   return Object.entries(val)
     .map(([prefix, data]: [string, any]) => ({
@@ -34,11 +39,12 @@ export async function getPreviewSets(): Promise<Array<IconifySetPreview>> {
       name: data.name,
       total: data.total,
       height: data.height || 32,
+      palette: data.palette || false,
       samples: data.samples,
       category: data.category,
       hidden: data.hidden,
     }))
-    .sort((a, b) => b.total - a.total); 
+    .sort((a, b) => b.total - a.total);
 }
 
 export async function loadIconSets(
@@ -46,7 +52,15 @@ export async function loadIconSets(
   onProgress: (value: number) => void,
 ): Promise<IconifySetPayload> {
   if (!sets.length) return;
-  const ids = await getIconIds(sets.map(set => set.prefix));
+  // Workaround to get SVG dimensions
+  const res = await Promise.all(sets.map(set => fetch(`${ICONIFY_HOST}/${set.prefix}.json?icons`)));
+  const data = await Promise.all(res.map(r => r.json()));
+  const sizes: Record<string, {size: number}> = data.reduce((acc, item) => {
+    acc[item.prefix] = item.width || item.height || 256;
+    return acc;
+  }, {});
+
+  const ids = await Promise.all(sets.map(set => getIconIds(set.prefix))).then(ids => ids.flat());
   const svgs = await getIconSvgs(ids, onProgress);
   return Object.entries(svgs).reduce((acc, [prefix, list]) => {
     const set = sets.find(set => set.prefix === prefix);
@@ -54,24 +68,23 @@ export async function loadIconSets(
     acc[prefix] = {
       name: set.name,
       size: set.height,
-      mode: '',
+      view: sizes[prefix] || 256,
+      fill: !set.palette,
+      mode: 'Normal',
       list,
     };
     return acc;
   }, {});
 }
 
-async function getIconIds(prefixes: string[]): Promise<string[]> {
-  return await Promise.all(prefixes.map(async (prefix) => {
-    const res = await fetch(`${ICONIFY_HOST}/collection?prefix=${prefix}`);
-    const val = await res.json();
-    const categorized = Object.values(val.categories || {}).flat() as string[];
-    const uncategorized = val.uncategorized || [];
-    const allIcons = new Set([...categorized, ...uncategorized]);
-    const set = getIconList('', val.suffixes, Array.from(allIcons));
-    console.log('>>> [icons]', allIcons.size);
-    return set.map(icon => `${prefix}:${icon}`);
-  })).then(ids => ids.flat());
+export async function getIconIds(prefix: string): Promise<string[]> {
+  const res = await fetch(`${ICONIFY_HOST}/collection?prefix=${prefix}`);
+  const val = await res.json();
+  const categorized = Object.values(val.categories || {}).flat() as string[];
+  const uncategorized = val.uncategorized || [];
+  const allIcons = new Set([...categorized, ...uncategorized]);
+  const set = getIconList('', val.suffixes, Array.from(allIcons));
+  return set.map(icon => `${prefix}:${icon}`);
 }
 
 async function getIconSvgs(
@@ -79,7 +92,7 @@ async function getIconSvgs(
   onProgress: (value: number) => void,
 ): Promise<{
   [prefix: string]: {
-    [icon: string]: string,
+    [icon: string]: IconifyIcon,
   },
 }> {
   return new Promise((resolve, _reject) => {
@@ -88,7 +101,7 @@ async function getIconSvgs(
       if (pending.length) return;
       resolve(_loaded.reduce((acc, icon) => {
         acc[icon.prefix] = acc[icon.prefix] || {};
-        acc[icon.prefix][icon.name] = getIcon(`${icon.prefix}:${icon.name}`)?.body;
+        acc[icon.prefix][icon.name] = getIcon(`${icon.prefix}:${icon.name}`);
         return acc;
       }, {}));
     });

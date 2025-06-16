@@ -1,6 +1,6 @@
 import * as string from 'common/string';
 
-type FillNodes = 
+type FillNodes =
   | ComponentSetNode
   | ComponentNode
   | InstanceNode
@@ -27,10 +27,31 @@ export function getFillToken(node: FillNodes) {
     : `"${getColor(fill.color, fill.opacity)}"`
 }
 
+export function getStrokeToken(node: FillNodes) {
+  const placeholder = '"#000000"';
+  if (!node) return placeholder;
+  const stroke = getTopStroke(node.strokes);
+  if (!stroke) return placeholder;
+  const strokeId = stroke?.boundVariables?.color?.id;
+  const strokeVar = strokeId && figma.variables.getVariableById(strokeId);
+  if (strokeVar?.codeSyntax?.WEB)
+    return strokeVar.codeSyntax.WEB.slice(6,-1).replace(/\-/g, '.');
+  return strokeVar && strokeVar.resolvedType === 'COLOR'
+    ? `theme.colors.${string.createIdentifierCamel(strokeVar.name)}`
+    : `"${getColor(stroke.color, stroke.opacity)}"`
+}
+
 export function getTopFill(fills: ReadonlyArray<Paint> | PluginAPI['mixed']): SolidPaint | undefined {
   if (fills && fills !== figma.mixed && fills.length > 0) {
     return [...fills].reverse().find((fill) =>
       fill.type === 'SOLID' && fill.visible !== false) as SolidPaint;
+  }
+}
+
+export function getTopStroke(strokes: ReadonlyArray<Paint> | PluginAPI['mixed']): SolidPaint | undefined {
+  if (strokes && strokes !== figma.mixed && strokes.length > 0) {
+    return [...strokes].reverse().find((stroke) =>
+      stroke.type === 'SOLID' && stroke.visible !== false) as SolidPaint;
   }
 }
 

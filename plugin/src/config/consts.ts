@@ -12,6 +12,7 @@ export const F2RN_SETTINGS_USER = 'f2rn:user:1001';
 export const F2RN_SETTINGS_PROJECT = 'f2rn:project:1001';
 export const F2RN_PROJECT_RELEASE = 'f2rn:release:1001';
 export const F2RN_ICONS_FAVORITES = 'f2rn:icons:fav:1001';
+export const F2RN_ICONS_SET_DATA = 'f2rn:icons:set:1001';
 
 // Services
 export const F2RN_EDITOR_NS = 'figma://preview/';

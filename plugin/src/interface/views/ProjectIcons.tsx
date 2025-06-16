@@ -1,11 +1,13 @@
+import {emit, on} from '@create-figma-plugin/utilities';
+import {VirtuosoGrid} from 'react-virtuoso';
+import {Button, IconButton, Select, Slider} from 'figma-kit';
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
-import {Button, Select, Slider} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
-import {VirtuosoGrid} from 'react-virtuoso';
-import {emit} from '@create-figma-plugin/utilities';
+import {getIconIds, getPreviewSets} from 'interface/icons/lib/iconify';
 
-import {IconPlus} from 'interface/figma/icons/32/Plus';
+import {IconSync} from 'interface/figma/icons/24/Sync';
+import {IconPlus} from 'interface/figma/icons/24/Plus';
 import {IconTile} from 'interface/icons/IconTile';
 import {IconBrowse} from 'interface/icons/IconBrowse';
 import {loadIconSets} from 'interface/icons/lib/iconify';
@@ -15,7 +17,7 @@ import {StatusBar} from 'interface/base/StatusBar';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {IconifySetPreview} from 'interface/icons/lib/iconify';
-import type {EventNotify, EventProjectImportIcons} from 'types/events';
+import type {EventNotify, EventProjectImportIcons, EventProjectUpdateIcons, EventProjectUpdateIconsDone} from 'types/events';
 import type {ProjectIcons as ProjectIconsType} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 
@@ -44,14 +46,20 @@ type ProjectIcon = {
 
 export function ProjectIcons(props: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
-  const [addingMore, setAddingMore] = useState(false);
+  const [updatingSets, setUpdatingSets] = useState<string[]>([]);
+  const [addingSets, setAddingSets] = useState<boolean>(false);
+  const [showImport, setShowImport] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [iconScale, setIconScale] = useState(1);
   const [prefix, setPrefix] = useState('all');
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
+  const [sets, setSets] = useState<Record<string, string[]>>({});
   const [_, copyIcon] = useCopyToClipboard();
 
+  const updating = updatingSets.includes(prefix);
+
   const addSets = useCallback(async (sets: IconifySetPreview[]) => {
+    setAddingSets(true);
     if (!props.hasStyles) {
       props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
@@ -61,27 +69,39 @@ export function ProjectIcons(props: ProjectIconsProps) {
     const icons = await loadIconSets(sets, setLoadProgress);
     emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', icons);
     setPrefix(sets.length === 1 ? sets[0].prefix : 'all');
-    setAddingMore(false);
+    setAddingSets(false);
+    setShowImport(false);
   }, [props.hasStyles, props.nav]);
 
+  const updateSet = useCallback(async (prefix: string) => {
+    setUpdatingSets(prev => [...prev, prefix]);
+    const sets = await getPreviewSets(prefix);
+    const icons = await loadIconSets(sets, () => {});
+    emit<EventProjectUpdateIcons>('PROJECT_UPDATE_ICONS', prefix, icons[prefix]);
+  }, []);
+
   const closeBrowse = useCallback(() => {
-    setAddingMore(false);
+    setShowImport(false);
     setShowBrowse(false);
   }, []);
 
-  // Rebuild list when icons or build change
-  // TODO: this is the issue, this should use icons from the project
-  // not the global cache from iconify
-  const icons: ProjectIcon[] = useMemo(() => props.icons?.list
+  // Rebuild list when icons, loaded sets, or build change
+  // Merge full sets with document icons if prefix is not 'all'
+  const icons: ProjectIcon[] = useMemo(() => (prefix === 'all'
+    ? props.icons?.list
+    : Array.from(new Set([...props.icons?.list, ...(sets[prefix] || [])]))
+  )
     ?.map(icon => ({
       icon,
       nodeId: props.icons?.maps?.[icon] || null,
-      missing: false, //!props.icons?.list?.includes(icon),
+      missing: !props.icons?.list?.includes(icon),
       count: props.build?.icons?.count?.[icon] || 0,
     }))
     ?.filter(({icon}) => prefix === 'all' || icon.split(':')[0] === prefix)
-    ?.sort((a, b) => b.count - a.count), [
+    ?.sort((a, b) => b.count - a.count)
+  , [
     prefix,
+    sets,
     props.icons,
     props.build?.icons?.count,
   ]);
@@ -93,6 +113,11 @@ export function ProjectIcons(props: ProjectIconsProps) {
     forward: false,
   }), [icons]);
 
+  // Handle update set completion
+  useEffect(() => on<EventProjectUpdateIconsDone>('PROJECT_UPDATE_ICONS_DONE', (prefix) => {
+    setUpdatingSets(prev => prev.filter(p => p !== prefix));
+  }), []);
+
   // Update list when search query changes or index changes
   useEffect(() => {
     const entries = index.find(props.searchQuery);
@@ -100,12 +125,24 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setLoadProgress(100);
   }, [index, props.searchQuery]);
 
+  // Update sets (fetch from iconify) when icons change
+  useEffect(() => {
+    const updateSets = async () => {
+      if (!props.icons.sets.length) return;
+      const sets = await Promise.all(props.icons.sets.map(async (set) => [set, await getIconIds(set)]));
+      if (!sets.length) return;
+      setSets(Object.fromEntries(sets));
+    };
+    updateSets();
+  }, [props.icons]);
+
   // Show browse interface
-  if (!props.icons.sets?.length || addingMore) {
-    return (showBrowse || addingMore) ? (
+  if (!props.icons.sets?.length || showImport) {
+    return (showBrowse || showImport) ? (
       <IconBrowse
         onSubmit={addSets}
         onClose={closeBrowse}
+        addingSets={addingSets}
         installedSets={props.icons.sets}
         searchQuery={props.searchQuery}
       />
@@ -140,7 +177,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
         <VirtuosoGrid
           style={{
             height: '100%',
-            scrollbarWidth: 'none',
+            scrollbarWidth: 'thin',
+            scrollbarGutter: 'auto',
           }}
           overscan={200}
           totalCount={list.length}
@@ -157,7 +195,13 @@ export function ProjectIcons(props: ProjectIconsProps) {
         <Select.Root
           value={prefix}
           onValueChange={setPrefix}>
-          <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
+          <Select.Trigger style={{
+            width: 'auto',
+            maxWidth: 123,
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+          }}/>
           <Select.Content
             side="top"
             position="popper"
@@ -170,13 +214,25 @@ export function ProjectIcons(props: ProjectIconsProps) {
             ))}
           </Select.Content>
         </Select.Root>
-        <Button
-          size="small"
-          variant="secondary"
-          style={{width: 32, padding: 0}}
-          onClick={() => setAddingMore(true)}>
-          <IconPlus/>
-        </Button>
+        {prefix === 'all' ? (
+          <IconButton
+            size="small"
+            variant="secondary"
+            aria-label="Add icon sets"
+            onClick={() => setShowImport(true)}>
+            <IconPlus/>
+          </IconButton>
+        ) : (
+          <IconButton
+            size="small"
+            variant="secondary"
+            disabled={updating}
+            aria-label={updating ? 'Updating...' : 'Update icon set'}
+            className={updating ? 'rotate' : ''}
+            onClick={updating ? undefined : () => updateSet(prefix)}>
+            <IconSync/>
+          </IconButton>
+        )}
         <div style={{flex: 1}}/>
         <Slider
           min={1}

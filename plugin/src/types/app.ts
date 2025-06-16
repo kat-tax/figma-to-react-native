@@ -8,12 +8,8 @@ export type AppPages = AppPagesMain | AppPagesComponent;
 export type AppPagesMain =
   | 'components'
   | 'icons'
-  | 'assets'
   | 'theme'
-  | 'fonts'
-  | 'docs'
-  | 'export'
-  | 'settings';
+  | 'export';
 
 export type AppPagesComponent =
   | 'component/code'

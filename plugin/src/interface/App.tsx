@@ -9,12 +9,10 @@ import {GitProvider} from 'interface/providers/Git';
 import {SyncProvider} from 'interface/providers/Sync';
 
 import {ProjectComponents} from 'interface/views/ProjectComponents';
-import {ProjectAssets} from 'interface/views/ProjectAssets';
 import {ProjectIcons} from 'interface/views/ProjectIcons';
 import {ProjectTheme} from 'interface/views/ProjectTheme';
-import {ProjectDocs} from 'interface/views/ProjectDocs';
 import {ProjectExport} from 'interface/views/ProjectExport';
-import {ProjectSettings} from 'interface/views/ProjectSettings';
+import {ProjectSettings} from 'interface/project/ProjectSettings';
 
 import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentDocs} from 'interface/views/ComponentDocs';
@@ -48,10 +46,7 @@ const tabs: AppTabs = {
     'components',
     'icons',
     'theme',
-    //'docs',
-    //'assets',
-    'export',
-    'settings',
+    // 'export',
   ],
   component: [
     'component/code',
@@ -78,12 +73,14 @@ export function App(props: AppProps) {
   const isDark = useDarkMode();
   const nav = useNavigation(build);
 
+  const writer = settings.config.writer;
+  const addTranslate = settings.config.addTranslate;
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
   const hasIcons = Boolean(icons?.list?.length);
   const hasTabs = Boolean(isReady && project && monaco);
-  const iconSet = icons.sets[0];
   const compKey = build.roster[nav.component] ? nav.component: null;
+  const iconSet = icons.sets[0];
 
   // Monaco options
   const editorTheme: Theme = isDark ? 'vs-dark' : 'light';
@@ -109,7 +106,7 @@ export function App(props: AppProps) {
 
   return hasTabs ? (
     <TooltipProvider disableHoverableContent>
-      <SyncProvider user={user}>
+      <SyncProvider {...{user, build, project}}>
         <GitProvider url={project.gitRepo} branch={project.gitBranch} username={project.gitKey}>
           <Tabs.Root
             style={{height: 'calc(100% - 41px)'}}
@@ -117,22 +114,16 @@ export function App(props: AppProps) {
             onValueChange={nav.gotoTab}>
             <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
-              <ProjectComponents {...{nav, build, isReadOnly, iconSet, hasIcons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectComponents {...{nav, build, project, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, settings, editorOptions, editorTheme}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
-              <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectIcons {...{nav, build, project, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
             </Tabs.Content>
             <Tabs.Content value="theme">
               <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
             </Tabs.Content>
-            <Tabs.Content value="assets">
-              <ProjectAssets {...{build, searchMode, searchQuery}}/>
-            </Tabs.Content>
-            <Tabs.Content value="docs">
-              <ProjectDocs {...{nav, build, isReadOnly, searchQuery}}/>
-            </Tabs.Content>
             <Tabs.Content value="export">
-              <ProjectExport {...{project, build}}/>
+              <ProjectExport {...{project, build, writer, addTranslate}}/>
             </Tabs.Content>
             <Tabs.Content value="settings">
               <ProjectSettings {...{monaco, settings, editorOptions, editorTheme}}/>

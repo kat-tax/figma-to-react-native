@@ -3,10 +3,10 @@ import supabase from 'interface/services/supabase';
 import {emit} from '@create-figma-plugin/utilities';
 import {create} from '../create';
 
-import type {ProjectBuild, ProjectInfo, ProjectRelease} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectConfig} from 'types/project';
 import type {EventNotify} from 'types/events';
 
-export async function release(project: ProjectBuild, info: ProjectInfo, release: ProjectRelease) {
+export async function release(project: ProjectBuild, info: ProjectInfo, release: ProjectConfig) {
   const blob = await create(project, info, release);
 
   const name = info.appConfig?.Design?.PACKAGE_NAME?.toString() || '';

@@ -18,14 +18,14 @@ interface PreviewOptions {
   name: string,
   path: string,
   imports: string,
-  settings: UserSettings,
+  esbuild: UserSettings['esbuild'],
   background: string,
   theme: string,
   build: ComponentBuild,
 }
 
 export async function preview(options: PreviewOptions, gitFs: IFs | null = null) {
-  const {tag, name, path, imports, theme, background, settings, build} = options;
+  const {tag, name, path, imports, theme, background, esbuild, build} = options;
 
   const files = gitFs
     ? getGitFiles(build, gitFs)
@@ -41,21 +41,22 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
       .replace('__CURRENT_THEME__', theme)
       .replace('__COMPONENT_TAG__', tag)
       .replace('__ROOT_TAG__', gitFs ? 'diff' : 'component'));
-    return await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
+    return await bundle(ENTRY_POINT, files, esbuild, importMap);
   } catch (e) {
     notify(e, 'Failed to build preview app');
     console.error('[preview/app]', e.toString());
   }
 }
 
-export async function init(settings: UserSettings, isDark: boolean) {
+export async function init(esbuild: UserSettings['esbuild'], isDark: boolean, isList?: boolean) {
   // Build filesystem
   const files = new Map<string, string>();
-  files.set(ENTRY_POINT, atob(loader.toString()));
+  files.set(ENTRY_POINT, atob(loader)
+    .replace('__IS_LIST__', isList ? 'true' : 'false'));
 
   // Build preview loader
   try {
-    const output = await bundle(ENTRY_POINT, files, settings.esbuild, importMap);
+    const output = await bundle(ENTRY_POINT, files, esbuild, importMap);
     return atob(iframe)
       .replace('__CURRENT_FIGMA_THEME__', isDark ? 'dark' : 'light')
       .replace('__IMPORT_MAP__', JSON.stringify(importMap, undefined, 2))

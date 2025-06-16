@@ -13,10 +13,12 @@ declare const styles: {
   readonly "fp-TabsContent": string;
   readonly "highlight": string;
   readonly "icon": string;
+  readonly "icon-button-active": string;
   readonly "list": string;
   readonly "no-first-span-overflow": string;
   readonly "node-toolbar-btn": string;
   readonly "props-select": string;
+  readonly "rotate": string;
   readonly "search-mode": string;
   readonly "status-actions": string;
   readonly "status-bar": string;
@@ -29,6 +31,7 @@ declare const styles: {
   readonly "tabs": string;
   readonly "theme-picker-colors": string;
   readonly "theme-picker-palette": string;
+  readonly "tile": string;
   readonly "tip": string;
   readonly "virtuoso-grid-list": string;
 };
