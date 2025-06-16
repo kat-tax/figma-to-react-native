@@ -2,6 +2,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
 import {useMemo, useState} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
+import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {useSync} from 'interface/providers/Sync';
 import {IconDownload} from 'interface/figma/icons/24/Download';
 import {IconTemplates} from 'interface/figma/icons/24/Templates';
@@ -14,11 +15,13 @@ import {StatusBar} from 'interface/base/StatusBar';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
 
+import type {UserSettings} from 'types/settings';
 import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
-import type {EventNotify, EventOpenLink} from 'types/events';
+import type {EventNotify, EventOpenLink, EventProjectExport} from 'types/events';
 
 interface ProjectToolbarProps {
   project: ProjectConfig,
+  settings: UserSettings,
   layout: ProjectComponentLayout,
   setLayout: (layout: ProjectComponentLayout) => void,
   showSync: boolean,
@@ -33,10 +36,13 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   const [_, copy] = useCopyToClipboard();
   const [syncKey, setSyncKey] = useState<string>(props.project.gitKey ?? '');
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
+  const [exportActive, setExportActive] = useState<boolean>(false);
   const viewState = useMemo(() => {
     if (props.showSync) return 'sync';
     return 'overview';
   }, [props.showSync]);
+
+  useProjectRelease(() => setExportActive(false));
 
   return (
     <StatusBar>
@@ -70,16 +76,30 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             </DropdownMenu.Content>
           </DropdownMenu.Root>
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <IconButton aria-label="Export Project" size="small" onClick={() => props.setShowSettings(false)}>
+            <DropdownMenu.Trigger asChild disabled={exportActive}>
+              <IconButton
+                size="small"
+                aria-label={exportActive ? 'Exporting...' : 'Export Project'}
+                onClick={() => props.setShowSettings(false)}
+                disabled={exportActive}>
                 <IconDownload/>
               </IconButton>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              <DropdownMenu.Item>
+              <DropdownMenu.Item
+                onSelect={() => {
+                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.project, props.settings);
+                  setExportActive(true);
+                }}
+                disabled={exportActive}>
                 <Text>Download Zip</Text>
               </DropdownMenu.Item>
-              <DropdownMenu.Item>
+              <DropdownMenu.Item
+                onSelect={() => {
+                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.project, props.settings);
+                  setExportActive(true);
+                }}
+                disabled={exportActive}>
                 <Text>Publish to Git</Text>
               </DropdownMenu.Item>
             </DropdownMenu.Content>

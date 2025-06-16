@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, Fragment} from 'react';
-import {Flex, Text, Input, Button, Checkbox, SegmentedControl} from 'figma-kit';
+import {Flex, Text, Input, Button, SegmentedControl} from 'figma-kit';
 import {useForm} from 'interface/figma/hooks/use-form';
 import {Banner} from 'interface/figma/ui/banner';
 import {Container} from 'interface/figma/ui/container';
@@ -8,7 +8,6 @@ import {VerticalSpace} from 'interface/figma/ui/vertical-space';
 import {IconCheck} from 'interface/figma/icons/24/Check';
 import {IconHelp} from 'interface/figma/icons/16/Help';
 import {IconWarning} from 'interface/figma/icons/32/Warning';
-import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {titleCase} from 'common/string';
 import {F2RN_EXO_REPO_URL, F2RN_SERVICE_URL} from 'config/consts';
 
@@ -33,7 +32,6 @@ export function ProjectExport({build, project, ...settings}: ProjectExportProps)
 
   const form = useForm<ProjectExport>({
     method: 'zip',
-    template: 'exo',
   }, {
     close: () => {},
     validate: (_data) => true,
@@ -70,8 +68,6 @@ export function ProjectExport({build, project, ...settings}: ProjectExportProps)
       setExportCount(0);
     }, 10000);
   };
-
-  useProjectRelease(onSuccess, onError, setExportCount);
 
   return (
     <Fragment>
@@ -222,33 +218,6 @@ export function ProjectExport({build, project, ...settings}: ProjectExportProps)
             <VerticalSpace space="large"/>
           </Fragment>
         }
-        <Fragment>
-          <Text weight="strong">
-            Options
-          </Text>
-          <VerticalSpace space="medium"/>
-          {isZip &&
-            <Fragment>
-              <Checkbox.Root>
-                <Checkbox.Input
-                  disabled={isExporting}
-                  checked={form.formState.template === 'exo'}
-                  onChange={(e) => form.setFormState(
-                    e.target.checked ? 'exo' : null,
-                    'template',
-                  )}
-                />
-                <Checkbox.Label>
-                  <Text>Include template</Text>
-                </Checkbox.Label>
-                <Checkbox.Description>
-                  Use the latest EXO template.
-                </Checkbox.Description>
-              </Checkbox.Root>
-              <VerticalSpace space="small"/>
-            </Fragment>
-          }
-        </Fragment>
         <Fragment>
           <VerticalSpace space="large"/>
           <Flex align="center">

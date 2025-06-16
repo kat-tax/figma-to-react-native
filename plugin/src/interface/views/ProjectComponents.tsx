@@ -89,6 +89,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       )}
       <ProjectToolbar
         project={props.project}
+        settings={props.settings.config}
         layout={layout}
         setLayout={setLayout}
         showSync={showSync}

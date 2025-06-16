@@ -18,11 +18,7 @@ export interface ProjectConfig {
 
 export interface ProjectExport {
   method: ProjectExportMethod,
-  template: ProjectExportTemplate | null,
 }
-
-export type ProjectExportTemplate =
-  | 'exo'
 
 export type ProjectExportMethod =
   | 'git'

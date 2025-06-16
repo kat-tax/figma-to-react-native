@@ -1,23 +1,19 @@
 import {useEffect} from 'react';
-import {on} from '@create-figma-plugin/utilities';
+import {on, emit} from '@create-figma-plugin/utilities';
 import {log} from 'interface/telemetry';
 import {update} from 'interface/utils/project/update';
 import {release} from 'interface/utils/project/lib/release';
 import {download} from 'interface/utils/project/lib/download';
-import * as consts from 'config/consts';
-import type {EventProjectRelease} from 'types/events';
+import {F2RN_PREVIEW_URL} from 'config/consts';
 
-export function useProjectRelease(
-  onSuccess: () => void,
-  onError: (msg: string) => void,
-  setExportCount: React.Dispatch<number>,
-): void {
+import type {EventNotify, EventProjectRelease} from 'types/events';
+
+export function useProjectRelease(onSuccess: () => void): void {
   useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (info, build, settings, config, form) => {
     if (build === null)
-      return onError('Unable to build project.');
+      return emit<EventNotify>('NOTIFY', 'Failed to build project.', {error: true});
     const assets = build.assets.length;
     const components = build.components.length;
-    setExportCount(components);
     try {
       switch (form.method) {
         case 'zip':
@@ -30,15 +26,16 @@ export function useProjectRelease(
           await release(build, info, config);
           break;
         case 'run':
-          open(`${consts.F2RN_PREVIEW_URL}/#/${config.docKey}`);
+          open(`${F2RN_PREVIEW_URL}/#/${config.docKey}`);
           break;
         default: form.method satisfies never;
       }
       onSuccess();
+      emit<EventNotify>('NOTIFY', 'Project exported successfully.');
     } catch(e) {
       console.error('>>> Failed to export', e);
-      onError(e instanceof Error ? e.message : 'Unknown error');
+      emit<EventNotify>('NOTIFY', e instanceof Error ? e.message : 'Unknown error', {error: true});
     }
     log(`export_${form.method}_complete`, {components, assets});
-  }), [onSuccess, onError, setExportCount]);
+  }), []);
 }
