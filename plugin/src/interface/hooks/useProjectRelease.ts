@@ -34,7 +34,7 @@ export function useProjectRelease(onSuccess: () => void): void {
       emit<EventNotify>('NOTIFY', 'Project exported successfully.');
     } catch(e) {
       console.error('>>> Failed to export', e);
-      emit<EventNotify>('NOTIFY', e instanceof Error ? e.message : 'Unknown error', {error: true});
+      emit<EventNotify>('NOTIFY',  e instanceof Error ? e.message : 'Unknown error', {error: true});
     }
     log(`export_${form.method}_complete`, {components, assets});
   }), []);

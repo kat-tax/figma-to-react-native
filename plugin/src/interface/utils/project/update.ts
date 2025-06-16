@@ -106,7 +106,7 @@ export async function update(project: ProjectBuild, info: ProjectInfo, release: 
 
   // Failure
   if (error) {
-    emit<EventNotify>('NOTIFY', error.message, {error: true});
+    emit<EventNotify>('NOTIFY', `Git: ${error.message}`, {error: true});
     throw error;
   }
 
