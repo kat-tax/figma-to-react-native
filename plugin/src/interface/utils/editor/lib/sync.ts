@@ -1,10 +1,15 @@
 import * as Y from 'yjs';
-import * as monaco from 'monaco-editor';
 import * as error from 'lib0/error';
 import {createMutex} from 'lib0/mutex';
+import {MonacoRange, MonacoPosition, MonacoSelection, MonacoSelectionDirection} from '../monaco';
 
 import type {Awareness} from 'y-protocols/awareness';
 import type {mutex} from 'lib0/mutex';
+import type {
+  MonacoEditor,
+  MonacoTextModel,
+  MonacoDeltaDecoration,
+} from '../monaco';
 
 // Simple debug logging
 const log = (...args: any[]) => false && console.log('[YJS-Monaco]', ...args);
@@ -12,11 +17,11 @@ const log = (...args: any[]) => false && console.log('[YJS-Monaco]', ...args);
 class RelativeSelection {
   start: Y.RelativePosition;
   end: Y.RelativePosition;
-  direction: monaco.SelectionDirection;
+  direction: MonacoSelectionDirection;
   constructor (
     start: Y.RelativePosition,
     end: Y.RelativePosition,
-    direction: monaco.SelectionDirection,
+    direction: MonacoSelectionDirection,
   ) {
     this.start = start;
     this.end = end;
@@ -25,8 +30,8 @@ class RelativeSelection {
 }
 
 const createRelativeSelection = (
-  editor: monaco.editor.IStandaloneCodeEditor,
-  monacoModel: monaco.editor.ITextModel,
+  editor: MonacoEditor,
+  monacoModel: MonacoTextModel,
   type: Y.Text,
 ) => {
   const sel = editor.getSelection();
@@ -41,18 +46,18 @@ const createRelativeSelection = (
 }
 
 const createMonacoSelectionFromRelativeSelection = (
-  editor: monaco.editor.IStandaloneCodeEditor,
+  editor: MonacoEditor,
   type: Y.Text,
   relSel: RelativeSelection,
   doc: Y.Doc,
-): null | monaco.Selection => {
+): null | MonacoSelection => {
   const start = Y.createAbsolutePositionFromRelativePosition(relSel.start, doc);
   const end = Y.createAbsolutePositionFromRelativePosition(relSel.end, doc);
   if (start !== null && end !== null && start.type === type && end.type === type) {
     const model = editor.getModel();
     const startPos = model.getPositionAt(start.index);
     const endPos = model.getPositionAt(end.index);
-    return monaco.Selection.createWithDirection(
+    return MonacoSelection.createWithDirection(
       startPos.lineNumber,
       startPos.column,
       endPos.lineNumber,
@@ -67,11 +72,11 @@ export class MonacoBinding {
   mux: mutex;
   doc: Y.Doc;
   ytext: Y.Text;
-  monacoModel: monaco.editor.ITextModel;
-  editors: Set<monaco.editor.IStandaloneCodeEditor>;
+  monacoModel: MonacoTextModel;
+  editors: Set<MonacoEditor>;
   awareness: Awareness;
 
-  _savedSelections: Map<monaco.editor.IStandaloneCodeEditor, RelativeSelection>;
+  _savedSelections: Map<MonacoEditor, RelativeSelection>;
   _decorations: Map<any, any>;
   _monacoChangeHandler: any;
   _monacoDisposeHandler: any;
@@ -82,8 +87,8 @@ export class MonacoBinding {
   constructor (
     awareness: Awareness,
     ytext: Y.Text,
-    monacoModel: monaco.editor.ITextModel,
-    editors = new Set<monaco.editor.IStandaloneCodeEditor>(),
+    monacoModel: MonacoTextModel,
+    editors = new Set<MonacoEditor>(),
   ) {
     // Setup
     this.mux = createMutex();
@@ -92,10 +97,10 @@ export class MonacoBinding {
     this.editors = editors;
     this.awareness = awareness;
     this.monacoModel = monacoModel;
-    this._savedSelections = new Map<monaco.editor.IStandaloneCodeEditor, RelativeSelection>();
-    
+    this._savedSelections = new Map<MonacoEditor, RelativeSelection>();
+
     log('Initializing MonacoBinding');
-    
+
     // Transactions
     this._beforeTransaction = () => {
       this.mux(() => {
@@ -112,14 +117,14 @@ export class MonacoBinding {
       })
     }
     this.doc.on('beforeAllTransactions', this._beforeTransaction);
-  
+
     // Decorations
     this._decorations = new Map();
     this._rerenderDecorations = () => {
       editors.forEach(editor => {
         if (this.awareness && editor.getModel() === monacoModel) {
           const prev = this._decorations.get(editor) || [];
-          const next: Array<monaco.editor.IModelDeltaDecoration> = [];
+          const next: Array<MonacoDeltaDecoration> = [];
           this.awareness.getStates().forEach((state, clientID) => {
             if (clientID !== this.doc.clientID
               && state.selection != null
@@ -131,8 +136,8 @@ export class MonacoBinding {
                 && headAbs !== null
                 && anchorAbs.type === ytext
                 && headAbs.type === ytext) {
-                let start: monaco.Position,
-                    end: monaco.Position,
+                let start: MonacoPosition,
+                    end: MonacoPosition,
                     afterContentClassName: string,
                     beforeContentClassName: string;
                 if (anchorAbs.index < headAbs.index) {
@@ -147,7 +152,7 @@ export class MonacoBinding {
                   beforeContentClassName = 'y-sel-head y-sel-head-' + clientID;
                 }
                 next.push({
-                  range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
+                  range: new MonacoRange(start.lineNumber, start.column, end.lineNumber, end.column),
                   options: {
                     className: 'y-sel y-sel-' + clientID,
                     afterContentClassName,
@@ -165,11 +170,11 @@ export class MonacoBinding {
         }
       })
     }
-  
+
     // YText Observer
     this._ytextObserver = (event: Y.YTextEvent) => {
       log('YText change event received:', { delta: event.delta.length });
-      
+
       this.mux(() => {
         let index = 0;
         event.delta.forEach(op => {
@@ -178,36 +183,36 @@ export class MonacoBinding {
             log('YText retain operation', { length: op.retain, index });
           } else if (op.insert !== undefined) {
             const pos = monacoModel.getPositionAt(index);
-            const range = new monaco.Selection(pos.lineNumber, pos.column, pos.lineNumber, pos.column);
+            const range = new MonacoRange(pos.lineNumber, pos.column, pos.lineNumber, pos.column);
             const insert = (op.insert) as string;
-            
-            log('YText insert operation', { 
+
+            log('YText insert operation', {
               pos: { line: pos.lineNumber, col: pos.column },
               text: insert.length > 20 ? `${insert.substring(0, 20)}...` : insert,
               length: insert.length,
               index
             });
-            
+
             monacoModel.applyEdits([{range, text: insert}]);
             index += insert.length;
           } else if (op.delete !== undefined) {
             const pos = monacoModel.getPositionAt(index);
             const endPos = monacoModel.getPositionAt(index + op.delete);
-            const range = new monaco.Selection(pos.lineNumber, pos.column, endPos.lineNumber, endPos.column);
-            
-            log('YText delete operation', { 
+            const range = new MonacoRange(pos.lineNumber, pos.column, endPos.lineNumber, endPos.column);
+
+            log('YText delete operation', {
               startPos: { line: pos.lineNumber, col: pos.column },
               endPos: { line: endPos.lineNumber, col: endPos.column },
               deleteCount: op.delete,
-              index 
+              index
             });
-            
+
             monacoModel.applyEdits([{range, text: ''}]);
           } else {
             throw error.unexpectedCase();
           }
         });
-        
+
         this._savedSelections.forEach((rsel, editor) => {
           const sel = createMonacoSelectionFromRelativeSelection(editor, ytext, rsel, this.doc);
           if (sel !== null) {
@@ -219,29 +224,29 @@ export class MonacoBinding {
       this._rerenderDecorations();
     }
     ytext.observe(this._ytextObserver);
-    
+
     // Initial synchronization: Apply YText content to Monaco if they differ
     {
       const ytextValue = ytext.toString();
       const monacoValue = monacoModel.getValue();
-      
+
       if (monacoValue !== ytextValue) {
         log('Initial synchronization: values differ', {
           ytextLength: ytextValue.length,
           monacoLength: monacoValue.length
         });
-        
+
         // Instead of setValue, we'll apply targeted edits
         try {
           // Create a diff/edit to apply only what has changed
           // For simplicity, we'll replace the entire content in a single edit operation
           // A more sophisticated implementation would compute actual diffs
-          const range = new monaco.Range(
+          const range = new MonacoRange(
             1, 1,
-            monacoModel.getLineCount(), 
+            monacoModel.getLineCount(),
             monacoModel.getLineMaxColumn(monacoModel.getLineCount())
           );
-          
+
           log('Applying initial edit operation', {
             range: {
               startLine: 1,
@@ -251,9 +256,9 @@ export class MonacoBinding {
             },
             textLength: ytextValue.length
           });
-          
+
           monacoModel.pushEditOperations(
-            [], 
+            [],
             [{
               range: range,
               text: ytextValue,
@@ -261,7 +266,7 @@ export class MonacoBinding {
             }],
             () => null
           );
-          
+
           log('Successfully applied initial edit operation');
         } catch (err) {
           // Fallback to setValue only if the edit operations fail
@@ -272,11 +277,11 @@ export class MonacoBinding {
         log('Initial synchronization: values match, no sync needed');
       }
     }
-  
+
     // Editor Change Handler
     // (apply changes from right to left)
     this._monacoChangeHandler = monacoModel.onDidChangeContent(event => {
-      log('Monaco change event received', { 
+      log('Monaco change event received', {
         changes: event.changes.length,
         changes_detail: event.changes.map(c => ({
           rangeOffset: c.rangeOffset,
@@ -284,30 +289,30 @@ export class MonacoBinding {
           textLength: c.text.length
         }))
       });
-      
+
       this.mux(() => {
         this.doc.transact(() => {
           event.changes.sort((change1, change2) =>
             change2.rangeOffset - change1.rangeOffset).forEach(change => {
-              log('Processing Monaco change', { 
+              log('Processing Monaco change', {
                 rangeOffset: change.rangeOffset,
                 rangeLength: change.rangeLength,
                 text: change.text.length > 20 ? `${change.text.substring(0, 20)}...` : change.text
               });
-              
+
               ytext.delete(change.rangeOffset, change.rangeLength);
               ytext.insert(change.rangeOffset, change.text);
             });
         }, this);
       });
     });
-  
+
     // Editor Dispose Handler
     this._monacoDisposeHandler = monacoModel.onWillDispose(() => {
       log('Monaco model is being disposed, destroying binding');
       this.destroy();
     });
-  
+
     // Selection Awareness
     if (this.awareness) {
       editors.forEach(editor => {
@@ -319,18 +324,18 @@ export class MonacoBinding {
             }
             let anchor = monacoModel.getOffsetAt(sel.getStartPosition());
             let head = monacoModel.getOffsetAt(sel.getEndPosition());
-            if (sel.getDirection() === monaco.SelectionDirection.RTL) {
+            if (sel.getDirection() === MonacoSelectionDirection.RTL) {
               const tmp = anchor;
               anchor = head;
               head = tmp;
             }
-            
+
             log('Selection changed', {
               anchor,
               head,
               direction: sel.getDirection()
             });
-            
+
             this.awareness.setLocalStateField('selection', {
               anchor: Y.createRelativePositionFromTypeIndex(ytext, anchor),
               head: Y.createRelativePositionFromTypeIndex(ytext, head),
@@ -340,7 +345,7 @@ export class MonacoBinding {
         this.awareness.on('change', this._rerenderDecorations);
       })
     }
-    
+
     log('MonacoBinding initialization complete');
   }
 

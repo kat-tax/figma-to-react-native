@@ -1,5 +1,6 @@
 import {constants} from '@create-figma-plugin/common';
 import {build} from 'esbuild';
+import Sonda from 'sonda/esbuild';
 import {globby} from 'globby';
 import {resolve} from 'node:path';
 import indentString from 'indent-string';
@@ -73,6 +74,9 @@ async function buildMainBundleAsync(options: {
       minify,
       outfile: resolve(outputDirectory, constants.build.pluginCodeFilePath),
       platform: 'neutral',
+      alias: {
+        'path': 'path-browserify'
+      },
       plugins: [],
       stdin: {
         contents: js,
@@ -128,6 +132,9 @@ async function buildUiBundleAsync(options: {
       bundle: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
+      alias: {
+        'path': 'path-browserify'
+      },
       loader: {
         '.gif': 'dataurl',
         '.jpg': 'dataurl',
@@ -136,13 +143,19 @@ async function buildUiBundleAsync(options: {
       },
       logLevel: 'silent',
       minify,
+      sourcemap: true,
       outfile: resolve(outputDirectory, constants.build.pluginUiFilePath),
-      plugins: [esbuildCssModulesPlugin(minify)],
+      plugins: [
+        esbuildCssModulesPlugin(minify),
+        Sonda({
+          sources: true,
+        }),
+      ],
       stdin: {
         contents: js,
         resolveDir: process.cwd()
       },
-      target: 'chrome58',
+      target: 'es2020',
     };
     await build(
       await overrideEsbuildConfigAsync(

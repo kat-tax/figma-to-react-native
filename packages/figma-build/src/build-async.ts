@@ -6,7 +6,7 @@ import {buildManifestAsync} from './utilities/build-manifest-async.js';
 import {trackElapsedTime} from './utilities/track-elapsed-time.js';
 import {typeCheckBuild} from './utilities/type-check/type-check-build.js';
 
-import type {BuildOptions} from './types/build';
+import type {BuildOptions} from './types/build.js';
 
 export async function buildAsync(
   options: BuildOptions & { clearPreviousLine: boolean; exitOnError: boolean }

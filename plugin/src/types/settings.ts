@@ -1,5 +1,5 @@
 import type {BuildOptions} from 'syn-bundler';
-import type {editor, languages} from 'monaco-editor/esm/vs/editor/editor.api';
+import type {MonacoEditorOptions} from 'interface/utils/editor/monaco';
 import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 
 export interface ProjectSettings {
@@ -17,12 +17,7 @@ export interface UserSettings extends ProjectSettings {
   /**
   * Options for the code editor.
   */
-  monaco: {
-    general: Omit<editor.IStandaloneEditorConstructionOptions, 'ariaContainerElement' | 'overflowWidgetsDomNode'>,
-    compiler?: languages.typescript.CompilerOptions,
-    inlayHints?: languages.typescript.InlayHintsOptions,
-    diagnostics?: languages.typescript.DiagnosticsOptions,
-  },
+  monaco: MonacoEditorOptions,
   /**
   * Options for the preview compiler.
   */

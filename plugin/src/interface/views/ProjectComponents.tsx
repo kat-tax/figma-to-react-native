@@ -6,7 +6,7 @@ import {ProjectToolbar} from 'interface/project/ProjectToolbar';
 import {ProjectList} from 'interface/project/ProjectList';
 
 import type {Theme} from '@monaco-editor/react';
-import type {Monaco} from 'interface/utils/editor';
+import type {Monaco} from 'interface/utils/editor/monaco';
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {UserSettings} from 'types/settings';
 import type {SettingsData} from 'interface/hooks/useUserSettings';

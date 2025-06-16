@@ -24,8 +24,6 @@ export const F2RN_SERVICE_URL = 'http://localhost:3000'; // https://figma-to-rea
 export const F2RN_PREVIEW_URL = 'http://localhost:5102'; // https://fig.run
 
 // Vendors
-export const SUPABASE_PROJECT_URL = 'http://localhost:54321';
-export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
 export const LOGTAIL_TOKEN = '3hRzjtVJTBk6BDFt3pSjjKam';
 
 // Pages

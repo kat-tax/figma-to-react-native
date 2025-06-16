@@ -7,7 +7,7 @@ import {debounce} from 'common/delay';
 import schema from 'interface/schemas/project';
 
 import type {Theme} from '@monaco-editor/react';
-import type {Monaco} from 'interface/utils/editor';
+import type {Monaco} from 'interface/utils/editor/monaco';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {UserSettings} from 'types/settings';
 

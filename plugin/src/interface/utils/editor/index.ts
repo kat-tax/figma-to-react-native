@@ -2,6 +2,7 @@ import {F2RN_EDITOR_NS} from 'config/consts';
 import {componentPathNormalize} from 'common/string';
 import {emit} from '@create-figma-plugin/utilities';
 import schema from 'interface/schemas/user/schema.json';
+
 import * as $ from 'store';
 
 import diff from './lib/diff';
@@ -11,14 +12,11 @@ import typings from './lib/typings';
 import prompts from './lib/prompts';
 import language from './lib/language';
 
-import type * as monaco from 'monaco-editor';
 import type {UserSettings} from 'types/settings';
 import type {EventFocusNode} from 'types/events';
 import type {ComponentLinks} from 'types/component';
 import type {TypeScriptComponents} from './lib/language';
-
-export type Editor = monaco.editor.IStandaloneCodeEditor;
-export type Monaco = typeof monaco;
+import type {Monaco, MonacoEditor, MonacoTextModel} from './monaco';
 
 // Define a type for the toolbar state
 export interface NodeToolbarState {
@@ -31,14 +29,14 @@ export interface NodeToolbarState {
 // Create a global event emitter for toolbar state changes
 export const toolbarEvents = {
   listeners: new Set<(state: NodeToolbarState | null) => void>(),
-  
+
   subscribe(listener: (state: NodeToolbarState | null) => void) {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
     };
   },
-  
+
   emit(state: NodeToolbarState | null) {
     this.listeners.forEach(listener => listener(state));
   }
@@ -141,7 +139,7 @@ export function initSettingsSchema(monaco: Monaco) {
 }
 
 export async function initComponentEditor(
-  editor: Editor,
+  editor: MonacoEditor,
   monaco: Monaco,
   onDiff: () => void,
   onPrompt: () => void,
@@ -152,7 +150,7 @@ export async function initComponentEditor(
   prompts.init(monaco, editor, onPrompt);
   typings.init(monaco, editor);
   copilot.init(monaco, editor);
-  
+
   const cleanup = initNodeToolbar(monaco, editor);
   const model = editor.getModel();
 
@@ -167,41 +165,41 @@ export async function initComponentEditor(
     const components = await language.getTypeScriptComponents(monaco, newModel);
     onComponents(components);
   });
-  
+
   // Return cleanup function
   return () => {
     cleanup?.();
   };
 }
 
-export function initNodeToolbar(monaco: Monaco, editor: Editor) {  
+export function initNodeToolbar(monaco: Monaco, editor: MonacoEditor) {
   // Track decorations per model
   const modelDecorations = new Map<string, string[]>();
   let currentModel = editor.getModel();
   let currentModelId = currentModel?.uri.toString() || '';
   let activeNodeId: string | null = null;
-  
+
   // Function to update decorations for the current model
-  const updateDecorations = (model: monaco.editor.ITextModel | null) => {
+  const updateDecorations = (model: MonacoTextModel | null) => {
     if (!model) return;
-    
+
     const modelId = model.uri.toString();
     const currentDecorations = modelDecorations.get(modelId) || [];
     const decorations = [];
-    
+
     // Process the model line by line
     for (let i = 0; i < model.getLineCount(); i++) {
       const lineContent = model.getLineContent(i + 1);
-      
+
       // Find testID props in the line
       const testIdRegex = /testID=((?:{[^}]+})|(?:"([^"]+)"|'([^']+)'))/g;
       let match: RegExpExecArray | null = null;
-      
+
       while ((match = testIdRegex.exec(lineContent)) !== null) {
         if (match.index !== undefined) {
           const startPos = match.index;
           const endPos = startPos + match[0].length;
-          
+
           // Extract the actual testID value
           let testIdValue = match[2] || match[3]; // Direct string value
           if (!testIdValue && match[1].startsWith('{')) {
@@ -214,10 +212,10 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
               testIdValue = "...";
             }
           }
-          
+
           // Determine if this is the active testID
           const isActive = activeNodeId === testIdValue;
-          
+
           // Add a decoration to make the folding more visible
           decorations.push({
             range: new monaco.Range(
@@ -241,12 +239,12 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
         }
       }
     }
-    
+
     // Apply all decorations at once, replacing any existing ones
     const newDecorations = model.deltaDecorations(currentDecorations, decorations);
     modelDecorations.set(modelId, newDecorations);
   };
-  
+
   // Clear decorations for a specific model
   const clearDecorations = (modelId: string) => {
     const model = monaco.editor.getModel(monaco.Uri.parse(modelId));
@@ -256,53 +254,53 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
     }
     modelDecorations.delete(modelId);
   };
-  
+
   // Function to show the NodeToolbar via the event emitter
   const showNodeToolbar = (nodeId: string, element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
-    
+
     // Get the current model and position
     const model = editor.getModel();
     const position = editor.getPosition();
-    
+
     // Default node name
     let nodeName = "Component";
-    
+
     if (model && position) {
       // Get the current line and a few lines before it
       const startLine = Math.max(1, position.lineNumber - 5);
       const endLine = position.lineNumber;
-      
+
       // Search for the closest opening tag
       for (let i = endLine; i >= startLine; i--) {
         const lineContent = model.getLineContent(i);
         const tagMatch = lineContent.match(/<([A-Z][a-zA-Z0-9]*)/);
-        
+
         if (tagMatch && tagMatch[1]) {
           nodeName = tagMatch[1];
           break;
         }
       }
     }
-    
+
     // Set the active node ID and update decorations
     activeNodeId = nodeId;
     if (currentModel) {
       updateDecorations(currentModel);
     }
-    
+
     // Emit the toolbar state change event
     toolbarEvents.emit({
       nodeId,
       nodeName,
       isVisible: true,
-      position: { 
-        top: rect.top - (40 * 2), 
-        left: rect.left 
+      position: {
+        top: rect.top - (40 * 2),
+        left: rect.left
       },
     });
   };
-  
+
   // Function to hide the NodeToolbar
   const hideNodeToolbar = () => {
     // Clear the active node ID and update decorations
@@ -310,10 +308,10 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
     if (currentModel) {
       updateDecorations(currentModel);
     }
-    
+
     toolbarEvents.emit(null);
   };
-  
+
   // Add CSS for the decoration
   const styleId = 'testid-folding-styles';
   if (!document.getElementById(styleId)) {
@@ -348,10 +346,10 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
     `;
     document.head.appendChild(styleElement);
   }
-  
+
   // Register folding provider for JSX/TSX files
   const foldingProvider = monaco.languages.registerFoldingRangeProvider(
-    ['typescriptreact'], 
+    ['typescriptreact'],
     {
       provideFoldingRanges(model) {
         if (!model) return [];
@@ -377,7 +375,7 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
       }
     }
   );
-  
+
   // Handle mouse clicks on testID placeholders
   const clickHandler = editor.onMouseDown((e) => {
     if (e.target.element?.classList.contains('testid-placeholder')) {
@@ -398,39 +396,39 @@ export function initNodeToolbar(monaco: Monaco, editor: Editor) {
       hideNodeToolbar();
     }
   });
-  
+
   // Handle model changes in the editor
   const modelChangeListener = editor.onDidChangeModel(() => {
     // Hide any active toolbar when changing models
     hideNodeToolbar();
-    
+
     // Clear decorations for the previous model
     if (currentModelId) {
       clearDecorations(currentModelId);
     }
-    
+
     // Update current model reference
     currentModel = editor.getModel();
     currentModelId = currentModel?.uri.toString() || '';
-    
+
     // Apply decorations to the new model
     if (currentModel) {
       updateDecorations(currentModel);
     }
   });
-  
+
   // Handle content changes in the current model
   const contentChangeListener = editor.onDidChangeModelContent(() => {
     if (currentModel) {
       updateDecorations(currentModel);
     }
   });
-  
+
   // Initial decoration update
   if (currentModel) {
     updateDecorations(currentModel);
   }
-  
+
   // Return cleanup function
   return () => {
     clickHandler.dispose();

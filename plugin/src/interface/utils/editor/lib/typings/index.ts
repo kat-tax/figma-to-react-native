@@ -3,12 +3,12 @@ import {SourceCache} from './SourceCache';
 import {SourceResolver} from './SourceResolver';
 import {F2RN_EDITOR_NS} from 'config/consts';
 
-import type {Monaco, Editor} from 'interface/utils/editor';
+import type {Monaco, MonacoEditor} from 'interface/utils/editor/monaco';
 
 const sourceCache = new SourceCache();
 const sourceResolver = new SourceResolver();
 
-function init(monaco: Monaco, editor: Editor) {
+function init(monaco: Monaco, editor: MonacoEditor) {
   AutoTypings.create(editor, {
     monaco,
     sourceCache,

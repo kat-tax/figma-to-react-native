@@ -1,5 +1,4 @@
 const fs = require('node:fs').promises;
-const {NodeModulesPolyfillPlugin} = require('@esbuild-plugins/node-modules-polyfill');
 
 // @ts-check
 /**
@@ -12,9 +11,6 @@ module.exports = (buildOptions) => {
     target: 'es2020',
     plugins: [
       ...buildOptions.plugins.filter(p => p.name !== 'preact-compat'),
-      NodeModulesPolyfillPlugin({
-        path: true,
-      }),
       // Hack: replace \22EF with \x12
       // Legacy octal escape sequences cannot be used in template literals
       // Caused by y-monaco loading folding.js

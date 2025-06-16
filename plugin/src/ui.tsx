@@ -1,4 +1,3 @@
-import "!@blocknote/react/dist/style.css";
 import '!./interface/styles/default.css';
 import '!./interface/styles/plugin.css';
 import '!./interface/styles/editor.css';
