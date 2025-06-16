@@ -11,6 +11,10 @@ export function filterTypeScriptDiagnostics(
       return true;
     }
     const fileName = diagnostic.file.fileName;
+    // Ignore errors from code-oss-dev package
+    if (fileName.includes('code-oss-dev')) {
+      return false;
+    }
     if (
       fileName.indexOf('typescript/lib/lib.dom.d.ts') === -1 &&
       fileName.indexOf('@figma/plugin-typings/index.d.ts') === -1 &&
