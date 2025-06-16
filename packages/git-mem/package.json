@@ -8,9 +8,9 @@
     "build": "vite build"
   },
   "dependencies": {
-    "buffer": "^6.0.3",
     "pify": "^4.0.1",
     "path-browserify": "^1.0.1",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "readable-stream": "^3.4.0",
     "isomorphic-git": "^1.29.0",
     "memfs": "^4.17.0"

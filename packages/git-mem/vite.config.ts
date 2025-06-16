@@ -1,4 +1,5 @@
 import {defineConfig} from 'vite';
+import {nodePolyfills} from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   build: {
@@ -17,5 +18,9 @@ export default defineConfig({
     },
   },
   plugins: [
+    nodePolyfills({
+      include: ['buffer'],
+      globals: {process: true, Buffer: true},
+    }),
   ],
 });
