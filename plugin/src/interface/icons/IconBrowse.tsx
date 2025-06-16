@@ -120,7 +120,7 @@ export function IconBrowse(props: IconBrowseProps) {
         display: 'grid',
         overflow: 'overlay',
         scrollbarWidth: 'thin',
-        scrollbarGutter: 'stable',
+        scrollbarGutter: 'auto',
         gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
         paddingBottom: 0,
         padding: 12,

@@ -178,7 +178,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
           style={{
             height: '100%',
             scrollbarWidth: 'thin',
-            scrollbarGutter: 'stable',
+            scrollbarGutter: 'auto',
           }}
           overscan={200}
           totalCount={list.length}

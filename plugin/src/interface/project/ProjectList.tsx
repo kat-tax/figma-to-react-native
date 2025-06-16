@@ -78,7 +78,7 @@ export function ProjectList(props: ProjectListProps) {
       width: '100%',
       overflow: 'overlay',
       scrollbarWidth: 'thin',
-      scrollbarGutter: 'stable',
+      scrollbarGutter: 'auto',
       paddingBottom: 12,
     }}>
       {props.build?.pages?.map(page =>
