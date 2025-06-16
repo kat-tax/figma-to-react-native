@@ -47,7 +47,8 @@ type ProjectIcon = {
 export function ProjectIcons(props: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [updatingSets, setUpdatingSets] = useState<string[]>([]);
-  const [addingMore, setAddingMore] = useState(false);
+  const [addingSets, setAddingSets] = useState<boolean>(false);
+  const [showImport, setShowImport] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [iconScale, setIconScale] = useState(1);
   const [prefix, setPrefix] = useState('all');
@@ -58,6 +59,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const updating = updatingSets.includes(prefix);
 
   const addSets = useCallback(async (sets: IconifySetPreview[]) => {
+    setAddingSets(true);
     if (!props.hasStyles) {
       props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing icons');
@@ -67,7 +69,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
     const icons = await loadIconSets(sets, setLoadProgress);
     emit<EventProjectImportIcons>('PROJECT_IMPORT_ICONS', icons);
     setPrefix(sets.length === 1 ? sets[0].prefix : 'all');
-    setAddingMore(false);
+    setAddingSets(false);
+    setShowImport(false);
   }, [props.hasStyles, props.nav]);
 
   const updateSet = useCallback(async (prefix: string) => {
@@ -78,7 +81,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   }, []);
 
   const closeBrowse = useCallback(() => {
-    setAddingMore(false);
+    setShowImport(false);
     setShowBrowse(false);
   }, []);
 
@@ -134,11 +137,12 @@ export function ProjectIcons(props: ProjectIconsProps) {
   }, [props.icons]);
 
   // Show browse interface
-  if (!props.icons.sets?.length || addingMore) {
-    return (showBrowse || addingMore) ? (
+  if (!props.icons.sets?.length || showImport) {
+    return (showBrowse || showImport) ? (
       <IconBrowse
         onSubmit={addSets}
         onClose={closeBrowse}
+        addingSets={addingSets}
         installedSets={props.icons.sets}
         searchQuery={props.searchQuery}
       />
@@ -191,7 +195,13 @@ export function ProjectIcons(props: ProjectIconsProps) {
         <Select.Root
           value={prefix}
           onValueChange={setPrefix}>
-          <Select.Trigger style={{width: 'auto', maxWidth: 123}}/>
+          <Select.Trigger style={{
+            width: 'auto',
+            maxWidth: 123,
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+          }}/>
           <Select.Content
             side="top"
             position="popper"
@@ -209,7 +219,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
             size="small"
             variant="secondary"
             aria-label="Add icon sets"
-            onClick={() => setAddingMore(true)}>
+            onClick={() => setShowImport(true)}>
             <IconPlus/>
           </IconButton>
         ) : (

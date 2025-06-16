@@ -17,6 +17,7 @@ interface IconBrowseProps {
   onSubmit: (sets: IconifySetPreview[]) => void,
   onClose: () => void,
   searchQuery: string,
+  addingSets?: boolean,
   searchMode?: boolean,
 }
 
@@ -171,11 +172,13 @@ export function IconBrowse(props: IconBrowseProps) {
         <div style={{flex: 1}}/>
         <Button
           variant="primary"
-          disabled={!chosenSets.length}
+          disabled={!chosenSets.length || props.addingSets}
           onClick={() => props.onSubmit(chosenSets)}>
-          {screen.width >= 308
-            ? `Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`
-            : `Import (${chosenSets.length})`}
+          {props.addingSets
+            ? 'Importing...'
+            : screen.width >= 308
+              ? `Import (${chosenSets.length} set${chosenSets.length === 1 ? '' : 's'})`
+              : `Import (${chosenSets.length})`}
         </Button>
       </StatusBar>
     </div>
