@@ -33,6 +33,9 @@ module.exports = (buildOptions) => {
     },
     define: {
       global: 'window',
+      'process.platform': JSON.stringify(process.platform),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      'process.env.NODE_DEBUG': JSON.stringify(process.env.NODE_DEBUG || ''),
     },
   };
 }

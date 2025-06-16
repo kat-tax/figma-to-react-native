@@ -139,7 +139,6 @@ async function buildUiBundleAsync(options: {
         '.svg': 'dataurl'
       },
       logLevel: 'silent',
-      format: 'esm',
       minify,
       sourcemap: true,
       outfile: resolve(outputDirectory, constants.build.pluginUiFilePath),

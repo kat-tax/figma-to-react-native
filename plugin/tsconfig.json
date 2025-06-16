@@ -7,8 +7,8 @@
       "node_modules/@types",
     ],
     "jsx": "react-jsx",
-    "lib": ["dom", "ES2021"],
-    "target": "ES2021",
+    "lib": ["dom", "ES2020"],
+    "target": "ES2020",
     "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -16,6 +16,5 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "strict": false,
-    "checkJs": false,
   },
 }
