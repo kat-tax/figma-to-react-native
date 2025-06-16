@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
-import {useMemo, useState} from 'react';
+import {useMemo, useState, useRef} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {useSync} from 'interface/providers/Sync';
@@ -17,7 +17,7 @@ import {docId} from 'store';
 
 import type {UserSettings} from 'types/settings';
 import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
-import type {EventNotify, EventOpenLink, EventProjectExport} from 'types/events';
+import type {EventNotify, EventOpenLink, EventProjectExport, EventProjectNewComponent} from 'types/events';
 
 interface ProjectToolbarProps {
   project: ProjectConfig,
@@ -33,14 +33,17 @@ interface ProjectToolbarProps {
 
 export function ProjectToolbar(props: ProjectToolbarProps) {
   const sync = useSync();
+  const newInput = useRef<HTMLInputElement>(null);
   const [_, copy] = useCopyToClipboard();
   const [syncKey, setSyncKey] = useState<string>(props.project.gitKey ?? '');
+  const [showNew, setShowNew] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
   const viewState = useMemo(() => {
     if (props.showSync) return 'sync';
+    if (showNew) return 'new';
     return 'overview';
-  }, [props.showSync]);
+  }, [props.showSync, showNew]);
 
   useProjectRelease(() => setExportActive(false));
 
@@ -67,7 +70,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               </IconButton>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              <DropdownMenu.Item onSelect={() => console.log('create new')}>
+              <DropdownMenu.Item onSelect={() => {
+                setShowNew(true);
+                setTimeout(() => newInput.current?.focus(), 100);
+              }}>
                 <Text>Create New</Text>
               </DropdownMenu.Item>
               <DropdownMenu.Item onSelect={() => props.importComponents()}>
@@ -134,7 +140,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <DropdownMenu.Content>
                 <DropdownMenu.Item onSelect={() => {
                   emit<EventNotify>('NOTIFY', 'Link copied to clipboard', {timeout: 3000});
-                  setTimeout(() => copy(`${F2RN_SERVICE_URL}/sync/${docId}`), 100);
+                  //setTimeout(() => copy(`${F2RN_SERVICE_URL}/sync/${docId}`), 100);
                 }}>
                   <Text>Copy Link</Text>
                 </DropdownMenu.Item>
@@ -203,6 +209,34 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               sync.connect(syncKey);
             }}>
             Save
+          </Button>
+        </div>
+      )}
+      {viewState === 'new' && (
+        <div style={{display: 'flex', flexDirection: 'row', gap: 12, flex: 1}}>
+          <IconButton
+            aria-label="Go back"
+            size="small"
+            onClick={() => setShowNew(false)}>
+            <IconBack/>
+          </IconButton>
+          <div style={{position: 'relative', flex: 1}}>
+            <Input
+              ref={newInput}
+              autoFocus
+              type="text"
+              placeholder="Component Name"
+              style={{width: '100%'}}
+            />
+          </div>
+          <Button
+            size="small"
+            aria-label="Create Component"
+            onClick={() => {
+              emit<EventProjectNewComponent>('PROJECT_NEW_COMPONENT', newInput.current?.value ?? '');
+              setShowNew(false);
+            }}>
+            Create
           </Button>
         </div>
       )}

@@ -9,9 +9,9 @@ import * as project from 'backend/generator/project';
 import * as service from 'backend/generator/service';
 import * as codegen from 'backend/generator/codegen';
 
+import * as components from 'backend/importer/components';
 import * as themes from 'backend/importer/themes';
 import * as icons from 'backend/importer/icons';
-import * as exo from 'backend/importer/exo';
 
 import * as config from 'backend/utils/config';
 import * as mode from 'backend/utils/mode';
@@ -83,9 +83,14 @@ export default async function() {
       icons.updateIcons(prefix, set);
     });
 
+    // Handle new component
+    on<T.EventProjectNewComponent>('PROJECT_NEW_COMPONENT', (name) => {
+      components.createComponent(name);
+    });
+
     // Handle import components
     on<T.EventProjectImportComponents>('PROJECT_IMPORT_COMPONENTS', (iconSet) => {
-      exo.importComponents(iconSet);
+      components.importComponents(iconSet);
     });
 
     // Handle focus node

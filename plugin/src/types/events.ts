@@ -164,6 +164,11 @@ export interface EventProjectConfigLoad extends EventHandler {
   handler: (config: ProjectConfig) => void;
 }
 
+export interface EventProjectNewComponent extends EventHandler {
+  name: 'PROJECT_NEW_COMPONENT';
+  handler: (name: string) => void;
+}
+
 export interface EventProjectImportComponents extends EventHandler {
   name: 'PROJECT_IMPORT_COMPONENTS';
   handler: (iconSet: string) => void;

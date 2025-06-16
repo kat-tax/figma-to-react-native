@@ -1,6 +1,8 @@
+import {getIconComponentMap, getThemeTokens} from 'backend/importer/icons';
 import {getNode, focusNode, isNodeIcon} from 'backend/parser/lib';
-import {getIconComponentMap} from 'backend/importer/icons';
+import {createIdentifierPascal} from 'common/string';
 import {PAGES_SPECIAL} from 'config/consts';
+import {wait} from 'common/delay';
 
 type ExoComponents = Record<string, {
   list: Record<string, [string, boolean, number, number]>,
@@ -37,6 +39,44 @@ export const EXO_NATIVES: ExoComponents = {
     },
   },
 };
+
+export async function createComponent(name: string) {
+  const component = figma.createComponent();
+  component.name = createIdentifierPascal(name);
+  // Position component
+  component.x = figma.viewport.center.x;
+  component.y = figma.viewport.center.y;
+  const components = figma.currentPage.findAll();
+  const overlaps = components.filter(c => c.x === component.x && c.y === component.y);
+  if (overlaps.length > 0) {
+    component.x = figma.viewport.center.x;
+    component.y = figma.viewport.center.y + overlaps.reduce((acc, c) => acc + c.height + 20, 0);
+  }
+  // Set component size & layout
+  component.resize(100, 100);
+  component.layoutMode = 'HORIZONTAL';
+  component.layoutPositioning = 'AUTO';
+  component.layoutSizingVertical = 'FIXED';
+  component.layoutSizingHorizontal = 'FIXED';
+  component.primaryAxisAlignItems = 'CENTER';
+  component.counterAxisAlignItems = 'CENTER';
+  component.backgrounds = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}, visible: true}];
+  // Get icon style & variable
+  // TODO: refactor, repeats in icons.ts
+  const theme = await getThemeTokens();
+  if (theme.isVariable) {
+    const fills = component.fills !== figma.mixed ? {...component.fills} : {};
+    fills[0] = figma.variables.setBoundVariableForPaint(fills[0], 'color', theme.background);
+    component.fills = [fills[0]];
+  } else {
+    component.fillStyleId = theme.background?.id;
+  }
+  // Add component to page and focus
+  figma.currentPage.appendChild(component);
+  await wait(200);
+  figma.currentPage.selection = [component];
+  figma.viewport.scrollAndZoomIntoView([component]);
+}
 
 export async function importComponents(iconSet: string) {
   // Create "Base" page
