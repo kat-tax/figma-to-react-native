@@ -5,7 +5,7 @@ import * as consts from 'config/consts';
 import {diff} from 'deep-object-diff';
 import {NodeAttrGroup} from 'types/node';
 import {getPage, getSection} from './traverse';
-import {getFillToken} from './colors';
+import {getFillToken, getStrokeToken} from './colors';
 
 import type {ComponentInfo} from 'types/component';
 import type {ParseIconData, ParseStyles} from 'types/parse';
@@ -40,9 +40,18 @@ export function isVariant(node: BaseNode) {
 
 export function getIconData(node: SceneNode): ParseIconData {
   const vector = (node as ChildrenMixin).children.find(c => c.type === 'VECTOR') as VectorNode;
-  const color = getFillToken(vector);
   const size = Math.max(node.width, node.height);
   const name = (node as InstanceNode)?.mainComponent?.name;
+  const fillColor = getFillToken(vector);
+  const strokeColor = getStrokeToken(vector);
+  // Find color from fill or stroke
+  let color: string;
+  if (fillColor !== '"#000000"')
+    color = fillColor;
+  else if (strokeColor !== '"#000000"')
+    color = strokeColor;
+  else
+    color = '"#000000"';
   return {name, color, size};
 }
 

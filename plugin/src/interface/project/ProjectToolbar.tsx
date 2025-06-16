@@ -112,7 +112,6 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               </DropdownMenu.Trigger>
               <DropdownMenu.Content>
                 <DropdownMenu.Item onSelect={() => {
-                  console.log('>>> copied', `${F2RN_SERVICE_URL}/sync/${docId}`);
                   emit<EventNotify>('NOTIFY', 'Link copied to clipboard', {timeout: 3000});
                   setTimeout(() => copy(`${F2RN_SERVICE_URL}/sync/${docId}`), 100);
                 }}>
