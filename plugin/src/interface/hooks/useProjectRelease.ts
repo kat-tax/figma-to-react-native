@@ -8,10 +8,13 @@ import {F2RN_PREVIEW_URL} from 'config/consts';
 
 import type {EventNotify, EventProjectRelease} from 'types/events';
 
-export function useProjectRelease(onSuccess: () => void): void {
+export function useProjectRelease(onComplete: () => void): void {
   useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (info, build, settings, config, form) => {
-    if (build === null)
-      return emit<EventNotify>('NOTIFY', 'Failed to build project.', {error: true});
+    if (build === null) {
+      emit<EventNotify>('NOTIFY', 'Failed to build project.', {error: true});
+      onComplete();
+      return;
+    }
     const assets = build.assets.length;
     const components = build.components.length;
     try {
@@ -30,12 +33,13 @@ export function useProjectRelease(onSuccess: () => void): void {
           break;
         default: form.method satisfies never;
       }
-      onSuccess();
       emit<EventNotify>('NOTIFY', 'Project exported successfully.');
+      log(`export_${form.method}_complete`, {components, assets});
     } catch(e) {
       console.error('>>> Failed to export', e);
       emit<EventNotify>('NOTIFY',  e instanceof Error ? e.message : 'Unknown error', {error: true});
+    } finally {
+      onComplete();
     }
-    log(`export_${form.method}_complete`, {components, assets});
   }), []);
 }
