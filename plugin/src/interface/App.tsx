@@ -11,8 +11,6 @@ import {SyncProvider} from 'interface/providers/Sync';
 import {ProjectComponents} from 'interface/views/ProjectComponents';
 import {ProjectIcons} from 'interface/views/ProjectIcons';
 import {ProjectTheme} from 'interface/views/ProjectTheme';
-import {ProjectExport} from 'interface/views/ProjectExport';
-import {ProjectSettings} from 'interface/project/ProjectSettings';
 
 import {ComponentCode} from 'interface/views/ComponentCode';
 import {ComponentDocs} from 'interface/views/ComponentDocs';
@@ -46,7 +44,6 @@ const tabs: AppTabs = {
     'components',
     'icons',
     'theme',
-    // 'export',
   ],
   component: [
     'component/code',
@@ -73,8 +70,6 @@ export function App(props: AppProps) {
   const isDark = useDarkMode();
   const nav = useNavigation(build);
 
-  const writer = settings.config.writer;
-  const addTranslate = settings.config.addTranslate;
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
   const hasIcons = Boolean(icons?.list?.length);
@@ -121,12 +116,6 @@ export function App(props: AppProps) {
             </Tabs.Content>
             <Tabs.Content value="theme">
               <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
-            </Tabs.Content>
-            <Tabs.Content value="export">
-              <ProjectExport {...{project, build, writer, addTranslate}}/>
-            </Tabs.Content>
-            <Tabs.Content value="settings">
-              <ProjectSettings {...{monaco, settings, editorOptions, editorTheme}}/>
             </Tabs.Content>
             <Tabs.Content value="component/code">
               <DualPanel

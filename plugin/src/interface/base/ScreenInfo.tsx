@@ -9,9 +9,16 @@ interface ScreenInfoProps {
 
 export function ScreenInfo(props: ScreenInfoProps) {
   return (
-    <div
-      className="center fill"
-      style={{flexDirection: 'column', gap: '10px'}}>
+    <div style={{
+      flex: 1,
+      height: '100%',
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
       <Fragment>
         {props.message &&
           <div style={{marginLeft: '-10px', display: 'flex', alignItems: 'center'}}>

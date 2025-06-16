@@ -73,7 +73,7 @@ export async function createComponent(name: string) {
   }
   // Add component to page and focus
   figma.currentPage.appendChild(component);
-  await wait(200);
+  await wait(500);
   figma.currentPage.selection = [component];
   figma.viewport.scrollAndZoomIntoView([component]);
 }

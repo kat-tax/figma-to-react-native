@@ -133,7 +133,6 @@ export function ThemePicker() {
         variant="primary"
         title={tips.submit}
         disabled={isGenerating}
-        loading={isGenerating ? 'true' : undefined}
         onClick={form.handleSubmit}>
         Generate Theme
       </Button>

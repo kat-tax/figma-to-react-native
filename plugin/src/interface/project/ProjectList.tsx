@@ -23,7 +23,7 @@ interface ProjectListProps {
 export function ProjectList(props: ProjectListProps) {
   const [list, setList] = useState<ProjectComponentIndex>({});
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
-  const hasImport = !props.isReadOnly && false;
+  const hasImport = !props.isReadOnly;
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
     const entries = _entries
@@ -61,8 +61,7 @@ export function ProjectList(props: ProjectListProps) {
         message="No components found"
         action={hasImport
           ? <Button
-              secondary
-              loading={props.importing}
+              variant="secondary"
               onClick={() => props.importComponents()}>
               Import from EXO
             </Button>

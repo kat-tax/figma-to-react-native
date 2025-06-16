@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
+import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text, Dialog} from 'figma-kit';
 import {useMemo, useState, useRef} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
@@ -14,6 +14,8 @@ import {IconBack} from 'interface/figma/icons/24/Back';
 import {StatusBar} from 'interface/base/StatusBar';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
+
+import {ProjectGit} from './ProjectGit';
 
 import type {UserSettings} from 'types/settings';
 import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
@@ -39,6 +41,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   const [showNew, setShowNew] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
+  const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
   const viewState = useMemo(() => {
     if (props.showSync) return 'sync';
     if (showNew) return 'new';
@@ -85,27 +88,31 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             <DropdownMenu.Trigger asChild disabled={exportActive}>
               <IconButton
                 size="small"
+                disabled={exportActive}
                 aria-label={exportActive ? 'Exporting...' : 'Export Project'}
-                onClick={() => props.setShowSettings(false)}
-                disabled={exportActive}>
+                onClick={() => props.setShowSettings(false)}>
                 <IconDownload/>
               </IconButton>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
               <DropdownMenu.Item
+                disabled={exportActive}
                 onSelect={() => {
                   emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.project, props.settings);
                   setExportActive(true);
-                }}
-                disabled={exportActive}>
+                }}>
                 <Text>Download Zip</Text>
               </DropdownMenu.Item>
               <DropdownMenu.Item
+                disabled={exportActive}
                 onSelect={() => {
-                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.project, props.settings);
-                  setExportActive(true);
-                }}
-                disabled={exportActive}>
+                  if (!props.project.gitRepo || !props.project.gitBranch || !props.project.gitKey) {
+                    setShowGitDialog(true);
+                  } else {
+                    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.project, props.settings);
+                    setExportActive(true);
+                  }
+                }}>
                 <Text>Publish to Git</Text>
               </DropdownMenu.Item>
             </DropdownMenu.Content>
@@ -140,7 +147,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <DropdownMenu.Content>
                 <DropdownMenu.Item onSelect={() => {
                   emit<EventNotify>('NOTIFY', 'Link copied to clipboard', {timeout: 3000});
-                  //setTimeout(() => copy(`${F2RN_SERVICE_URL}/sync/${docId}`), 100);
+                  setTimeout(() => copy(`${F2RN_SERVICE_URL}/sync/${docId}`), 100);
                 }}>
                   <Text>Copy Link</Text>
                 </DropdownMenu.Item>
@@ -240,6 +247,12 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </Button>
         </div>
       )}
+      <ProjectGit
+        project={props.project}
+        settings={props.settings}
+        onOpenChange={setShowGitDialog}
+        open={showGitDialog}
+      />
     </StatusBar>
   );
 }
