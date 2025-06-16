@@ -60,7 +60,7 @@ export async function loadIconSets(
     return acc;
   }, {});
 
-  const ids = await getIconIds(sets.map(set => set.prefix));
+  const ids = await Promise.all(sets.map(set => getIconIds(set.prefix))).then(ids => ids.flat());
   const svgs = await getIconSvgs(ids, onProgress);
   return Object.entries(svgs).reduce((acc, [prefix, list]) => {
     const set = sets.find(set => set.prefix === prefix);
@@ -77,16 +77,14 @@ export async function loadIconSets(
   }, {});
 }
 
-async function getIconIds(prefixes: string[]): Promise<string[]> {
-  return await Promise.all(prefixes.map(async (prefix) => {
-    const res = await fetch(`${ICONIFY_HOST}/collection?prefix=${prefix}`);
-    const val = await res.json();
-    const categorized = Object.values(val.categories || {}).flat() as string[];
-    const uncategorized = val.uncategorized || [];
-    const allIcons = new Set([...categorized, ...uncategorized]);
-    const set = getIconList('', val.suffixes, Array.from(allIcons));
-    return set.map(icon => `${prefix}:${icon}`);
-  })).then(ids => ids.flat());
+export async function getIconIds(prefix: string): Promise<string[]> {
+  const res = await fetch(`${ICONIFY_HOST}/collection?prefix=${prefix}`);
+  const val = await res.json();
+  const categorized = Object.values(val.categories || {}).flat() as string[];
+  const uncategorized = val.uncategorized || [];
+  const allIcons = new Set([...categorized, ...uncategorized]);
+  const set = getIconList('', val.suffixes, Array.from(allIcons));
+  return set.map(icon => `${prefix}:${icon}`);
 }
 
 async function getIconSvgs(

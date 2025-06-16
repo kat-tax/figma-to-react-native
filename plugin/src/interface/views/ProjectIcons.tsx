@@ -1,9 +1,10 @@
+import {emit} from '@create-figma-plugin/utilities';
+import {VirtuosoGrid} from 'react-virtuoso';
+import {Button, Select, Slider} from 'figma-kit';
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
-import {Button, Select, Slider} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
-import {VirtuosoGrid} from 'react-virtuoso';
-import {emit} from '@create-figma-plugin/utilities';
+import {getIconIds} from 'interface/icons/lib/iconify';
 
 import {IconPlus} from 'interface/figma/icons/24/Plus';
 import {IconTile} from 'interface/icons/IconTile';
@@ -49,6 +50,7 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [iconScale, setIconScale] = useState(1);
   const [prefix, setPrefix] = useState('all');
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
+  const [sets, setSets] = useState<Record<string, string[]>>({});
   const [_, copyIcon] = useCopyToClipboard();
 
   const addSets = useCallback(async (sets: IconifySetPreview[]) => {
@@ -69,19 +71,23 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setShowBrowse(false);
   }, []);
 
-  // Rebuild list when icons or build change
-  // TODO: this is the issue, this should use icons from the project
-  // not the global cache from iconify
-  const icons: ProjectIcon[] = useMemo(() => props.icons?.list
+  // Rebuild list when icons, loaded sets, or build change
+  // Merge full sets with document icons if prefix is not 'all'
+  const icons: ProjectIcon[] = useMemo(() => (prefix === 'all'
+    ? props.icons?.list
+    : Array.from(new Set([...props.icons?.list, ...(sets[prefix] || [])]))
+  )
     ?.map(icon => ({
       icon,
       nodeId: props.icons?.maps?.[icon] || null,
-      missing: false, //!props.icons?.list?.includes(icon),
+      missing: !props.icons?.list?.includes(icon),
       count: props.build?.icons?.count?.[icon] || 0,
     }))
     ?.filter(({icon}) => prefix === 'all' || icon.split(':')[0] === prefix)
-    ?.sort((a, b) => b.count - a.count), [
+    ?.sort((a, b) => b.count - a.count)
+  , [
     prefix,
+    sets,
     props.icons,
     props.build?.icons?.count,
   ]);
@@ -99,6 +105,17 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setList(Object.values(entries));
     setLoadProgress(100);
   }, [index, props.searchQuery]);
+
+  // Update sets (fetch from iconify) when icons change
+  useEffect(() => {
+    const updateSets = async () => {
+      if (!props.icons.sets.length) return;
+      const sets = await Promise.all(props.icons.sets.map(async (set) => [set, await getIconIds(set)]));
+      if (!sets.length) return;
+      setSets(Object.fromEntries(sets));
+    };
+    updateSets();
+  }, [props.icons]);
 
   // Show browse interface
   if (!props.icons.sets?.length || addingMore) {

@@ -41,7 +41,7 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
         const $code = $.component.code(name);
         const code = $code.get().toString();
         const img = new Image(100, 100);
-        img.src = preview;
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Transparent 1x1 pixel
         e.dataTransfer.setDragImage(img, 0, 0);
         e.dataTransfer.setData('text/plain', code);
       }}>

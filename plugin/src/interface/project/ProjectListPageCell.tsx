@@ -66,8 +66,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
         const $code = $.component.code(name);
         const code = $code.get().toString();
         const img = new Image(100, 100);
-        // Use a placeholder image for drag preview
-        img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNGRkYiLz48L3N2Zz4=';
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Transparent 1x1 pixel
         e.dataTransfer.setDragImage(img, 0, 0);
         e.dataTransfer.setData('text/plain', code);
       }}
