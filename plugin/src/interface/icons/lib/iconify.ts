@@ -30,8 +30,8 @@ export type IconifySetData = {
   },
 }
 
-export async function getPreviewSets(): Promise<Array<IconifySetPreview>> {
-  const res = await fetch(`${ICONIFY_HOST}/collections`);
+export async function getPreviewSets(prefix?: string): Promise<Array<IconifySetPreview>> {
+  const res = await fetch(`${ICONIFY_HOST}/collections${prefix ? `?prefix=${prefix}` : ''}`);
   const val = await res.json();
   return Object.entries(val)
     .map(([prefix, data]: [string, any]) => ({

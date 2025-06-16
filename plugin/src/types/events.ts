@@ -1,9 +1,9 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
-import type {IconifySetPayload} from 'interface/icons/lib/iconify';
 import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
-import type {ComponentData, ComponentBuild} from 'types/component';
-import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
+import type {IconifySetPayload, IconifySetData} from 'interface/icons/lib/iconify';
 import type {ProjectBuild, ProjectInfo, ProjectConfig, ProjectExport} from 'types/project';
+import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
+import type {ComponentData, ComponentBuild} from 'types/component';
 import type {ProjectSettings, UserSettings} from 'types/settings';
 import type {NodeAttrData} from 'types/node';
 import type {AppPages} from 'types/app';
@@ -169,14 +169,24 @@ export interface EventProjectImportComponents extends EventHandler {
   handler: (iconSet: string) => void;
 }
 
+export interface EventProjectImportTheme extends EventHandler {
+  name: 'PROJECT_IMPORT_THEME';
+  handler: (theme: ThemePresets | 'Brand', scale: ThemeScale, radius: ThemeRadius) => void;
+}
+
 export interface EventProjectImportIcons extends EventHandler {
   name: 'PROJECT_IMPORT_ICONS';
   handler: (sets: IconifySetPayload) => void;
 }
 
-export interface EventProjectImportTheme extends EventHandler {
-  name: 'PROJECT_IMPORT_THEME';
-  handler: (theme: ThemePresets | 'Brand', scale: ThemeScale, radius: ThemeRadius) => void;
+export interface EventProjectUpdateIcons extends EventHandler {
+  name: 'PROJECT_UPDATE_ICONS';
+  handler: (prefix: string, icons: IconifySetData) => void;
+}
+
+export interface EventProjectUpdateIconsDone extends EventHandler {
+  name: 'PROJECT_UPDATE_ICONS_DONE';
+  handler: (prefix: string) => void;
 }
 
 /* Style Gen */

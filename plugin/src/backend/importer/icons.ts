@@ -1,9 +1,11 @@
+import {emit} from '@create-figma-plugin/utilities';
 import {focusNode, getVariables, getVariableCollection} from 'backend/parser/lib';
 import {PAGES_SPECIAL, VARIABLE_COLLECTIONS, F2RN_ICONS_SET_DATA} from 'config/consts';
 import {titleCase} from 'common/string';
 import {wait} from 'common/delay';
 
 import type {IconifySetPayload, IconifySetData} from 'interface/icons/lib/iconify';
+import type {EventProjectUpdateIconsDone} from 'types/events';
 
 const DEFAULT_COLOR_BACKGROUND = 'Background';
 const DEFAULT_COLOR_FOREGROUND = 'Foreground';
@@ -14,6 +16,67 @@ export async function importIcons(sets: IconifySetPayload) {
   for (const [prefix, set] of Object.entries(sets)) {
     await createIconSet(prefix, set);
   }
+}
+
+export async function updateIcons(prefix: string, set: IconifySetData) {
+  // Find icon set frame
+  const frame = (await getIconSetFrames(prefix))?.[0];
+  // Check if frame exists
+  if (!frame?.id) {
+    figma.notify(`Icon set ${set.name} not found`, {
+      timeout: 3000,
+      error: true,
+    });
+    return;
+  }
+  // Get theme
+  const theme = await getThemeTokens();
+  if (!theme.background || !theme.foreground) {
+    return;
+  }
+  // Get icon style & variable
+  let style: PaintStyle;
+  let variable: Variable;
+  if (theme.isVariable) {
+    variable = theme.foreground;
+  } else if (theme.isVariable === false) {
+    style = theme.foreground;
+  }
+  // Get existing icon names from frame
+  const iconsExisting = frame.children.map(c => c.name.split(':')[1]);
+  // Find icons that exist in set.list but not in frame
+  const iconsMissing = Object.keys(set.list).filter(iconName => !iconsExisting.includes(iconName));
+  // Convert array to object with icon data
+  const icons = iconsMissing.reduce((acc, name) => {
+    acc[name] = set.list[name];
+    return acc;
+  }, {} as IconifySetData['list']);
+  // Create icons if there are any
+  if (Object.keys(icons).length) {
+    // User feedback
+    figma.notify(`Updating ${titleCase(set.name)}...`, {
+      timeout: 3000,
+      button: {
+        text: 'View',
+        action: () => {focusNode(frame.id)},
+      }
+    });
+    await createIcons(
+      prefix,
+      icons,
+      set.view ?? 256,
+      frame,
+      set.fill ?? true,
+      style,
+      variable,
+    );
+    const msg = `${titleCase(set.name)} updated (${iconsMissing.length} icon${iconsMissing.length === 1 ? '' : 's'} added)`;
+    figma.notify(msg, {timeout: 3000});
+  } else {
+    figma.notify(`${titleCase(set.name)} is up to date`, {timeout: 3000});
+  }
+  // Notify interface that update is done
+  emit<EventProjectUpdateIconsDone>('PROJECT_UPDATE_ICONS_DONE', prefix);
 }
 
 export async function createIconSet(prefix: string, set: IconifySetData) {
@@ -206,13 +269,23 @@ export async function createIconPage() {
   return page;
 }
 
-export async function getIconSetFrames() {
-  return figma.root.findAllWithCriteria({
-    types: ['FRAME'],
-    pluginData: {
-      keys: [F2RN_ICONS_SET_DATA],
-    },
-  });
+export async function getIconSetFrames(prefix?: string) {
+  const frames = figma.root.findAllWithCriteria({types: ['FRAME'], pluginData: {keys: [F2RN_ICONS_SET_DATA]}});
+  if (prefix) {
+    for (const frame of frames) {
+      try {
+        const data = frame.getPluginData(F2RN_ICONS_SET_DATA);
+        if (data) {
+          const {prefix: framePrefix} = JSON.parse(data);
+          if (framePrefix === prefix) {
+            return [frame] as (FrameNode & {type: 'FRAME'})[];
+          }
+        }
+      } catch (e) {}
+    }
+    return [];
+  }
+  return frames;
 }
 
 export async function getThemeTokens() {

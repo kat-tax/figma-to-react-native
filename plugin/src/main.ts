@@ -78,6 +78,11 @@ export default async function() {
       icons.importIcons(sets);
     });
 
+    // Handle update icons
+    on<T.EventProjectUpdateIcons>('PROJECT_UPDATE_ICONS', (prefix, set) => {
+      icons.updateIcons(prefix, set);
+    });
+
     // Handle import components
     on<T.EventProjectImportComponents>('PROJECT_IMPORT_COMPONENTS', (iconSet) => {
       exo.importComponents(iconSet);

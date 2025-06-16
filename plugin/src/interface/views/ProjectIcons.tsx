@@ -1,11 +1,12 @@
-import {emit} from '@create-figma-plugin/utilities';
+import {emit, on} from '@create-figma-plugin/utilities';
 import {VirtuosoGrid} from 'react-virtuoso';
-import {Button, Select, Slider} from 'figma-kit';
+import {Button, IconButton, Select, Slider} from 'figma-kit';
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {Fzf, byLengthAsc} from 'fzf';
-import {getIconIds} from 'interface/icons/lib/iconify';
+import {getIconIds, getPreviewSets} from 'interface/icons/lib/iconify';
 
+import {IconSync} from 'interface/figma/icons/24/Sync';
 import {IconPlus} from 'interface/figma/icons/24/Plus';
 import {IconTile} from 'interface/icons/IconTile';
 import {IconBrowse} from 'interface/icons/IconBrowse';
@@ -16,7 +17,7 @@ import {StatusBar} from 'interface/base/StatusBar';
 
 import type {Navigation} from 'interface/hooks/useNavigation';
 import type {IconifySetPreview} from 'interface/icons/lib/iconify';
-import type {EventNotify, EventProjectImportIcons} from 'types/events';
+import type {EventNotify, EventProjectImportIcons, EventProjectUpdateIcons, EventProjectUpdateIconsDone} from 'types/events';
 import type {ProjectIcons as ProjectIconsType} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 
@@ -45,6 +46,7 @@ type ProjectIcon = {
 
 export function ProjectIcons(props: ProjectIconsProps) {
   const [loadProgress, setLoadProgress] = useState(0);
+  const [updatingSets, setUpdatingSets] = useState<string[]>([]);
   const [addingMore, setAddingMore] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [iconScale, setIconScale] = useState(1);
@@ -52,6 +54,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
   const [sets, setSets] = useState<Record<string, string[]>>({});
   const [_, copyIcon] = useCopyToClipboard();
+
+  const updating = updatingSets.includes(prefix);
 
   const addSets = useCallback(async (sets: IconifySetPreview[]) => {
     if (!props.hasStyles) {
@@ -65,6 +69,13 @@ export function ProjectIcons(props: ProjectIconsProps) {
     setPrefix(sets.length === 1 ? sets[0].prefix : 'all');
     setAddingMore(false);
   }, [props.hasStyles, props.nav]);
+
+  const updateSet = useCallback(async (prefix: string) => {
+    setUpdatingSets(prev => [...prev, prefix]);
+    const sets = await getPreviewSets(prefix);
+    const icons = await loadIconSets(sets, () => {});
+    emit<EventProjectUpdateIcons>('PROJECT_UPDATE_ICONS', prefix, icons[prefix]);
+  }, []);
 
   const closeBrowse = useCallback(() => {
     setAddingMore(false);
@@ -98,6 +109,11 @@ export function ProjectIcons(props: ProjectIconsProps) {
     tiebreakers: [byLengthAsc],
     forward: false,
   }), [icons]);
+
+  // Handle update set completion
+  useEffect(() => on<EventProjectUpdateIconsDone>('PROJECT_UPDATE_ICONS_DONE', (prefix) => {
+    setUpdatingSets(prev => prev.filter(p => p !== prefix));
+  }), []);
 
   // Update list when search query changes or index changes
   useEffect(() => {
@@ -187,13 +203,25 @@ export function ProjectIcons(props: ProjectIconsProps) {
             ))}
           </Select.Content>
         </Select.Root>
-        <Button
-          size="small"
-          variant="secondary"
-          style={{width: 32, padding: 0}}
-          onClick={() => setAddingMore(true)}>
-          <IconPlus/>
-        </Button>
+        {prefix === 'all' ? (
+          <IconButton
+            size="small"
+            variant="secondary"
+            aria-label="Add icon sets"
+            onClick={() => setAddingMore(true)}>
+            <IconPlus/>
+          </IconButton>
+        ) : (
+          <IconButton
+            size="small"
+            variant="secondary"
+            disabled={updating}
+            aria-label={updating ? 'Updating...' : 'Update icon set'}
+            className={updating ? 'rotate' : ''}
+            onClick={updating ? undefined : () => updateSet(prefix)}>
+            <IconSync/>
+          </IconButton>
+        )}
         <div style={{flex: 1}}/>
         <Slider
           min={1}
