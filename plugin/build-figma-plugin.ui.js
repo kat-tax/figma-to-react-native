@@ -1,5 +1,4 @@
 const fs = require('node:fs').promises;
-const {NodeModulesPolyfillPlugin} = require('@esbuild-plugins/node-modules-polyfill');
 
 // @ts-check
 /**
@@ -9,34 +8,14 @@ const {NodeModulesPolyfillPlugin} = require('@esbuild-plugins/node-modules-polyf
 module.exports = (buildOptions) => {
   return {
     ...buildOptions,
-    target: 'es2020',
-    plugins: [
-      ...buildOptions.plugins.filter(p => p.name !== 'preact-compat'),
-      NodeModulesPolyfillPlugin({
-        path: true,
-      }),
-      // Hack: replace \22EF with \x12
-      // Legacy octal escape sequences cannot be used in template literals
-      // Caused by y-monaco loading folding.js
-      {
-        name: 'fix-y-monaco',
-        setup(ctx) {
-          ctx.onLoad({filter: /folding\.js$/}, async (args) => {
-            const contents = await fs.readFile(args.path, 'utf8');
-            const sanitized = contents.replace(/\\22EF/g, '\\x12');
-            return {
-              contents: sanitized,
-              loader: 'js',
-            };
-          });
-        },
-      },
-    ],
     loader: {
       '.tpl': 'base64',
     },
     define: {
       global: 'window',
+      'process.platform': JSON.stringify(process.platform),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      'process.env.NODE_DEBUG': JSON.stringify(process.env.NODE_DEBUG || ''),
     },
   };
 }

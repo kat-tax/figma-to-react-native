@@ -1,7 +1,7 @@
 import {registerCompletion} from 'monacopilot';
-import type {Monaco, Editor} from '../';
+import type {Monaco, MonacoEditor} from '../monaco';
 
-function init(monaco: Monaco, editor: Editor) {
+function init(monaco: Monaco, editor: MonacoEditor) {
   const completion = registerCompletion(monaco, editor, {
     endpoint: 'https://f2rn-copilot.deno.dev/1',
     language: 'typescript',

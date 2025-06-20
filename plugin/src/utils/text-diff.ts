@@ -1,17 +1,17 @@
 /**
  * Text diffing utility that uses the VSCode diff algorithm to compute changes
  * between two text strings rather than completely replacing content.
- * 
+ *
  * Uses AdvancedLinesDiffComputer which provides better diff results than the default
  * algorithm, as it attempts to identify the minimal set of changes between texts.
  */
 
-import {AdvancedLinesDiffComputer} from 'vscode-diff';
+import {DefaultLinesDiffComputer} from 'interface/utils/editor/diff';
 import {Text} from 'yjs';
 
 /**
  * Apply diff changes to a Text document (e.g., Yjs Text)
- * 
+ *
  * @param text The Yjs Text object to modify
  * @param contentOld The original text content
  * @param contentNew The new text content
@@ -38,7 +38,7 @@ export function applyTextDiff(
       console.log('>> [text-diff] error during full text replacement:', error);
     }
   };
-  
+
   try {
     // Compute the diff between original and new content
     const changes = computeTextDiff(contentOld, contentNew);
@@ -55,14 +55,14 @@ export function applyTextDiff(
         // Apply each change
         for (const change of changes) {
           // Calculate positions in the string
-          const originalStartLine = change.originalRange.startLineNumber;
-          const originalEndLine = change.originalRange.endLineNumberExclusive;
-          const modifiedStartLine = change.modifiedRange.startLineNumber;
-          const modifiedEndLine = change.modifiedRange.endLineNumberExclusive;
+          const originalStartLine = change.original.startLineNumber;
+          const originalEndLine = change.original.endLineNumberExclusive;
+          const modifiedStartLine = change.modified.startLineNumber;
+          const modifiedEndLine = change.modified.endLineNumberExclusive;
           // Calculate positions in the string (1-based line numbers to 0-based index)
           const startPos = getPosition(originalLines, originalStartLine - 1);
-          let endPos = originalStartLine === originalEndLine 
-            ? startPos 
+          let endPos = originalStartLine === originalEndLine
+            ? startPos
             : getPosition(originalLines, originalEndLine - 1);
           // Apply the current offset (needed because previous operations affected positions)
           const actualStartPos = startPos + offsetTracker;
@@ -116,19 +116,19 @@ export function applyTextDiff(
 
 /**
  * Apply a text diff to the original text using VSCode's diff algorithm
- * 
+ *
  * @param originalText The original text content
  * @param newText The new text content to compare against
  * @returns An array of operations to apply to transform originalText into newText
  */
 export function computeTextDiff(originalText: string, newText: string) {
   // Create an instance of the AdvancedLinesDiffComputer
-  const diffComputer = new AdvancedLinesDiffComputer();
+  const diffComputer = new DefaultLinesDiffComputer();
 
   // Split texts into lines for the diffing algorithm
   const originalLines = splitLines(originalText);
   const newLines = splitLines(newText);
-  
+
   // Compute the differences between the two texts
   const result = diffComputer.computeDiff(originalLines, newLines, {
     // These are the default settings, can be customized if needed
@@ -136,7 +136,7 @@ export function computeTextDiff(originalText: string, newText: string) {
     maxComputationTimeMs: 3000,
     computeMoves: true,
   });
-  
+
   return result.changes;
 }
 

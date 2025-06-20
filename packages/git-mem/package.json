@@ -8,12 +8,13 @@
     "build": "vite build"
   },
   "dependencies": {
+    "pify": "^4.0.1",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "isomorphic-git": "^1.29.0",
     "memfs": "^4.17.0"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "vite": "^6.1.1",
-    "vite-plugin-node-polyfills": "^0.23.0"
+    "vite": "^6.1.1"
   }
 }

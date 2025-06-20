@@ -1,7 +1,10 @@
+import {lodashOptimizeImports} from '@optimize-lodash/esbuild-plugin';
 import {constants} from '@create-figma-plugin/common';
+import {resolve} from 'node:path';
 import {build} from 'esbuild';
 import {globby} from 'globby';
-import {resolve} from 'node:path';
+import fs from 'node:fs/promises';
+import Sonda from 'sonda/esbuild';
 import indentString from 'indent-string';
 
 import {importFresh} from '../import-fresh.js';
@@ -73,7 +76,7 @@ async function buildMainBundleAsync(options: {
       minify,
       outfile: resolve(outputDirectory, constants.build.pluginCodeFilePath),
       platform: 'neutral',
-      plugins: [],
+      legalComments: 'none',
       stdin: {
         contents: js,
         resolveDir: process.cwd()
@@ -128,21 +131,50 @@ async function buildUiBundleAsync(options: {
       bundle: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
+      logLevel: 'silent',
+      minify,
+      legalComments: 'none',
+      target: 'es2020',
+      alias: {
+        'path': 'path-browserify',
+      },
       loader: {
         '.gif': 'dataurl',
         '.jpg': 'dataurl',
         '.png': 'dataurl',
         '.svg': 'dataurl'
       },
-      logLevel: 'silent',
-      minify,
-      outfile: resolve(outputDirectory, constants.build.pluginUiFilePath),
-      plugins: [esbuildCssModulesPlugin(minify)],
       stdin: {
         contents: js,
         resolveDir: process.cwd()
       },
-      target: 'chrome58',
+      sourcemap: minify,
+      outfile: resolve(outputDirectory, constants.build.pluginUiFilePath),
+      plugins: [
+        lodashOptimizeImports(),
+        esbuildCssModulesPlugin(minify),
+        // Hack: replace \22EF with \x12
+        // Legacy octal escape sequences cannot be used in template literals
+        // Caused by y-monaco loading folding.js
+        {
+          name: 'fix-y-monaco',
+          setup(ctx) {
+            ctx.onLoad({filter: /folding\.js$/}, async (args) => {
+              const contents = await fs.readFile(args.path, 'utf8');
+              const sanitized = contents.replace(/\\22EF/g, '\\x12');
+              return {
+                contents: sanitized,
+                loader: 'js',
+              };
+            });
+          },
+        },
+        Sonda({
+          enabled: minify,
+          sources: true,
+          open: true,
+        }),
+      ],
     };
     await build(
       await overrideEsbuildConfigAsync(

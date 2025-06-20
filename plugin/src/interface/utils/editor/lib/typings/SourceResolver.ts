@@ -1,5 +1,5 @@
 import {fs} from '@zip.js/zip.js';
-import typesZip from '../imports/types.zip.tpl';
+import {F2RN_EXO_TYPE_ZIP} from 'config/consts';
 
 import type {SourceResolver as SourceResolverBase} from 'monaco-editor-auto-typings/custom-editor';
 import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
@@ -26,7 +26,7 @@ export class SourceResolver implements SourceResolverBase {
     if (this.init) return;
     try {
       const zip = new fs.FS();
-      const entries = await zip.importData64URI(typesZip);
+      const entries = await zip.importHttpContent(F2RN_EXO_TYPE_ZIP);
       this.root = entries[0] as ZipDirectoryEntry;
       this.init = true;
     } catch (error) {
@@ -40,12 +40,12 @@ export class SourceResolver implements SourceResolverBase {
     subPath: string | undefined
   ): Promise<string | undefined> {
     await this.initialize();
-    
+
     const localContent = await this.resolveLocal(
-      packageName, 
+      packageName,
       subPath ? `${subPath}/package.json` : 'package.json'
     );
-    
+
     if (localContent !== undefined) {
       return localContent;
     }
@@ -53,7 +53,7 @@ export class SourceResolver implements SourceResolverBase {
     if (CACHE_ONLY.includes(packageName)) {
       return undefined;
     }
-    
+
     // Fallback to unpkg
     const url = `https://unpkg.com/${packageName}${version ? `@${version}` : ''}${subPath ? `/${subPath}` : ''}/package.json`;
     return await this.resolveRemote(url);
@@ -65,9 +65,9 @@ export class SourceResolver implements SourceResolverBase {
     path: string
   ): Promise<string | undefined> {
     await this.initialize();
-    
+
     const localContent = await this.resolveLocal(packageName, path);
-    
+
     if (localContent !== undefined) {
       return localContent;
     }
@@ -75,7 +75,7 @@ export class SourceResolver implements SourceResolverBase {
     if (CACHE_ONLY.includes(packageName)) {
       return undefined;
     }
-    
+
     // Fallback to unpkg
     const url = `https://unpkg.com/${packageName}${version ? `@${version}` : ''}/${path}`;
     return await this.resolveRemote(url);
@@ -88,7 +88,7 @@ export class SourceResolver implements SourceResolverBase {
     try {
       // Get the package directory
       let packageDir: ZipDirectoryEntry;
-      
+
       if (this.local.has(packageName)) {
         packageDir = this.local.get(packageName)!;
       } else {
@@ -98,11 +98,11 @@ export class SourceResolver implements SourceResolverBase {
         }
         this.local.set(packageName, packageDir);
       }
-      
+
       // Navigate to the file
       const pathParts = filePath.split('/');
       let currentDir: ZipDirectoryEntry = packageDir;
-      
+
       // Navigate through directories
       for (let i = 0; i < pathParts.length - 1; i++) {
         const part = pathParts[i];
@@ -112,14 +112,14 @@ export class SourceResolver implements SourceResolverBase {
         }
         currentDir = nextDir;
       }
-      
+
       // Get the file
       const fileName = pathParts[pathParts.length - 1];
       const file = currentDir.getChildByName(fileName) as ZipFileEntry<string, string>;
       if (!file) {
         return undefined;
       }
-      
+
       return await file.getText('utf-8');
     } catch (error) {
       console.error(`Error resolving local package ${packageName}:`, error);

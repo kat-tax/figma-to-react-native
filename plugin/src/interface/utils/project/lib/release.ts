@@ -1,5 +1,4 @@
 import {F2RN_SERVICE_URL} from 'config/consts';
-import supabase from 'interface/services/supabase';
 import {emit} from '@create-figma-plugin/utilities';
 import {create} from '../create';
 
@@ -15,14 +14,14 @@ export async function release(project: ProjectBuild, info: ProjectInfo, release:
   const fileName = `${version}__${fileInfo}__${btoa(project.name)}__${btoa(name)}`;
   const filePath = `${release.apiKey}/${release.docKey}/${fileName}.zip`;
 
-  const {data, error} = await supabase
-    .storage
-    .from('releases')
-    .upload(filePath, blob, {
-      contentType: 'application/zip',
-    });
+  // const {data, error} = await supabase
+  //   .storage
+  //   .from('releases')
+  //   .upload(filePath, blob, {
+  //     contentType: 'application/zip',
+  //   });
 
-  console.debug('[service/upload]', data, error);
+  // console.debug('[service/upload]', data, error);
 
   emit<EventNotify>('NOTIFY', 'Release published.', {
     button: ['Open Dashboard', `${F2RN_SERVICE_URL}/dashboard`],

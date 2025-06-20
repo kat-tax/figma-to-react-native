@@ -2,8 +2,9 @@ import {emit} from '@create-figma-plugin/utilities';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useRef, useState, useEffect, useCallback, Fragment} from 'react';
 import MonacoReact, {DiffEditor} from '@monaco-editor/react';
-import {Position} from 'monaco-editor';
+import {MonacoPosition} from 'interface/utils/editor/monaco';
 import {F2RN_EDITOR_NS} from 'config/consts';
+
 import {initComponentEditor, toolbarEvents, NodeToolbarState} from 'interface/utils/editor';
 import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {ScreenWarning} from 'interface/base/ScreenWarning';
@@ -17,7 +18,7 @@ import type {Theme} from '@monaco-editor/react';
 import type {UserSettings} from 'types/settings';
 import type {EventPropsSave} from 'types/events';
 import type {ComponentBuild} from 'types/component';
-import type {Monaco, Editor} from 'interface/utils/editor';
+import type {Monaco, MonacoEditor} from 'interface/utils/editor/monaco';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ComponentCodeProps {
@@ -32,7 +33,7 @@ interface ComponentCodeProps {
 }
 
 export function ComponentCode(props: ComponentCodeProps) {
-  const editor = useRef<Editor>(null);
+  const editor = useRef<MonacoEditor>(null);
   const {fs} = useGit();
 
   const [toolbarState, setToolbarState] = useState<NodeToolbarState | null>(null);
@@ -104,8 +105,8 @@ export function ComponentCode(props: ComponentCodeProps) {
   useEffect(() => {
     if (props.nav.codeFocus) {
       const {line, column} = props.nav.codeFocus || {};
-      const pos = new Position(line, column).toJSON();
-      if (Position.isIPosition(pos)) {
+      const pos = new MonacoPosition(line, column).toJSON();
+      if (MonacoPosition.isIPosition(pos)) {
         // console.log('[code focus]', pos);
         props.nav.setCodeFocus(null);
         props.nav.setCursorPos({line, column});
@@ -118,7 +119,7 @@ export function ComponentCode(props: ComponentCodeProps) {
 
   return (
     <Fragment>
-      {!$info && 
+      {!$info &&
         <ScreenWarning message="Component not found"/>
       }
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>

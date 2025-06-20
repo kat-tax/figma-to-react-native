@@ -1,7 +1,5 @@
 import {NodeAttrType} from 'types/node';
-
-import type * as monaco from 'monaco-editor';
-import type {Monaco} from '../index';
+import type {Monaco, MonacoTextModel, MonacoWorkerTS} from '../monaco';
 
 const IGNORE_PROPS = ['key', 'style', 'testid'];
 
@@ -30,7 +28,7 @@ export type TypeScriptComponentProps = {
 
 async function isTypeScriptWorkerReady(
   monaco: Monaco,
-  model: monaco.editor.ITextModel
+  model: MonacoTextModel
 ): Promise<boolean> {
   try {
     const worker = await monaco.languages.typescript.getTypeScriptWorker();
@@ -45,7 +43,7 @@ async function isTypeScriptWorkerReady(
 
 async function onTypeScriptWorkerReady(
   monaco: Monaco,
-  model: monaco.editor.ITextModel,
+  model: MonacoTextModel,
 ) {
   const poll = setInterval(async () => {
     const ready = await isTypeScriptWorkerReady(monaco, model);
@@ -58,7 +56,7 @@ async function onTypeScriptWorkerReady(
 
 async function getTypeScriptComponents(
   monaco: Monaco,
-  model: monaco.editor.ITextModel,
+  model: MonacoTextModel,
 ): Promise<TypeScriptComponents | null> {
   try {
     const worker = await monaco.languages.typescript.getTypeScriptWorker();
@@ -69,11 +67,11 @@ async function getTypeScriptComponents(
     // Find all component tags
     const content = model.getValue();
     const matches = content.matchAll(/<(\w+)[\s>]/g);
-    
+
     // Get completion info for each unique component
     const components = new Set<string>();
     const componentsMap: TypeScriptComponents = new Map();
-    
+
     for (const match of matches) {
       const componentName = match[1];
       if (components.has(componentName)) continue;
@@ -85,7 +83,7 @@ async function getTypeScriptComponents(
         lineNumber: position.lineNumber,
         column: position.column + 1,
       });
-      
+
       // Get component props offset relative to opening tag
       const lineContent = model.getLineContent(position.lineNumber);
       const isMultiLine = lineContent.trim() === `<${componentName}`;
@@ -145,20 +143,20 @@ async function getTypeScriptComponents(
 }
 
 async function getTypeFromDisplayParts(
-  client: monaco.languages.typescript.TypeScriptWorker,
+  client: MonacoWorkerTS,
   displayParts?: Array<{text: string; kind: string}>,
   sourceFile?: string,
 ): Promise<[NodeAttrType, Array<string> | null]> {
   if (!displayParts) return [NodeAttrType.String, null];
-  
+
   // Check if an alias is used
   let alias = displayParts.find(part => part.kind === 'aliasName')?.text;
   const propertyName = displayParts.find(part => part.kind === 'propertyName')?.text;
 
   // Check for function types
-  const isFunction = displayParts.some(part => 
+  const isFunction = displayParts.some(part =>
     (part.kind === 'punctuation' && part.text === '=>'));
-  
+
   if (isFunction) {
     return [NodeAttrType.Function, null];
   }
@@ -166,12 +164,12 @@ async function getTypeFromDisplayParts(
   // Check for truncated text, use property name as alias to lookup from source
   const trunc = displayParts.find(part => part.kind === 'text'
     && part.text.includes('more ...'));
-  
+
   // Check for string literals first (enum case)
   const literals = displayParts
     .filter(part => part.kind === 'stringLiteral')
     .map(part => part.text.replace(/['"]/g, ''));
-  
+
   // If we have literals and no truncation, use them directly
   if (!trunc && literals.length > 0) {
     return [NodeAttrType.Enum, literals];
@@ -186,22 +184,22 @@ async function getTypeFromDisplayParts(
         // Try to find the property definition in the source
         const propRegex = new RegExp(`${propertyName}\\??:\\s*([^;]+)`, 'g');
         const propMatch = propRegex.exec(source);
-        
+
         if (propMatch?.[1]) {
           const propDefinition = propMatch[1];
           // Extract all string literals from the property definition
           const literalRegex = /'([^']+)'|"([^"]+)"/g;
           const propLiterals = new Set<string>();
           let literalMatch: RegExpExecArray | null;
-          
+
           while ((literalMatch = literalRegex.exec(propDefinition)) !== null) {
             propLiterals.add(literalMatch[1] || literalMatch[2]);
           }
-          
+
           if (propLiterals.size > 0) {
             return [NodeAttrType.Enum, Array.from(propLiterals)];
           }
-          
+
           // If the property references a type alias, extract that alias name
           const typeRefMatch = propDefinition.match(/\b([A-Z][a-zA-Z0-9]*)\b/);
           if (typeRefMatch?.[1]) {
@@ -209,12 +207,12 @@ async function getTypeFromDisplayParts(
           }
         }
       }
-      
+
       // Process type alias if we have one
       if (alias) {
         // Collect all string literals from the source file
         const aliasLiterals = new Set<string>();
-        
+
         // Function to extract literals from a type alias
         const extractLiterals = async (aliasName: string): Promise<void> => {
           // Look for the alias definition in the source file
@@ -222,14 +220,14 @@ async function getTypeFromDisplayParts(
           const aliasMatch = aliasRegex.exec(source);
           if (!aliasMatch?.[1]) return;
           const aliasDefinition = aliasMatch[1];
-          
+
           // Extract string literals directly from the definition
           const literalRegex = /'([^']+)'|"([^"]+)"/g;
           let literalMatch: RegExpExecArray | null;
           while ((literalMatch = literalRegex.exec(aliasDefinition)) !== null) {
             aliasLiterals.add(literalMatch[1] || literalMatch[2]);
           }
-          
+
           // Look for references to other type aliases
           const referencedTypes = aliasDefinition.match(/\b([A-Z][a-zA-Z0-9]*)\b/g);
           if (referencedTypes) {
@@ -240,14 +238,14 @@ async function getTypeFromDisplayParts(
             }
           }
         };
-        
+
         await extractLiterals(alias);
-        
+
         // If we found literals, return them
         if (aliasLiterals.size > 0) {
           return [NodeAttrType.Enum, Array.from(aliasLiterals)];
         }
-        
+
         // If we couldn't extract literals directly, try to get definition
         const aliasInfo = await client.getQuickInfoAtPosition(sourceFile, source.indexOf(alias));
         if (aliasInfo?.displayParts) {

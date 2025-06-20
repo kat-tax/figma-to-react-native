@@ -1,4 +1,3 @@
-import {blake2sHex} from 'blakejs';
 import {rgbaToThumbHash, byteArrayToBase64} from 'common/thumbhash';
 import {getNode} from './node';
 import * as string from 'common/string';
@@ -26,9 +25,9 @@ export async function getAssets(nodes: Set<string>): Promise<{
       let count: number;
       let bytes: Uint8Array;
       let thumbhash: string;
-  
+
       const node = getNode(id) as SceneNode & ExportMixin & ChildrenMixin & MinimalFillsMixin;
-      
+
       const isVector = VECTOR_NODE_TYPES.includes(node.type)
         || (node.findAllWithCriteria
           && node.findAllWithCriteria({types: VECTOR_NODE_TYPES})?.length > 0);
@@ -36,7 +35,7 @@ export async function getAssets(nodes: Set<string>): Promise<{
       const isVideo = node.type === 'EMBED'
         || (node.findAllWithCriteria
           && node.findAllWithCriteria({types: ['EMBED']})?.length > 0);
-      
+
       const identifier = isVector
         ? string.createIdentifierPascal(node.name)
         : string.createIdentifierCamel(node.name);
@@ -55,7 +54,7 @@ export async function getAssets(nodes: Set<string>): Promise<{
 
         // TODO: replace export w/ getImage, lookup via figma.getImageByHash (must support most props, rotate, fit, etc.)
         // const image = getImage(node.fills);
-        
+
         rasters[node.name] = 1 + (rasters[node.name] || 0);
         hasRaster = true;
         count = rasters[node.name];
@@ -67,7 +66,7 @@ export async function getAssets(nodes: Set<string>): Promise<{
 
       const rawName = node.name;
       const name = count > 1 ? `${identifier}${count}` : identifier;
-      const hash = bytes ? blake2sHex(bytes) : '';
+      const hash = ''; //bytes ? blake2sHex(bytes) : '';
       const {width, height} = node;
       assetMap[id] = hash;
       assetData[id] = {

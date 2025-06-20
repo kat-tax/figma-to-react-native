@@ -1,5 +1,6 @@
-import _camelCase from 'lodash.camelcase';
-import _kebabCase from 'lodash.kebabcase';
+import _camelCase from 'lodash/camelCase';
+import _kebabCase from 'lodash/kebabCase';
+
 import _reserved from 'reserved';
 
 export function titleCase(input: string): string {

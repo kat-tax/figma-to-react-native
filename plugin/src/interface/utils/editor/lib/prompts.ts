@@ -1,4 +1,4 @@
-import type {Monaco, Editor} from "interface/utils/editor";
+import type {Monaco, MonacoEditor} from '../monaco';
 
 export const actions = [
   'apply',
@@ -20,7 +20,7 @@ export async function patch(action: string) {
     }
 }
 
-export function init(monaco: Monaco, editor: Editor, run: () => void) {
+export function init(monaco: Monaco, editor: MonacoEditor, run: () => void) {
   editor.addAction({
     id: 'f2rn-gpt',
     label: 'Patch with GPT-4',

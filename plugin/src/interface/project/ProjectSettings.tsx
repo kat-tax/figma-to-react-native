@@ -1,13 +1,13 @@
 import MonacoReact from '@monaco-editor/react';
-import {AutoForm} from 'uniforms-unstyled';
+//import {AutoForm} from 'uniforms-unstyled';
 import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {useMemo, useState, Fragment} from 'react';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import {debounce} from 'common/delay';
-import schema from 'interface/schemas/project';
+// import schema from 'interface/schemas/project';
 
 import type {Theme} from '@monaco-editor/react';
-import type {Monaco} from 'interface/utils/editor';
+import type {Monaco} from 'interface/utils/editor/monaco';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {UserSettings} from 'types/settings';
 
@@ -26,7 +26,7 @@ export function ProjectSettings(props: ProjectSettingsProps) {
   return (
     <Fragment>
       {isFormView
-        ? <AutoForm schema={schema} onSubmit={console.log}/>
+        ? null // ? <AutoForm schema={schema} onSubmit={console.log}/>
         : <MonacoReact
             language="json"
             path={_path}

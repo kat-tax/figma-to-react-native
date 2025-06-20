@@ -13,8 +13,7 @@ export default defineConfig({
   },
   plugins: [
     nodePolyfills({
-      include: ['buffer', 'process', 'util', 'path', 'stream'],
-      globals: { process: true, Buffer: true },
+      include: ['path', 'stream', 'buffer', 'process'],
     }),
   ],
 });

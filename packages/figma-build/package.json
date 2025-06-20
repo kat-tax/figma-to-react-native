@@ -36,12 +36,15 @@
   },
   "devDependencies": {
     "@figma/plugin-typings": "latest",
+    "@optimize-lodash/esbuild-plugin": "^3.2.0",
     "@types/node": "20.10.7",
     "@types/react": "18.2.47",
     "@types/rimraf": "4.0.5",
     "concurrently": "8.2.2",
+    "load-source-map": "^3.0.1",
     "react": "18.2.0",
     "shx": "^0.4.0",
+    "sonda": "^0.8.0",
     "tsx": "4.7.0",
     "typescript": "5.3.3"
   },
