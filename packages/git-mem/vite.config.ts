@@ -11,16 +11,9 @@ export default defineConfig({
       fileName: 'index',
     },
   },
-  resolve: {
-    alias: {
-      'path': 'path-browserify',
-      'stream': 'readable-stream',
-    },
-  },
   plugins: [
     nodePolyfills({
-      include: ['buffer'],
-      globals: {process: true, Buffer: true},
+      include: ['path', 'stream', 'buffer', 'process'],
     }),
   ],
 });

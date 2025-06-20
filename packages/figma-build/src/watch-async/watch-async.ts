@@ -28,7 +28,7 @@ export async function watchAsync(options: BuildOptions): Promise<void> {
   }
   const watcher = watch(
     [
-      '**/*.{css,gif,jpeg,jpg,js,json,jsx,png,ts,tsx}',
+      '**/*.{css,gif,jpeg,jpg,js,json,jsx,png,ts,tsx,tpl}',
       constants.build.mainConfigGlobPattern,
       constants.build.manifestConfigGlobPattern,
       constants.build.uiConfigGlobPattern,

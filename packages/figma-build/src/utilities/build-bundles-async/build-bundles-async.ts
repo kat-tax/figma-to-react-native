@@ -3,6 +3,7 @@ import {constants} from '@create-figma-plugin/common';
 import {resolve} from 'node:path';
 import {build} from 'esbuild';
 import {globby} from 'globby';
+import fs from 'node:fs/promises';
 import Sonda from 'sonda/esbuild';
 import indentString from 'indent-string';
 
@@ -75,6 +76,7 @@ async function buildMainBundleAsync(options: {
       minify,
       outfile: resolve(outputDirectory, constants.build.pluginCodeFilePath),
       platform: 'neutral',
+      legalComments: 'none',
       stdin: {
         contents: js,
         resolveDir: process.cwd()
@@ -129,6 +131,10 @@ async function buildUiBundleAsync(options: {
       bundle: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
+      logLevel: 'silent',
+      minify,
+      legalComments: 'none',
+      target: 'es2020',
       alias: {
         'path': 'path-browserify',
       },
@@ -138,20 +144,37 @@ async function buildUiBundleAsync(options: {
         '.png': 'dataurl',
         '.svg': 'dataurl'
       },
-      logLevel: 'silent',
-      minify,
-      sourcemap: true,
-      outfile: resolve(outputDirectory, constants.build.pluginUiFilePath),
-      plugins: [
-        esbuildCssModulesPlugin(minify),
-        lodashOptimizeImports(),
-        Sonda({sources: true, open: true}),
-      ],
       stdin: {
         contents: js,
         resolveDir: process.cwd()
       },
-      target: 'es2020',
+      sourcemap: minify,
+      outfile: resolve(outputDirectory, constants.build.pluginUiFilePath),
+      plugins: [
+        lodashOptimizeImports(),
+        esbuildCssModulesPlugin(minify),
+        // Hack: replace \22EF with \x12
+        // Legacy octal escape sequences cannot be used in template literals
+        // Caused by y-monaco loading folding.js
+        {
+          name: 'fix-y-monaco',
+          setup(ctx) {
+            ctx.onLoad({filter: /folding\.js$/}, async (args) => {
+              const contents = await fs.readFile(args.path, 'utf8');
+              const sanitized = contents.replace(/\\22EF/g, '\\x12');
+              return {
+                contents: sanitized,
+                loader: 'js',
+              };
+            });
+          },
+        },
+        Sonda({
+          enabled: minify,
+          sources: true,
+          open: true,
+        }),
+      ],
     };
     await build(
       await overrideEsbuildConfigAsync(
