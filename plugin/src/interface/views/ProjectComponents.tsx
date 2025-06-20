@@ -42,6 +42,9 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   }, [showSettings, showSync]);
 
   const importComponents = async () => {
+    emit<EventNotify>('NOTIFY', 'Importing components is not supported yet');
+    return;
+
     if (!props.hasStyles) {
       props.nav.gotoTab('theme');
       emit<EventNotify>('NOTIFY', 'Generate a theme before importing EXO');
