@@ -4,8 +4,10 @@ import {F2RN_SERVICE_URL} from 'config/consts';
 import * as store from 'store';
 
 import type {YSweetStatus} from '@y-sweet/client';
-import type {ComponentBuild} from 'types/component';
 import type {EventNotify} from 'types/events';
+import type {ComponentBuild} from 'types/component';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
+
 
 const SyncContext = createContext<SyncContextType | null>(null);
 const ERROR_MESSAGE = 'Invalid Project Token';
@@ -25,7 +27,7 @@ export class ReadOnlyError extends Error {
 export interface SyncProviderProps {
   user: User;
   build: ComponentBuild;
-  projectKey: string;
+  settings: SettingsData;
   projectName: string;
 }
 
@@ -37,7 +39,7 @@ export interface SyncContextType {
   disconnect: () => void;
 }
 
-export function SyncProvider({user, build, projectKey, projectName, children}: React.PropsWithChildren<SyncProviderProps>) {
+export function SyncProvider({user, build, settings, projectName, children}: React.PropsWithChildren<SyncProviderProps>) {
   const [active, setActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const setupHandler = useRef<(status: YSweetStatus) => void>(null);
@@ -46,7 +48,7 @@ export function SyncProvider({user, build, projectKey, projectName, children}: R
     try {
       setError(null);
       setActive(false);
-      const token = newProjectKey ?? projectKey;
+      const token = newProjectKey ?? settings.config?.projectToken;
       if (!token) throw new NoAuthError();
       await store.connect(token, {
         projectName,
@@ -54,15 +56,17 @@ export function SyncProvider({user, build, projectKey, projectName, children}: R
         assets: Object.keys(build?.assets || {}).length || 0,
         user,
       });
-      // TODO: update project key if set
       if (newProjectKey) {
-        console.log('>>> update project key', newProjectKey);
+        settings.update(JSON.stringify({
+          ...settings.config,
+          projectToken: newProjectKey,
+        }, undefined, 2), true);
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
     }
     syncStatus();
-  }, [build, user, projectKey, projectName]);
+  }, [build, user, settings, projectName]);
 
   const disconnect = useCallback(() => {
     store?.disconnect();
@@ -120,7 +124,7 @@ export function SyncProvider({user, build, projectKey, projectName, children}: R
 
   return (
     <SyncContext.Provider value={{
-      projectKey,
+      projectKey: settings.config?.projectToken,
       active,
       error,
       connect,

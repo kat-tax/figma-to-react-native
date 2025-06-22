@@ -3,27 +3,29 @@ import {Flex, Text, Input, Button, Dialog} from 'figma-kit';
 import {VerticalSpace} from 'interface/figma/ui/vertical-space';
 import {IconHelp} from 'interface/figma/icons/16/Help';
 import {F2RN_EXO_REPO_URL} from 'config/consts';
-import {emit} from '@create-figma-plugin/utilities';
 
-import type {ProjectSettings} from 'types/settings';
-import type {EventSettingsUpdate} from 'types/events';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
 
 interface ProjectGitProps {
-  settings: ProjectSettings;
+  settings: SettingsData;
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }
 
 export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
-  const [repo, setRepo] = useState(settings.git.repo || '');
-  const [branch, setBranch] = useState(settings.git.branch || '');
-  const [accessToken, setAccessToken] = useState(settings.git.accessToken || '');
+  const [repo, setRepo] = useState(settings.config?.git?.repo || '');
+  const [branch, setBranch] = useState(settings.config?.git?.branch || '');
+  const [accessToken, setAccessToken] = useState(settings.config?.git?.accessToken || '');
 
   const handleSave = () => {
-    emit<EventSettingsUpdate>('SETTINGS_UPDATE', {
-      ...settings,
-      git: {repo, branch, accessToken},
-    });
+    settings.update(JSON.stringify({
+      ...settings.config,
+      git: {
+        repo,
+        branch,
+        accessToken,
+      },
+    }, undefined, 2), true);
     onOpenChange(false);
   };
 

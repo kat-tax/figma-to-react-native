@@ -69,7 +69,6 @@ export function App(props: AppProps) {
   const isDark = useDarkMode();
   const nav = useNavigation(build);
 
-  const projectKey = settings.config?.projectToken || '';
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
   const hasIcons = Boolean(icons?.list?.length);
@@ -101,7 +100,7 @@ export function App(props: AppProps) {
 
   return hasTabs ? (
     <TooltipProvider disableHoverableContent>
-      <SyncProvider {...{user, build, projectKey, projectName}}>
+      <SyncProvider {...{user, build, settings, projectName}}>
         <GitProvider {...settings.config.git}>
           <Tabs.Root
             style={{height: 'calc(100% - 41px)'}}

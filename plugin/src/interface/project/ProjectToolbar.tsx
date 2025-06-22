@@ -17,12 +17,12 @@ import {docId} from 'store';
 
 import {ProjectGit} from './ProjectGit';
 
-import type {ProjectSettings} from 'types/settings';
-import type {ProjectComponentLayout} from 'types/project';
 import type {EventNotify, EventOpenLink, EventProjectExport, EventProjectNewComponent} from 'types/events';
+import type {ProjectComponentLayout} from 'types/project';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
 
 interface ProjectToolbarProps {
-  settings: ProjectSettings,
+  settings: SettingsData,
   layout: ProjectComponentLayout,
   setLayout: (layout: ProjectComponentLayout) => void,
   showSync: boolean,
@@ -35,8 +35,8 @@ interface ProjectToolbarProps {
 export function ProjectToolbar(props: ProjectToolbarProps) {
   const sync = useSync();
   const newInput = useRef<HTMLInputElement>(null);
+  const syncInput = useRef<HTMLInputElement>(null);
   const [_, copy] = useCopyToClipboard();
-  const [syncKey, setSyncKey] = useState<string>(props.settings.projectToken ?? '');
   const [showNew, setShowNew] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
@@ -97,7 +97,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <DropdownMenu.Item
                 disabled={exportActive}
                 onSelect={() => {
-                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings);
+                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
                   setExportActive(true);
                 }}>
                 <Text>Download Zip</Text>
@@ -105,10 +105,11 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <DropdownMenu.Item
                 disabled={exportActive}
                 onSelect={() => {
-                  if (!props.settings.git.repo || !props.settings.git.branch || !props.settings.git.accessToken) {
+                  const git = props.settings.config?.git;
+                  if (!git?.repo || !git?.branch || !git?.accessToken) {
                     setShowGitDialog(true);
                   } else {
-                    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.settings);
+                    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.settings.config);
                     setExportActive(true);
                   }
                 }}>
@@ -123,12 +124,13 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               onClick={async () => {
                 if (syncLoading && !sync.error) return;
                 // Missing or invalid sync key
-                if (!syncKey || syncKey.length !== 40 || sync.error) {
+                if (!props.settings.config?.projectToken?.length
+                  || props.settings.config?.projectToken?.length !== 40 || sync.error) {
                   props.setShowSync(true);
                 // Start syncing
                 } else {
                   setSyncLoading(true);
-                  sync.connect(syncKey);
+                  sync.connect();
                 }
               }}>
               <div className={syncLoading && !sync.error ? 'rotate' : ''}>
@@ -182,12 +184,11 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             <Input
               autoFocus
               type="password"
-              value={syncKey}
-              onChange={e => setSyncKey(e.target.value)}
+              defaultValue={props.settings.config?.projectToken}
               placeholder="Project Token"
-              style={{width: '100%', paddingRight: !syncKey ? 43 : '0.5rem'}}
+              style={{width: '100%', paddingRight: !props.settings.config?.projectToken ? 43 : '0.5rem'}}
             />
-            {!syncKey && (
+            {!props.settings.config?.projectToken && (
               <Button
                 size="small"
                 variant="success"
@@ -208,11 +209,9 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           <Button
             size="small"
             onClick={() => {
-              // TODO: Save to project
-              console.log('>>> project token', syncKey);
               props.setShowSync(false);
               setSyncLoading(true);
-              sync.connect(syncKey);
+              sync.connect(syncInput.current?.value);
             }}>
             Save
           </Button>
