@@ -17,7 +17,7 @@ export type MonacoPosition = monaco.Position;
 export type MonacoSelection = monaco.Selection;
 export type MonacoEditorOptions = {
   general: Omit<monaco.editor.IStandaloneEditorConstructionOptions, 'ariaContainerElement' | 'overflowWidgetsDomNode'>,
-  compiler?: monaco.languages.typescript.CompilerOptions,
+  compiler?: Omit<monaco.languages.typescript.CompilerOptions, 'target'>,
   inlayHints?: monaco.languages.typescript.InlayHintsOptions,
   diagnostics?: monaco.languages.typescript.DiagnosticsOptions,
 }

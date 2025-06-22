@@ -1,7 +1,7 @@
 import {F2RN_EDITOR_NS} from 'config/consts';
 import {componentPathNormalize} from 'common/string';
 import {emit} from '@create-figma-plugin/utilities';
-import schema from 'interface/schemas/user/schema.json';
+import schema from 'interface/schemas/schema.json';
 
 import * as $ from 'store';
 

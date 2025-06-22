@@ -4,7 +4,7 @@ import {LoadingIndicator} from 'interface/figma/ui/loading-indicator';
 import {useMemo, useState, Fragment} from 'react';
 import {F2RN_EDITOR_NS} from 'config/consts';
 import {debounce} from 'common/delay';
-// import schema from 'interface/schemas/project';
+// import schema from 'interface/schemas';
 
 import type {Theme} from '@monaco-editor/react';
 import type {Monaco} from 'interface/utils/editor/monaco';
