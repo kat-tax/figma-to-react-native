@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useRef} from 'react';
 import {Flex, Text, Input, Button, Dialog} from 'figma-kit';
 import {VerticalSpace} from 'interface/figma/ui/vertical-space';
 import {IconHelp} from 'interface/figma/icons/16/Help';
@@ -13,17 +13,17 @@ interface ProjectGitProps {
 }
 
 export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
-  const [repo, setRepo] = useState(settings.config?.git?.repo || '');
-  const [branch, setBranch] = useState(settings.config?.git?.branch || '');
-  const [accessToken, setAccessToken] = useState(settings.config?.git?.accessToken || '');
+  const repoInput = useRef<HTMLInputElement>(null);
+  const branchInput = useRef<HTMLInputElement>(null);
+  const accessTokenInput = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     settings.update(JSON.stringify({
       ...settings.config,
       git: {
-        repo,
-        branch,
-        accessToken,
+        repo: repoInput.current?.value,
+        branch: branchInput.current?.value,
+        accessToken: accessTokenInput.current?.value,
       },
     }, undefined, 2), true);
     onOpenChange(false);
@@ -56,9 +56,9 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
               <VerticalSpace space="small"/>
               <Input
                 type="text"
-                value={repo}
+                ref={repoInput}
+                defaultValue={settings.config?.git?.repo}
                 placeholder={F2RN_EXO_REPO_URL}
-                onChange={(e) => setRepo(e.target.value)}
               />
               <VerticalSpace space="large"/>
               <Flex align="center">
@@ -67,9 +67,9 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
               <VerticalSpace space="small"/>
               <Input
                 type="text"
-                value={branch}
+                ref={branchInput}
+                defaultValue={settings.config?.git?.branch}
                 placeholder="master"
-                onChange={(e) => setBranch(e.target.value)}
               />
               <VerticalSpace space="large"/>
               <Flex align="center">
@@ -85,9 +85,9 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
               <VerticalSpace space="small"/>
               <Input
                 type="password"
-                value={accessToken}
+                ref={accessTokenInput}
+                defaultValue={settings.config?.git?.accessToken}
                 placeholder="Your GitHub Personal Access Token"
-                onChange={(e) => setAccessToken(e.target.value)}
                 onFocus={(e) => {
                   e.target.type = 'text';
                   e.target.select();

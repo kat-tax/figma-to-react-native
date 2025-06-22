@@ -49,7 +49,7 @@ export function SyncProvider({user, build, settings, projectName, children}: Rea
       setError(null);
       setActive(false);
       const token = newProjectKey ?? settings.config?.projectToken;
-      if (!token) throw new NoAuthError();
+      if (!token?.length) throw new NoAuthError();
       await store.connect(token, {
         projectName,
         components: Object.keys(build?.roster || {}).length || 0,
@@ -118,7 +118,7 @@ export function SyncProvider({user, build, settings, projectName, children}: Rea
         }
       }
     }
-    store.provider.on('connection-status', handler);
+    store?.provider?.on('connection-status', handler);
     setupHandler.current = handler;
   }, []);
 

@@ -183,6 +183,8 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           <div style={{position: 'relative', flex: 1}}>
             <Input
               autoFocus
+              required
+              ref={syncInput}
               type="password"
               defaultValue={props.settings.config?.projectToken}
               placeholder="Project Token"
