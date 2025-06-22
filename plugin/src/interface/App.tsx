@@ -23,9 +23,8 @@ import {useDarkMode} from 'interface/hooks/useDarkMode';
 import {useNavigation} from 'interface/hooks/useNavigation';
 import {useUserSettings} from 'interface/hooks/useUserSettings';
 import {useStyleGenServer} from 'interface/hooks/useStyleGenServer';
-import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {useProjectBackground} from 'interface/hooks/useProjectBackground';
-import {useProjectConfig} from 'interface/hooks/useProjectConfig';
+import {useSelectedVariant} from 'interface/hooks/useSelectedVariant';
 import {useProjectTheme} from 'interface/hooks/useProjectTheme';
 import {useProjectIcons} from 'interface/hooks/useProjectIcons';
 
@@ -37,6 +36,7 @@ interface AppProps {
   isReady: boolean,
   isVSCode: boolean,
   isDevMode: boolean,
+  projectName: string,
 }
 
 const tabs: AppTabs = {
@@ -53,7 +53,7 @@ const tabs: AppTabs = {
 };
 
 export function App(props: AppProps) {
-  const {user, isReady, isVSCode, isDevMode} = props;
+  const {user, isReady, isVSCode, isDevMode, projectName} = props;
   const [lastResize, setLastResize] = useState(0);
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,7 +62,6 @@ export function App(props: AppProps) {
   const build = useBuild();
   const theme = useProjectTheme();
   const icons = useProjectIcons();
-  const project = useProjectConfig();
   const background = useProjectBackground();
   const settings = useUserSettings();
   const variant = useSelectedVariant();
@@ -70,10 +69,11 @@ export function App(props: AppProps) {
   const isDark = useDarkMode();
   const nav = useNavigation(build);
 
+  const projectKey = settings.config?.projectToken || '';
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
   const hasIcons = Boolean(icons?.list?.length);
-  const hasTabs = Boolean(isReady && project && monaco);
+  const hasTabs = Boolean(isReady && settings && monaco);
   const compKey = build.roster[nav.component] ? nav.component: null;
   const iconSet = icons.sets[0];
 
@@ -101,18 +101,18 @@ export function App(props: AppProps) {
 
   return hasTabs ? (
     <TooltipProvider disableHoverableContent>
-      <SyncProvider {...{user, build, project}}>
-        <GitProvider url={project.gitRepo} branch={project.gitBranch} username={project.gitKey}>
+      <SyncProvider {...{user, build, projectKey, projectName}}>
+        <GitProvider {...settings.config.git}>
           <Tabs.Root
             style={{height: 'calc(100% - 41px)'}}
             value={nav.tab}
             onValueChange={nav.gotoTab}>
             <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
-              <ProjectComponents {...{nav, build, project, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, settings, editorOptions, editorTheme}}/>
+              <ProjectComponents {...{nav, build, settings, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, editorOptions, editorTheme}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
-              <ProjectIcons {...{nav, build, project, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
             </Tabs.Content>
             <Tabs.Content value="theme">
               <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>

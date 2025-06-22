@@ -5,30 +5,29 @@ import {IconHelp} from 'interface/figma/icons/16/Help';
 import {F2RN_EXO_REPO_URL} from 'config/consts';
 import {emit} from '@create-figma-plugin/utilities';
 
-import type {ProjectConfig} from 'types/project';
-import type {UserSettings} from 'types/settings';
-import type {EventProjectExport} from 'types/events';
+import type {ProjectSettings} from 'types/settings';
+import type {EventSettingsUpdate} from 'types/events';
 
 interface ProjectGitProps {
-  project: ProjectConfig;
-  settings: UserSettings;
+  settings: ProjectSettings;
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }
 
-export function ProjectGit({project, settings, onOpenChange, open}: ProjectGitProps) {
-  const [gitKey, setGitKey] = useState(project.gitKey || '');
-  const [gitRepo, setGitRepo] = useState(project.gitRepo || '');
-  const [gitBranch, setGitBranch] = useState(project.gitBranch || '');
+export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
+  const [gitKey, setGitKey] = useState(settings.git.key || '');
+  const [gitRepo, setGitRepo] = useState(settings.git.repo || '');
+  const [gitBranch, setGitBranch] = useState(settings.git.branch || '');
 
   const handleSave = () => {
-    const updatedProject = {
-      ...project,
-      gitRepo,
-      gitBranch,
-      gitKey,
-    };
-    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, updatedProject, settings);
+    emit<EventSettingsUpdate>('SETTINGS_UPDATE', {
+      ...settings,
+      git: {
+        key: gitKey,
+        repo: gitRepo,
+        branch: gitBranch,
+      },
+    });
     onOpenChange(false);
   };
 

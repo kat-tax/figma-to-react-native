@@ -1,6 +1,6 @@
 import {generateBundle} from './lib/generateBundle';
 import {generateTheme} from './lib/generateTheme';
-import {state, update} from '../utils/config';
+import {state, update} from '../utils/settings';
 
 export async function render(node: SceneNode): Promise<CodegenResult[]> {
   if (!node || node.type !== 'COMPONENT') return [];
@@ -57,8 +57,8 @@ export function handleConfigChange() {
       }
       case 'translate': {
         const newValue = value === 'on';
-        if (newValue !== state.addTranslate) {
-          config.addTranslate = newValue;
+        if (newValue !== state.translate) {
+          config.translate = newValue;
           updated = true;
         }
         break;

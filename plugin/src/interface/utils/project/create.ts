@@ -4,12 +4,11 @@ import {DOC_INDEX_TEMPLATE} from './data/templates';
 import * as _ from './data/metadata';
 
 import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
-import type {ProjectBuild, ProjectInfo, ProjectConfig} from 'types/project';
+import type {ProjectBuild, ProjectInfo} from 'types/project';
 
 export async function create(
   project: ProjectBuild,
   info: ProjectInfo,
-  release: ProjectConfig,
 ) {
   const metadata = _.metadata(info);
 

@@ -1,10 +1,10 @@
 import type {EventHandler} from '@create-figma-plugin/utilities';
 import type {TypeScriptComponent} from 'interface/utils/editor/lib/language';
 import type {IconifySetPayload, IconifySetData} from 'interface/icons/lib/iconify';
-import type {ProjectBuild, ProjectInfo, ProjectConfig, ProjectExport} from 'types/project';
+import type {ProjectBuild, ProjectInfo, ProjectExport} from 'types/project';
 import type {ThemeScale, ThemeRadius, ThemePresets} from 'types/themes';
 import type {ComponentData, ComponentBuild} from 'types/component';
-import type {ProjectSettings, UserSettings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 import type {NodeAttrData} from 'types/node';
 import type {AppPages} from 'types/app';
 
@@ -38,7 +38,12 @@ export interface EventAppReady extends EventHandler {
 
 export interface EventAppStart extends EventHandler {
   name: 'APP_START';
-  handler: (user: User, vscode: boolean, readonly: boolean) => void;
+  handler: (
+    user: User,
+    vscode: boolean,
+    readonly: boolean,
+    projectName: string,
+  ) => void;
 }
 
 export interface EventAppNavigate extends EventHandler {
@@ -48,14 +53,14 @@ export interface EventAppNavigate extends EventHandler {
 
 /* Config */
 
-export interface EventConfigLoad extends EventHandler {
-  name: 'CONFIG_LOAD';
-  handler: (config: UserSettings) => void;
+export interface EventSettingsLoad extends EventHandler {
+  name: 'SETTINGS_LOAD';
+  handler: (config: ProjectSettings) => void;
 }
 
-export interface EventConfigUpdate extends EventHandler {
-  name: 'CONFIG_UPDATE';
-  handler: (config: UserSettings) => void;
+export interface EventSettingsUpdate extends EventHandler {
+  name: 'SETTINGS_UPDATE';
+  handler: (config: ProjectSettings) => void;
 }
 
 /** Props */
@@ -124,7 +129,6 @@ export interface EventProjectRelease extends EventHandler {
     info: ProjectInfo | null,
     project: ProjectBuild | null,
     settings: ProjectSettings,
-    config: ProjectConfig,
     form: ProjectExport,
     user: User,
   ) => void;
@@ -154,14 +158,8 @@ export interface EventProjectExport extends EventHandler {
   name: 'PROJECT_EXPORT';
   handler: (
     form: ProjectExport,
-    config: ProjectConfig,
     settings: ProjectSettings,
   ) => void;
-}
-
-export interface EventProjectConfigLoad extends EventHandler {
-  name: 'PROJECT_CONFIG_LOAD';
-  handler: (config: ProjectConfig) => void;
 }
 
 export interface EventProjectNewComponent extends EventHandler {

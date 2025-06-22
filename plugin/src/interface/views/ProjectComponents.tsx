@@ -11,12 +11,11 @@ import type {Navigation} from 'interface/hooks/useNavigation';
 import type {UserSettings} from 'types/settings';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {ComponentBuild} from 'types/component';
-import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
+import type {ProjectComponentLayout} from 'types/project';
 import type {EventProjectImportComponents, EventNotify} from 'types/events';
 
 interface ProjectComponentsProps {
   settings: SettingsData,
-  project: ProjectConfig,
   build: ComponentBuild,
   nav: Navigation,
   monaco: Monaco,
@@ -91,7 +90,6 @@ export function ProjectComponents(props: ProjectComponentsProps) {
         />
       )}
       <ProjectToolbar
-        project={props.project}
         settings={props.settings.config}
         layout={layout}
         setLayout={setLayout}

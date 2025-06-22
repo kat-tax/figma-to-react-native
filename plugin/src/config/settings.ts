@@ -1,12 +1,18 @@
-import type {UserSettings} from 'types/settings';
+import type {ProjectSettings} from 'types/settings';
 
-const user: UserSettings = {
-  addTranslate: false,
+export default <ProjectSettings> {
+  projectToken: '',
+  translate: false,
   writer: {
     indentNumberOfSpaces: 2,
     useSingleQuote: true,
     useTabs: false,
     newLine: '\n',
+  },
+  git: {
+    key: '',
+    repo: '',
+    branch: '',
   },
   monaco: {
     general: {
@@ -21,6 +27,4 @@ const user: UserSettings = {
   esbuild: {
     format: 'esm',
   },
-};
-
-export default user;
+}

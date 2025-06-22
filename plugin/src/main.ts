@@ -13,7 +13,7 @@ import * as components from 'backend/importer/components';
 import * as themes from 'backend/importer/themes';
 import * as icons from 'backend/importer/icons';
 
-import * as config from 'backend/utils/config';
+import * as settings from 'backend/utils/settings';
 import * as mode from 'backend/utils/mode';
 import * as drop from 'backend/utils/drop';
 import * as nav from 'backend/utils/nav';
@@ -36,8 +36,8 @@ if (!mode.isCodegen) {
 }
 
 export default async function() {
-  // Load config (backend only)
-  await config.load(true);
+  // Load settings (backend only)
+  await settings.load(true);
 
   // Headless codegen mode
   if (mode.isCodegen) {
@@ -58,14 +58,14 @@ export default async function() {
       console.log('>> [navigate]', page);
     });
 
-    // Handle update config from interface
-    on<T.EventConfigUpdate>('CONFIG_UPDATE', (newConfig) => {
-      config.update(newConfig);
+    // Handle update settings from interface
+    on<T.EventSettingsUpdate>('SETTINGS_UPDATE', (newConfig) => {
+      settings.update(newConfig);
     });
 
     // Handle export project
-    on<T.EventProjectExport>('PROJECT_EXPORT', (form, config, settings) => {
-      project.build(form, config, settings);
+    on<T.EventProjectExport>('PROJECT_EXPORT', (form, settings) => {
+      project.build(form, settings);
     });
 
     // Handle import themes
@@ -215,13 +215,11 @@ export default async function() {
       figma.currentUser,
       mode.isVSCode,
       mode.isInspect,
+      figma.root.name,
     );
 
-    // Load config from storage (for frontend)
-    await config.load(false);
-
-    // Load project config from storage
-    project.loadConfig();
+    // Load settings from storage (for frontend)
+    await settings.load(false);
 
     // Handle dropping of components, icons, and assets
     figma.on('drop', drop.importNode);
@@ -235,7 +233,7 @@ export default async function() {
     });
 
     // Start generation services
-    service.watchTheme(config.state);
+    service.watchTheme(settings.state);
     service.watchIcons();
     service.watchComponents(
       nav.targetSelectedComponent,

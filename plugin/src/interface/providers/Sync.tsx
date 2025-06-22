@@ -4,7 +4,6 @@ import {F2RN_SERVICE_URL} from 'config/consts';
 import * as store from 'store';
 
 import type {YSweetStatus} from '@y-sweet/client';
-import type {ProjectConfig} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 import type {EventNotify} from 'types/events';
 
@@ -26,7 +25,8 @@ export class ReadOnlyError extends Error {
 export interface SyncProviderProps {
   user: User;
   build: ComponentBuild;
-  project: ProjectConfig;
+  projectKey: string;
+  projectName: string;
 }
 
 export interface SyncContextType {
@@ -37,28 +37,32 @@ export interface SyncContextType {
   disconnect: () => void;
 }
 
-export function SyncProvider({user, build, project, children}: React.PropsWithChildren<SyncProviderProps>) {
+export function SyncProvider({user, build, projectKey, projectName, children}: React.PropsWithChildren<SyncProviderProps>) {
   const [active, setActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const setupHandler = useRef<(status: YSweetStatus) => void>(null);
 
-  const connect = useCallback(async (apiKey?: string) => {
+  const connect = useCallback(async (newProjectKey?: string) => {
     try {
       setError(null);
       setActive(false);
-      const token = apiKey ?? project.apiKey;
+      const token = newProjectKey ?? projectKey;
       if (!token) throw new NoAuthError();
-      await store.connect(project.docKey, token, {
-        projectName: project.name,
+      await store.connect(token, {
+        projectName,
         components: Object.keys(build?.roster || {}).length || 0,
         assets: Object.keys(build?.assets || {}).length || 0,
         user,
       });
+      // TODO: update project key if set
+      if (newProjectKey) {
+        console.log('>>> update project key', newProjectKey);
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
     }
     syncStatus();
-  }, [project, build, user]);
+  }, [build, user, projectKey, projectName]);
 
   const disconnect = useCallback(() => {
     store?.disconnect();
@@ -116,7 +120,7 @@ export function SyncProvider({user, build, project, children}: React.PropsWithCh
 
   return (
     <SyncContext.Provider value={{
-      projectKey: project.apiKey,
+      projectKey,
       active,
       error,
       connect,

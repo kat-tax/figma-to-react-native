@@ -239,7 +239,7 @@ function writeChild(
       if (textPropValue.startsWith('props.')) {
         writer.writeLine(`placeholder={${textPropValue}}`);
       // Placeholder (explict), translate
-      } else if (settings?.addTranslate) {
+      } else if (settings?.translate) {
         state.flags.lingui.t = true;
         writer.writeLine(`placeholder={t\`${textPropValue}\`}`);
       } else {
@@ -274,7 +274,7 @@ function writeChild(
           writer.write(`{${textPropValue}}`);
         // Explicit string
         } else {
-          if (settings?.addTranslate) {
+          if (settings?.translate) {
             state.flags.lingui.Trans = true;
             writer.write('<Trans>{`' + textPropValue + '`}</Trans>');
           } else {

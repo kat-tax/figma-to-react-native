@@ -9,7 +9,7 @@ import {F2RN_PREVIEW_URL} from 'config/consts';
 import type {EventNotify, EventProjectRelease} from 'types/events';
 
 export function useProjectRelease(onComplete: () => void): void {
-  useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (info, build, settings, config, form) => {
+  useEffect(() => on<EventProjectRelease>('PROJECT_RELEASE', async (info, build, settings, form) => {
     if (build === null) {
       emit<EventNotify>('NOTIFY', 'Failed to build project.', {error: true});
       onComplete();
@@ -20,16 +20,17 @@ export function useProjectRelease(onComplete: () => void): void {
     try {
       switch (form.method) {
         case 'zip':
-          await download(build, info, config);
+          await download(build, info);
           break;
         case 'git':
-          await update(build, info, config);
+          await update(build, info, settings);
           break;
         case 'npm':
-          await release(build, info, config);
+          await release(build, info, settings);
           break;
         case 'run':
-          open(`${F2RN_PREVIEW_URL}/#/${config.docKey}`);
+          const storykey = ''; // TODO: get storykey from api
+          open(`${F2RN_PREVIEW_URL}/#/${storykey}`);
           break;
         default: form.method satisfies never;
       }

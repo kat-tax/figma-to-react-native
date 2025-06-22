@@ -15,7 +15,6 @@ export const docId = generateToken(22);
 export let provider: YSweetProvider;
 
 export async function connect(
-  docKey: string,
   apiKey: string,
   meta: {
     projectName: string,
@@ -34,7 +33,6 @@ export async function connect(
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
-          'X-Figma-Doc-Key': docKey,
           'X-Figma-User-Id': user.id,
           'X-Figma-User-Name': user.name,
           'X-Figma-User-Color': user.color,

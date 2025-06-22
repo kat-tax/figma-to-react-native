@@ -7,15 +7,6 @@ export type ProjectComponentEntry = {
   positions: Set<number>,
 }
 
-export interface ProjectConfig {
-  name: string,
-  apiKey: string,
-  docKey: string,
-  gitKey: string,
-  gitRepo: string,
-  gitBranch: string,
-}
-
 export interface ProjectExport {
   method: ProjectExportMethod,
 }

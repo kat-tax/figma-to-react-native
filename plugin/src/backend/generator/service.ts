@@ -5,7 +5,7 @@ import * as assert from 'common/assert';
 import * as string from 'common/string';
 import * as consts from 'config/consts';
 import * as parser from 'backend/parser/lib';
-import * as config from 'backend/utils/config';
+import * as config from 'backend/utils/settings';
 
 import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';

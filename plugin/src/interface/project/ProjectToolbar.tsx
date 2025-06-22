@@ -17,13 +17,12 @@ import {docId} from 'store';
 
 import {ProjectGit} from './ProjectGit';
 
-import type {UserSettings} from 'types/settings';
-import type {ProjectConfig, ProjectComponentLayout} from 'types/project';
+import type {ProjectSettings} from 'types/settings';
+import type {ProjectComponentLayout} from 'types/project';
 import type {EventNotify, EventOpenLink, EventProjectExport, EventProjectNewComponent} from 'types/events';
 
 interface ProjectToolbarProps {
-  project: ProjectConfig,
-  settings: UserSettings,
+  settings: ProjectSettings,
   layout: ProjectComponentLayout,
   setLayout: (layout: ProjectComponentLayout) => void,
   showSync: boolean,
@@ -37,7 +36,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   const sync = useSync();
   const newInput = useRef<HTMLInputElement>(null);
   const [_, copy] = useCopyToClipboard();
-  const [syncKey, setSyncKey] = useState<string>(props.project.gitKey ?? '');
+  const [syncKey, setSyncKey] = useState<string>(props.settings.projectToken ?? '');
   const [showNew, setShowNew] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
@@ -98,7 +97,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <DropdownMenu.Item
                 disabled={exportActive}
                 onSelect={() => {
-                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.project, props.settings);
+                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings);
                   setExportActive(true);
                 }}>
                 <Text>Download Zip</Text>
@@ -106,10 +105,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <DropdownMenu.Item
                 disabled={exportActive}
                 onSelect={() => {
-                  if (!props.project.gitRepo || !props.project.gitBranch || !props.project.gitKey) {
+                  if (!props.settings.git.repo || !props.settings.git.branch || !props.settings.git.key) {
                     setShowGitDialog(true);
                   } else {
-                    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.project, props.settings);
+                    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.settings);
                     setExportActive(true);
                   }
                 }}>
@@ -248,7 +247,6 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
         </div>
       )}
       <ProjectGit
-        project={props.project}
         settings={props.settings}
         onOpenChange={setShowGitDialog}
         open={showGitDialog}

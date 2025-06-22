@@ -18,17 +18,19 @@ init();
 
 function Main() {
   const [user, setUser] = useState<User>(null);
-  const [ready, setReady] = useState<boolean>(false);
-  const [vscode, setVSCode] = useState<boolean>(null);
+  const [name, setName] = useState<string>(null);
   const [devMode, setDevMode] = useState<boolean>(null);
+  const [vscode, setVSCode] = useState<boolean>(null);
+  const [ready, setReady] = useState<boolean>(false);
 
   // Receive start data from the plugin
-  useEffect(() => on<EventAppStart>('APP_START', (user, vscode, devmode) => {
+  useEffect(() => on<EventAppStart>('APP_START', (user, vscode, devmode, projectName) => {
     auth(user);
     setUser(user);
-    setReady(true);
     setVSCode(vscode);
     setDevMode(devmode);
+    setName(projectName);
+    setReady(true);
   }), []);
 
   // Tell the plugin that the UI is ready
@@ -51,6 +53,7 @@ function Main() {
           isReady={ready}
           isVSCode={vscode}
           isDevMode={devMode}
+          projectName={name}
         />
       </ErrorBoundary>
     </div>

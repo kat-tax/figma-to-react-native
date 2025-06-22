@@ -7,15 +7,16 @@ import {F2RN_EXO_REPO_URL, F2RN_EXO_PROXY_URL} from 'config/consts';
 import {emit} from '@create-figma-plugin/utilities';
 import * as _ from './data/metadata';
 
-import type {ProjectBuild, ProjectInfo, ProjectConfig} from 'types/project';
+import type {ProjectBuild, ProjectInfo} from 'types/project';
+import type {ProjectSettings} from 'types/settings';
 import type {EventNotify} from 'types/events';
 
-export async function update(project: ProjectBuild, info: ProjectInfo, release: ProjectConfig) {
+export async function update(project: ProjectBuild, info: ProjectInfo, settings: ProjectSettings) {
   const metadata = _.metadata(info);
   const corsProxy = `${F2RN_EXO_PROXY_URL}https:/`;
-  const username = release.gitKey;
-  const branch = release.gitBranch || 'master';
-  const url = release.gitRepo || F2RN_EXO_REPO_URL;
+  const username = settings.git.key;
+  const branch = settings.git.branch || 'master';
+  const url = settings.git.repo || F2RN_EXO_REPO_URL;
 
   // Create memory file system
   const {fs} = MemoryFS();
@@ -112,7 +113,7 @@ export async function update(project: ProjectBuild, info: ProjectInfo, release: 
 
   // Success
   emit<EventNotify>('NOTIFY', 'Changes pushed.', {
-    button: ['View Branch', `${release.gitRepo}/compare/${ref}?expand=1`],
+    button: ['View Branch', `${settings.git.repo}/compare/${ref}?expand=1`],
     timeout: 10000,
   });
 }

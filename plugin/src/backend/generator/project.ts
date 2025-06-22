@@ -1,35 +1,21 @@
 import {emit} from '@create-figma-plugin/utilities';
-import defaultReleaseConfig from 'config/release';
 
-import * as random from 'common/random';
 import * as string from 'common/string';
 import * as consts from 'config/consts';
-import * as config from 'backend/utils/config';
 import * as parser from 'backend/parser/lib';
 
 import {generateBundle} from './lib/generateBundle';
 import {generateIndex} from './lib/generateIndex';
 import {generateTheme} from './lib/generateTheme';
 
-import type {ProjectBuild, ProjectInfo, ProjectConfig, ProjectBuildAssets, ProjectBuildComponents, ProjectExport} from 'types/project';
-import type {EventProjectRelease, EventProjectConfigLoad} from 'types/events';
+import type {ProjectBuild, ProjectInfo, ProjectBuildAssets, ProjectBuildComponents, ProjectExport} from 'types/project';
 import type {ComponentInfo, ComponentAsset} from 'types/component';
+import type {EventProjectRelease} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
-export function build(
-  form: ProjectExport,
-  config: ProjectConfig,
-  settings: ProjectSettings,
-) {
+export function build(form: ProjectExport, settings: ProjectSettings) {
+  // Get info
   const user = figma.currentUser;
-
-  // Send new project config to the interface to use
-  emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', config);
-
-  // Save submitted project config to the document
-  figma.root.setPluginData(consts.F2RN_PROJECT_RELEASE, JSON.stringify(config));
-
-  // Get project name and components to export
   const target = figma.root;
   const projectName = target.name;
   const componentNodes = (target as unknown as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
@@ -120,34 +106,15 @@ export function build(
       };
 
       // console.log('>> [project/build]', build, info);
-      emit<EventProjectRelease>('PROJECT_RELEASE', info, build, settings, config, form, user);
+      emit<EventProjectRelease>('PROJECT_RELEASE', info, build, settings, form, user);
     }, 500);
   } else {
-    emit<EventProjectRelease>('PROJECT_RELEASE', null, null, settings, config, form, user);
+    emit<EventProjectRelease>('PROJECT_RELEASE', null, null, settings, form, user);
     figma.notify('No components found to export', {error: true});
     if (projectVersion) {
       setProjectVersion(projectVersion);
     }
   }
-}
-
-// TODO: reload project config on root document update
-export function loadConfig() {
-  let release: ProjectConfig;
-  try {
-    const rawConfig = figma.root.getPluginData(consts.F2RN_PROJECT_RELEASE);
-    const parsedConfig = JSON.parse(rawConfig);
-    release = parsedConfig;
-  } catch (e) {}
-  const loadedConfig = release || defaultReleaseConfig;
-  // Update project name to latest document name
-  loadedConfig.name = figma.root.name;
-  // If docKey is empty, generate one and save immediately
-  if (!loadedConfig.docKey) {
-    loadedConfig.docKey = random.generateToken(22);
-    figma.root.setPluginData(consts.F2RN_PROJECT_RELEASE, JSON.stringify(loadedConfig));
-  }
-  emit<EventProjectConfigLoad>('PROJECT_CONFIG_LOAD', loadedConfig);
 }
 
 function getAppConfig(

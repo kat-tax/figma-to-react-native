@@ -3,18 +3,13 @@ import {git, http, MemoryFS} from 'git-mem';
 import {F2RN_EXO_PROXY_URL} from 'config/consts';
 
 import type {IFs, PushResult, FetchResult} from 'git-mem';
+import type {ProjectSettings} from 'types/settings';
 
 const GitContext = createContext<GitContextType | null>(null);
 const corsProxy = `${F2RN_EXO_PROXY_URL}https:/`;
 const dir = '/';
 
 export type WatchFn = () => void;
-
-export interface GitProviderProps {
-  url: string;
-  branch: string;
-  username: string;
-}
 
 export interface GitContextType {
   fs: IFs;
@@ -24,7 +19,11 @@ export interface GitContextType {
   addFiles: (...files: string[]) => Promise<void>;
 }
 
-export function GitProvider({url, branch, username, children}: React.PropsWithChildren<GitProviderProps>) {
+export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<ProjectSettings['git']>) {
+  const url = gitConfig.repo;
+  const branch = gitConfig.branch;
+  const username = gitConfig.key;
+
   const {fs} = useMemo(() => MemoryFS(), []);
   const repo = useMemo(() => ({fs, url, dir, http, corsProxy, ref: branch, onAuth: () => ({username})}), [fs, url, branch, username]);
 
