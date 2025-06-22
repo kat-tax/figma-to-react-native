@@ -8,8 +8,8 @@ export const F2RN_CACHE_PROPS = 'props';
 
 // Configs
 export const F2RN_NODE_ATTRS = 'f2rn:attr:0026';
-export const F2RN_SETTINGS_USER = 'f2rn:user:1003';
-export const F2RN_SETTINGS_PROJECT = 'f2rn:project:1003';
+export const F2RN_SETTINGS_USER = 'f2rn:user:1004';
+export const F2RN_SETTINGS_PROJECT = 'f2rn:project:1004';
 export const F2RN_ICONS_FAVORITES = 'f2rn:icons:fav:1003';
 export const F2RN_ICONS_SET_DATA = 'f2rn:icons:set:1003';
 

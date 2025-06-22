@@ -31,10 +31,6 @@ export interface ProjectSettings extends UserSettings {
    */
   git: {
     /**
-     * Git personal access token
-     */
-    key: string,
-    /**
      * Git repository URL
      */
     repo: string,
@@ -42,5 +38,9 @@ export interface ProjectSettings extends UserSettings {
      * Git branch
      */
     branch: string,
+    /**
+     * Git personal access token
+     */
+    accessToken: string,
   },
 }

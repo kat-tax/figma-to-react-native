@@ -10,9 +10,9 @@ export default <ProjectSettings> {
     newLine: '\n',
   },
   git: {
-    key: '',
     repo: '',
     branch: '',
+    accessToken: '',
   },
   monaco: {
     general: {

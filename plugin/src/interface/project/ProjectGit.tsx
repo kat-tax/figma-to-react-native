@@ -15,18 +15,14 @@ interface ProjectGitProps {
 }
 
 export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
-  const [gitKey, setGitKey] = useState(settings.git.key || '');
-  const [gitRepo, setGitRepo] = useState(settings.git.repo || '');
-  const [gitBranch, setGitBranch] = useState(settings.git.branch || '');
+  const [repo, setRepo] = useState(settings.git.repo || '');
+  const [branch, setBranch] = useState(settings.git.branch || '');
+  const [accessToken, setAccessToken] = useState(settings.git.accessToken || '');
 
   const handleSave = () => {
     emit<EventSettingsUpdate>('SETTINGS_UPDATE', {
       ...settings,
-      git: {
-        key: gitKey,
-        repo: gitRepo,
-        branch: gitBranch,
-      },
+      git: {repo, branch, accessToken},
     });
     onOpenChange(false);
   };
@@ -58,9 +54,9 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
               <VerticalSpace space="small"/>
               <Input
                 type="text"
-                value={gitRepo}
+                value={repo}
                 placeholder={F2RN_EXO_REPO_URL}
-                onChange={(e) => setGitRepo(e.target.value)}
+                onChange={(e) => setRepo(e.target.value)}
               />
               <VerticalSpace space="large"/>
               <Flex align="center">
@@ -69,9 +65,9 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
               <VerticalSpace space="small"/>
               <Input
                 type="text"
-                value={gitBranch}
+                value={branch}
                 placeholder="master"
-                onChange={(e) => setGitBranch(e.target.value)}
+                onChange={(e) => setBranch(e.target.value)}
               />
               <VerticalSpace space="large"/>
               <Flex align="center">
@@ -87,9 +83,9 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
               <VerticalSpace space="small"/>
               <Input
                 type="password"
-                value={gitKey}
+                value={accessToken}
                 placeholder="Your GitHub Personal Access Token"
-                onChange={(e) => setGitKey(e.target.value)}
+                onChange={(e) => setAccessToken(e.target.value)}
                 onFocus={(e) => {
                   e.target.type = 'text';
                   e.target.select();

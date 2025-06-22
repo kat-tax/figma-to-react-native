@@ -14,7 +14,7 @@ import type {EventNotify} from 'types/events';
 export async function update(project: ProjectBuild, info: ProjectInfo, settings: ProjectSettings) {
   const metadata = _.metadata(info);
   const corsProxy = `${F2RN_EXO_PROXY_URL}https:/`;
-  const username = settings.git.key;
+  const username = settings.git.accessToken;
   const branch = settings.git.branch || 'master';
   const url = settings.git.repo || F2RN_EXO_REPO_URL;
 

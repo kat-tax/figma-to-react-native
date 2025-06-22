@@ -105,7 +105,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <DropdownMenu.Item
                 disabled={exportActive}
                 onSelect={() => {
-                  if (!props.settings.git.repo || !props.settings.git.branch || !props.settings.git.key) {
+                  if (!props.settings.git.repo || !props.settings.git.branch || !props.settings.git.accessToken) {
                     setShowGitDialog(true);
                   } else {
                     emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.settings);
