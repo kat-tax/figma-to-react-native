@@ -23,7 +23,7 @@ interface ProjectListProps {
 export function ProjectList(props: ProjectListProps) {
   const [list, setList] = useState<ProjectComponentIndex>({});
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
-  const hasImport = !props.isReadOnly;
+  const hasImport = !props.isReadOnly && false;
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
     const entries = _entries
