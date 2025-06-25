@@ -2,7 +2,7 @@
   "json.schemas": [
     {
       "fileMatch": [
-        "plugins/figma/package.json"
+        "plugin/package.json"
       ],
       "url": "./packages/figma-build/src/figma-plugin.json"
     }
@@ -22,7 +22,8 @@
     "watchDirectory": "useFsEvents",
     "fallbackPolling": "dynamicPriorityPolling",
     "watchFile": "useFsEventsOnParentDirectory",
-    "excludeDirectories": ["**/node_modules/**/*"],
-    "synchronousWatchDirectory": true,
   },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true
 }

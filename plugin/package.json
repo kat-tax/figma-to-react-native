@@ -1,0 +1,82 @@
+{
+  "name": "@kat-tax/figma-plugin",
+  "license": "BSL",
+  "private": true,
+  "scripts": {
+    "dev": "figma-build --typecheck --watch",
+    "build": "figma-build --typecheck --minify",
+    "schema": "pnpm schema-gen && pnpm schema-val",
+    "schema-temp": "ajv --help",
+    "schema-gen": "typescript-json-schema tsconfig.json ProjectSettings --out ./src/interface/schemas/schema.json --ignoreErrors",
+    "schema-val": "ajv compile -s ./src/interface/schemas/schema -o ./src/interface/schemas/validator.js"
+  },
+  "figma-plugin": {
+    "id": "821138713091291738",
+    "name": "Figma -> React Native",
+    "networkAccess": {
+      "allowedDomains": [
+        "*"
+      ],
+      "reasoning": "Needed for Monaco Editor blob workers to load"
+    },
+    "permissions": [
+      "currentuser"
+    ],
+    "editorType": [
+      "figma",
+      "dev"
+    ],
+    "capabilities": [
+      "codegen",
+      "inspect",
+      "vscode"
+    ],
+    "main": "src/main.ts",
+    "ui": "src/ui.tsx"
+  },
+  "dependencies": {
+    "@create-figma-plugin/utilities": "^3.1.0",
+    "@iconify/react": "^5.2.0",
+    "@kat.tax/css-to-rn": "workspace:*",
+    "@logtail/browser": "^0.5.2",
+    "@monaco-editor/react": "^4.7.0",
+    "@uidotdev/usehooks": "^2.4.1",
+    "@y-sweet/client": "^0.8.2",
+    "@zip.js/zip.js": "^2.7.57",
+    "code-block-writer": "^13.0.3",
+    "deep-object-diff": "^1.1.9",
+    "figma-kit": "1.0.0-beta.19",
+    "fzf": "^0.5.2",
+    "git-mem": "workspace:*",
+    "lib0": "^0.2.100",
+    "lodash": "^4.17.21",
+    "monaco-editor": "0.52.2",
+    "monaco-editor-auto-typings": "^0.4.6",
+    "monacopilot": "^1.1.14",
+    "path-browserify": "^1.0.1",
+    "re-resizable": "^6.11.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-virtuoso": "^4.12.5",
+    "reserved": "^0.1.2",
+    "syn-bundler": "^0.0.1",
+    "uniforms": "4.0.0",
+    "uniforms-bridge-json-schema": "4.0.0",
+    "uniforms-unstyled": "4.0.0",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.24"
+  },
+  "devDependencies": {
+    "@vscode/src": "https://github.com/microsoft/vscode.git",
+    "@figma/plugin-typings": "latest",
+    "@types/lodash": "^4.17.17",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "ajv-cli": "^5.0.0",
+    "esbuild": "^0.20.2",
+    "figma-build": "workspace:*",
+    "react-zoom-pan-pinch": "^3.7.0",
+    "typescript": "^5.3.3",
+    "typescript-json-schema": "^0.63.0"
+  }
+}

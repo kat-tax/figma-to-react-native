@@ -1,0 +1,528 @@
+:root {
+  /* Colors */
+  --blue: #18a0fb;
+  --purple: #7b61ff;
+  --hot-pink: #ff00ff;
+  --green: #1bc47d;
+  --red: #f24822;
+  --yellow: #ffeb00;
+  --black: #000000;
+  --black8: rgba(0, 0, 0, .8);
+  --black8-opaque: #333333;
+  --black3: rgba(0, 0, 0, .3);
+  --black3-opaque: #B3B3B3;
+  --white: #ffffff;
+  --white2: rgba(255, 255, 255, .2);
+  --white8: rgba(255, 255, 255, .8);
+  --white4: rgba(255, 255, 255, .4);
+  --grey: #f0f0f0;
+  --silver: #e5e5e5;
+  --hud: #222222;
+  --toolbar: #2c2c2c;
+  --black1: rgba(0, 0, 0, .1);
+  --blue3: rgba(24, 145, 251, .3);
+  --purple4: rgba(123, 97, 255, .4);
+  --hover-fill: rgba(0, 0, 0, .06);
+  --selection-a: #daebf7;
+  --selection-b: #edf5fa;
+  /* Borders */
+  --border-radius-small: 2px;
+  --border-radius-med: 5px;
+  --border-radius-large: 6px;
+  --shadow-hud: 0 5px 17px rgba(0, 0, 0, .2), 0 2px 7px rgba(0, 0, 0, .15);
+  --shadow-floating-window: 0 2px 14px rgba(0, 0, 0, .15);
+  /* Sizes */
+  --size-xxxsmall: 4px;
+  --size-xxsmall: 8px;
+  --size-xsmall: 16px;
+  --size-small: 24px;
+  --size-medium: 32px;
+  --size-large: 40px;
+  --size-xlarge: 48px;
+  --size-xxlarge: 64px;
+  --size-xxxlarge: 80px;
+}
+
+iframe {
+  border: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tile:hover {
+  background-color: var(--figma-color-bg-hover) !important;
+}
+
+.no-first-span-overflow > span:first-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#create-figma-plugin {
+  display: flex;
+  overflow: hidden;
+  height: 100%;
+}
+
+.node-toolbar-btn {
+  scale: 0.9;
+}
+
+.props-select {
+  max-height: 300px;
+  z-index: 99999;
+}
+
+.dialog-close > svg {
+  scale: 0.8;
+}
+
+.rotate {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
+.icon-button-active {
+  background-color: var(--figma-color-bg-selected-strong) !important;
+}
+
+/* Needed for color picker */
+.fp-SelectTrigger {
+  gap: 0;
+}
+
+/* Needed for node attributes */
+.fp-DialogBaseSection .fp-SelectTrigger span:first-child {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.fp-TabsContent {
+  outline: none;
+  overflow: auto;
+  height: 100%;
+}
+
+/* Radix Tab Figma Styling */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.tab-menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--figma-color-bg);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+.search-mode.tab-menu,
+.search-mode div[role="tablist"],
+.search-mode div[role="tablist"] > div {
+  align-items: center;
+  width: 100%;
+  gap: 0;
+}
+
+.tab-bar {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-direction: row;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
+.tab-bar > div {
+  width: 100%;
+}
+
+.tab-bar-nav {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 8px;
+  padding-right: 0;
+  gap: 2px;
+}
+
+.tab-bar-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-bar-nav .tab[title="Project Components"] {
+  padding-left: 2px;
+}
+
+.tab-bar-nav .tab[title="Component Code"] {
+  padding-left: 6px;
+}
+
+.tab-bar-nav .tab[title="Component Docs"] {
+  margin-right: 13px;
+}
+
+.tab {
+  font-family: var(--font-stack);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--font-line-height);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+  font-weight: 500;
+  background: none;
+  color: #b3b3b3;
+  padding: 0 8px;
+  height: 32;
+  border: 0;
+  border-radius: 5px;
+}
+
+.tab.icon {
+  width: 32;
+  padding: 0;
+  opacity: 0.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tab[data-state="active"] {
+  font-weight: 600;
+  color: var(--figma-color-text);
+}
+
+.tab.icon[data-state="active"] {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
+.tab-btn {
+  width: 24px;
+  height: 24px;
+  margin-block: 4px;
+  margin-right: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  display: flex;
+  background: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.tab-btn:hover {
+  background-color: var(--figma-color-bg-pressed);
+  opacity: 1;
+}
+
+.tab-view {
+  flex: 1;
+  overflow: auto;
+}
+
+/* Status Bar */
+
+.status-bar {
+  width: 100%;
+  height: 27px;
+  padding-right: 10px;
+  z-index: 99999;
+  gap: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg);
+}
+
+.status-actions {
+  display: flex;
+  padding-left: 10px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Component */
+
+.components {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0px;
+}
+
+.components > div { /* Disclosure override */
+  padding: 0;
+  width: 100%;
+}
+
+.components [class*="_title_"] {
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 16px;
+  letter-spacing: 0.05504px;
+}
+
+.component {
+  background-color: #000000;
+  border-radius: 4px;
+  height: 120px;
+  width: 200px;
+}
+
+.components label {
+  width: 100%;
+}
+
+.components .highlight {
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.components [class*="_children_"] {
+  padding: 0 !important;
+}
+
+/* Documents */
+
+.documents {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin: 0px;
+  height: 100%;
+}
+
+@media (max-width: 380px) {
+  .documents {
+    flex-direction: column !important;
+  }
+
+  .documents .list {
+    width: 100% !important;
+    height: auto !important;
+    flex: initial !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--figma-color-border);
+  }
+}
+
+.documents .tip {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.documents .list {
+  flex: 0;
+  min-width: 200px;
+  min-height: 33px;
+  flex-direction: column;
+  align-items: flex-start;
+  border-right: 1px solid var(--figma-color-border);
+  height: 100%;
+  overflow: auto;
+}
+
+.documents .editor {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #1F1F1F;
+  padding: 1rem;
+}
+
+.documents > div > div { /* Disclosure override */
+  padding: 0;
+  width: 100%;
+}
+
+/* Dropdowns */
+
+/* Positioning menu dropdown */
+.drop-mod-menu [class*="_dropdown_"] {
+  width: 32px;
+  margin-right: 5px;
+  align-self: center;
+}
+
+/* Positioning target dropdown */
+.drop-mod-target [class*="_dropdown_"],
+.drop-mod-target-unsaved [class*="_dropdown_"] {
+  width: auto;
+  margin-right: 8px;
+  align-self: center;
+}
+
+@media (max-width: 308px) {
+  .drop-mod-target [class*="_dropdown_"],
+  .drop-mod-target-unsaved [class*="_dropdown_"] {
+    min-width: 54px;
+    flex: 0;
+  }
+}
+
+body [class*="_menu_"] {
+  border-radius: 9px;
+}
+
+/* Status icon padding removed for unsaved target */
+.drop-mod-target-unsaved [class*="_optionValue_"] {
+  padding: 4px var(--space-medium);
+}
+
+/* Text changed for target */
+.drop-mod-target [class*="_dropdown_"] {
+  color: var(--figma-color-text-component);
+}
+
+/* Text changed for unsaved target */
+.drop-mod-target-unsaved [class*="_dropdown_"] {
+  color: var(--figma-color-icon-warning);
+}
+
+/* Placeholder text changed for unsaved target */
+.drop-mod-target-unsaved [class*="_placeholder_"] {
+  color: var(--figma-color-icon-warning);
+}
+
+/* Status chevron icon removed for menu */
+.drop-mod-menu [class*="_chevronIcon_"] {
+  display: none;
+}
+
+/* Virtual List */
+.virtuoso-grid-list {
+  display: flex;
+  justify-content: center;
+  flex-flow: wrap;
+  margin-top: 5px;
+  gap: 1px;
+}
+
+/* Theme Picker */
+
+.theme-picker-palette {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.theme-picker-palette > div {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background-color: #000000;
+}
+
+.theme-picker-colors > div > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 5px 20px;
+}
+
+.theme-picker-colors [class*="_child_"] {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 !important;
+}
+
+.theme-picker-colors [class*="_border_"] {
+  border-color: transparent;
+  width: 16px;
+  height: 16px;
+  border-radius: 10px;
+  border-width: 2px;
+  top: 3px;
+  left: 3px;
+}
+
+.theme-picker-colors [class*="_children_"] {
+  padding: 3.5px 0 0 26px;
+}
+
+.theme-picker-colors [class*="_input_"]:checked ~[class*="_border_"] {
+  border-color: var(--figma-color-text);
+}
+
+.theme-picker-colors [class*="_input_"]:focus ~[class*="_border_"] {
+  top: 3px !important;
+  left: 3px !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 10px !important;
+  border-color: var(--figma-color-text) !important;
+}
+
+.theme-picker-colors [class*="_fill_"] {
+  width: 16px;
+  height: 16px;
+  border-radius: 10px;
+}
+
+.theme-picker-colors input[value="Zinc"] ~[class*="_fill_"] {
+  background: hsl(240 5.2% 33.9%) !important;
+}
+
+.theme-picker-colors input[value="Slate"] ~[class*="_fill_"] {
+  background: hsl(215.3 19.3% 34.5%) !important;
+}
+
+.theme-picker-colors input[value="Stone"] ~[class*="_fill_"] {
+  background: hsl(33.3 5.5% 32.4%) !important;
+}
+
+.theme-picker-colors input[value="Grey"] ~[class*="_fill_"] {
+  background: hsl(215 13.8% 34.1%) !important;
+}
+
+.theme-picker-colors input[value="Neutral"] ~[class*="_fill_"] {
+  background: hsl(0 0% 32.2%) !important;
+}
+
+.theme-picker-colors input[value="Red"] ~[class*="_fill_"] {
+  background: hsl(0 72.2% 50.6%) !important;
+}
+
+.theme-picker-colors input[value="Rose"] ~[class*="_fill_"] {
+  background: hsl(346.8 77.2% 49.8%) !important;
+}
+
+.theme-picker-colors input[value="Orange"] ~[class*="_fill_"] {
+  background: hsl(20.5 90.2% 48.2%) !important;
+}
+
+.theme-picker-colors input[value="Green"] ~[class*="_fill_"] {
+  background: hsl(142.1 70.6% 45.3%) !important;
+}
+
+.theme-picker-colors input[value="Blue"] ~[class*="_fill_"] {
+  background: hsl(217.2 91.2% 59.8%) !important;
+}
+
+.theme-picker-colors input[value="Yellow"] ~[class*="_fill_"] {
+  background: hsl(47.9 95.8% 53.1%) !important;
+}
+
+.theme-picker-colors input[value="Violet"] ~[class*="_fill_"] {
+  background: hsl(263.4 70% 50.4%) !important;
+}

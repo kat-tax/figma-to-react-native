@@ -1,5 +1,5 @@
 {
-  "version": "0.48.0",
+  "version": "0.49.0",
   "name": "@kat.tax/figma-to-react-native",
   "description": "Transform Figma Designs to React Native",
   "author": "ΚΛΤΤΛΧ",
@@ -9,19 +9,14 @@
     "url": "https://github.com/kat-tax/figma-to-react-native"
   },
   "scripts": {
-    "figma": "pnpm --filter ./plugins/figma run dev",
-    "vscode": "pnpm --filter ./plugins/vscode run dev",
-    "build:figma": "pnpm --filter ./plugins/figma run build",
-    "build:vscode": "pnpm --filter ./plugins/vscode run build",
-    "generate:git-mem": "pnpm --filter ./packages/git-mem run build",
-    "generate:figma-ui": "pnpm --filter ./packages/figma-ui run build",
-    "generate:figma-build": "pnpm --filter ./packages/figma-build run build",
-    "generate:figma-schema": "pnpm --filter ./plugins/figma run schema",
-    "generate:preview-inspector": "pnpm --filter ./packages/preview-inspector run build",
-    "_postinstall": "concurrently pnpm:generate:* && concurrently pnpm:build:*"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+    "dev": "pnpm --filter ./plugin run dev",
+    "start": "pnpm --filter ./plugin run dev",
+    "build": "pnpm --filter ./plugin run build",
+    "gen:schema": "pnpm --filter ./plugin run schema",
+    "gen:git-mem": "pnpm --filter ./packages/git-mem run build",
+    "gen:builder": "pnpm --filter ./packages/figma-build run build",
+    "gen:inspector": "pnpm --filter ./packages/preview-inspector run build",
+    "postinstall": "pnpm gen:builder && pnpm gen:inspector && pnpm gen:git-mem && pnpm gen:schema"
   },
   "pnpm": {
     "overrides": {
@@ -72,6 +67,9 @@
       "unbox-primitive": "npm:@nolyfill/unbox-primitive@latest",
       "which-boxed-primitive": "npm:@nolyfill/which-boxed-primitive@latest",
       "which-typed-array": "npm:@nolyfill/which-typed-array@latest"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
