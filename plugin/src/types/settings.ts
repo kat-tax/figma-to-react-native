@@ -1,4 +1,4 @@
-import type {BuildOptions} from 'syn-bundler';
+import type {BuildOptions} from 'web-bundler';
 import type {MonacoEditorOptions} from 'interface/utils/editor/monaco';
 import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
 

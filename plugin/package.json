@@ -59,10 +59,10 @@
     "react-dom": "^18.2.0",
     "react-virtuoso": "^4.12.5",
     "reserved": "^0.1.2",
-    "syn-bundler": "^0.0.1",
     "uniforms": "4.0.0",
     "uniforms-bridge-json-schema": "4.0.0",
     "uniforms-unstyled": "4.0.0",
+    "web-bundler": "workspace:*",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.24"
   },

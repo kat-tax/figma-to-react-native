@@ -1,4 +1,4 @@
-import {bundle} from 'syn-bundler';
+import {bundle} from 'web-bundler';
 import {notify} from 'interface/telemetry';
 import * as $ from 'store';
 
