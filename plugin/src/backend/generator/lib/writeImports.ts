@@ -27,8 +27,8 @@ export interface ImportFlags {
     PressableStateCallbackType?: boolean,
   },
   unistyles: {
-    useStyles?: boolean,
-    createStyleSheet?: boolean,
+    StyleSheet?: boolean,
+    withUnistyles?: boolean,
   },
   lingui: {
     t?: boolean,
@@ -88,9 +88,9 @@ export async function writeImports(
 
   // Package Imports
   writeImport('react', flags.react);
+  writeImport('react-native', flags.reactNative);
   writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-exo/utils', flags.exoUtils);
-  writeImport('react-native', flags.reactNative);
   writeImport('react-exo/grid', flags.exoGrid);
   writeImport('react-exo/icon', flags.exoIcon);
   writeImport('react-exo/image', flags.exoImage);

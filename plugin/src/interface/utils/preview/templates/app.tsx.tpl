@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import {AppRegistry} from 'react-native';
-import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
+import {StyleSheet} from 'react-native-unistyles';
 import {Logtail} from '@logtail/browser';
 import {themes, breakpoints} from 'theme';
 
@@ -61,10 +61,13 @@ export function App() {
 
 document.body.style.backgroundColor = initialBackground;
 
-UnistylesRegistry
-  .addThemes(themes)
-  .addBreakpoints(breakpoints)
-  .addConfig({initialTheme});
+StyleSheet.configure({
+  themes,
+  breakpoints,
+  settings: {
+    initialTheme,
+  },
+});
 
 AppRegistry.registerComponent('app', () => App);
 AppRegistry.runApplication('app', {

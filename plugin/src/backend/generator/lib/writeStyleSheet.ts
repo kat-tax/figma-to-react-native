@@ -11,8 +11,8 @@ export async function writeStyleSheet(
   flags: ImportFlags,
   data: ParseData,
 ): Promise<ImportFlags> {
-  flags.unistyles.createStyleSheet = true;
-  writer.write(`const stylesheet = createStyleSheet(theme => (`).inlineBlock(() => {
+  flags.unistyles.StyleSheet = true;
+  writer.write(`const styles = StyleSheet.create(theme => (`).inlineBlock(() => {
     // Root styles
     const rootStyles = data.stylesheet[data.root.node.id];
     writeStyle(writer, 'root', rootStyles);
@@ -120,8 +120,7 @@ export function writeProp(writer: CodeBlockWriter, prop: string, val: unknown) {
   writer.write(`${prop}: `);
   // Undefined values
   if (typeof val === 'undefined' || val === 'unset') {
-    writer.quote('unset')
-    writer.write(' as any');
+    writer.write('undefined');
   } else {
     const value = isRuntimeVar(val) ? getRuntimeVar(val) : val;
     // Number values

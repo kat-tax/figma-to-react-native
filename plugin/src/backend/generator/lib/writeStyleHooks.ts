@@ -13,18 +13,15 @@ export function writeStyleHooks(
   const hasVariants = !!variants;
   const hasStyles = hasVariants && Object.keys(variants.classes).length > 0;
   const hasIcons = hasVariants && Object.keys(variants.icons).length > 0;
-  const destructure = flags.useStylesTheme ? '{styles, theme}' : '{styles}';
+  // TODO: unistyles v3
+  // const destructure = flags.useStylesTheme ? '{styles, theme}' : '{styles}';
+
+  if (!hasVariants || (!hasStyles && !hasIcons)) {
+    return;
+  }
 
   // Import flags
   flags.exoUtils.useVariants = hasStyles || hasIcons;
-  flags.unistyles.useStyles = true;
-
-  // No variants
-  if (!hasVariants || (!hasStyles && !hasIcons)) {
-    writer.writeLine(`const ${destructure} = useStyles(stylesheet);`);
-    writer.blankLine();
-    return;
-  }
 
   const varIds = new Set<string>();
   const styles = new Set<Record<string, ParseStyles>>();
@@ -67,7 +64,6 @@ export function writeStyleHooks(
   // Write hooks
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
-  writer.writeLine(`const ${destructure} = useStyles(stylesheet);`);
   writer.writeLine(`const {vstyles} = useVariants(${name}Variants, {${props}}, styles);`);
   writer.blankLine();
 }
