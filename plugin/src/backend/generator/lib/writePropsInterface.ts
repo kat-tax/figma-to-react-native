@@ -32,7 +32,7 @@ export function writePropsInterface(
     const propType: string = isVariant
       ? `typeof ${componentName}Variants.${propName}[number]`
       : isInstanceSwap
-        ? `JSX.Element`
+        ? `React.ReactElement`
         : prop.type === 'TEXT'
           ? 'string'
           : prop.type.toLowerCase();
