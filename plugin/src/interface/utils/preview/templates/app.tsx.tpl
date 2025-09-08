@@ -1,21 +1,9 @@
 // @ts-nocheck
 
+import 'styles';
+import {UnistylesRuntime} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
-import {StyleSheet} from 'react-native-unistyles';
 import {Logtail} from '@logtail/browser';
-import {themes, breakpoints} from 'theme';
-
-type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
-type AppBreakpoints = typeof breakpoints;
-
-declare module 'react-native-unistyles' {
-  export interface UnistylesBreakpoints extends AppBreakpoints {}
-  export interface UnistylesThemes extends AppThemes {}
-}
-
-const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
-const initialBackground = '__CURRENT_BACKGROUND__';
-const initialTheme = '__CURRENT_THEME__';
 
 window.__trans__ = (msg: string) => msg;
 
@@ -28,8 +16,8 @@ export function App() {
     const updateProps = (e: JSON) => {
       switch (e.data?.type) {
         case 'preview::theme':
-          // console.log('[changed theme]', e.data.theme);
           UnistylesRuntime.setTheme(e.data.theme);
+          console.log('>>> [changed theme]', e.data.theme);
           return;
         case 'preview::figma-theme':
           document.documentElement.className = e.data.isDark ? 'dark' : 'light';
@@ -59,22 +47,13 @@ export function App() {
   )
 }
 
-document.body.style.backgroundColor = initialBackground;
-
-StyleSheet.configure({
-  themes,
-  breakpoints,
-  settings: {
-    initialTheme,
-  },
-});
-
 AppRegistry.registerComponent('app', () => App);
 AppRegistry.runApplication('app', {
   rootTag: document.getElementById('__ROOT_TAG__'),
   mode: 'concurrent',
 });
 
+const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 class ErrorBoundary extends React.Component<{children: React.ReactNode}> {
   constructor(props: {children: React.ReactNode}) {
     super(props);

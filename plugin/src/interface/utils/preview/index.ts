@@ -35,10 +35,20 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
   const previewApp = atob(app.toString());
   try {
     files.set('/theme', $.projectTheme.get().toString());
+    files.set('/styles', `
+      import {StyleSheet} from 'react-native-unistyles';
+      import {themes, breakpoints} from 'theme';
+      document.body.style.backgroundColor = '${background}';
+      StyleSheet.configure({
+        themes,
+        breakpoints,
+        settings: {
+          initialTheme: '${theme}',
+        },
+      });
+    `);
     files.set(ENTRY_POINT, previewApp
       .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n${imports}`)
-      .replace('__CURRENT_BACKGROUND__', background)
-      .replace('__CURRENT_THEME__', theme)
       .replace('__COMPONENT_TAG__', tag)
       .replace('__ROOT_TAG__', gitFs ? 'diff' : 'component'));
     return await bundle(ENTRY_POINT, files, esbuild, importMap);
