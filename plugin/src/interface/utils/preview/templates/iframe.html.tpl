@@ -115,6 +115,7 @@
   </head>
   <body>
     <div id="previewer"></div>
+    <script>__DEV__ = true</script>
     <script>process = {env: {NODE_ENV: 'development'}}</script>
     <script async src="https://unpkg.com/es-module-shims@1.4.3/dist/es-module-shims.js"></script>
     <script type="importmap">{"imports": __IMPORT_MAP__}</script>

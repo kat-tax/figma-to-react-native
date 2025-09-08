@@ -1,5 +1,6 @@
 import type {Plugin} from 'esbuild-wasm';
 import type {Resolver} from '../lib/resolver';
+import {transformUnistyles} from '../lib/unistyles';
 
 interface PluginOptions {
   resolver: Resolver,
@@ -10,6 +11,7 @@ export default (opts: PluginOptions): Plugin => ({
   name: 'react',
   setup: (build) => {
     const filter = /.*/;
+    const uniCounters = new Map<string, number>();
 
     build.onResolve({filter}, (args) => {
       switch (args.kind) {
@@ -53,6 +55,23 @@ export default (opts: PluginOptions): Plugin => ({
       // Determine loader
       const isTS = isStyles || isTheme || args.path.endsWith('.ts');
       const isTSX = isComponent || isLinguiMacro || args.path.endsWith('.tsx');
+
+      // Custom file contents
+      let contents: string;
+      if (isInject) {
+        contents = `export * as React from 'react'`;
+      } else if (isLinguiMacro) {
+        contents = 'export const Trans = ({children}) => (<span>{__trans__(children)}</span>)';
+      } else {
+        const resolved = await Promise.resolve(opts.resolver.resolve(args.path));
+        contents = typeof resolved === 'string' ? resolved : '';
+      }
+
+      // Simulate Unistyles plugin
+      if (isTSX && isComponent) {
+        contents = transformUnistyles(contents, args.path, uniCounters);
+      }
+
       return {
         loader: isInject
           ? 'js'
@@ -61,12 +80,8 @@ export default (opts: PluginOptions): Plugin => ({
             : isTSX
               ? 'tsx'
               : 'default',
-        contents: isInject
-          ? `export * as React from 'react'`
-          : isLinguiMacro
-            ? 'export const Trans = ({children}) => (<span>{__trans__(children)}</span>)'
-            : await Promise.resolve(opts.resolver.resolve(args.path)),
-        };
+        contents,
+      };
     });
   },
 });
