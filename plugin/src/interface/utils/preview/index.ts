@@ -37,6 +37,15 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
   const previewApp = atob(app.toString());
   try {
     files.set('/theme', $.projectTheme.get().toString());
+    files.set('/textinput.tsx', `
+      import {TextInput as RNTextInput} from 'react-native';
+      import {withUnistyles} from 'react-native-unistyles';
+      import {useMemo, cloneElement} from 'react';
+
+      export const TextInput = withUnistyles(RNTextInput, (theme) => ({
+        placeholderTextColor: theme.colors.mutedForeground,
+      }));
+    `);
     files.set('/icons.tsx', `
       import {Icon as RNIcon} from 'react-exo/icon';
       import {withUnistyles} from 'react-native-unistyles';

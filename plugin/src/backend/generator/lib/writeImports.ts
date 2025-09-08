@@ -53,6 +53,9 @@ export interface ImportFlags {
   exoRive: {
     Rive?: boolean,
   },
+  exoTextInput: {
+    TextInput?: boolean,
+  },
   exoUtils: {
     useVariants?: boolean,
     isNative?: boolean,
@@ -99,6 +102,7 @@ export async function writeImports(
   writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('react-exo/motion', flags.exoMotion);
   writeImport('icons.tsx', flags.exoIcon); // TEMP
+  writeImport('textinput.tsx', flags.exoTextInput); // TEMP
   writeImport('@lingui/macro', flags.lingui);
 
   // Component Imports

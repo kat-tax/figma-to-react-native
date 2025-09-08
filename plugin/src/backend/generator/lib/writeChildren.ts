@@ -232,7 +232,8 @@ function writeChild(
 
   // Text input detected
   if (isInput) {
-    state.flags.reactNative.TextInput = true;
+    //state.flags.reactNative.TextInput = true;
+    state.flags.exoTextInput.TextInput = true;
     writer.write('<TextInput').write(jsxProps).indent(() => {
       // Placeholder (props value)
       if (textPropValue.startsWith('props.')) {
@@ -244,8 +245,11 @@ function writeChild(
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
-      // TODO: unistyles v3
-      writer.writeLine(`placeholderTextColor={${getFillToken(child.node as TextNode)}}`);
+      writer.write(`uniProps={theme => (`);
+      writer.inlineBlock(() => {
+        writer.writeLine(`placeholderTextColor: ${getFillToken(child.node as TextNode)},`);
+      });
+      writer.write(`)}`);
       state.flags.useStylesTheme = true;
     });
     writer.write(`/>`);

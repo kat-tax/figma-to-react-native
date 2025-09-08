@@ -30,6 +30,7 @@ export async function generateCode(
     exoLottie: {},
     exoRive: {},
     exoGrid: {},
+    exoTextInput: {},
     useStylesTheme: false,
   };
 
