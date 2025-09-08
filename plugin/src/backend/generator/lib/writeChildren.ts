@@ -95,14 +95,13 @@ function writeChild(
     const icon = getIconProp(slug, isRootPressable);
     // Swap icon, override props for this instance
     if (isSwap) {
-      state.flags.exoUtils.createIcon = true;
+      state.flags.exoIcon.createIcon = true;
       const statement = `createIcon(props.${swapNodeProp}, ${icon})`;
       writer.writeLine((isCond ? '' : '{') + statement + (isCond ? '' : '}'));
     // Explicit icon, use Icon component directly
     } else {
       state.flags.exoIcon.Icon = true;
-      state.flags.reactNative.StyleSheet = true;
-      writer.writeLine(`<Icon {...StyleSheet.flatten(${icon})}/>`);
+      writer.writeLine(`<Icon style={${icon}}/>`);
     }
     return;
   }
@@ -245,6 +244,7 @@ function writeChild(
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
+      // TODO: unistyles v3
       writer.writeLine(`placeholderTextColor={${getFillToken(child.node as TextNode)}}`);
       state.flags.useStylesTheme = true;
     });

@@ -36,6 +36,7 @@ export interface ImportFlags {
   },
   exoIcon: {
     Icon?: boolean,
+    createIcon?: boolean,
   },
   exoImage: {
     Image?: boolean,
@@ -54,7 +55,6 @@ export interface ImportFlags {
   },
   exoUtils: {
     useVariants?: boolean,
-    createIcon?: boolean,
     isNative?: boolean,
     isTouch?: boolean,
   },
@@ -92,12 +92,13 @@ export async function writeImports(
   writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-exo/utils', flags.exoUtils);
   writeImport('react-exo/grid', flags.exoGrid);
-  writeImport('react-exo/icon', flags.exoIcon);
+  //writeImport('react-exo/icon', flags.exoIcon);
   writeImport('react-exo/image', flags.exoImage);
   writeImport('react-exo/video', flags.exoVideo);
   writeImport('react-exo/rive', flags.exoRive);
   writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('react-exo/motion', flags.exoMotion);
+  writeImport('icons.tsx', flags.exoIcon); // TEMP
   writeImport('@lingui/macro', flags.lingui);
 
   // Component Imports
