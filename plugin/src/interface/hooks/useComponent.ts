@@ -194,27 +194,15 @@ export function useComponent(
     if (!loaded.current) return;
     const {name, path, imports, width, height} = component;
     const tag = '<' + component.name + component.props + '/>';
-    preview({tag, name, path, imports, theme, background, esbuild, build}).then(bundle => {
+    preview({tag, name, path, imports, theme, background, variant, esbuild, build}).then(bundle => {
       post('preview::load', {bundle, name, width, height, theme, background});
     });
     if (fs && showDiff) {
-      preview({tag, name, path, imports, theme, background, esbuild, build}, fs).then(bundle => {
+      preview({tag, name, path, imports, theme, background, variant, esbuild, build}, fs).then(bundle => {
         post('preview::load', {bundle, name, width, height, theme, background, head: true});
       });
     }
   }, [component, esbuild, build, fs, showDiff]);
-
-  // TEMP: Workaround to force the preview app to refresh on variant change
-  const refresh = useCallback(() => {
-    if (isList) return;
-    if (!iframe.current) return;
-    requestAnimationFrame(() => {
-      iframe.current.style.width = '99%';
-      requestAnimationFrame(() => {
-        iframe.current.style.width = '100%';
-      });
-    });
-  }, []);
 
   // Render the loader when the settings change
   useEffect(initLoader, [esbuild]);
@@ -260,12 +248,6 @@ export function useComponent(
         // Handle app loaded event
         case 'app:loaded': {
           setIsLoaded(true);
-          break;
-        }
-
-        // Force refresh
-        case 'app:refresh': {
-          refresh();
           break;
         }
 

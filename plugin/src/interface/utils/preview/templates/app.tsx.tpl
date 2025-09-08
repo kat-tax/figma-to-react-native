@@ -10,7 +10,8 @@ window.__trans__ = (msg: string) => msg;
 __COMPONENT_IMPORTS__
 
 export function App() {
-  const [variant, setVariant] = React.useState({});
+  const [variant, setVariant] = React.useState(__INITIAL_VARIANT__);
+  const [variantKey, setVariantKey] = React.useState(0);
 
   React.useEffect(() => {
     const updateProps = (e: JSON) => {
@@ -23,10 +24,11 @@ export function App() {
           document.documentElement.className = e.data.isDark ? 'dark' : 'light';
           return;
         case 'preview::variant': {
-          // console.log('[changed variant]', e.data.variant);
           const newRoot = e.data.variant.props;
           setVariant(newRoot);
-          parent.postMessage({type: 'app:refresh'});
+          // Force re-render by updating the key
+          setVariantKey(prev => prev + 1);
+          console.log('>>> [changed variant]', e.data.variant);
           return;
         }
       }
@@ -42,7 +44,7 @@ export function App() {
 
   return (
     <ErrorBoundary>
-      {React.cloneElement(__COMPONENT_TAG__, variant)}
+      {React.cloneElement(__COMPONENT_TAG__, {...variant, key: variantKey})}
     </ErrorBoundary>
   )
 }

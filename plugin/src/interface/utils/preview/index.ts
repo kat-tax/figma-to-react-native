@@ -10,6 +10,7 @@ import app from './templates/app.tsx.tpl';
 import type {IFs} from 'git-mem';
 import type {UserSettings} from 'types/settings';
 import type {ComponentBuild} from 'types/component';
+import type {VariantData} from 'interface/hooks/useSelectedVariant';
 
 const ENTRY_POINT = '/index.tsx';
 
@@ -20,12 +21,13 @@ interface PreviewOptions {
   imports: string,
   esbuild: UserSettings['esbuild'],
   background: string,
+  variant: VariantData,
   theme: string,
   build: ComponentBuild,
 }
 
 export async function preview(options: PreviewOptions, gitFs: IFs | null = null) {
-  const {tag, name, path, imports, theme, background, esbuild, build} = options;
+  const {tag, name, path, imports, theme, background, variant, esbuild, build} = options;
 
   const files = gitFs
     ? getGitFiles(build, gitFs)
@@ -49,6 +51,7 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
     `);
     files.set(ENTRY_POINT, previewApp
       .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n${imports}`)
+      .replace('__INITIAL_VARIANT__', JSON.stringify(variant.props || {}))
       .replace('__COMPONENT_TAG__', tag)
       .replace('__ROOT_TAG__', gitFs ? 'diff' : 'component'));
     return await bundle(ENTRY_POINT, files, esbuild, importMap);
