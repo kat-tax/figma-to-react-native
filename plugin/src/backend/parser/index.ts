@@ -218,11 +218,21 @@ function getFrame(node: ComponentNode): T.ParseFrame {
     : null;
 }
 
+function getSlug(node: SceneNode) {
+  if (node.name.includes(':')) {
+    const [, name] = node.name.split(':');
+    return name === 'placeholder'
+      ? 'icon'
+      : string.createIdentifierCamel(name);
+  }
+  return string.createIdentifierCamel(node.name);
+}
+
 function getChildren(nodes: Set<SceneNode>): T.ParseChild[] {
   const children: T.ParseChild[] = [];
   for (const node of nodes) {
-    const id = string.createIdentifierCamel(node.name);
-    const ref = children.filter((c) => id === string.createIdentifierCamel(c.node.name)).length;
+    const id = getSlug(node);
+    const ref = children.filter((c) => id === getSlug(c.node)).length;
     const slug = ref > 0 ? `${id}${ref+1}` : id;
     children.push({node, slug});
   }
