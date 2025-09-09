@@ -13,7 +13,6 @@ const initial: ComponentBuild = {
   roster: {},
   pages: [],
   assets: {},
-  assetMap: {},
   icons: {
     list: [],
     count: {},

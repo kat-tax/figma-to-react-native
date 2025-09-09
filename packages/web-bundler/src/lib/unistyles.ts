@@ -269,5 +269,6 @@ function stringToUniqueId(value: string): number {
 function shouldProcess(code: string): boolean {
   return code.includes('react-native-unistyles')
     || code.includes("from 'react-native'")
+    || code.includes('from "react-native"')
     || code.includes("StyleSheet.create");
 }

@@ -82,7 +82,6 @@ function writeChild(
   const swapNodeProp = getComponentPropName(propRefs?.mainComponent);
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
-  const isAsset = child.node.type === 'VECTOR' || (child.node.isAsset && !isInstance);
   const isInput = child.node.type === 'TEXT' && child.node.name.toLowerCase().startsWith('textinput');
   const isText = child.node.type === 'TEXT';
   const isSwap = Boolean(swapNodeProp);
@@ -107,46 +106,41 @@ function writeChild(
   }
 
   // Asset node
-  if (isAsset) {
-    const asset = data.assetData[child.node.id];
-    if (asset) {
-      // Vector node
-      if (asset.isVector) {
-        const vectorTag = '<' + asset.name + '/>'
-        writer.writeLine(vectorTag);
-      // Asset node
-      } else {
-        const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
-        const width = round(asset.width);
-        const height = round(asset.height);
-        const sizeProps = `width={${width}} height={${height}}`;
-        const animProps = assetProps?.length
-          ? ' ' + assetProps.map(a => a.trim()).join(' ')
-          : ' autoplay loop';
-        switch (assetType.trim().toLowerCase()) {
-          case 'lottie':
-            writer.writeLine(`<Lottie url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
-            state.flags.exoLottie.Lottie = true;
-            break;
-          case 'rive':
-            writer.writeLine(`<Rive url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
-            state.flags.exoRive.Rive = true;
-            break;
-          default:
-            // TODO: isVideo detection is broken
-            if (asset.isVideo) {
-              writer.writeLine(`<Video url="${assetSource.trim()}" poster={${asset.name}} ${sizeProps}/>`);
-              state.flags.exoVideo.Video = true;
-            } else {
-              const extraProps = asset.thumbhash ? ` thumbhash="${asset.thumbhash}"` : '';
-              writer.writeLine(`<Image url={${asset.name}} ${sizeProps}${extraProps}/>`);
-              state.flags.exoImage.Image = true;
-            }
-            break;
-        }
-      }
+  const asset = data.assetData?.[child.node.id];
+  if (asset) {
+    // Vector node
+    if (asset.isVector) {
+      const vectorTag = '<' + asset.name + '/>';
+      writer.writeLine(vectorTag);
+    // Asset node
     } else {
-      writer.writeLine(`<View/>`);
+      const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
+      const width = round(asset.width);
+      const height = round(asset.height);
+      const sizeProps = `width={${width}} height={${height}}`;
+      const animProps = assetProps?.length
+        ? ' ' + assetProps.map(a => a?.trim()).join(' ')
+        : ' autoplay loop';
+      switch (assetType?.trim().toLowerCase()) {
+        case 'lottie':
+          writer.writeLine(`<Lottie url="${assetSource?.trim()}"${animProps} ${sizeProps}/>`);
+          state.flags.exoLottie.Lottie = true;
+          break;
+        case 'rive':
+          writer.writeLine(`<Rive url="${assetSource?.trim()}"${animProps} ${sizeProps}/>`);
+          state.flags.exoRive.Rive = true;
+          break;
+        default:
+          if (asset.isVideo) {
+            writer.writeLine(`<Video url="${assetSource?.trim()}" poster={${asset.name}} ${sizeProps}/>`);
+            state.flags.exoVideo.Video = true;
+          } else {
+            const extraProps = asset.thumb ? ` thumbhash="${asset.thumb}"` : '';
+            writer.writeLine(`<Image url={${asset.name}} ${sizeProps}${extraProps}/>`);
+            state.flags.exoImage.Image = true;
+          }
+          break;
+      }
     }
     return;
   }

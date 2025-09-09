@@ -84,6 +84,22 @@ export async function getNodeSrcProps(key: string): Promise<NodeAttrRule[]> {
   }));
 }
 
+export function getRectAssetType(node: BaseNode): 'image' | 'video' | null {
+  if (node.type === 'RECTANGLE') {
+    if (Array.isArray(node.fills)) {
+      for (let i = node.fills.length - 1; i >= 0; i--) {
+        const fill = node.fills[i];
+        if (fill.type === 'IMAGE') {
+          return 'image';
+        } else if (fill.type === 'VIDEO') {
+          return 'video';
+        }
+      }
+    }
+  }
+  return null;
+}
+
 export function getInstanceStyles(baseStyles: object, compareStyles: object) {
   // TODO: we should diff from the variant the instance is set to, not the default variant
   // instance.variantProperties;

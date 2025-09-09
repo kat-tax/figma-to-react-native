@@ -30,16 +30,16 @@ export default async function parse(
   const data = crawl(component);
 
   // Generated styles and assets
-  const [localState, stylesheet, {assetData, assetMap}] = await Promise.all([
+  const [localState, stylesheet, assetData] = await Promise.all([
     parser.getLocalState(),
     parser.getStyleSheet(data.meta.styleNodes, data.variants, skipCache),
-    parser.getAssets(data.meta.assetNodes),
+    parser.getAssets(data.meta.assetNodes, component),
   ]);
 
   // Profile (eta: 20ms per node [30-50ms w/ per node variants]) due to `getCSSAsync`)
   console.log(`>> [parse] (cached: ${!skipCache}) ${Date.now() - _t1}ms (${data.meta.styleNodes.size} styles, ${data.meta.assetNodes.size} assets)`, component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name);
 
-  return {...data, localState, stylesheet, assetData, assetMap};
+  return {...data, localState, stylesheet, assetData};
 }
 
 export function crawl(node: ComponentNode) {
@@ -94,9 +94,10 @@ function crawlChildren(
     const isInstance = node.type === 'INSTANCE';
     const isVector = node.type === 'VECTOR';
     const isIcon = parser.isNodeIcon(node);
+    const isRectAsset = parser.getRectAssetType(node) !== null;
 
     // Node states
-    const hasAsset = (node.isAsset && !isInstance) || isVector;
+    const hasAsset = (node.isAsset && !isInstance) || isVector || isRectAsset;
     const hasStyle = NODES_WITH_STYLES.includes(node.type) && !node.isAsset;
 
     // Record asset nodes to be exported, nothing further is needed

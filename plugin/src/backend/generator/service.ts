@@ -264,7 +264,7 @@ export async function compile(
       };
 
       // Aggregate assets and icons
-      assets?.forEach(asset => {_assets[asset.hash] = asset});
+      assets?.forEach(asset => {_assets[asset.id] = asset});
       icons?.list?.forEach(icon => {_icons.list.add(icon)});
       Object.entries(icons?.count).forEach(([icon, count]) => {
         _icons.count[icon] = (icons?.count[icon] || 0) + count;
@@ -279,7 +279,6 @@ export async function compile(
         roster: _roster,
         pages: figma.root.children?.map(p => p.name),
         assets: _assets,
-        assetMap: {},
         icons: {
           list: Array.from(_icons.list),
           count: _icons.count,

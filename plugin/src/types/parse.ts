@@ -8,7 +8,6 @@ export interface ParseData {
   stylesheet: ParseStyleSheet,
   localState: ParseLocalState,
   assetData: ParseAssetData,
-  assetMap: Record<string, string>,
 }
 
 export type ParseRoot = {
@@ -40,13 +39,14 @@ export type ParseVariantData = {
 };
 
 export type ParseAssetData = Record<string, {
+  id: string,
   name: string,
-  hash: string,
+  rawName: string,
+  parent: string,
   width: number,
   height: number,
-  thumbhash: string,
   bytes: Uint8Array | null,
-  rawName: string,
+  thumb: string | null,
   isVector?: boolean,
   isVideo?: boolean,
 }>;

@@ -46,7 +46,7 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
         try {
           const bundle = await generateBundle(component, null, settings);
           if (bundle.code) {
-            bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
+            bundle.assets?.forEach(asset => assets.set(asset.id, asset));
             componentInfo[bundle.info.target.key] = bundle.info;
             components.push([
               bundle.info.path,
