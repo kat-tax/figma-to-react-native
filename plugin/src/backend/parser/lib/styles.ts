@@ -34,14 +34,14 @@ export async function getStyleSheet(
   }
 
   // Profile
-  console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
-  
+  // console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
+
   // Convert CSS
   const _t2 = Date.now();
   const output = await convertStyles(css);
 
   // Profile
-  console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
+  // console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
 
   // Build Stylesheet
   const stylesheet: ParseStyleSheet = {};
@@ -67,16 +67,16 @@ export async function getStyleSheet(
   return stylesheet;
 }
 
-async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClass> {  
+async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClass> {
   // Memory cache
   if (!skipCache && _cacheCSS[id]) {
     return _cacheCSS[id];
   }
-  
+
   // Lookup node
   const node = getNode(id);
   const key = `${consts.F2RN_CACHE_CSS}:${id}`;
-  
+
   // Disk cache
   if (!skipCache) {
     const data = await figma.clientStorage.getAsync(key);

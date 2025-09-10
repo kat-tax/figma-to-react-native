@@ -16,7 +16,7 @@ export function App() {
       switch (e.data?.type) {
         case 'preview::theme':
           UnistylesRuntime.setTheme(e.data.theme);
-          console.log('>>> [changed theme]', e.data.theme);
+          // console.log('>>> [changed theme]', e.data.theme);
           return;
         case 'preview::figma-theme':
           document.documentElement.className = e.data.isDark ? 'dark' : 'light';
@@ -26,7 +26,7 @@ export function App() {
           setVariant(newRoot);
           // Force re-render by updating the key
           setVariantKey(prev => prev + 1);
-          console.log('>>> [changed variant]', e.data.variant);
+          // console.log('>>> [changed variant]', e.data.variant);
           return;
         }
       }

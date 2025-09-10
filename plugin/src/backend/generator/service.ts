@@ -25,7 +25,7 @@ export async function watchComponents(
 ) {
   // Save component props when parsed
   on<EventPropsSave>('PROPS_SAVE', async (props) => {
-    console.log('>> [props/save]', props);
+    // console.log('>> [props/save]', props);
     for (const [key, value] of Object.entries(props)) {
       figma.clientStorage.setAsync(`${consts.F2RN_CACHE_PROPS}:${key}`, value);
     }

@@ -37,7 +37,7 @@ export default async function parse(
   ]);
 
   // Profile (eta: 20ms per node [30-50ms w/ per node variants]) due to `getCSSAsync`)
-  console.log(`>> [parse] (cached: ${!skipCache}) ${Date.now() - _t1}ms (${data.meta.styleNodes.size} styles, ${data.meta.assetNodes.size} assets)`, component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name);
+  // console.log(`>> [parse] (cached: ${!skipCache}) ${Date.now() - _t1}ms (${data.meta.styleNodes.size} styles, ${data.meta.assetNodes.size} assets)`, component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name);
 
   return {...data, localState, stylesheet, assetData};
 }
@@ -56,7 +56,7 @@ export function crawl(node: ComponentNode) {
 
   // Profile (eta: 0ms -> 70ms)
   // TODO: investigate descrepency
-  console.log(`>> [crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, node.parent.type === 'COMPONENT_SET' ? node.parent.name : node.name);
+  // console.log(`>> [crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, node.parent.type === 'COMPONENT_SET' ? node.parent.name : node.name);
 
   return {
     tree,
