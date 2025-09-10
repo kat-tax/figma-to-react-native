@@ -1,0 +1,26 @@
+{
+  "name": "react-native-unistyles",
+  "types": "types/index.d.ts",
+  "files": [
+    "types"
+  ],
+  "peerDependencies": {
+    "@react-native/normalize-colors": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-macos": "*",
+    "react-native-web": "*",
+    "react-native-windows": "*"
+  },
+  "peerDependenciesMeta": {
+    "react-native-macos": {
+      "optional": true
+    },
+    "react-native-web": {
+      "optional": true
+    },
+    "react-native-windows": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"useSharedContext.d.ts","sourceRoot":"","sources":["../../../../src/hooks/useSharedContext.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,cAAc,EAAuB,MAAM,OAAO,CAAA;AAMhE,KAAK,mBAAmB,GAAG;IACvB,UAAU,EAAE,OAAO,CAAC;IACpB,IAAI,EAAE,cAAc,CAAA;CACvB,CAAA;AAID,eAAO,MAAM,gBAAgB,WAAY,mBAAmB;;;;;;;;;;;;;;;;;;;;;;;;;CAqE3D,CAAA"}

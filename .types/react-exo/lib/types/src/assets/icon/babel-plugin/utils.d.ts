@@ -1,0 +1,14 @@
+import type * as b from '@babel/core';
+import type * as t from '@babel/types';
+import type * as i from '@iconify/react/dist/iconify.js';
+export declare const loadedIcons: Map<string, boolean>;
+export declare const iconJsonCache: Map<string, i.IconifyJSON>;
+export declare const TIP_BROWSE = "\nBrowse all available icons at\nhttps://icones.js.org";
+export declare const DIR_CACHE = "./gen/icons";
+export declare function isIconComponent(node: b.Node, t: typeof b.types): node is t.JSXIdentifier;
+export declare function getIconFromJSX(jsx: t.JSXElement, t: typeof b.types): i.IconifyIconName | undefined;
+export declare function getIconifyData(icon: i.IconifyIconName): i.IconifyIcon | null;
+export declare function getIconNameFromJSX(jsx: t.JSXElement, t: typeof b.types): string | null;
+export declare function fetchIconSetJSON(set: string, icons: string[]): Promise<i.IconifyJSON>;
+export declare function saveIconSet(set: string, json: i.IconifyJSON, icons: string[]): void;
+export declare function loadIconSets(): void;

@@ -1,0 +1,10 @@
+{
+    "name": "@types/react",
+    "version": "17.0.2",
+    "main": "",
+    "types": "index.d.ts",
+    "dependencies": {
+        "@types/prop-types": "*",
+        "csstype": "^3.0.2"
+    }
+}

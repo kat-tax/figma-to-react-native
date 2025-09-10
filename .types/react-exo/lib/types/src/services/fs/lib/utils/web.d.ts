@@ -1,0 +1,11 @@
+import { FileSystemIn, FileSystemOut, PickFilesOptions, PickDirectoryOptions } from '../../Fs.interface';
+export declare function getRoot(): Promise<FileSystemDirectoryHandle>;
+export declare function getFileHandle(path: string, opts?: FileSystemGetDirectoryOptions): Promise<FileSystemFileHandle | undefined>;
+export declare function getDirectoryHandle(path: string, opts?: FileSystemGetDirectoryOptions): Promise<FileSystemDirectoryHandle | undefined>;
+export declare function getFileAccess(input: FileSystemIn, sync?: boolean): Promise<[FileSystemOut, number]>;
+export declare function getFileBuffer(input: FileSystemIn): Promise<ArrayBuffer>;
+export declare function getFileEntries(handle: FileSystemDirectoryHandle, path?: string): Promise<Array<File>>;
+export declare function pickFiles(options?: PickFilesOptions): Promise<Array<File>>;
+export declare function pickDirectory(options?: PickDirectoryOptions): Promise<Array<File>>;
+export declare function pickFallback(type: 'file' | 'directory', multiple?: boolean): Promise<Array<File>>;
+export declare function watchDirectory(path: string, callback: (records: unknown[]) => void): Promise<false | (() => void)>;

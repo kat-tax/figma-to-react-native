@@ -1,0 +1,93 @@
+{
+  "name": "react-exo",
+  "types": "./lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts"
+    },
+    "./book": {
+      "types": "./lib/types/book.d.ts"
+    },
+    "./code": {
+      "types": "./lib/types/code.d.ts"
+    },
+    "./game": {
+      "types": "./lib/types/game.d.ts"
+    },
+    "./icon": {
+      "types": "./lib/types/icon.d.ts"
+    },
+    "./image": {
+      "types": "./lib/types/image.d.ts"
+    },
+    "./lottie": {
+      "types": "./lib/types/lottie.d.ts"
+    },
+    "./map": {
+      "types": "./lib/types/map.d.ts"
+    },
+    "./markdown": {
+      "types": "./lib/types/markdown.d.ts"
+    },
+    "./model": {
+      "types": "./lib/types/model.d.ts"
+    },
+    "./pdf": {
+      "types": "./lib/types/pdf.d.ts"
+    },
+    "./rive": {
+      "types": "./lib/types/rive.d.ts"
+    },
+    "./video": {
+      "types": "./lib/types/video.d.ts"
+    },
+    "./device": {
+      "types": "./lib/types/device.d.ts"
+    },
+    "./fs": {
+      "types": "./lib/types/fs.d.ts"
+    },
+    "./kv": {
+      "types": "./lib/types/kv.d.ts"
+    },
+    "./redux": {
+      "types": "./lib/types/redux.d.ts"
+    },
+    "./toast": {
+      "types": "./lib/types/toast.d.ts"
+    },
+    "./gesture": {
+      "types": "./lib/types/gesture.d.ts"
+    },
+    "./motion": {
+      "types": "./lib/types/motion.d.ts"
+    },
+    "./navigation": {
+      "types": "./lib/types/navigation.d.ts"
+    },
+    "./skeleton": {
+      "types": "./lib/types/skeleton.d.ts"
+    },
+    "./checkbox": {
+      "types": "./lib/types/checkbox.d.ts"
+    },
+    "./picker": {
+      "types": "./lib/types/picker.d.ts"
+    },
+    "./progress": {
+      "types": "./lib/types/progress.d.ts"
+    },
+    "./radio": {
+      "types": "./lib/types/radio.d.ts"
+    },
+    "./slider": {
+      "types": "./lib/types/slider.d.ts"
+    },
+    "./switch": {
+      "types": "./lib/types/switch.d.ts"
+    },
+    "./utils": {
+      "types": "./lib/types/utils.d.ts"
+    }
+  }
+}

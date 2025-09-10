@@ -1,0 +1,6 @@
+{
+    "name": "@types/prop-types",
+    "version": "15.7.14",
+    "main": "",
+    "types": "index.d.ts"
+}
