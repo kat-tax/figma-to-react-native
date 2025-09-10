@@ -31,8 +31,7 @@ export interface ImportFlags {
     withUnistyles?: boolean,
   },
   lingui: {
-    t?: boolean,
-    Trans?: boolean,
+    useLingui?: boolean,
   },
   exoIcon: {
     Icon?: boolean,
@@ -64,8 +63,6 @@ export interface ImportFlags {
     GridView?: boolean,
     GridViewItem?: boolean,
   },
-  // Hook destructuring
-  useStylesTheme: boolean,
 }
 
 export async function writeImports(
@@ -90,6 +87,7 @@ export async function writeImports(
 
   // Package Imports
   writeImport('react', flags.react);
+  writeImport('@lingui/react/macro', flags.lingui);
   writeImport('react-native', flags.reactNative);
   writeImport('react-native-unistyles', flags.unistyles);
   //writeImport('react-exo/textinput', flags.exoTextInput);
@@ -103,7 +101,6 @@ export async function writeImports(
   writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('react-exo/motion', flags.exoMotion);
   writeImport('react-exo/utils', flags.exoUtils);
-  writeImport('@lingui/macro', flags.lingui);
 
   // Component Imports
   const subwriter = new CodeBlockWriter(writer.getOptions());

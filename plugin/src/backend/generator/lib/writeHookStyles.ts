@@ -4,7 +4,7 @@ import {getComponentPropName} from 'backend/parser/lib';
 import type {ImportFlags} from './writeImports';
 import type {ParseStyles, ParseVariantData} from 'types/parse';
 
-export function writeStyleHooks(
+export function writeHookStyles(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   name: string,
@@ -13,14 +13,13 @@ export function writeStyleHooks(
   const hasVariants = !!variants;
   const hasStyles = hasVariants && Object.keys(variants.classes).length > 0;
   const hasIcons = hasVariants && Object.keys(variants.icons).length > 0;
-  // TODO: unistyles v3
-  // const destructure = flags.useStylesTheme ? '{styles, theme}' : '{styles}';
 
+  // No variants for styles/icons, no hooks needed
   if (!hasVariants || (!hasStyles && !hasIcons)) {
     return;
   }
 
-  // Import flags
+  // Flag useVariants from react-exo/utils for import
   flags.exoUtils.useVariants = hasStyles || hasIcons;
 
   const varIds = new Set<string>();

@@ -31,7 +31,6 @@ export async function generateCode(
     exoRive: {},
     exoGrid: {},
     exoTextInput: {},
-    useStylesTheme: false,
   };
 
   await writeFunction(body, flags, data, settings, infoDb);

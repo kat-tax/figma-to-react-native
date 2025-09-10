@@ -5,7 +5,7 @@ import {getPage} from 'backend/parser/lib';
 import type {ImportFlags} from './writeImports';
 import type {ParseData} from 'types/parse';
 
-export function writeStateHooks(
+export function writeHookState(
   writer: CodeBlockWriter,
   flags: ImportFlags,
   data: ParseData,

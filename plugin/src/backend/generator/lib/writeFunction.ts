@@ -2,10 +2,11 @@ import CodeBlockWriter from 'code-block-writer';
 import {isVariant, getNodeAttrs} from 'backend/parser/lib';
 import {createIdentifierPascal, createIdentifierCamel} from 'common/string';
 
-import {writePropsInterface} from './writePropsInterface';
 import {writePropsAttrs} from './writePropsAttrs';
-import {writeStateHooks} from './writeStateHooks';
-import {writeStyleHooks} from './writeStyleHooks';
+import {writePropsInterface} from './writePropsInterface';
+import {writeHookTranslate} from './writeHookTranslate';
+import {writeHookStyles} from './writeHookStyles';
+import {writeHookState} from './writeHookState';
 import {writeLayout} from './writeLayout';
 import {writeTSDoc} from './writeTSDoc';
 
@@ -49,8 +50,9 @@ export async function writeFunction(
 
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
     const code = getComponentCode(flags, data, settings, masterNode, pressables, isPressable, infoDb);
-    writeStateHooks(writer, flags, data);
-    writeStyleHooks(writer, flags, name, data.variants);
+    writeHookState(writer, flags, data);
+    writeHookStyles(writer, flags, name, data.variants);
+    writeHookTranslate(writer, flags);
     writer.write(code);
   });
 

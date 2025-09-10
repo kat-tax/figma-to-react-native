@@ -5,8 +5,6 @@ import {UnistylesRuntime} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
 import {Logtail} from '@logtail/browser';
 
-window.__trans__ = (msg: string) => msg;
-
 __COMPONENT_IMPORTS__
 
 export function App() {

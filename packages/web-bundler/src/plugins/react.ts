@@ -24,8 +24,8 @@ export default (opts: PluginOptions): Plugin => ({
           // Relative import, use importer path
           if (args.path.startsWith('.')) {
             return {path: Path.resolve(args.importer, args.path)};
-          // LinguiJS macro, use custom component
-          } else if (args.path === '@lingui/macro') {
+          // LinguiJS macro, use custom logic
+          } else if (args.path === '@lingui/react/macro') {
             return {path: '/lingui-macro'};
           // Found in import map, mark as external
           } else if (opts.importMap && opts.importMap[args.path]) {
@@ -58,7 +58,7 @@ export default (opts: PluginOptions): Plugin => ({
         contents = `export * as React from 'react'`;
       // LinguiJS macros
       } else if (isLinguiMacro) {
-        contents = 'export const Trans = ({children}) => (<span>{__trans__(children)}</span>)';
+        contents = 'export const useLingui = () => ({t: String.raw});';
       // Normal files (components, themes, styles, etc.)
       } else {
         const resolved = await Promise.resolve(opts.resolver.resolve(args.path));

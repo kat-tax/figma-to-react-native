@@ -233,7 +233,7 @@ function writeChild(
         writer.writeLine(`placeholder={${textPropValue}}`);
       // Placeholder (explict), translate
       } else if (settings?.translate) {
-        state.flags.lingui.t = true;
+        state.flags.lingui.useLingui = true;
         writer.writeLine(`placeholder={t\`${textPropValue}\`}`);
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
@@ -243,7 +243,6 @@ function writeChild(
         writer.writeLine(`placeholderTextColor: ${getFillToken(child.node as TextNode)},`);
       });
       writer.write(`)}`);
-      state.flags.useStylesTheme = true;
     });
     writer.write(`/>`);
     return;
@@ -272,8 +271,8 @@ function writeChild(
         // Explicit string
         } else {
           if (settings?.translate) {
-            state.flags.lingui.Trans = true;
-            writer.write('<Trans>{`' + textPropValue + '`}</Trans>');
+            state.flags.lingui.useLingui = true;
+            writer.write('{t`' + textPropValue + '`}');
           } else {
             writer.write(`{\`${textPropValue}\`}`);
           }
