@@ -88,8 +88,9 @@ export async function writeImports(
   // Package Imports
   writeImport('react', flags.react);
   writeImport('@lingui/react/macro', flags.lingui);
-  writeImport('react-native', flags.reactNative);
+  writeImport('react-exo/utils', flags.exoUtils);
   writeImport('react-native-unistyles', flags.unistyles);
+  writeImport('react-native', flags.reactNative);
   //writeImport('react-exo/textinput', flags.exoTextInput);
   //writeImport('react-exo/icon', flags.exoIcon);
   writeImport('textinput.tsx', flags.exoTextInput); // TEMP
@@ -100,16 +101,12 @@ export async function writeImports(
   writeImport('react-exo/rive', flags.exoRive);
   writeImport('react-exo/lottie', flags.exoLottie);
   writeImport('react-exo/motion', flags.exoMotion);
-  writeImport('react-exo/utils', flags.exoUtils);
 
   // Component Imports
   const subwriter = new CodeBlockWriter(writer.getOptions());
   const components = Object.entries(data.meta.components);
   if (components.length > 0) {
-    // Spacer if more than one component
-    if (components.length > 1) {
-      writer.blankLine();
-    }
+    writer.blankLine();
     components
       .sort((a, b) => a[1][0].name?.localeCompare(b[1][0].name))
       .forEach(([_id, [node, _instance]]) => {
