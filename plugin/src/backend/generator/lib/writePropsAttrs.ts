@@ -6,16 +6,19 @@ import {NodeAttrType} from 'types/node';
 
 import type {ComponentInfo} from 'types/component';
 import type {NodeAttrRule, NodeMotionData, NodeMotionTransitionData} from 'types/node';
+import type {ImportFlags} from './writeImports';
 
 export interface WritePropsAttrsConfig {
   props?: ComponentPropertyDefinitions | ComponentProperties;
   infoDb?: Record<string, ComponentInfo> | null;
+  flags?: ImportFlags;
   nodeId?: string;
   styleProp?: string;
   attrProps?: Array<NodeAttrRule>;
   motionProps?: Array<NodeAttrRule>;
   extraProps?: Array<[string, string]>;
   forceMultiLine?: boolean;
+  translate?: boolean;
   isRoot?: boolean;
 }
 
@@ -51,7 +54,7 @@ export function writePropsAttrs(writer: CodeBlockWriter, data: WritePropsAttrsCo
       writer.writeLine(`style={${data.styleProp}}`);
     // Write component props
     _props.sort(sortComponentPropsDef).forEach(prop =>
-      writeProp(writer, prop, data.props, data.infoDb, !data.nodeId));
+      writeProp(writer, prop, data.props, data.infoDb, !data.nodeId, data.translate, data.flags));
     // Write motion props
     writeMotion(writer, data.motionProps);
     // Write extra props
@@ -180,6 +183,8 @@ export function writeProp(
   props: ComponentPropertyDefinitions | ComponentProperties,
   infoDb: Record<string, ComponentInfo> | null,
   excludeTestIds?: boolean,
+  translate?: boolean,
+  flags?: ImportFlags,
 ) {
   const k = getComponentPropName(propId);
   const v = prop.value || prop.defaultValue;
@@ -191,9 +196,14 @@ export function writeProp(
     );
   // Text props k={v} and gets quotes escaped
   } else if (prop.type === 'TEXT') {
-    writer.writeLine(v.includes('${') || v.includes('"')
-      ? `${k}={\`${escapeBacktick(v)}\`}`
-      : `${k}="${v}"`);
+    if (translate) {
+      flags!.lingui.useLingui = true;
+      writer.writeLine(`${k}={t\`${v}\`}`);
+    } else {
+      writer.writeLine(v.includes('${') || v.includes('"')
+        ? `${k}={\`${escapeBacktick(v)}\`}`
+        : `${k}="${v}"`);
+    }
   // Variants are sanitized for invalid identifier chars
   } else if (prop.type === 'VARIANT') {
     writer.writeLine(`${k}="${createIdentifier(v)}"`);

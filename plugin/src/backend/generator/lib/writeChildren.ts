@@ -188,12 +188,14 @@ function writeChild(
   // Component props
   const jsxProps = writePropsAttrs(new CodeBlockWriter(state.settings.writer), {
     props: instance.node.componentProperties,
+    flags: state.flags,
     infoDb: state.infoDb,
     nodeId: instance.node.id,
     styleProp: jsxStyleProp,
     attrProps: jsxAttrProps,
     motionProps: jsxMotionProps,
     forceMultiLine: isInput,
+    translate: settings?.translate,
   });
 
   // Create instance tag
