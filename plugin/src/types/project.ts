@@ -45,16 +45,17 @@ export interface ProjectBuild {
 }
 
 export type ProjectBuildAssets = Array<[
-  string,
-  boolean,
-  Uint8Array,
+  string,     // path
+  string,     // name
+  boolean,    // isVector
+  Uint8Array, // bytes
 ]>;
 
 export type ProjectBuildComponents = Array<[
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
+  string, // path
+  string, // name
+  string, // index
+  string, // code
+  string, // story
+  string, // docs
 ]>;

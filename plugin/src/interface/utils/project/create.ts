@@ -61,17 +61,15 @@ export async function create(
 
   // Assets
   const added = new Set();
-  for (const [name, isVector, bytes] of project.assets) {
+  for (const [path, name, isVector, bytes] of project.assets) {
     const ext = isVector ? 'svg' : 'png';
-    const type = isVector ? 'svg' : 'img';
     const mime = isVector ? 'image/svg+xml' : 'image/png';
     const blob = new Blob([bytes], {type: mime});
-    const path = `assets/${type}/${name.toLowerCase()}.${ext}`;
-    if (added.has(path)) return;
-    const category = design.getChildByName(`assets/${type}`);
-    if (category) zip.remove(category);
-    design.addBlob(path, blob);
-    added.add(path);
+    const base = `${path}/assets`;
+    const filePath = `${base}/${name.toLowerCase()}.${ext}`;
+    if (added.has(filePath)) return;
+    design.addBlob(filePath, blob);
+    added.add(filePath);
   }
 
   // Components

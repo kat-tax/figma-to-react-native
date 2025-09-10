@@ -55,7 +55,7 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
         color: theme.colors.foreground,
       }));
 
-      export function Icon({style, ...props}) {
+      const Icon = ({style, ...props}) => {
         const styles = useMemo(() => merge(style), [style]);
         return (
           <IconThemed
@@ -65,7 +65,7 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
         );
       }
 
-      export function createIcon(icon, styles) {
+      Icon.New = (icon, styles) => {
         if (!icon) return null;
         return cloneElement(icon, merge(styles));
       }
@@ -82,6 +82,8 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
         });
         return icon;
       }
+
+      export {Icon};
     `);
     files.set('/styles', `
       import {StyleSheet} from 'react-native-unistyles';
@@ -141,8 +143,9 @@ export function getGitFiles(build: ComponentBuild, gitFs: IFs) {
   for (const asset of Object.values(build.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
-      const folder = asset.isVector ? 'svg' : 'img';
-      const path = `/design/assets/${folder}/${asset.name.toLowerCase()}.${ext}`;
+      const component = build.roster[asset.parent];
+      if (!component) continue;
+      const path = `/design/${component.path}/assets/${asset.name.toLowerCase()}.${ext}`;
       files.set(path, gitFs.readFileSync(path));
     } catch (e) {}
   }
@@ -170,8 +173,9 @@ export function getFigmaFiles(build: ComponentBuild) {
   for (const asset of Object.values(build.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
-      const folder = asset.isVector ? 'svg' : 'img';
-      const path = `/assets/${folder}/${asset.name.toLowerCase()}.${ext}`;
+      const component = build.roster[asset.parent];
+      if (!component) continue;
+      const path = `/${component.path}/assets/${asset.name.toLowerCase()}.${ext}`;
       files.set(path, asset.bytes);
     } catch (e) {
       notify(e, `Failed to build preview asset: ${asset.name}`);

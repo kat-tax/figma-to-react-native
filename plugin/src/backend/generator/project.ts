@@ -64,6 +64,7 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
       }
 
       assets.forEach(asset => buildAssets.push([
+        componentInfo[asset.parent].path,
         asset.name,
         asset.isVector,
         asset.bytes,

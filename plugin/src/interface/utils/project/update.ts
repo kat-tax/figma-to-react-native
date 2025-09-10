@@ -58,15 +58,15 @@ export async function update(project: ProjectBuild, info: ProjectInfo, settings:
 
   // Assets
   const added = new Set();
-  for (const [name, isVector, bytes] of project.assets) {
+  for (const [path, name, isVector, bytes] of project.assets) {
     const ext = isVector ? 'svg' : 'png';
-    const type = isVector ? 'svg' : 'img';
-    const path = `design/assets/${type}/${name.toLowerCase()}.${ext}`;
+    const base = `design/${path}/assets`;
+    const filePath = `${base}/${name.toLowerCase()}.${ext}`;
     if (added.has(path)) continue;
-    fs.mkdirSync(`design/assets/${type}`, {recursive: true});
-    fs.writeFileSync(path, bytes);
-    added.add(path);
-    changes.add(path);
+    fs.mkdirSync(base, {recursive: true});
+    fs.writeFileSync(filePath, bytes);
+    added.add(filePath);
+    changes.add(filePath);
   }
 
   // Components

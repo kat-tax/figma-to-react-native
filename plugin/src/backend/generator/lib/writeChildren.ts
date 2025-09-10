@@ -91,15 +91,14 @@ function writeChild(
 
   // Icon node
   if (isIcon) {
+    state.flags.exoIcon.Icon = true;
     const icon = getIconProp(slug, isRootPressable);
     // Swap icon, override props for this instance
     if (isSwap) {
-      state.flags.exoIcon.createIcon = true;
-      const statement = `createIcon(props.${swapNodeProp}, ${icon})`;
+      const statement = `Icon.New(props.${swapNodeProp}, ${icon})`;
       writer.writeLine((isCond ? '' : '{') + statement + (isCond ? '' : '}'));
     // Explicit icon, use Icon component directly
     } else {
-      state.flags.exoIcon.Icon = true;
       writer.writeLine(`<Icon style={${icon}}/>`);
     }
     return;
