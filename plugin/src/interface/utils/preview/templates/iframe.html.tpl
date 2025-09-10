@@ -111,6 +111,7 @@
         outline: none;
       }
     </style>
+    <!-- https://react.dev/learn/react-developer-tools#safari-and-other-browsers -->
     <script src="http://localhost:8097"></script>
   </head>
   <body>

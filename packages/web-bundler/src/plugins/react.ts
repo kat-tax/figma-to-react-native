@@ -2,6 +2,7 @@ import type {Plugin} from 'esbuild-wasm';
 import type {Resolver} from '../lib/resolver';
 
 import {transformUnistyles} from '../lib/unistyles';
+import {injectCodeInfo} from '../lib/debug';
 import {Path} from '../lib/path';
 
 interface PluginOptions {
@@ -47,34 +48,34 @@ export default (opts: PluginOptions): Plugin => ({
       const isInject = args.path === '/import-react';
       const isLinguiMacro = args.path === '/lingui-macro';
       // Determine loader
+      const isJS = isInject || args.path.endsWith('.js');
       const isTS = isStyles || isTheme || args.path.endsWith('.ts');
       const isTSX = isComponent || isLinguiMacro || args.path.endsWith('.tsx');
-      // Custom file contents
+      // Get file contents
       let contents: string;
+      // Automatic JSX
       if (isInject) {
         contents = `export * as React from 'react'`;
+      // LinguiJS macros
       } else if (isLinguiMacro) {
         contents = 'export const Trans = ({children}) => (<span>{__trans__(children)}</span>)';
+      // Normal files (components, themes, styles, etc.)
       } else {
         const resolved = await Promise.resolve(opts.resolver.resolve(args.path));
         contents = typeof resolved === 'string' ? resolved : '';
       }
-      // Simulate Unistyles plugin
+      // Component file modifications
       if (isTSX && isComponent) {
+        // Inject codeInfo into JSX tree (fuck you react 19)
+        // https://github.com/facebook/react/issues/32574
+        contents = injectCodeInfo(contents, args.path);
+        // Simulate Unistyles plugin
         contents = transformUnistyles(contents, args.path, counters);
       }
-      // Choose file type loader
-      const loader = isInject
-        ? 'js'
-        : isTS
-          ? 'ts'
-          : isTSX
-            ? 'tsx'
-            : 'default';
       // Return loader and file contents
       return {
-        loader,
         contents,
+        loader: isJS ? 'js' : isTS ? 'ts' : isTSX ? 'tsx' : 'default',
       };
     });
   },

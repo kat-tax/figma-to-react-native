@@ -51,8 +51,6 @@ export async function getAssets(nodes: Set<string>, component: ComponentNode): P
       const parent = component.key;
       const name = count > 1 ? `${identifier}${count}` : identifier;
 
-      console.log('>>> [assets] node', name, parent);
-
       assetData[id] = {
         id,
         name,

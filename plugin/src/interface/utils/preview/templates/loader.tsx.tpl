@@ -59,14 +59,29 @@ export function Preview(props: {
 
   const augmentNode = (node: any) => {
     const {name, fiber, element, codeInfo, pointer} = node;
-    const root = codeInfo?.absolutePath !== 'index.tsx';
-    const path = root ? codeInfo?.absolutePath : null;
-    const rect = element?.getBoundingClientRect();
+    const dataSource = fiber?.memoizedProps?.['data-source'];
     const nodeId = fiber?.memoizedProps?.['data-testid'];
+    let src = codeInfo;
+
+    // Used custom injected data-source (fuck you react 19)
+    if (!src && dataSource) {
+      const [locationInfo, absolutePath] = dataSource.split('@');
+      const [lineNumber, columnNumber] = locationInfo.split(':');
+      src = {
+        lineNumber,
+        columnNumber,
+        absolutePath,
+      };
+    }
+
+    const root = src?.absolutePath !== 'index.tsx';
+    const path = root ? src?.absolutePath : null;
+    const rect = element?.getBoundingClientRect();
     const source = {
-      line: root && parseInt(codeInfo.lineNumber, 10) || 1,
-      column: root && parseInt(codeInfo.columnNumber, 10) || 1,
+      line: root && src?.lineNumber ? parseInt(src.lineNumber, 10) : 1,
+      column: root && src?.columnNumber ? parseInt(src.columnNumber, 10) : 1,
     };
+
     return {
       name,
       root,
