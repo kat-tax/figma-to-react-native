@@ -5,6 +5,9 @@ export function writeHookTranslate(
   writer: CodeBlockWriter,
   flags: ImportFlags,
 ) {
-  if (!flags.lingui.useLingui) return;
+  if (!flags.lingui.useLingui) {
+    return false;
+  }
   writer.writeLine('const {t} = useLingui();');
+  return true;
 }

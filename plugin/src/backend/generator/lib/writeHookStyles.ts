@@ -16,7 +16,7 @@ export function writeHookStyles(
 
   // No variants for styles/icons, no hooks needed
   if (!hasVariants || (!hasStyles && !hasIcons)) {
-    return;
+    return false;
   }
 
   // Flag useVariants from react-exo/utils for import
@@ -64,5 +64,6 @@ export function writeHookStyles(
   const props = Array.from(varIds).join(', ');
   writer.writeLine(`const {${props}} = props;`);
   writer.writeLine(`const {vstyles} = useVariants(${name}Variants, {${props}}, styles);`);
-  writer.blankLine();
+
+  return true;
 }

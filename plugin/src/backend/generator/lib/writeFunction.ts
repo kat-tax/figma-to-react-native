@@ -50,9 +50,12 @@ export async function writeFunction(
 
   writer.write(`export function ${name}(props: ${name}Props)`).block(() => {
     const code = getComponentCode(flags, data, settings, masterNode, pressables, isPressable, infoDb);
-    writeHookState(writer, flags, data);
-    writeHookStyles(writer, flags, name, data.variants);
-    writeHookTranslate(writer, flags);
+    const hasState = writeHookState(writer, flags, data);
+    const hasStyles = writeHookStyles(writer, flags, name, data.variants);
+    const hasTranslate = writeHookTranslate(writer, flags);
+    if (hasState || hasStyles || hasTranslate) {
+      writer.blankLine();
+    }
     writer.write(code);
   });
 

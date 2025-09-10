@@ -12,8 +12,10 @@ export function writeHookState(
 ) {
   const name = data.root.node.name;
   const page = getPage(data.root.node);
+  let hasState = false;
 
   data.localState?.[page.name]?.[name]?.forEach(([name, value]) => {
+    hasState = true;
     flags.react.useState = true;
     const getName = createIdentifierCamel(name);
     const setName = createIdentifierCamel(`set_${name}`);
@@ -26,4 +28,6 @@ export function writeHookState(
     writer.write(');');
     writer.newLine();
   });
+
+  return hasState;
 }
