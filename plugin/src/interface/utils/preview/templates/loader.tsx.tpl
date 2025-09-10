@@ -74,17 +74,20 @@ export function Preview(props: {
       };
     }
 
-    const root = src?.absolutePath !== 'index.tsx';
-    const path = root ? src?.absolutePath : null;
+    // No source info
+    if (!src) {
+      return null;
+    }
+
+    const path = src?.absolutePath;
     const rect = element?.getBoundingClientRect();
     const source = {
-      line: root && src?.lineNumber ? parseInt(src.lineNumber, 10) : 1,
-      column: root && src?.columnNumber ? parseInt(src.columnNumber, 10) : 1,
+      line: parseInt(src?.lineNumber, 10),
+      column: parseInt(src?.columnNumber, 10),
     };
 
     return {
       name,
-      root,
       path,
       rect,
       nodeId,
@@ -98,7 +101,7 @@ export function Preview(props: {
     : augmentNode(data);
 
   const inspectHandler = (type: 'hover' | 'inspect' | 'load') => (data: any) => {
-    // console.log(`[${type}]`, data);
+    // console.log(`>> [inspect::${type}]`, data);
     parent.postMessage({
       type: `loader::${type}`,
       info: augmentData(data, type === 'load'),

@@ -248,7 +248,7 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
       name: nameInfo?.title ?? '',
     });
 
-    if (fiber && codeInfo) {
+    if (fiber) {
       onInspectElement?.({
         pointer,
         element,
@@ -300,7 +300,7 @@ export const Inspector = function<Element>(props: InspectorProps<Element>) {
         elements: agent.load(),
       }));
     }
-  
+
     // Update elements when window size changes
     const resizer = new ResizeObserver(update);
     resizer.observe(document.body);

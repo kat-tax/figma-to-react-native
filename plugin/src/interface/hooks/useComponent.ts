@@ -21,7 +21,6 @@ type PreviewNodeInfo = {
   name: string,
   path: string | null,
   rect: DOMRect,
-  root: boolean,
   source: {
     line: number,
     column: number,
@@ -265,6 +264,11 @@ export function useComponent(
 
         // Update preview toolbar (temporarily)
         case 'loader::hover': {
+          // Hovered to root, clear hover state
+          if (!e.data.info) {
+            setPreviewHover(null);
+            break;
+          }
           const {path, nodeId, source} = e.data.info;
           const [uri] = lookup(path, nodeId);
           setPreviewHover([
@@ -277,6 +281,11 @@ export function useComponent(
         // Focus node in Figma and in the code editor
         // Update the preview bar (persistently)
         case 'loader::inspect': {
+          // Inspected root, clear focus state
+          if (!e.data.info) {
+            setPreviewFocused(null);
+            break;
+          }
           const info: PreviewNodeInfo = e.data.info;
           focus(info, true);
           break;
