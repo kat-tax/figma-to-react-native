@@ -156,6 +156,10 @@ function Update-PackageJson {
 
     # Convert to JSON with compress (single line, no formatting)
     $jsonContent = $cleanedPackage | ConvertTo-Json -Depth 10 -Compress:$true
+    # Fix Unicode escaping for common symbols
+    $jsonContent = $jsonContent -replace '\\u003e', '>'
+    $jsonContent = $jsonContent -replace '\\u003c', '<'
+    $jsonContent = $jsonContent -replace '\\u0026', '&'
     # Write with UTF8 encoding without BOM
     [System.IO.File]::WriteAllText($Path, $jsonContent, [System.Text.UTF8Encoding]::new($false))
 
