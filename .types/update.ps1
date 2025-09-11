@@ -2,32 +2,52 @@
 function Remove-NonSourceFiles {
   param([string]$Path)
   Write-Host "Cleaning up non-TypeScript files in: $Path"
-  # Get all files recursively
+
+  # Remove entire src directory if it exists (not needed for types-only packages)
+  $srcDir = Join-Path $Path "src"
+  if (Test-Path $srcDir) {
+    Write-Host "Removing entire src directory: $srcDir"
+    Remove-Item -Path $srcDir -Recurse -Force
+  }
+
+  # Get all remaining files recursively
   $allFiles = Get-ChildItem -Path $Path -Recurse -File
   foreach ($file in $allFiles) {
     $shouldDelete = $false
-    # Delete files that are not .d.ts or .ts files
-    if ($file.Extension -notin @('.ts', '.d.ts') -or
-      ($file.Extension -eq '.ts' -and $file.Name -notlike '*.d.ts')) {
-      # Special handling for package.json - clean it instead of deleting
-      if ($file.Name -eq 'package.json') {
+
+    # Special handling for package.json - only keep the root one and clean it
+    if ($file.Name -eq 'package.json') {
+      $isRootPackageJson = $file.DirectoryName -eq $Path
+      if ($isRootPackageJson) {
         Update-PackageJson -Path $file.FullName
         continue
-      }
-      # Delete common unused files
-      if ($file.Name -in @('LICENSE', 'LICENSE.txt', 'LICENSE.md', 'README.md', 'README.txt', 'CHANGELOG.md', 'CHANGELOG.txt', '.npmignore', '.gitignore')) {
-        $shouldDelete = $true
-      }
-      # Delete non-TypeScript files
-      elseif ($file.Extension -notin @('.ts')) {
-        $shouldDelete = $true
-      }
-      if ($shouldDelete) {
-        Write-Host "Deleting file: $($file.FullName)"
+      } else {
+        # Delete nested package.json files
+        Write-Host "Deleting nested package.json: $($file.FullName)"
         Remove-Item -Path $file.FullName -Force
+        continue
       }
     }
+
+    # Delete source TypeScript files (keep only .d.ts)
+    if ($file.Extension -eq '.ts' -and $file.Name -notlike '*.d.ts') {
+      $shouldDelete = $true
+    }
+    # Delete common unused files
+    elseif ($file.Name -in @('LICENSE', 'LICENSE.txt', 'LICENSE.md', 'README.md', 'README.txt', 'CHANGELOG.md', 'CHANGELOG.txt', '.npmignore', '.gitignore')) {
+      $shouldDelete = $true
+    }
+    # Delete non-TypeScript files (except .d.ts)
+    elseif ($file.Extension -notin @('.ts') -or ($file.Extension -eq '.ts' -and $file.Name -notlike '*.d.ts')) {
+      $shouldDelete = $true
+    }
+
+    if ($shouldDelete) {
+      Write-Host "Deleting file: $($file.FullName)"
+      Remove-Item -Path $file.FullName -Force
+    }
   }
+
   # Remove empty directories
   do {
     $emptyDirs = Get-ChildItem -Path $Path -Recurse -Directory | Where-Object {
