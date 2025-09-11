@@ -306,8 +306,13 @@ Write-Host "Processing $($PackageList.Count) packages from $PackageFile"
 $tempDir = Join-Path $env:TEMP "types-updater-$(Get-Random)"
 New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
-# Use script directory as output directory
-$outputDir = $ScriptDir
+# Use script directory as base, with packages subdirectory for output
+$packagesDir = Join-Path $ScriptDir "packages"
+# Create packages directory if it doesn't exist
+if (-not (Test-Path $packagesDir)) {
+  New-Item -ItemType Directory -Path $packagesDir -Force | Out-Null
+}
+$outputDir = $packagesDir
 
 try {
   foreach ($packageSpec in $PackageList) {
@@ -378,28 +383,24 @@ try {
     }
   }
 
-  # Step 6: Create zip file with only package directories
-  # Get all package directories (exclude script files and other non-package items)
-  $packageDirs = Get-ChildItem -Path $outputDir -Directory | Where-Object {
-    $_.Name -notin @("node_modules") -and
-    -not $_.Name.EndsWith(".zip") -and
-    $_.Name -ne "types" -and
-    (Test-Path (Join-Path $_.FullName "package.json"))
-  }
-
-  if ($packageDirs.Count -gt 0) {
-    $zipPath = Join-Path $ScriptDir "types-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
-    Write-Host "`nCreating final zip: $zipPath"
-    Write-Host "Including $($packageDirs.Count) package directories in zip"
-    # Create zip with only package directories
-    $packagePaths = $packageDirs | ForEach-Object { $_.FullName }
-    Compress-Archive -Path $packagePaths -DestinationPath $zipPath -Force
-    Write-Host "Created zip file: $zipPath"
-    Write-Host "Package folders written to script directory: $outputDir"
-    Write-Host "Packaged directories: $($packageDirs.Name -join ', ')"
-    Write-Host "Types update completed successfully!"
+  # Step 6: Create zip file with the entire packages directory
+  if (Test-Path $packagesDir) {
+    $packageDirs = Get-ChildItem -Path $packagesDir -Directory
+    if ($packageDirs.Count -gt 0) {
+      $zipPath = Join-Path $ScriptDir "types-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
+      Write-Host "`nCreating final zip: $zipPath"
+      Write-Host "Including packages directory with $($packageDirs.Count) package directories"
+      # Create zip with the entire packages directory
+      Compress-Archive -Path $packagesDir -DestinationPath $zipPath -Force
+      Write-Host "Created zip file: $zipPath"
+      Write-Host "Package folders written to: $packagesDir"
+      Write-Host "Packaged directories: $($packageDirs.Name -join ', ')"
+      Write-Host "Types update completed successfully!"
+    } else {
+      Write-Warning "No packages were successfully processed"
+    }
   } else {
-    Write-Warning "No packages were successfully processed"
+    Write-Warning "Packages directory was not created"
   }
 }
 finally {
@@ -408,7 +409,7 @@ finally {
     Write-Host "Cleaning up temporary files..."
     Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
   }
-  # Note: We keep the output directory (types) with cleaned packages for user access
+  # Note: We keep the packages directory with cleaned packages for user access
 }
 
 Write-Host "`nScript completed."
