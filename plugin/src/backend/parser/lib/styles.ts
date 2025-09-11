@@ -14,6 +14,7 @@ type StyleClass = {[key: string]: string};
 
 export async function getStyleSheet(
   nodes: Set<string>,
+  fonts?: Set<string>,
   variants?: ParseVariantData,
   skipCache: boolean = false,
 ): Promise<ParseStyleSheet> {
@@ -51,6 +52,10 @@ export async function getStyleSheet(
     if (style) {
       const props = {};
       for (const k in style) {
+        // Track unique fonts used
+        if (k === 'fontFamily' && typeof style[k] === 'string' && fonts) {
+          fonts.add(style[k].replace(/^"|"$/g, ''));
+        }
         // TODO: handle this in css-to-rn
         if (k === 'display' && style[k] === 'flex') {
           if (!style['flexDirection']) {

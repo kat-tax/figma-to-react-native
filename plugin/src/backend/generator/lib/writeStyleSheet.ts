@@ -15,7 +15,7 @@ export async function writeStyleSheet(
   writer.write(`const styles = StyleSheet.create(theme => (`).inlineBlock(() => {
     // Root styles
     const rootStyles = data.stylesheet[data.root.node.id];
-    writeStyle(writer, 'root', rootStyles, data.meta.fontsUsed);
+    writeStyle(writer, 'root', rootStyles);
     const rootVariants = data.variants?.classes?.root;
     if (rootVariants) {
       Object.keys(rootVariants).forEach(key => {
@@ -29,7 +29,7 @@ export async function writeStyleSheet(
           }
           if (diffStyles && Object.keys(diffStyles).length > 0) {
             const className = createIdentifierCamel(`root_${key}`.split(', ').join('_'));
-            writeStyle(writer, className, diffStyles, data.meta.fontsUsed);
+            writeStyle(writer, className, diffStyles);
           }
         }
       });
@@ -52,7 +52,7 @@ export async function writeStyleSheet(
         }
       }
       if (childStyles) {
-        writeStyle(writer, child.slug, childStyles, data.meta.fontsUsed);
+        writeStyle(writer, child.slug, childStyles);
         const childVariants = data.variants?.classes[child.slug];
         if (childVariants) {
           Object.keys(childVariants).forEach(key => {
@@ -66,7 +66,7 @@ export async function writeStyleSheet(
               }
               if (diffStyles && Object.keys(diffStyles).length > 0) {
                 const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
-                writeStyle(writer, className, diffStyles, data.meta.fontsUsed);
+                writeStyle(writer, className, diffStyles);
               }
             }
           });
@@ -81,7 +81,7 @@ export async function writeStyleSheet(
         // TODO: Workaround to prevent placeholder from overriding instance icons
         if (childIconData.name.includes(':placeholder'))
           delete childIconData.name;
-        writeStyle(writer, child.slug, childIconData, data.meta.fontsUsed);
+        writeStyle(writer, child.slug, childIconData);
         const iconVariants = data.variants?.icons[child.slug];
         if (iconVariants) {
           Object.entries(iconVariants).forEach(([key, childVariantIconData]) => {
@@ -89,7 +89,7 @@ export async function writeStyleSheet(
             if (childVariantIconData.name.includes(':placeholder'))
               delete childVariantIconData.name;
             const className = createIdentifierCamel(`${child.slug}_${key}`.split(', ').join('_'));
-            writeStyle(writer, className, diff(childIconData, childVariantIconData), data.meta.fontsUsed);
+            writeStyle(writer, className, diff(childIconData, childVariantIconData));
           });
         }
       }
@@ -100,33 +100,29 @@ export async function writeStyleSheet(
   return flags;
 }
 
-export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any, fontsUsed?: Set<string>) {
+export function writeStyle(writer: CodeBlockWriter, slug: string, styles: any) {
   const props = styles && Object.keys(styles);
   if (props?.length > 0) {
-    writeProps(writer, props, slug, styles, fontsUsed);
+    writeProps(writer, props, slug, styles);
   }
 }
 
-export function writeProps(writer: CodeBlockWriter,props: string[], slug: string, styles: any, fontsUsed?: Set<string>) {
+export function writeProps(writer: CodeBlockWriter,props: string[], slug: string, styles: any) {
   writer.write(`${slug}: {`).indent(() => {
     props.forEach(prop => {
-      writeProp(writer, prop, styles[prop], fontsUsed);
+      writeProp(writer, prop, styles[prop]);
     });
   });
   writer.writeLine('},');
 }
 
-export function writeProp(writer: CodeBlockWriter, prop: string, val: unknown, fontsUsed?: Set<string>) {
+export function writeProp(writer: CodeBlockWriter, prop: string, val: unknown) {
   writer.write(`${prop}: `);
   // Undefined values
   if (typeof val === 'undefined' || val === 'unset') {
     writer.write('undefined');
   } else {
     const value = isRuntimeVar(val) ? getRuntimeVar(val) : val;
-    // Track font families
-    if (prop === 'fontFamily' && typeof value === 'string' && fontsUsed) {
-      fontsUsed.add(value.replace(/^"|"$/g, ''));
-    }
     // Number values
     if (typeof value === 'number') {
       // Hack: font weight needs to be a string

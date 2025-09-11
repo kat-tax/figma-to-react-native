@@ -32,7 +32,7 @@ export default async function parse(
   // Generated styles and assets
   const [localState, stylesheet, assetData] = await Promise.all([
     parser.getLocalState(),
-    parser.getStyleSheet(data.meta.styleNodes, data.variants, skipCache),
+    parser.getStyleSheet(data.meta.styleNodes, data.meta.fontsUsed, data.variants, skipCache),
     parser.getAssets(data.meta.assetNodes, component),
   ]);
 
