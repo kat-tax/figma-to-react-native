@@ -46,15 +46,15 @@ export async function initPackageTypes(monaco: Monaco) {
   const ts = monaco.languages.typescript.typescriptDefaults;
   const zip = new fs.FS();
   const entries = await zip.importHttpContent(F2RN_EXO_TYPE_ZIP);
-  for (const entry of entries) {
-    if (entry.data.directory) continue;
-    if (entry.data.filename.includes('react-native-nitro-modules/')) continue;
-    const txt = await (entry as ZipFileEntry<string, string>).getText('utf-8');
-    const uri = `${F2RN_EDITOR_NS}node_modules${entry.data.filename.replace(/^packages/, '')}`;
-    ts.addExtraLib(txt, uri);
-    //ts.setExtraLibs
-    console.log('>>> [editor::types]', uri, txt.length);
-  }
+  const contents = entries
+    .filter(entry => !entry.data.directory)
+    .map(async (entry) => {
+      return {
+        content: await (entry as ZipFileEntry<string, string>).getText('utf-8'),
+        filePath: `${F2RN_EDITOR_NS}node_modules${entry.data.filename.replace(/^packages/, '')}`
+      };
+    });
+  ts.setExtraLibs(await Promise.all(contents));
 }
 
 export function initTypescript(monaco: Monaco, settings: UserSettings) {
