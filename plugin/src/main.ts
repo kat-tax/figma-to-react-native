@@ -224,13 +224,6 @@ export default async function() {
     // Handle dropping of components, icons, and assets
     figma.on('drop', drop.importNode);
 
-    // Handle component selection change
-    figma.on('selectionchange', () => {
-      nav.targetSelectedComponent();
-      const node = figma.currentPage.selection?.[0];
-      if (node) emit<T.EventFocusedNode>('NODE_FOCUSED', node.id);
-    });
-
     // Start generation services
     service.watchTheme(settings.state);
     service.watchIcons();

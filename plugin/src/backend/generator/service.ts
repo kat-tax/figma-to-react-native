@@ -12,7 +12,7 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventFocusedNode, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 let _lastThemeCode = '';
@@ -57,6 +57,13 @@ export async function watchComponents(
     // TODO: Refresh component cache, needs heuristic to detect if we need to recompile all components
     // await compile(all, true);
   }
+
+  // Handle future component selections now we have all components
+  figma.on('selectionchange', () => {
+    targetComponent();
+    const node = figma.currentPage.selection?.[0];
+    if (node) emit<EventFocusedNode>('NODE_FOCUSED', node.id);
+  });
 
   // Recompile changed components on doc change
   figma.on('documentchange', async (e) => {
