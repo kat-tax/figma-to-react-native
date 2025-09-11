@@ -114,7 +114,6 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
         if (isOriginFile) {
           nodeId = links?.[componentPathNormalize(resource.path)];
         }
-
         // Search for test ids if no component name found
         if (!nodeId) {
           const sel = source.getSelection();
@@ -130,12 +129,14 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
         }
       }
       // Focus node in editor
-      // TODO: support multiple nodes
       if (nodeId) {
         emit<EventFocusNode>('NODE_FOCUS', nodeId);
+      // Trigger peek definition if no nodeId
+      } else {
+        source.trigger(resource.path, 'editor.action.peekDefinition', {});
       }
       console.debug('[open file]', {resource, base, nodeId, links, source});
-      return false;
+      return true;
     }
   }).dispose;
 }
