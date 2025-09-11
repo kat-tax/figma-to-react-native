@@ -4,14 +4,13 @@ import {F2RN_EXO_TYPE_ZIP} from 'config/consts';
 import type {SourceResolver as SourceResolverBase} from 'monaco-editor-auto-typings/custom-editor';
 import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
 
-const CACHE_ONLY = [
+export const CACHE_ONLY = [
   'react',
   'react-exo',
   'react-dom',
   'react-native',
   'react-native-svg',
   'react-native-unistyles',
-  'prop-types',
   'csstype',
 ];
 

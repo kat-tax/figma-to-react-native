@@ -1,7 +1,8 @@
 import {AutoTypings} from 'monaco-editor-auto-typings/custom-editor';
-import {SourceCache} from './SourceCache';
-import {SourceResolver} from './SourceResolver';
 import {F2RN_EDITOR_NS} from 'config/consts';
+
+import {SourceCache} from './SourceCache';
+import {SourceResolver, CACHE_ONLY} from './SourceResolver';
 
 import type {Monaco, MonacoEditor} from 'interface/utils/editor/monaco';
 
@@ -20,22 +21,19 @@ function init(monaco: Monaco, editor: MonacoEditor) {
     packageRecursionDepth: 2,
     onlySpecifiedPackages: true,
     fileRootPath: F2RN_EDITOR_NS,
-    versions: {
-      'react': 'latest',
-      'react-dom': 'latest',
-      'react-exo': 'latest',
-      'react-native': 'latest',
-      'react-native-svg': 'latest',
-      'react-native-unistyles': 'latest',
-      'prop-types': 'latest',
-      'csstype': 'latest',
+    versions: CACHE_ONLY.reduce((acc, packageName) => {
+      acc[packageName] = 'latest';
+      return acc;
+    }, {}),
+    onUpdate(update, textual) {
+      console.log('>>> [at-update]', update, textual);
+      if ('success' in update && update.success === false) {
+        console.warn('>>> [at-warn]', update, textual);
+      }
     },
-    // onUpdate(update, textual) {
-    //   console.log('>>> [at-update]', update, textual);
-    // },
-    // onError(error) {
-    //   console.error('>>> [at-error]', error);
-    // },
+    onError(error) {
+      console.error('>>> [at-error]', error);
+    },
   });
 }
 
