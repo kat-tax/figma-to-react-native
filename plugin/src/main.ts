@@ -227,7 +227,6 @@ export default async function() {
     // Handle component selection change
     figma.on('selectionchange', () => {
       nav.targetSelectedComponent();
-      nav.targetSelectedComponentVariant();
       const node = figma.currentPage.selection?.[0];
       if (node) emit<T.EventFocusedNode>('NODE_FOCUSED', node.id);
     });
