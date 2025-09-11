@@ -73,11 +73,9 @@ function Update-PackageJson {
       $cleanedPackage.peerDependencies = $packageJson.peerDependencies
     }
 
-    # Convert to JSON with proper formatting and LF line endings
-    $jsonContent = $cleanedPackage | ConvertTo-Json -Depth 10 -Compress:$false
-    # Ensure LF line endings (not CRLF)
-    $jsonContent = $jsonContent -replace "`r`n", "`n"
-    # Write with UTF8 encoding without BOM and LF line endings
+    # Convert to JSON with compress (single line, no formatting)
+    $jsonContent = $cleanedPackage | ConvertTo-Json -Depth 10 -Compress:$true
+    # Write with UTF8 encoding without BOM
     [System.IO.File]::WriteAllText($Path, $jsonContent, [System.Text.UTF8Encoding]::new($false))
 
     Write-Host "Cleaned package.json successfully with LF line endings"
