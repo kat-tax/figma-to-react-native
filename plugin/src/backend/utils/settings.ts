@@ -30,6 +30,7 @@ export function update(value: ProjectSettings, skipSave?: boolean) {
     figma.root.setPluginData(F2RN_SETTINGS_PROJECT, JSON.stringify(value));
     // Store user settings in client storage
     figma.clientStorage.setAsync(F2RN_SETTINGS_USER, {
+      ui: value.ui,
       monaco: value.monaco,
       esbuild: value.esbuild,
     });

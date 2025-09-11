@@ -11,6 +11,19 @@ export interface UserSettings {
   * Options for the preview compiler.
   */
   esbuild: BuildOptions,
+  /**
+   * UI preferences
+   */
+  ui: {
+    /**
+     * Component layout preference (grid or list)
+     */
+    componentLayout?: 'grid' | 'list',
+    /**
+     * Icon zoom/scale factor
+     */
+    iconZoom?: number,
+  },
 }
 
 export interface ProjectSettings extends UserSettings {

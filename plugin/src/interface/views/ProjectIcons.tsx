@@ -20,6 +20,7 @@ import type {IconifySetPreview} from 'interface/icons/lib/iconify';
 import type {EventNotify, EventProjectImportIcons, EventProjectUpdateIcons, EventProjectUpdateIconsDone} from 'types/events';
 import type {ProjectIcons as ProjectIconsType} from 'types/project';
 import type {ComponentBuild} from 'types/component';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
 
 interface ProjectIconsProps {
   build: ComponentBuild,
@@ -29,6 +30,7 @@ interface ProjectIconsProps {
   isReadOnly: boolean,
   searchMode: boolean,
   searchQuery: string,
+  settings: SettingsData,
   onSubmit?: (selectedIcons: string[]) => void,
 }
 
@@ -50,13 +52,27 @@ export function ProjectIcons(props: ProjectIconsProps) {
   const [addingSets, setAddingSets] = useState<boolean>(false);
   const [showImport, setShowImport] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
-  const [iconScale, setIconScale] = useState(1);
+  const [iconScale, setIconScale] = useState(props.settings.config?.ui?.iconZoom ?? 1);
   const [prefix, setPrefix] = useState('all');
   const [list, setList] = useState<ProjectIconsEntry[]>([]);
   const [sets, setSets] = useState<Record<string, string[]>>({});
   const [_, copyIcon] = useCopyToClipboard();
 
   const updating = updatingSets.includes(prefix);
+
+  const handleIconScaleChange = useCallback(([value]: [number]) => {
+    setIconScale(value);
+  }, []);
+
+  const handleIconScaleCommit = useCallback(([value]: [number]) => {
+    setIconScale(value);
+    const newConfig = {
+      ...props.settings.config,
+      ui: {...props.settings.config?.ui, iconZoom: value},
+    };
+    const indent = newConfig.writer?.indentNumberOfSpaces || 2;
+    props.settings.update(JSON.stringify(newConfig, undefined, indent), true);
+  }, [props.settings]);
 
   const addSets = useCallback(async (sets: IconifySetPreview[]) => {
     setAddingSets(true);
@@ -239,7 +255,8 @@ export function ProjectIcons(props: ProjectIconsProps) {
           max={7}
           step={0.15}
           value={[iconScale]}
-          onValueChange={([value]) => setIconScale(value)}
+          onValueChange={handleIconScaleChange}
+          onValueCommit={handleIconScaleCommit}
           style={{maxWidth: 200}}
         />
       </StatusBar>

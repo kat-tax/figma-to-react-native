@@ -33,12 +33,24 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
   const [showSync, setShowSync] = useState<boolean>(false);
-  const [layout, setLayout] = useState<ProjectComponentLayout>('list');
+
   const viewState = useMemo(() => {
     if (showSettings)
       return 'settings';
     return 'components';
   }, [showSettings, showSync]);
+
+  const handleLayoutChange = (newLayout: ProjectComponentLayout) => {
+    const newConfig = {
+      ...props.settings.config,
+      ui: {
+        ...props.settings.config?.ui,
+        componentLayout: newLayout,
+      },
+    };
+    const indent = newConfig.writer?.indentNumberOfSpaces || 2;
+    props.settings.update(JSON.stringify(newConfig, undefined, indent), true);
+  };
 
   const importComponents = async () => {
     emit<EventNotify>('NOTIFY', 'Importing components is not supported yet');
@@ -72,7 +84,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       }}>
       {viewState === 'components' && (
         <ProjectList
-          layout={layout}
+          layout={props.settings.config?.ui?.componentLayout}
           build={props.build}
           isReadOnly={props.isReadOnly}
           searchMode={props.searchMode}
@@ -91,8 +103,8 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       )}
       <ProjectToolbar
         settings={props.settings}
-        layout={layout}
-        setLayout={setLayout}
+        layout={props.settings.config?.ui?.componentLayout}
+        setLayout={handleLayoutChange}
         showSync={showSync}
         setShowSync={setShowSync}
         showSettings={showSettings}

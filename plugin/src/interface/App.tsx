@@ -111,7 +111,7 @@ export function App(props: AppProps) {
               <ProjectComponents {...{nav, build, settings, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, editorOptions, editorTheme}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
-              <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery, settings}}/>
             </Tabs.Content>
             <Tabs.Content value="theme">
               <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
