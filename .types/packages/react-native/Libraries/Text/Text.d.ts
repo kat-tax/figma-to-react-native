@@ -199,9 +199,10 @@ export interface TextProps extends TextPropsIOS, TextPropsAndroid, Accessibility
     maxFontSizeMultiplier?: number | null | undefined;
 }
 
+declare class TextComponent extends React.Component<TextProps> {}
+declare const TextBase: Constructor<NativeMethods> & typeof TextComponent;
+
 /**
  * A React component for displaying text which supports nesting, styling, and touch handling.
  */
-declare class TextComponent extends React.Component<TextProps> {}
-declare const TextBase: Constructor<NativeMethods> & typeof TextComponent;
 export class Text extends TextBase {}
