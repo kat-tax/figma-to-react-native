@@ -1,6 +1,5 @@
 @lingui/core=5.4.1
 @lingui/react=5.4.1
-@lingui/message-utils=5.4.1
 @types/react=19.1.1
 @types/react-dom=19.1.1
 react-exo=0.18.37

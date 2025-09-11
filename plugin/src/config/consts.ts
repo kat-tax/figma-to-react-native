@@ -17,7 +17,7 @@ export const F2RN_ICONS_SET_DATA = 'f2rn:icons:set:1004';
 export const F2RN_EDITOR_NS = 'figma://preview/';
 export const F2RN_STYLEGEN_API = 'https://f2rn.deno.dev';
 export const F2RN_EXO_REPO_URL = 'https://github.com/kat-tax/exo';
-export const F2RN_EXO_TYPE_ZIP = 'https://the.kat.tax/f2rn/types_beta_5.zip';
+export const F2RN_EXO_TYPE_ZIP = 'https://the.kat.tax/f2rn/types_beta_7.zip';
 export const F2RN_EXO_REPO_ZIP = 'https://codeload.github.com/kat-tax/exo/zip/refs/heads/master';
 export const F2RN_EXO_PROXY_URL = 'https://cors-proxy.ult.workers.dev/?url=';
 export const F2RN_SERVICE_URL = 'https://figma-to-react-native.com'; // 'http://localhost:3000';
