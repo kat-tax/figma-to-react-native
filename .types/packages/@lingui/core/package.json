@@ -1,0 +1,1 @@
+{"name":"@lingui/core","version":"5.4.1","types":"./dist/index.d.ts","exports":{".":{"types":"./dist/index.d.ts"},"./macro":{"types":"./macro/index.d.ts"}},"dependencies":{"@babel/runtime":"^7.20.13","@lingui/message-utils":"5.4.1"},"peerDependencies":{"@lingui/babel-plugin-lingui-macro":"5.4.1","babel-plugin-macros":"2 || 3"}}
