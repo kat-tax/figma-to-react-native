@@ -119,9 +119,6 @@ function Update-PackageJson {
       }
     }
 
-    # Always add package.json export at the end
-    $exports["./package.json"] = "./package.json"
-
     # Add exports field if we found any .d.ts files
     if ($exports.Count -gt 1) {  # More than just package.json
       $cleanedPackage.exports = $exports
