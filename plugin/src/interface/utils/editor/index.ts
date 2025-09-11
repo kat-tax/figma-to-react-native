@@ -101,9 +101,6 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
-  // Example 1: testID={props.testID ?? "1034:553"}
-  // Example 2: testID="1034:553"
-  const regexTestId = /testID=(?:"(\d+:\d+)"|{props\.testID \?\? "(\d+:\d+)"})/;
   return monaco.editor.registerEditorOpener({
     openCodeEditor(source, resource) {
       let nodeId: string | undefined;
@@ -120,19 +117,28 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
           const model = source.getModel();
           for (let i = sel.startLineNumber; i <= sel.endLineNumber; i++) {
             const line = model?.getLineContent(i);
-            const match = line?.match(regexTestId);
-            if (match?.length) {
-              const [_, literal, prop] = match;
-              nodeId = prop ? links?.[componentPathNormalize(model.uri.path)] : literal;
+            // Regex to find opening tags with testID
+            const tagWithTestIdRegex = /<([A-Za-z][A-Za-z0-9.-]*)[^>]*testID=(?:"(\d+:\d+)"|{props\.testID \?\? "(\d+:\d+)"})/g;
+            let match: RegExpExecArray | null;
+            while ((match = tagWithTestIdRegex.exec(line)) !== null) {
+              const [_, tagName, literal, prop] = match;
+              const tagStart = match.index;
+              const tagNameEnd = tagStart + 1 + tagName.length; // +1 for the '<'
+              // Only set nodeId if selection is within the tag name itself
+              if (sel.selectionStartColumn - 1 >= tagStart && sel.selectionStartColumn - 1 <= tagNameEnd) {
+                nodeId = prop ? links?.[componentPathNormalize(model.uri.path)] : literal;
+                break;
+              }
             }
           }
         }
       }
-      // Focus node in editor
       if (nodeId) {
+        // Focus node in editor
         emit<EventFocusNode>('NODE_FOCUS', nodeId);
-      // Trigger peek definition if no nodeId
       } else {
+        // Trigger peek definition if no nodeId
+        // TODO: add advanced logic to focus line instead if in same document
         source.trigger(resource.path, 'editor.action.peekDefinition', {});
       }
       console.debug('[open file]', {resource, base, nodeId, links, source});
