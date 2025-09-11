@@ -47,12 +47,14 @@ function Update-PackageJson {
   Write-Host "Cleaning package.json: $Path"
   try {
     $packageJson = Get-Content -Path $Path -Raw | ConvertFrom-Json
-    # Create a minimal package.json with only essential fields
-    $cleanedPackage = @{
+
+    # Create ordered hashtable to ensure field order
+    $cleanedPackage = [ordered]@{
       name = $packageJson.name
       version = $packageJson.version
     }
-    # Add types field if it exists
+
+    # Add types field if it exists (third priority)
     if ($packageJson.types) {
       $cleanedPackage.types = $packageJson.types
     }
@@ -60,17 +62,25 @@ function Update-PackageJson {
     if ($packageJson.typings) {
       $cleanedPackage.typings = $packageJson.typings
     }
-    # Add dependencies if they exist (might be needed for type resolution)
+
+    # Add dependencies if they exist (fourth priority)
     if ($packageJson.dependencies) {
       $cleanedPackage.dependencies = $packageJson.dependencies
     }
-    # Add peerDependencies if they exist
+
+    # Add peerDependencies if they exist (fifth priority)
     if ($packageJson.peerDependencies) {
       $cleanedPackage.peerDependencies = $packageJson.peerDependencies
     }
-    # Convert back to JSON and save
-    $cleanedPackage | ConvertTo-Json -Depth 10 | Set-Content -Path $Path -Encoding UTF8
-    Write-Host "Cleaned package.json successfully"
+
+    # Convert to JSON with proper formatting and LF line endings
+    $jsonContent = $cleanedPackage | ConvertTo-Json -Depth 10 -Compress:$false
+    # Ensure LF line endings (not CRLF)
+    $jsonContent = $jsonContent -replace "`r`n", "`n"
+    # Write with UTF8 encoding without BOM and LF line endings
+    [System.IO.File]::WriteAllText($Path, $jsonContent, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Host "Cleaned package.json successfully with LF line endings"
   }
   catch {
     Write-Warning "Failed to clean package.json: $($_.Exception.Message)"
@@ -94,13 +104,30 @@ function Get-Tarball {
     if ($LASTEXITCODE -ne 0) {
       throw "Tar extraction failed: $result"
     }
-    # Find the package directory (usually named 'package')
+
+    # Look for package directory - try different possible names
+    $packageDir = $null
+
+    # First try 'package' (most common)
     $packageDir = Get-ChildItem -Path $ExtractPath -Directory | Where-Object { $_.Name -eq 'package' } | Select-Object -First 1
-    if ($packageDir) {
-      return $packageDir.FullName
-    } else {
+
+    # If not found, look for any directory containing package.json
+    if (-not $packageDir) {
+      $packageDir = Get-ChildItem -Path $ExtractPath -Directory | Where-Object {
+        Test-Path (Join-Path $_.FullName "package.json")
+      } | Select-Object -First 1
+    }
+
+    # If still not found, list what we have for debugging
+    if (-not $packageDir) {
+      Write-Host "Available directories after extraction:"
+      Get-ChildItem -Path $ExtractPath -Directory | ForEach-Object { Write-Host "  - $($_.Name)" }
+      Get-ChildItem -Path $ExtractPath -File | ForEach-Object { Write-Host "  - $($_.Name) (file)" }
       throw "Package directory not found after extraction"
     }
+
+    Write-Host "Found package directory: $($packageDir.Name)"
+    return $packageDir.FullName
   }
   catch {
     Write-Error "Failed to extract tarball: $($_.Exception.Message)"
@@ -178,13 +205,18 @@ try {
       Write-Host "Extracted to: $packageRoot"
       # Step 3+4: Clean up files
       Remove-NonSourceFiles -Path $packageRoot
-      # Step 5: Copy cleaned package to output with registry name structure
-      $registryName = $packageSpec
-      if ($registryName.Contains('=')) {
-        # Remove version specifier (everything after =)
-        $equalIndex = $registryName.IndexOf('=')
-        $registryName = $registryName.Substring(0, $equalIndex)
-      }
+       # Step 5: Copy cleaned package to output with registry name structure
+       $registryName = $packageSpec
+       if ($registryName.Contains('=')) {
+         # Remove version specifier (everything after =)
+         $equalIndex = $registryName.IndexOf('=')
+         $registryName = $registryName.Substring(0, $equalIndex)
+       }
+
+       # Remove @types/ prefix if present
+       if ($registryName.StartsWith('@types/')) {
+         $registryName = $registryName.Substring(7)  # Remove '@types/' (7 characters)
+       }
       $outputPackageDir = Join-Path $outputDir $registryName
       $outputPackageParent = Split-Path $outputPackageDir -Parent
       if (-not (Test-Path $outputPackageParent)) {
