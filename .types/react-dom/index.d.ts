@@ -84,7 +84,6 @@ export interface PreloadOptions {
     type?: string | undefined;
     nonce?: string | undefined;
     referrerPolicy?: ReferrerPolicy | undefined;
-    media?: string | undefined;
 }
 export function preload(href: string, options?: PreloadOptions): void;
 
