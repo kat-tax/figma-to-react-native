@@ -27,7 +27,7 @@ export class SourceResolver implements SourceResolverBase {
     try {
       const zip = new fs.FS();
       const entries = await zip.importHttpContent(F2RN_EXO_TYPE_ZIP);
-      console.log('>>> [source-resolver:initialize]', entries);
+      console.log('>>> [source-resolver:initialize]', entries.length);
       this.root = entries[0] as ZipDirectoryEntry;
       this.init = true;
     } catch (error) {
