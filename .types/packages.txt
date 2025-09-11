@@ -1,3 +1,4 @@
+@legendapp/motion=2.4.0
 @lingui/core=5.4.1
 @lingui/react=5.4.1
 @types/react=19.1.1
