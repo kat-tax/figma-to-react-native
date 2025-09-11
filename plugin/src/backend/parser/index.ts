@@ -80,6 +80,7 @@ function crawlChildren(
     assetNodes: new Set(),
     styleNodes: new Set(),
     iconsUsed: new Set(),
+    fontsUsed: new Set(),
     iconCounts: {},
     components: {},
     includes: {},
@@ -143,6 +144,7 @@ function crawlChildren(
         const sub = crawlChildren(node.children, dict, [], meta);
         meta.components = {...meta.components, ...sub.meta.components};
         meta.iconsUsed = new Set([...meta.iconsUsed, ...sub.meta.iconsUsed]);
+        meta.fontsUsed = new Set([...meta.fontsUsed, ...sub.meta.fontsUsed]);
         meta.assetNodes = new Set([...meta.assetNodes, ...sub.meta.assetNodes]);
         meta.includes = {...meta.includes, ...sub.meta.includes};
         dict = new Set([...dict, node, ...sub.dict]);

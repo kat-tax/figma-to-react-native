@@ -192,13 +192,14 @@ export function useComponent(
     if (!component) return;
     if (!loaded.current) return;
     const {name, path, imports, width, height} = component;
+    const fonts = build.fonts?.list || [];
     const tag = '<' + component.name + component.props + '/>';
     preview({tag, name, path, imports, theme, background, variant, esbuild, build}).then(bundle => {
-      post('preview::load', {bundle, name, width, height, theme, background});
+      post('preview::load', {bundle, name, width, height, theme, fonts, background});
     });
     if (fs && showDiff) {
       preview({tag, name, path, imports, theme, background, variant, esbuild, build}, fs).then(bundle => {
-        post('preview::load', {bundle, name, width, height, theme, background, head: true});
+        post('preview::load', {bundle, name, width, height, theme, fonts, background, head: true});
       });
     }
   }, [component, esbuild, build, fs, showDiff]);

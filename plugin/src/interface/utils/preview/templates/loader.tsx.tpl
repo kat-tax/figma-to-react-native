@@ -5,6 +5,16 @@ import {useLayoutEffect, useState} from 'react';
 import {useControls, getMatrixTransformStyles, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 import {Inspector} from 'preview-inspector';
 
+function addFont(name: string) {
+  const slug = name.replace(/ /g, '+');
+  if (document.getElementById(`Font:${slug}`)) return;
+  const fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.id = `Font:${slug}`;
+  fontLink.href = `https://fonts.googleapis.com/css2?family=${slug}`;
+  document.head.appendChild(fontLink);
+}
+
 export default function Loader() {
   const isList = __IS_LIST__;
   const [lockUser, setLockUser] = useState(false);
@@ -172,6 +182,11 @@ export function Preview(props: {
         case 'preview::load':
           setError(null);
           updateBackground(e.data.background);
+          if (e.data.fonts?.length) {
+            e.data.fonts
+              .filter(name => name !== 'Inter')
+              .forEach(name => addFont(name));
+          }
           // Clear diff if not head preview
           if (!e.data.head) {
             const diff = document.getElementById('diff');

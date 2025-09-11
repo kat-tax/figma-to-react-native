@@ -17,6 +17,9 @@ const initial: ComponentBuild = {
     list: [],
     count: {},
   },
+  fonts: {
+    list: [],
+  },
 };
 
 export function useBuild(): ComponentBuild {

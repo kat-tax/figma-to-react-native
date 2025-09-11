@@ -212,6 +212,7 @@ export async function compile(
   const _info: Record<string, ComponentInfo> = {};
   const _assets: Record<string, ComponentAsset> = {};
   const _icons = {list: new Set<string>(), count: {}};
+  const _fonts = {list: new Set<string>()};
   const _roster: ComponentRoster = {};
 
   let _links: ComponentLinks = {};
@@ -253,7 +254,7 @@ export async function compile(
       if (!component) continue;
 
       const bundle = await generateBundle(component, _info, {...config.state}, skipCache);
-      const {info, links, icons, assets} = bundle;
+      const {info, links, icons, fonts, assets} = bundle;
       const {name, page, target} = info;
       const {key, id} = target;
 
@@ -270,8 +271,9 @@ export async function compile(
         loading: false,
       };
 
-      // Aggregate assets and icons
+      // Aggregate assets, icons, and fonts
       assets?.forEach(asset => {_assets[asset.id] = asset});
+      fonts?.list?.forEach(font => {_fonts.list.add(font)});
       icons?.list?.forEach(icon => {_icons.list.add(icon)});
       Object.entries(icons?.count).forEach(([icon, count]) => {
         _icons.count[icon] = (icons?.count[icon] || 0) + count;
@@ -289,6 +291,9 @@ export async function compile(
         icons: {
           list: Array.from(_icons.list),
           count: _icons.count,
+        },
+        fonts: {
+          list: Array.from(_fonts.list),
         },
       }, bundle);
     } catch (e) {

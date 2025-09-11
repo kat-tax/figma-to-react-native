@@ -15,6 +15,7 @@ export type ComponentBuild = {
   roster: ComponentRoster,
   assets: Record<string, ComponentAsset>,
   icons: {list: string[], count: Record<string, number>},
+  fonts: {list: string[]},
   pages: string[],
   links: ComponentLinks,
   total: number,
@@ -52,6 +53,9 @@ export type ComponentData = {
   icons: {
     list: string[],
     count: Record<string, number>,
+  },
+  fonts: {
+    list: string[],
   },
 }
 
