@@ -66,7 +66,7 @@ async function getTypeScriptComponents(
 
     // Find all component tags
     const content = model.getValue();
-    const matches = content.matchAll(/<(\w+)[\s>]/g);
+    const matches = content.matchAll(/<([\w.]+)[\s>]/g);
 
     // Get completion info for each unique component
     const components = new Set<string>();
