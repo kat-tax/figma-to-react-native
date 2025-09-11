@@ -72,6 +72,7 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
       'theme': [`${F2RN_EDITOR_NS}theme.ts`],
       'components/*': [`${F2RN_EDITOR_NS}*`],
       'react-exo/*': [`${F2RN_EDITOR_NS}node_modules/react-exo`],
+      '@lingui/react/macro': [`${F2RN_EDITOR_NS}node_modules/@lingui/react/macro`],
     }
   });
 
