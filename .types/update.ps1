@@ -1,4 +1,6 @@
-# Types Updater
+# Temporary powershell script to embed types for packages in a zip file
+# to be loaded by Monaco for full intellisense support
+# Kind of got out of hand, will port to node/ts later
 
 # Accept a list of packages and versions and do the following for each package:
 # 1. run `npm pack <package_name>@<version>` to create a tarball
@@ -383,25 +385,26 @@ try {
     }
   }
 
+  # FIXME: zipjs cannot handle the archive, manually zipping for now
   # Step 6: Create zip file with the entire packages directory
-  if (Test-Path $packagesDir) {
-    $packageDirs = Get-ChildItem -Path $packagesDir -Directory
-    if ($packageDirs.Count -gt 0) {
-      $zipPath = Join-Path $ScriptDir "types-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
-      Write-Host "`nCreating final zip: $zipPath"
-      Write-Host "Including packages directory with $($packageDirs.Count) package directories"
-      # Create zip with the entire packages directory
-      Compress-Archive -Path $packagesDir -DestinationPath $zipPath -Force
-      Write-Host "Created zip file: $zipPath"
-      Write-Host "Package folders written to: $packagesDir"
-      Write-Host "Packaged directories: $($packageDirs.Name -join ', ')"
-      Write-Host "Types update completed successfully!"
-    } else {
-      Write-Warning "No packages were successfully processed"
-    }
-  } else {
-    Write-Warning "Packages directory was not created"
-  }
+  # if (Test-Path $packagesDir) {
+  #   $packageDirs = Get-ChildItem -Path $packagesDir -Directory
+  #   if ($packageDirs.Count -gt 0) {
+  #     $zipPath = Join-Path $ScriptDir "types-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
+  #     Write-Host "`nCreating final zip: $zipPath"
+  #     Write-Host "Including packages directory with $($packageDirs.Count) package directories"
+  #     # Create zip with the entire packages directory
+  #     Compress-Archive -Path $packagesDir -DestinationPath $zipPath -Force
+  #     Write-Host "Created zip file: $zipPath"
+  #     Write-Host "Package folders written to: $packagesDir"
+  #     Write-Host "Packaged directories: $($packageDirs.Name -join ', ')"
+  #     Write-Host "Types update completed successfully!"
+  #   } else {
+  #     Write-Warning "No packages were successfully processed"
+  #   }
+  # } else {
+  #   Write-Warning "Packages directory was not created"
+  # }
 }
 finally {
   # Clean up temporary directory
