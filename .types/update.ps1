@@ -64,63 +64,63 @@ function Update-PackageJson {
       $cleanedPackage.typings = $packageJson.typings
     }
 
-    # Generate exports field based on .d.ts files found in the package
-    $exports = [ordered]@{}
+    # Generate exports field only if the original package.json had one
+    if ($packageJson.exports) {
+      $exports = [ordered]@{}
 
-    # Find all .d.ts files in the package directory (only in root, not recursive)
-    $dtsFiles = Get-ChildItem -Path $packageDir -Filter "*.d.ts" | ForEach-Object {
-      # For .d.ts files, we need to remove both .d and .ts to get the clean name
-      $cleanName = $_.Name -replace '\.d\.ts$', ''
-      return @{
-        FileName = $cleanName
-        RelativePath = "./$($_.Name)"
-        FullPath = $_.FullName
-      }
-    }
-
-    # Find .d.ts files in immediate subdirectories (like test-utils/index.d.ts)
-    $subdirDtsFiles = Get-ChildItem -Path $packageDir -Directory | ForEach-Object {
-      $subdir = $_
-      Get-ChildItem -Path $subdir.FullName -Filter "*.d.ts" | ForEach-Object {
+      # Find all .d.ts files in the package directory (only in root, not recursive)
+      $dtsFiles = Get-ChildItem -Path $packageDir -Filter "*.d.ts" | ForEach-Object {
         # For .d.ts files, we need to remove both .d and .ts to get the clean name
         $cleanName = $_.Name -replace '\.d\.ts$', ''
         return @{
           FileName = $cleanName
-          RelativePath = "./$($subdir.Name)/$($_.Name)"
+          RelativePath = "./$($_.Name)"
           FullPath = $_.FullName
-          SubdirName = $subdir.Name
         }
       }
-    }
 
-    # Add main export (index.d.ts) first
-    $indexFile = $dtsFiles | Where-Object { $_.FileName -eq "index" }
-    if ($indexFile) {
-      $exports["."] = [ordered]@{
-        types = "./index.d.ts"
+      # Find .d.ts files in immediate subdirectories (like test-utils/index.d.ts)
+      $subdirDtsFiles = Get-ChildItem -Path $packageDir -Directory | ForEach-Object {
+        $subdir = $_
+        Get-ChildItem -Path $subdir.FullName -Filter "*.d.ts" | ForEach-Object {
+          # For .d.ts files, we need to remove both .d and .ts to get the clean name
+          $cleanName = $_.Name -replace '\.d\.ts$', ''
+          return @{
+            FileName = $cleanName
+            RelativePath = "./$($subdir.Name)/$($_.Name)"
+            FullPath = $_.FullName
+            SubdirName = $subdir.Name
+          }
+        }
       }
-    }
 
-    # Add exports for other .d.ts files in root directory (in alphabetical order)
-    $rootDtsFiles = $dtsFiles | Where-Object { $_.FileName -ne "index" } | Sort-Object FileName
-    foreach ($file in $rootDtsFiles) {
-      $exportKey = "./$($file.FileName)"  # Use basename without .d extension
-      $exports[$exportKey] = [ordered]@{
-        types = $file.RelativePath
+      # Add main export (index.d.ts) first
+      $indexFile = $dtsFiles | Where-Object { $_.FileName -eq "index" }
+      if ($indexFile) {
+        $exports["."] = [ordered]@{
+          types = "./index.d.ts"
+        }
       }
-    }
 
-    # Add exports for subdirectories with index.d.ts (like test-utils)
-    $subdirIndexFiles = $subdirDtsFiles | Where-Object { $_.FileName -eq "index" } | Sort-Object SubdirName
-    foreach ($file in $subdirIndexFiles) {
-      $exportKey = "./$($file.SubdirName)"
-      $exports[$exportKey] = [ordered]@{
-        types = $file.RelativePath
+      # Add exports for other .d.ts files in root directory (in alphabetical order)
+      $rootDtsFiles = $dtsFiles | Where-Object { $_.FileName -ne "index" } | Sort-Object FileName
+      foreach ($file in $rootDtsFiles) {
+        $exportKey = "./$($file.FileName)"  # Use basename without .d extension
+        $exports[$exportKey] = [ordered]@{
+          types = $file.RelativePath
+        }
       }
-    }
 
-    # Add exports field if we found any .d.ts files
-    if ($exports.Count -gt 1) {  # More than just package.json
+      # Add exports for subdirectories with index.d.ts (like test-utils)
+      $subdirIndexFiles = $subdirDtsFiles | Where-Object { $_.FileName -eq "index" } | Sort-Object SubdirName
+      foreach ($file in $subdirIndexFiles) {
+        $exportKey = "./$($file.SubdirName)"
+        $exports[$exportKey] = [ordered]@{
+          types = $file.RelativePath
+        }
+      }
+
+      # Add the exports field
       $cleanedPackage.exports = $exports
     }
 
