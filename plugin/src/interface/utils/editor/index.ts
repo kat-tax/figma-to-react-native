@@ -289,8 +289,15 @@ export function initNodeToolbar(monaco: Monaco, editor: MonacoEditor) {
       // Search for the closest opening tag
       for (let i = endLine; i >= startLine; i--) {
         const lineContent = model.getLineContent(i);
-        const tagMatch = lineContent.match(/<([A-Z][a-zA-Z0-9]*)/);
-
+        const tagMatch = lineContent.match(/<([A-Z][a-zA-Z0-9.]*)/);
+        // Convert motion components (Motion.View -> View)
+        if (tagMatch?.[1]?.includes('.')) {
+          const [namespace, identifier] = tagMatch[1].split('.');
+          if (namespace === 'Motion') {
+            nodeName = identifier;
+            break;
+          }
+        }
         if (tagMatch && tagMatch[1]) {
           nodeName = tagMatch[1];
           break;
