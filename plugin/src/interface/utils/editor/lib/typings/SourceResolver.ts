@@ -5,12 +5,12 @@ import type {SourceResolver as SourceResolverBase} from 'monaco-editor-auto-typi
 import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
 
 const CACHE_ONLY = [
-  //'react',
+  'react',
   'react-exo',
-  //'react-dom',
+  'react-dom',
   'react-native',
   'react-native-svg',
-  //'react-native-unistyles', TODO: unistyles (zip contains v2)
+  'react-native-unistyles',
   'prop-types',
   'csstype',
 ];
@@ -27,6 +27,7 @@ export class SourceResolver implements SourceResolverBase {
     try {
       const zip = new fs.FS();
       const entries = await zip.importHttpContent(F2RN_EXO_TYPE_ZIP);
+      console.log('>>> [source-resolver:initialize]', entries);
       this.root = entries[0] as ZipDirectoryEntry;
       this.init = true;
     } catch (error) {
@@ -46,9 +47,11 @@ export class SourceResolver implements SourceResolverBase {
       subPath ? `${subPath}/package.json` : 'package.json'
     );
 
-    // if (localContent !== undefined) {
-    //   return localContent;
-    // }
+    console.log('>>> [source-resolver:resolvePackageJson]', packageName, version, subPath, localContent);
+
+    if (localContent !== undefined) {
+      return localContent;
+    }
 
     if (CACHE_ONLY.includes(packageName)) {
       return undefined;
