@@ -14,10 +14,6 @@ Accept a list of packages and versions and do the following for each package:
 
 **packages.txt** (default filename):
 ```
-react=18.2.0
-@types/node=20.10.0
-typescript=5.3.0
-@react-native/metro-config=0.73.0
 @types/react=18.2.0
 
 # Comments are supported (lines starting with #)
