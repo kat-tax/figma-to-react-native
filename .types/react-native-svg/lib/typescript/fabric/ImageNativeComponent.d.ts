@@ -29,6 +29,14 @@ type ColorStruct = Readonly<{
     payload?: ColorValue;
     brushRef?: string;
 }>;
+type OnSvgLayoutEvent = Readonly<{
+    layout: {
+        x: Int32;
+        y: Int32;
+        width: Int32;
+        height: Int32;
+    };
+}>;
 interface SvgRenderableCommonProps {
     color?: ColorValue;
     fill?: UnsafeMixed<ColorValue | ColorStruct>;
@@ -55,6 +63,7 @@ interface NativeProps extends ViewProps, SvgNodeCommonProps, SvgRenderableCommon
     align?: string;
     meetOrSlice?: Int32;
     onLoad?: DirectEventHandler<ImageLoadEventData>;
+    onSvgLayout?: DirectEventHandler<OnSvgLayoutEvent>;
 }
 declare const _default: import("react-native/Libraries/Utilities/codegenNativeComponent").NativeComponentType<NativeProps>;
 export default _default;

@@ -1,5 +1,4 @@
-import type { ComponentType, ComponentProps } from 'react';
-import * as React from 'react';
+import type { ComponentType, ComponentProps, JSX } from 'react';
 import { Component } from 'react';
 import type { SvgProps } from './elements/Svg';
 import { tags } from './xmlTags';
@@ -44,9 +43,9 @@ export type XmlState = {
 export type AstProps = SvgProps & {
     ast: JsxAST | null;
 } & AdditionalProps;
-export declare function SvgAst({ ast, override }: AstProps): React.JSX.Element | null;
-export declare function SvgXml(props: XmlProps): React.JSX.Element | null;
-export declare function SvgUri(props: UriProps): React.JSX.Element | null;
+export declare function SvgAst({ ast, override }: AstProps): JSX.Element | null;
+export declare function SvgXml(props: XmlProps): JSX.Element | null;
+export declare function SvgUri(props: UriProps): JSX.Element | null;
 export declare class SvgFromXml extends Component<XmlProps, XmlState> {
     state: {
         ast: null;
@@ -56,7 +55,7 @@ export declare class SvgFromXml extends Component<XmlProps, XmlState> {
         xml: string | null;
     }): void;
     parse(xml: string | null): void;
-    render(): React.JSX.Element;
+    render(): JSX.Element;
 }
 export declare class SvgFromUri extends Component<UriProps, UriState> {
     state: {
@@ -67,7 +66,7 @@ export declare class SvgFromUri extends Component<UriProps, UriState> {
         uri: string | null;
     }): void;
     fetch(uri: string | null): Promise<void>;
-    render(): React.JSX.Element;
+    render(): JSX.Element;
 }
 export declare const camelCase: (phrase: string) => string;
 export type Styles = {

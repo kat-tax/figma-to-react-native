@@ -1,5 +1,5 @@
 import type { ColorValue } from 'react-native';
-export default function extractBrush(color?: ColorValue): {
+export default function extractBrush(color: ColorValue): {
     type: number;
 } | {
     type: number;

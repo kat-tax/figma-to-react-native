@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { GestureResponderEvent } from 'react-native';
 import { BaseProps } from './types';
 export declare class WebShape<P extends BaseProps = BaseProps> extends React.Component<P> {

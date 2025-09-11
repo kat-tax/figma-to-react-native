@@ -1,5 +1,5 @@
 import type { ColorValue } from 'react-native';
-import type { Float, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
+import type { DirectEventHandler, Float, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 import type { ViewProps } from './utils';
 import type { UnsafeMixed } from './codegenUtils';
 import { NumberProp } from '../lib/extract/types';
@@ -22,6 +22,14 @@ type ColorStruct = Readonly<{
     payload?: ColorValue;
     brushRef?: string;
 }>;
+type OnSvgLayoutEvent = Readonly<{
+    layout: {
+        x: Int32;
+        y: Int32;
+        width: Int32;
+        height: Int32;
+    };
+}>;
 interface SvgRenderableCommonProps {
     color?: ColorValue;
     fill?: UnsafeMixed<ColorValue | ColorStruct>;
@@ -43,6 +51,7 @@ interface NativeProps extends ViewProps, SvgNodeCommonProps, SvgRenderableCommon
     cx?: UnsafeMixed<NumberProp>;
     cy?: UnsafeMixed<NumberProp>;
     r?: UnsafeMixed<NumberProp>;
+    onSvgLayout?: DirectEventHandler<OnSvgLayoutEvent>;
 }
 declare const _default: import("react-native/Libraries/Utilities/codegenNativeComponent").NativeComponentType<NativeProps>;
 export default _default;
