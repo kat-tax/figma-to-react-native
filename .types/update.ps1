@@ -88,53 +88,67 @@ function Update-PackageJson {
     if ($packageJson.exports) {
       $exports = [ordered]@{}
 
-      # Find all .d.ts files in the package directory (only in root, not recursive)
-      $dtsFiles = Get-ChildItem -Path $packageDir -Filter "*.d.ts" | ForEach-Object {
-        # For .d.ts files, we need to remove both .d and .ts to get the clean name
+      # Find all .d.ts files recursively in the package directory
+      $allDtsFiles = Get-ChildItem -Path $packageDir -Filter "*.d.ts" -Recurse | ForEach-Object {
+        # Get relative path from package root
+        $relativePath = $_.FullName.Substring($packageDir.Length + 1).Replace('\', '/')
         $cleanName = $_.Name -replace '\.d\.ts$', ''
+
+        # Calculate directory path relative to package root
+        $dirPath = [System.IO.Path]::GetDirectoryName($relativePath).Replace('\', '/')
+        if ($dirPath -eq '.') { $dirPath = '' }
+
         return @{
           FileName = $cleanName
-          RelativePath = "./$($_.Name)"
+          RelativePath = "./$relativePath"
           FullPath = $_.FullName
+          DirPath = $dirPath
+          IsRoot = ($dirPath -eq '')
         }
       }
 
-      # Find .d.ts files in immediate subdirectories (like test-utils/index.d.ts)
-      $subdirDtsFiles = Get-ChildItem -Path $packageDir -Directory | ForEach-Object {
-        $subdir = $_
-        Get-ChildItem -Path $subdir.FullName -Filter "*.d.ts" | ForEach-Object {
-          # For .d.ts files, we need to remove both .d and .ts to get the clean name
-          $cleanName = $_.Name -replace '\.d\.ts$', ''
-          return @{
-            FileName = $cleanName
-            RelativePath = "./$($subdir.Name)/$($_.Name)"
-            FullPath = $_.FullName
-            SubdirName = $subdir.Name
+      # Find the main entry point from the types field
+      $mainTypesPath = $packageJson.types
+      if ($mainTypesPath) {
+        # Normalize the path (remove leading ./)
+        $mainTypesPath = $mainTypesPath -replace '^\./', ''
+
+        # Find the main file
+        $mainFile = $allDtsFiles | Where-Object { $_.RelativePath -eq "./$mainTypesPath" }
+        if ($mainFile) {
+          $exports["."] = [ordered]@{
+            types = $mainFile.RelativePath
           }
         }
       }
 
-      # Add main export (index.d.ts) first
-      $indexFile = $dtsFiles | Where-Object { $_.FileName -eq "index" }
-      if ($indexFile) {
-        $exports["."] = [ordered]@{
-          types = "./index.d.ts"
+      # For files in the same directory as the main types file, create individual exports
+      if ($mainTypesPath) {
+        $mainDir = [System.IO.Path]::GetDirectoryName($mainTypesPath).Replace('\', '/')
+        if ($mainDir -eq '.') { $mainDir = '' }
+
+        # Find other .d.ts files in the same directory as the main types file
+        $siblingFiles = $allDtsFiles | Where-Object {
+          $_.DirPath -eq $mainDir -and $_.FileName -ne "index"
+        } | Sort-Object FileName
+
+        foreach ($file in $siblingFiles) {
+          $exportKey = "./$($file.FileName)"
+          $exports[$exportKey] = [ordered]@{
+            types = $file.RelativePath
+          }
         }
       }
 
-      # Add exports for other .d.ts files in root directory (in alphabetical order)
-      $rootDtsFiles = $dtsFiles | Where-Object { $_.FileName -ne "index" } | Sort-Object FileName
-      foreach ($file in $rootDtsFiles) {
-        $exportKey = "./$($file.FileName)"  # Use basename without .d extension
-        $exports[$exportKey] = [ordered]@{
-          types = $file.RelativePath
-        }
+      # Add exports for subdirectories with index.d.ts files
+      $subdirIndexFiles = $allDtsFiles | Where-Object {
+        $_.FileName -eq "index" -and $_.DirPath -ne "" -and $_.DirPath -ne $mainDir
       }
 
-      # Add exports for subdirectories with index.d.ts (like test-utils)
-      $subdirIndexFiles = $subdirDtsFiles | Where-Object { $_.FileName -eq "index" } | Sort-Object SubdirName
       foreach ($file in $subdirIndexFiles) {
-        $exportKey = "./$($file.SubdirName)"
+        # Use the directory name as the export key
+        $dirName = [System.IO.Path]::GetFileName($file.DirPath)
+        $exportKey = "./$dirName"
         $exports[$exportKey] = [ordered]@{
           types = $file.RelativePath
         }
