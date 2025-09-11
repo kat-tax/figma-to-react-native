@@ -1,6 +1,7 @@
-import {F2RN_EDITOR_NS} from 'config/consts';
-import {componentPathNormalize} from 'common/string';
 import {emit} from '@create-figma-plugin/utilities';
+import {fs, ZipFileEntry} from '@zip.js/zip.js';
+import {componentPathNormalize} from 'common/string';
+import {F2RN_EDITOR_NS, F2RN_EXO_TYPE_ZIP} from 'config/consts';
 import schema from 'interface/schemas/schema.json';
 
 import * as $ from 'store';
@@ -8,7 +9,6 @@ import * as $ from 'store';
 import diff from './lib/diff';
 import imports from './lib/imports';
 import copilot from './lib/copilot';
-import typings from './lib/typings';
 import prompts from './lib/prompts';
 import language from './lib/language';
 
@@ -41,6 +41,21 @@ export const toolbarEvents = {
     this.listeners.forEach(listener => listener(state));
   }
 };
+
+export async function initPackageTypes(monaco: Monaco) {
+  const ts = monaco.languages.typescript.typescriptDefaults;
+  const zip = new fs.FS();
+  const entries = await zip.importHttpContent(F2RN_EXO_TYPE_ZIP);
+  for (const entry of entries) {
+    if (entry.data.directory) continue;
+    if (entry.data.filename.includes('react-native-nitro-modules/')) continue;
+    const txt = await (entry as ZipFileEntry<string, string>).getText('utf-8');
+    const uri = `${F2RN_EDITOR_NS}node_modules${entry.data.filename.replace(/^packages/, '')}`;
+    ts.addExtraLib(txt, uri);
+    //ts.setExtraLibs
+    console.log('>>> [editor::types]', uri, txt.length);
+  }
+}
 
 export function initTypescript(monaco: Monaco, settings: UserSettings) {
   const ts = monaco.languages.typescript.typescriptDefaults;
@@ -148,7 +163,6 @@ export async function initComponentEditor(
   // console.log('[init editor]', editor, monaco);
   diff.init(monaco, editor, onDiff);
   prompts.init(monaco, editor, onPrompt);
-  typings.init(monaco, editor);
   copilot.init(monaco, editor);
 
   const cleanup = initNodeToolbar(monaco, editor);

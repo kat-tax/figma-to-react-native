@@ -10,13 +10,14 @@ export function useEditor(settings: UserSettings, links?: ComponentLinks) {
 
   useEffect(() => {
     if (!monaco) return;
-    return lib.initFileOpener(monaco, links);
-  }, [monaco, links]);
+    lib.initSettingsSchema(monaco);
+    lib.initPackageTypes(monaco);
+  }, [monaco]);
 
   useEffect(() => {
     if (!monaco) return;
-    lib.initSettingsSchema(monaco);
-  }, [monaco]);
+    return lib.initFileOpener(monaco, links);
+  }, [monaco, links]);
 
   useEffect(() => {
     if (!monaco) return;
