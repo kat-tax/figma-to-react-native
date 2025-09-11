@@ -1,10 +1,1 @@
-{
-    "name": "@types/react",
-    "version": "17.0.2",
-    "main": "",
-    "types": "index.d.ts",
-    "dependencies": {
-        "@types/prop-types": "*",
-        "csstype": "^3.0.2"
-    }
-}
+{"name":"@types/react","version":"19.1.1","types":"index.d.ts","exports":{".":{"types":"./index.d.ts"},"./global":{"types":"./global.d.ts"},"./jsx-dev-runtime":{"types":"./jsx-dev-runtime.d.ts"},"./jsx-runtime":{"types":"./jsx-runtime.d.ts"},"./canary":{"types":"./canary.d.ts"},"./compiler-runtime":{"types":"./compiler-runtime.d.ts"},"./experimental":{"types":"./experimental.d.ts"},"./ts5.0":{"types":"./ts5.0/index.d.ts"}},"dependencies":{"csstype":"^3.0.2"},"peerDependencies":{}}

@@ -132,7 +132,7 @@ declare namespace React {
     type JSXElementConstructor<P> =
         | ((
             props: P,
-        ) => ReactNode | Promise<ReactNode>)
+        ) => ReactElement<any, any> | null)
         // constructor signature must match React.Component
         | (new(props: P) => Component<any, any>);
 
@@ -218,7 +218,7 @@ declare namespace React {
         C extends
             | ForwardRefExoticComponent<any>
             | { new(props: any): Component<any> }
-            | ((props: any) => ReactNode)
+            | ((props: any) => ReactElement | null)
             | keyof JSX.IntrinsicElements,
     > = ComponentRef<C>;
 
@@ -388,6 +388,7 @@ declare namespace React {
     }
 
     /**
+     * For internal usage only.
      * Different release channels declare additional types of ReactNode this particular release channel accepts.
      * App or library types should never augment this interface.
      */
@@ -558,7 +559,7 @@ declare namespace React {
      * @template P The props the component accepts.
      */
     interface ExoticComponent<P = {}> {
-        (props: P): ReactNode;
+        (props: P): ReactElement | null;
         readonly $$typeof: symbol;
     }
 
@@ -1040,7 +1041,7 @@ declare namespace React {
      * ```
      */
     interface FunctionComponent<P = {}> {
-        (props: P): ReactNode | Promise<ReactNode>;
+        (props: P): ReactElement<any, any> | null;
         /**
          * Ignored by React.
          * @deprecated Only kept in types for backwards compatibility. Will be removed in a future major release.
@@ -1072,9 +1073,7 @@ declare namespace React {
      *
      * @see {@link ForwardRefRenderFunction}
      */
-    // Making T nullable is assuming the refs will be managed by React or the component impl will write it somewhere else.
-    // But this isn't necessarily true. We haven't heard complains about it yet and hopefully `forwardRef` is removed from React before we do.
-    type ForwardedRef<T> = ((instance: T | null) => void) | RefObject<T | null> | null;
+    type ForwardedRef<T> = ((instance: T | null) => void) | MutableRefObject<T | null> | null;
 
     /**
      * The type of the function passed to {@link forwardRef}. This is considered different
@@ -1090,7 +1089,7 @@ declare namespace React {
      * @see {@link forwardRef}
      */
     interface ForwardRefRenderFunction<T, P = {}> {
-        (props: P, ref: ForwardedRef<T>): ReactNode;
+        (props: P, ref: ForwardedRef<T>): ReactElement | null;
         /**
          * Used in debugging messages. You might want to set it
          * explicitly if you want to display a different name for
@@ -3988,18 +3987,6 @@ declare namespace React {
 
     // Keep in sync with JSX namespace in ./jsx-runtime.d.ts and ./jsx-dev-runtime.d.ts
     namespace JSX {
-        // We don't just alias React.ElementType because React.ElementType
-        // historically does more than we need it to.
-        // E.g. it also contains .propTypes and so TS also verifies the declared
-        // props type does match the declared .propTypes.
-        // But if libraries declared their .propTypes but not props type,
-        // or they mismatch, you won't be able to use the class component
-        // as a JSX.ElementType.
-        // We could fix this everywhere but we're ultimately not interested in
-        // .propTypes assignability so we might as well drop it entirely here to
-        //  reduce the work of the type-checker.
-        // TODO: Check impact of making React.ElementType<P = any> = React.JSXElementConstructor<P>
-        type ElementType = string | React.JSXElementConstructor<any>;
         interface Element extends React.ReactElement<any, any> {}
         interface ElementClass extends React.Component<any> {
             render(): React.ReactNode;
