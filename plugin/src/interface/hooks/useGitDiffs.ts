@@ -5,7 +5,7 @@ import * as $ from 'store';
 
 import type {ComponentRoster} from 'types/component';
 
-export type ComponentDiff = [number, number]; // [additions, deletions]
+export type ComponentDiff = [number, number | null]; // [additions, deletions]
 export type ComponentDiffs = Record<string, ComponentDiff>;
 
 export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
@@ -47,9 +47,12 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
             if (currentCode !== gitCode) {
               // Handle new files (no git version exists)
               if (gitCode === null) {
-                // For new files, count all lines as additions, no deletions
-                const currentLines = currentCode.split(/\r\n|\r|\n/).length;
-                newDiffs[key] = [currentLines, 0];
+                // For new files, count all lines as additions, no deletions (null)
+                let currentLines = currentCode.split(/\r\n|\r|\n/).length;
+                // Remove the last newline (added by the editor)
+                // TODO: look into why output doesn't have the new line
+                if (currentLines > 0) currentLines = currentLines - 1;
+                newDiffs[key] = [currentLines, null];
                 console.log('>> [git-diff] new', entry.path, currentLines);
               } else {
                 const changes = computeTextDiff(gitCode, currentCode);

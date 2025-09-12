@@ -9,7 +9,7 @@ import type {ProjectComponentEntry} from 'types/project';
 
 interface ProjectListPageRowProps {
   page: string,
-  diff: [number, number],
+  diff?: [number, number | null],
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
 }
@@ -63,11 +63,13 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
           <span className="git-diff__indicator" onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            console.log('>> [git-diff] row', props.diff);
+            console.log('>> [git-diff] row', props.entry.item.key);
           }}>
-            <span>+{props.diff[0]}</span>
+            <span>+{props.diff?.[0] || 0}</span>
             <span> </span>
-            <span>-{props.diff[1]}</span>
+            {props.diff?.[1] !== null && (
+              <span>-{props.diff?.[1] || 0}</span>
+            )}
           </span>
         ] : undefined}>
         <div style={{

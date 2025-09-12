@@ -9,7 +9,7 @@ import type {ProjectComponentEntry} from 'types/project';
 
 interface ProjectListPageCellProps {
   page: string,
-  diff: [number, number],
+  diff?: [number, number],
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
 }
@@ -104,11 +104,17 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
                 : path.split('/').slice(2, -1).join('/')
             }
           </Text>
-          {(Boolean(props.diff[0]) || Boolean(props.diff[1])) && (
-            <span className="git-diff__indicator">
-              <span>+{props.diff[0]}</span>
+          {(Boolean(props.diff?.[0]) || Boolean(props.diff?.[1])) && (
+            <span className="git-diff__indicator" onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              console.log('>> [git-diff] cell', props.entry.item.key);
+            }}>
+              <span>+{props.diff?.[0] || 0}</span>
               <span> </span>
-              <span>-{props.diff[1]}</span>
+              {props.diff?.[1] !== null && (
+                <span>-{props.diff?.[1] || 0}</span>
+              )}
             </span>
           )}
         </Flex>
