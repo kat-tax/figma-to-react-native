@@ -60,14 +60,14 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
             : path.split('/').slice(2, -1).join('/')
         }
         endComponent={props.diff[0] || props.diff[1] ? [
-          <span style={{
-            fontSize: '11px',
-            color: 'var(--figma-color-text-secondary)',
-            whiteSpace: 'nowrap'
+          <span className="git-diff__indicator" onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('>> [git-diff] row', props.diff);
           }}>
-            <span style={{color: 'var(--figma-color-text-success)'}}>+{props.diff[0]}</span>
+            <span>+{props.diff[0]}</span>
             <span> </span>
-            <span style={{color: 'var(--figma-color-text-danger)'}}>-{props.diff[1]}</span>
+            <span>-{props.diff[1]}</span>
           </span>
         ] : undefined}>
         <div style={{

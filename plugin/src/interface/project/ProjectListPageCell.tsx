@@ -105,14 +105,10 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
             }
           </Text>
           {(Boolean(props.diff[0]) || Boolean(props.diff[1])) && (
-            <span style={{
-              fontSize: '11px',
-              color: 'var(--figma-color-text-secondary)',
-              whiteSpace: 'nowrap'
-            }}>
-              <span style={{color: 'var(--figma-color-text-success)'}}>+{props.diff[0]}</span>
+            <span className="git-diff__indicator">
+              <span>+{props.diff[0]}</span>
               <span> </span>
-              <span style={{color: 'var(--figma-color-text-danger)'}}>-{props.diff[1]}</span>
+              <span>-{props.diff[1]}</span>
             </span>
           )}
         </Flex>

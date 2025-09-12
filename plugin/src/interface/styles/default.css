@@ -409,6 +409,35 @@ body [class*="_menu_"] {
   display: none;
 }
 
+/* Git Diff */
+.git-diff__indicator {
+  padding: 1px 5px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--figma-color-text-secondary);
+  border: 1px solid var(--figma-color-border);
+  opacity: 0.9;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.git-diff__indicator:hover {
+  opacity: 1;
+}
+
+.git-diff__indicator:active {
+  opacity: 0.8;
+}
+
+.git-diff__indicator span {
+  pointer-events: none;
+  color: var(--figma-color-text-success);
+}
+
+.git-diff__indicator span:last-child {
+  color: var(--figma-color-text-danger);
+}
+
 /* Virtual List */
 .virtuoso-grid-list {
   display: flex;
