@@ -27,6 +27,8 @@ interface ProjectComponentsProps {
   searchQuery: string,
   editorOptions: UserSettings['monaco']['general'],
   editorTheme: Theme,
+  showDiff: boolean,
+  setShowDiff: (show: boolean) => void,
 }
 
 export function ProjectComponents(props: ProjectComponentsProps) {
@@ -91,6 +93,9 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           searchQuery={props.searchQuery}
           importing={importing}
           importComponents={importComponents}
+          nav={props.nav}
+          showDiff={props.showDiff}
+          setShowDiff={props.setShowDiff}
         />
       )}
       {viewState === 'settings' && (

@@ -67,7 +67,7 @@ export function App(props: AppProps) {
   const variant = useSelectedVariant();
   const monaco = useEditor(settings.config, build.links);
   const isDark = useDarkMode();
-  const nav = useNavigation(build);
+  const nav = useNavigation(build, setShowDiff);
 
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
@@ -108,7 +108,7 @@ export function App(props: AppProps) {
             onValueChange={nav.gotoTab}>
             <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
-              <ProjectComponents {...{nav, build, settings, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, editorOptions, editorTheme}}/>
+              <ProjectComponents {...{nav, build, settings, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, editorOptions, editorTheme, showDiff, setShowDiff}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
               <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery, settings}}/>

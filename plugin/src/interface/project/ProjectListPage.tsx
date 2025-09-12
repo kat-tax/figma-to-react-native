@@ -13,6 +13,7 @@ interface ProjectListPageProps {
   entries?: ProjectComponentEntry[],
   diffs: ComponentDiffs;
   onSelect: (id: string) => void;
+  onSelectWithDiff: (componentKey: string) => void;
 }
 
 export function ProjectListPage(props: ProjectListPageProps) {
@@ -34,6 +35,7 @@ export function ProjectListPage(props: ProjectListPageProps) {
             page={props.title}
             diff={props.diffs[entry.item.key] || [0, 0]}
             onSelect={props.onSelect}
+            onSelectWithDiff={props.onSelectWithDiff}
           />
         ))
       ) : (
@@ -50,6 +52,7 @@ export function ProjectListPage(props: ProjectListPageProps) {
               diff={props.diffs[entry.item.key] || [0, 0]}
               entry={entry}
               onSelect={props.onSelect}
+              onSelectWithDiff={props.onSelectWithDiff}
             />
           ))}
         </div>

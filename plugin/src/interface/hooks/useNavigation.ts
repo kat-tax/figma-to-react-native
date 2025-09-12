@@ -21,7 +21,10 @@ export interface Navigation {
   setLastEditorRev: React.Dispatch<number>,
 }
 
-export function useNavigation(build: ComponentBuild): Navigation {
+export function useNavigation(
+  build: ComponentBuild,
+  setShowDiff: (show: boolean) => void,
+): Navigation {
   const [tab, setTab] = useState<AppPages>('components');
   const [component, setComponent] = useState<string | null>(null);
   const [codeFocus, setCodeFocus] = useState<{line: number, column: number} | null>(null);
@@ -30,6 +33,7 @@ export function useNavigation(build: ComponentBuild): Navigation {
   const queueRef = useRef<{key: string, timeoutId: number} | null>(null);
 
   const gotoComponent = (key: string) => {
+    setShowDiff(false);
     setComponent(key);
     if (!tab.startsWith('component/')) {
       setTab('component/code');

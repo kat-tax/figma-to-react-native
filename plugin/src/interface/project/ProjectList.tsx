@@ -10,6 +10,7 @@ import {ProjectListPage} from './ProjectListPage';
 import type {ProjectComponentIndex, ProjectComponentLayout} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 import type {EventFocusNode} from 'types/events';
+import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ProjectListProps {
   build: ComponentBuild,
@@ -19,6 +20,9 @@ interface ProjectListProps {
   searchQuery: string,
   importing: boolean,
   importComponents: () => void,
+  nav: Navigation,
+  showDiff: boolean,
+  setShowDiff: (show: boolean) => void,
 }
 
 export function ProjectList(props: ProjectListProps) {
@@ -40,6 +44,16 @@ export function ProjectList(props: ProjectListProps) {
 
   const select = (id: string) => {
     emit<EventFocusNode>('NODE_FOCUS', id);
+  };
+
+  const selectWithDiff = (componentKey: string) => {
+    // Navigate to the component first
+    props.nav.setComponent(componentKey);
+    props.nav.gotoTab('component/code');
+    // Then enable diff mode
+    setTimeout(() => {
+      props.setShowDiff(true);
+    }, 100);
   };
 
   useEffect(() => {
@@ -88,6 +102,7 @@ export function ProjectList(props: ProjectListProps) {
           title={page}
           layout={props.layout}
           onSelect={select}
+          onSelectWithDiff={selectWithDiff}
           entries={list[page]}
           diffs={diffs}
         />

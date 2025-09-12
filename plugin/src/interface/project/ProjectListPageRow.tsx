@@ -12,6 +12,7 @@ interface ProjectListPageRowProps {
   diff?: [number, number | null],
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
+  onSelectWithDiff: (componentKey: string) => void,
 }
 
 export function ProjectListPageRow(props: ProjectListPageRowProps) {
@@ -63,7 +64,7 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
           <span className="git-diff__indicator" onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            console.log('>> [git-diff] row', props.entry.item.key);
+            props.onSelectWithDiff(props.entry.item.key);
           }}>
             <span>+{props.diff?.[0] || 0}</span>
             <span> </span>
