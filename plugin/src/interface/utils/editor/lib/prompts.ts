@@ -21,6 +21,8 @@ export async function patch(action: string) {
 }
 
 export function init(monaco: Monaco, editor: MonacoEditor, run: () => void) {
+  // TODO: experimental, little use case atm
+  return;
   editor.addAction({
     id: 'f2rn-gpt',
     label: 'Patch with GPT-4',
