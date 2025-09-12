@@ -39,10 +39,6 @@ export async function update(project: ProjectBuild, info: ProjectInfo, settings:
   fs.writeFileSync('locales.ts', _.localesConfig(info));
   changes.add('locales.ts');
 
-  // Storybook
-  fs.writeFileSync('guides/storybook/get started.mdx', _.storybookIndex(metadata));
-  changes.add('guides/storybook/get started.mdx');
-
   // Design
   fs.writeFileSync('design/index.ts', project.index);
   fs.writeFileSync('design/theme.ts', project.theme);
