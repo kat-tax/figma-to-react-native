@@ -87,12 +87,12 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
 
       // Increment design package version
       if (form.method === 'npm' || form.method === 'git') {
-        const version = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
+        const version = info.appConfig?.['General']?.['PACKAGE_VERSION']?.toString();
         if (version) {
           const [major, minor, patch] = version.split('.').map(Number);
           const newVersion = `${major}.${minor}.${patch + 1}`;
           projectVersion = newVersion;
-          info.appConfig['Design']['PACKAGE_VERSION'] = newVersion;
+          info.appConfig['General']['PACKAGE_VERSION'] = newVersion;
         }
         await setProjectVersion(projectVersion);
       }
@@ -160,7 +160,7 @@ async function setProjectVersion(version: string) {
   if (config) {
     const variables = await parser.getVariables(config.variableIds);
     if (variables) {
-      const variable = variables.find(v => v.name === 'Design/Package Version');
+      const variable = variables.find(v => v.name === 'General/Package Version');
       if (variable) {
         variable.setValueForMode(config.defaultModeId, version);
       }

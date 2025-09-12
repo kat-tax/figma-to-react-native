@@ -13,8 +13,8 @@ export function metadata(info: ProjectInfo): ProjectMetadata {
     linkDocs: info.appConfig?.Web?.DOCS?.toString(),
     linkFigma: info.appConfig?.Web?.FIGMA?.toString(),
     linkGithub: info.appConfig?.Web?.GITHUB?.toString(),
-    pkgVersion: info.appConfig?.Design?.PACKAGE_VERSION?.toString(),
-    pkgName: info.appConfig?.Design?.PACKAGE_NAME?.toString(),
+    pkgVersion: info.appConfig?.General?.PACKAGE_VERSION?.toString(),
+    pkgName: info.appConfig?.General?.PACKAGE_NAME?.toString(),
   };
 }
 
