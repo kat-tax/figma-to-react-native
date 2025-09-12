@@ -19,6 +19,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
   const {id, name, page, path, loading, preview, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(null);
+  const isModified = Boolean(props.diff?.[0] || props.diff?.[1]);
 
   useEffect(() => {
     if (preview) {
@@ -75,9 +76,9 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
       onClick={() => id ? props.onSelect(id) : undefined}>
       <Flex direction="column" style={{flex: 1}}>
         <Flex direction="row" style={{gap: 6, alignItems: 'center'}}>
-          <IconComponent color="component"/>
+          <IconComponent color={isModified ? "warning" : "component"}/>
           <Text weight="strong" style={{
-            color: 'var(--figma-color-text-component)',
+            color: isModified ? 'var(--figma-color-icon-warning)' : 'var(--figma-color-text-component)',
             flex: 1,
             minWidth: 0,
             overflow: 'hidden',
@@ -105,7 +106,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
                 : path.split('/').slice(2, -1).join('/')
             }
           </Text>
-          {(Boolean(props.diff?.[0]) || Boolean(props.diff?.[1])) && (
+          {isModified && (
             <span className="git-diff__indicator" onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();

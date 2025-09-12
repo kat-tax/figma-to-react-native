@@ -18,6 +18,7 @@ interface ProjectListPageRowProps {
 export function ProjectListPageRow(props: ProjectListPageRowProps) {
   const {id, name, page, path, loading, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
+  const isModified = Boolean(props.diff?.[0] || props.diff?.[1]);
 
   return (
     <Stack
@@ -49,7 +50,7 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
       <Layer
         component
         active={name === dragging}
-        warning={hasError}
+        warning={hasError || isModified}
         onChange={() => id
           ? props.onSelect(id)
           : undefined
@@ -60,7 +61,7 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
             ? 'loading...'
             : path.split('/').slice(2, -1).join('/')
         }
-        endComponent={props.diff[0] || props.diff[1] ? [
+        endComponent={isModified ? [
           <span className="git-diff__indicator" onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -79,7 +80,7 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
           alignItems: 'center',
           width: '100%'
         }}>
-          <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
+          <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : isModified ? 'var(--figma-color-icon-warning)' : undefined}}>
             <TextUnderline
               str={`${page}/${name}`}
               indices={props.entry.positions}
