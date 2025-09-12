@@ -77,7 +77,8 @@ export function ComponentCode(props: ComponentCodeProps) {
         const path = `design/${$info.path}/${$info.name}.tsx`;
         setHead(fs.readFileSync(path, 'utf8')?.toString());
       } catch (e) {
-        setHead($code.get().toString());
+        // For new components with no git history, show empty original to display all content as additions
+        setHead('');
       }
     }
   }, [$info, $code, fs, props.compKey]);
