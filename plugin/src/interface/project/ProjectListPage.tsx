@@ -5,11 +5,13 @@ import {ProjectListPageRow} from './ProjectListPageRow';
 import {ProjectListPageCell} from './ProjectListPageCell';
 
 import type {ProjectComponentEntry, ProjectComponentLayout} from 'types/project';
+import type {ComponentDiffs} from 'interface/hooks/useGitDiffs';
 
 interface ProjectListPageProps {
   title: string;
   layout: ProjectComponentLayout;
   entries?: ProjectComponentEntry[],
+  diffs: ComponentDiffs;
   onSelect: (id: string) => void;
 }
 
@@ -30,7 +32,7 @@ export function ProjectListPage(props: ProjectListPageProps) {
             key={entry.item.key}
             entry={entry}
             page={props.title}
-            diff={[0, 0]}
+            diff={props.diffs[entry.item.key] || [0, 0]}
             onSelect={props.onSelect}
           />
         ))
@@ -45,7 +47,7 @@ export function ProjectListPage(props: ProjectListPageProps) {
             <ProjectListPageCell
               key={entry.item.key}
               page={props.title}
-              diff={[0, 0]}
+              diff={props.diffs[entry.item.key] || [0, 0]}
               entry={entry}
               onSelect={props.onSelect}
             />

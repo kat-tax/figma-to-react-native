@@ -3,6 +3,7 @@ import {Button} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
+import {useGitDiffs} from 'interface/hooks/useGitDiffs';
 
 import {ProjectListPage} from './ProjectListPage';
 
@@ -24,6 +25,7 @@ export function ProjectList(props: ProjectListProps) {
   const [list, setList] = useState<ProjectComponentIndex>({});
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   const hasImport = !props.isReadOnly && false;
+  const diffs = useGitDiffs(props.build?.roster || {});
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
     const entries = _entries
@@ -87,6 +89,7 @@ export function ProjectList(props: ProjectListProps) {
           layout={props.layout}
           onSelect={select}
           entries={list[page]}
+          diffs={diffs}
         />
       )}
     </div>

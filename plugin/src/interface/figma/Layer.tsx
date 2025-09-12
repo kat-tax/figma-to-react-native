@@ -35,7 +35,7 @@ export function Layer({
         }
         {endComponent?.map((icon, index) => (
           <div key={index} className="layer__end-components">
-            {icon}
+            {endComponent}
           </div>
         ))}
       </div>

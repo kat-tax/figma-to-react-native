@@ -35,7 +35,6 @@
   align-items: center;
   justify-content: flex-end;
   margin-left: auto;
-  padding-left: 8px;
   flex-shrink: 0;
   color: var(--figma-color-icon-component);
 }
