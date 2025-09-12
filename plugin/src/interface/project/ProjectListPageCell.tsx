@@ -23,7 +23,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
 
   useEffect(() => {
     if (preview) {
-      const blob = new Blob([preview as unknown as ArrayBuffer], {type: 'image/png'});
+      const blob = new Blob([preview], {type: 'image/png'});
       const url = URL.createObjectURL(blob);
       setImage(url);
     }

@@ -30,7 +30,7 @@ export type ComponentRosterEntry = {
   page: string,
   path: string,
   loading: boolean,
-  preview: Uint8Array,
+  preview: ArrayBuffer,
   hasError?: boolean,
   errorMessage?: string,
 }
