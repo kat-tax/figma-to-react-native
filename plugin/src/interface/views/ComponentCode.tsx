@@ -159,7 +159,6 @@ export function ComponentCode(props: ComponentCodeProps) {
             e.onDidChangeModel((_event) => {
               // console.log('[changed model]', event);
               props.nav.setCursorPos(null);
-              e.focus();
             });
             new MonacoBinding(
               $.provider?.awareness,
