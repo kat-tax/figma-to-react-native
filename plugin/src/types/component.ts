@@ -65,7 +65,7 @@ export type ComponentAsset = {
   width: number,
   height: number,
   parent: string,
-  bytes: Uint8Array,
+  bytes: ArrayBuffer,
   isVector?: boolean,
 }
 
