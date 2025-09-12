@@ -71,7 +71,7 @@ export function ComponentCode(props: ComponentCodeProps) {
   useEffect(() => {
     if ($info) {
       setComponentPath(`${F2RN_EDITOR_NS}${$info.path.split('/').slice(1).join('/')}.tsx`);
-      setComparePath(`${F2RN_EDITOR_NS}compare/${$info.path.split('/').slice(1).join('/')}.tsx`);
+      setComparePath(`${F2RN_EDITOR_NS}.git/${$info.path.split('/').slice(1).join('/')}.tsx`);
       setSnap($code.get().toString());
       try {
         const path = `design/${$info.path}/${$info.name}.tsx`;
@@ -80,7 +80,7 @@ export function ComponentCode(props: ComponentCodeProps) {
         setHead($code.get().toString());
       }
     }
-  }, [$info, $code, fs]);
+  }, [$info, $code, fs, props.compKey]);
 
   // Update component dependencies on new build
   useEffect(() => {
@@ -180,10 +180,10 @@ export function ComponentCode(props: ComponentCodeProps) {
           keepCurrentModifiedModel={true}
           keepCurrentOriginalModel={false}
           onMount={(e) => {
-            const editor = e.getModifiedEditor();
-            diff.exit(editor, props.monaco, () => {
-              props.setShowDiff(false);
-            });
+            const editorOriginal =e.getOriginalEditor();
+            const editorModified = e.getModifiedEditor();
+            diff.exit(editorOriginal, props.monaco, () => props.setShowDiff(false));
+            diff.exit(editorModified, props.monaco, () => props.setShowDiff(false));
           }}
         />}
         {toolbarState && (

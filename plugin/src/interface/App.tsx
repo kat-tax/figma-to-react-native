@@ -106,7 +106,7 @@ export function App(props: AppProps) {
             style={{height: 'calc(100% - 41px)'}}
             value={nav.tab}
             onValueChange={nav.gotoTab}>
-            <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
+            <NavBar {...{nav, tabs, build, isVSCode, showDiff, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
               <ProjectComponents {...{nav, build, settings, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, editorOptions, editorTheme, showDiff, setShowDiff}}/>
             </Tabs.Content>

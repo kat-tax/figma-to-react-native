@@ -17,6 +17,7 @@ interface NavBarProps {
   nav: Navigation,
   tabs: AppTabs,
   build: ComponentBuild,
+  showDiff: boolean,
   isVSCode: boolean,
   searchMode: boolean,
   searchQuery: string,
@@ -172,7 +173,7 @@ export function NavBar(props: NavBarProps) {
           options={menuComponent}
           placeholder="Select a component"
           value={isTargetInRoster ? props.nav.component : null}
-          onChange={(e) => props.nav.setComponent(e.currentTarget.value)}
+          onChange={(e) => props.nav.gotoComponent(e.currentTarget.value, props.showDiff)}
         />
       }
       {hasTarget && hasChanges &&

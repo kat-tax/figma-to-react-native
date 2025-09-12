@@ -42,20 +42,6 @@ export function ProjectList(props: ProjectListProps) {
     });
   }, [props?.build, hasComponents]);
 
-  const select = (id: string) => {
-    emit<EventFocusNode>('NODE_FOCUS', id);
-  };
-
-  const selectWithDiff = (componentKey: string) => {
-    // Navigate to the component first
-    props.nav.setComponent(componentKey);
-    props.nav.gotoTab('component/code');
-    // Then enable diff mode
-    setTimeout(() => {
-      props.setShowDiff(true);
-    }, 100);
-  };
-
   useEffect(() => {
     const entries = index.find(props.searchQuery);
     const newList: ProjectComponentIndex = hasComponents
@@ -101,8 +87,8 @@ export function ProjectList(props: ProjectListProps) {
           key={page}
           title={page}
           layout={props.layout}
-          onSelect={select}
-          onSelectWithDiff={selectWithDiff}
+          onSelect={(id) => emit<EventFocusNode>('NODE_FOCUS', id)}
+          onSelectWithDiff={(key) => props.nav.gotoComponent(key, true)}
           entries={list[page]}
           diffs={diffs}
         />

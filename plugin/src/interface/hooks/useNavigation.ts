@@ -15,7 +15,7 @@ export interface Navigation {
   lastEditorRev: number,
   gotoTab: (value: AppPages) => void,
   gotoOverview: () => void,
-  setComponent: React.Dispatch<string>,
+  gotoComponent: (key: string, showDiff: boolean) => void,
   setCodeFocus: React.Dispatch<{line: number, column: number} | null>,
   setCursorPos: React.Dispatch<{line: number, column: number} | null>,
   setLastEditorRev: React.Dispatch<number>,
@@ -32,12 +32,15 @@ export function useNavigation(
   const [lastEditorRev, setLastEditorRev] = useState<number>(0);
   const queueRef = useRef<{key: string, timeoutId: number} | null>(null);
 
-  const gotoComponent = (key: string) => {
+  const gotoComponent = (key: string, showDiff = false) => {
     setShowDiff(false);
     setComponent(key);
     if (!tab.startsWith('component/')) {
       setTab('component/code');
     }
+    setTimeout(() => {
+      setShowDiff(showDiff);
+    }, 50);
   };
 
   const handleComponentSelection = (key: string) => {
@@ -104,7 +107,7 @@ export function useNavigation(
     lastEditorRev,
     gotoTab,
     gotoOverview,
-    setComponent,
+    gotoComponent,
     setCodeFocus,
     setCursorPos,
     setLastEditorRev,
