@@ -374,7 +374,8 @@ iframe {
 @media (max-width: 308px) {
   .drop-mod-target [class*="_dropdown_"],
   .drop-mod-target-unsaved [class*="_dropdown_"] {
-    min-width: 54px;
+    transform: translateX(4px);
+    min-width: 32px;
     flex: 0;
   }
 }
