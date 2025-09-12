@@ -54,7 +54,8 @@ export async function watchComponents(
     await compile(all);
     // Select targeted component since it's available now
     targetComponent();
-    // TODO: Refresh component cache, needs heuristic to detect if we need to recompile all components
+    // TODO: Refresh component cache on init, disabled.
+    // instead, we should track updated nodes and update their css in batches
     // await compile(all, true);
   }
 
