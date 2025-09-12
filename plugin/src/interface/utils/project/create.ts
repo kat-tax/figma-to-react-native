@@ -28,10 +28,6 @@ export async function create(
   zip.remove(tpl.getChildByName('config.yaml'));
   tpl.addText('config.yaml', _.appConfig(info));
 
-  // Locales
-  zip.remove(tpl.getChildByName('locales.ts'));
-  tpl.addText('locales.ts', _.localesConfig(info));
-
   // Docs
   const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
   zip.remove(docs.getChildByName('start'));

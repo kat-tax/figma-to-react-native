@@ -35,10 +35,6 @@ export async function update(project: ProjectBuild, info: ProjectInfo, settings:
   fs.writeFileSync('config.yaml', _.appConfig(info));
   changes.add('config.yaml');
 
-  // Locales
-  fs.writeFileSync('locales.ts', _.localesConfig(info));
-  changes.add('locales.ts');
-
   // Design
   fs.writeFileSync('design/index.ts', project.index);
   fs.writeFileSync('design/theme.ts', project.theme);

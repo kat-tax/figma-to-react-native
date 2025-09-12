@@ -19,23 +19,19 @@ export function metadata(info: ProjectInfo): ProjectMetadata {
 }
 
 export function appConfig(info: ProjectInfo): string {
-  return Object.entries(info.appConfig)
+  // Generate main config sections
+  const configSections = Object.entries(info.appConfig)
     .map(([group, section]) =>
-      `# ${group}\n ${Object.entries(section).map(([key, value]) =>
-        `${key}: ${value}`).join('\n')}`).join('\n\n');
-}
+      `# ${group}\n${Object.entries(section).map(([key, value]) =>
+        `${key}: ${value}`).join('\n')}`);
 
-export function localesConfig(info: ProjectInfo): string {
-  return [
-    '/** Supported languages **/',
-    '',
-    'export type Locales = keyof typeof locales;',
-    `export const sourceLocale: Locales = "${info.locales.source}";`,
-    `export const locales = ${JSON.stringify(info.locales.all.reduce((acc, [key, value]) => {
-      acc[key] = value;
-      return acc;
-    }, {}), null, 2)} as const;`,
+  // Generate translations section
+  const translationsSection = [
+    '# Translations',
+    ...info.locales.all.map(([key, value]) => `LANG_${key.toUpperCase()}: ${value}`)
   ].join('\n');
+
+  return [...configSections, translationsSection].join('\n\n');
 }
 
 export function storybookIndex(metadata: ProjectMetadata): string {
