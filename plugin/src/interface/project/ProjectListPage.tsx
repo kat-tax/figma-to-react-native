@@ -30,6 +30,7 @@ export function ProjectListPage(props: ProjectListPageProps) {
             key={entry.item.key}
             entry={entry}
             page={props.title}
+            diff={[0, 0]}
             onSelect={props.onSelect}
           />
         ))
@@ -44,6 +45,7 @@ export function ProjectListPage(props: ProjectListPageProps) {
             <ProjectListPageCell
               key={entry.item.key}
               page={props.title}
+              diff={[0, 0]}
               entry={entry}
               onSelect={props.onSelect}
             />

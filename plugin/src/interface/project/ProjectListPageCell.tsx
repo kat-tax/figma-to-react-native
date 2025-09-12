@@ -9,6 +9,7 @@ import type {ProjectComponentEntry} from 'types/project';
 
 interface ProjectListPageCellProps {
   page: string,
+  diff: [number, number],
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
 }
@@ -20,7 +21,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
 
   useEffect(() => {
     if (preview) {
-      const blob = new Blob([preview], {type: 'image/png'});
+      const blob = new Blob([preview as unknown as ArrayBuffer], {type: 'image/png'});
       const url = URL.createObjectURL(blob);
       setImage(url);
     }
@@ -72,7 +73,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
       }}
       onClick={() => id ? props.onSelect(id) : undefined}>
       <Flex direction="column" style={{flex: 1}}>
-        <Flex direction="row" style={{gap: 6}}>
+        <Flex direction="row" style={{gap: 6, alignItems: 'center'}}>
           <IconComponent color="component"/>
           <Text weight="strong" style={{
             color: 'var(--figma-color-text-component)',
@@ -91,7 +92,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
           <div style={{width: 8}}/>
           <Text size="medium" style={{
             color: 'var(--figma-color-text-secondary)',
-            maxWidth: '40%',
+            maxWidth: '30%',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
@@ -103,6 +104,17 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
                 : path.split('/').slice(2, -1).join('/')
             }
           </Text>
+          {(Boolean(props.diff[0]) || Boolean(props.diff[1])) && (
+            <span style={{
+              fontSize: '11px',
+              color: 'var(--figma-color-text-secondary)',
+              whiteSpace: 'nowrap'
+            }}>
+              <span style={{color: 'var(--figma-color-text-success)'}}>+{props.diff[0]}</span>
+              <span> </span>
+              <span style={{color: 'var(--figma-color-text-danger)'}}>-{props.diff[1]}</span>
+            </span>
+          )}
         </Flex>
         <div style={{
           position: 'relative',

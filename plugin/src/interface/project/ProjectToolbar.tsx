@@ -100,7 +100,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                   emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
                   setExportActive(true);
                 }}>
-                <Text>Download Zip</Text>
+                <Text>Download App</Text>
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 disabled={exportActive}

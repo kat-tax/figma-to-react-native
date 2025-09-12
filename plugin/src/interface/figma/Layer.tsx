@@ -5,7 +5,7 @@ interface LayerProps {
   warning?: boolean;
   component?: boolean;
   description?: string;
-  rightIcons?: React.ReactNode[];
+  endComponent?: React.ReactNode[];
   children: React.ReactNode;
   onChange?: () => void;
 }
@@ -15,7 +15,7 @@ export function Layer({
   warning = false,
   active = false,
   description,
-  rightIcons,
+  endComponent,
   children,
   onChange,
 }: LayerProps) {
@@ -33,8 +33,8 @@ export function Layer({
             {description}
           </span>
         }
-        {rightIcons?.map((icon, index) => (
-          <div key={index} className="layer__icon">
+        {endComponent?.map((icon, index) => (
+          <div key={index} className="layer__end-components">
             {icon}
           </div>
         ))}

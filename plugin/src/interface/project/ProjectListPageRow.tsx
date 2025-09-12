@@ -9,14 +9,14 @@ import type {ProjectComponentEntry} from 'types/project';
 
 interface ProjectListPageRowProps {
   page: string,
+  diff: [number, number],
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
 }
 
 export function ProjectListPageRow(props: ProjectListPageRowProps) {
-  const {id, name, page, path, preview, loading, hasError, errorMessage} = props.entry.item;
+  const {id, name, page, path, loading, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
-  const hasUnsavedChanges = false;
 
   return (
     <Stack
@@ -57,17 +57,33 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
           ? errorMessage || 'Unknown error'
           : loading
             ? 'loading...'
-            : hasUnsavedChanges
-              ? '(modified)'
-              : path.split('/').slice(2, -1).join('/')
-        }>
-        <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
-          <TextUnderline
-            str={`${page}/${name}`}
-            indices={props.entry.positions}
-          />
-          <TextCollabDots target={name}/>
-        </span>
+            : path.split('/').slice(2, -1).join('/')
+        }
+        endComponent={props.diff[0] || props.diff[1] ? [
+          <span style={{
+            fontSize: '11px',
+            color: 'var(--figma-color-text-secondary)',
+            whiteSpace: 'nowrap'
+          }}>
+            <span style={{color: 'var(--figma-color-text-success)'}}>+{props.diff[0]}</span>
+            <span> </span>
+            <span style={{color: 'var(--figma-color-text-danger)'}}>-{props.diff[1]}</span>
+          </span>
+        ] : undefined}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%'
+        }}>
+          <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
+            <TextUnderline
+              str={`${page}/${name}`}
+              indices={props.entry.positions}
+            />
+            <TextCollabDots target={name}/>
+          </span>
+        </div>
       </Layer>
     </Stack>
   );

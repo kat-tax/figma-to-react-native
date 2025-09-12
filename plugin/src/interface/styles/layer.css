@@ -30,12 +30,12 @@
   background: var(--figma-color-bg-selected);
 }
 
-.layer__icon {
+.layer__end-components {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
+  justify-content: flex-end;
+  margin-left: auto;
+  padding-left: 8px;
   flex-shrink: 0;
   color: var(--figma-color-icon-component);
 }
