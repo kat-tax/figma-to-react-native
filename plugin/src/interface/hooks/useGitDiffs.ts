@@ -33,7 +33,7 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
         for (const [key, entry] of Object.entries(roster)) {
           try {
             const currentCode = $.component.code(key).get().toString();
-            let gitCode = '';
+            let gitCode: string | null = null;
             try {
               const component = roster[key];
               if (component) {
@@ -41,28 +41,32 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
                 gitCode = git.fs.readFileSync(gitPath, 'utf8')?.toString() || '';
               }
             } catch (e) {
-              gitCode = '';
+              gitCode = null;
             }
             // Calculate diff using the text-diff utility
             if (currentCode !== gitCode) {
-              console.log('>> [git-diff]', entry.path, currentCode.length, gitCode.length);
-              const changes = computeTextDiff(gitCode, currentCode);
-              let additions = 0;
-              let deletions = 0;
-              // Parse diff results to count added and removed lines
-              for (const change of changes) {
-                const originalLines = change.original.endLineNumberExclusive - change.original.startLineNumber;
-                const modifiedLines = change.modified.endLineNumberExclusive - change.modified.startLineNumber;
-                // Lines added = new lines that weren't in original
-                if (modifiedLines > originalLines) {
-                  additions += modifiedLines - originalLines;
+              // Handle new files (no git version exists)
+              if (gitCode === null) {
+                // For new files, count all lines as additions, no deletions
+                const currentLines = currentCode.split(/\r\n|\r|\n/).length;
+                newDiffs[key] = [currentLines, 0];
+                console.log('>> [git-diff] new', entry.path, currentLines);
+              } else {
+                const changes = computeTextDiff(gitCode, currentCode);
+                let additions = 0;
+                let deletions = 0;
+                console.log('>> [git-diff] modified', entry.path, changes, currentCode.length, gitCode.length);
+                // Parse diff results to count added and removed lines like GitHub
+                for (const change of changes) {
+                  const originalLines = change.original.endLineNumberExclusive - change.original.startLineNumber;
+                  const modifiedLines = change.modified.endLineNumberExclusive - change.modified.startLineNumber;
+                  // Count deletions: lines that existed in original but not in modified
+                  deletions += originalLines;
+                  // Count additions: lines that exist in modified but not in original
+                  additions += modifiedLines;
                 }
-                // Lines deleted = original lines that aren't in modified
-                if (originalLines > modifiedLines) {
-                  deletions += originalLines - modifiedLines;
-                }
+                newDiffs[key] = [additions, deletions];
               }
-              newDiffs[key] = [additions, deletions];
             } else {
               // No changes
               newDiffs[key] = [0, 0];
