@@ -19,6 +19,7 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
   const {id, name, page, path, loading, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const isModified = Boolean(props.diff?.[0] || props.diff?.[1]);
+  const isNew = isModified && props.diff?.[1] === null;
 
   return (
     <Stack
@@ -50,7 +51,8 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
       <Layer
         component
         active={name === dragging}
-        warning={hasError || isModified}
+        warning={hasError || (isModified && !isNew)}
+        success={isNew}
         onChange={() => id
           ? props.onSelect(id)
           : undefined
@@ -80,7 +82,15 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
           alignItems: 'center',
           width: '100%'
         }}>
-          <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : isModified ? 'var(--figma-color-icon-warning)' : undefined}}>
+          <span style={{
+            color: hasError
+              ? 'var(--figma-color-icon-danger)'
+              : isNew
+                ? 'var(--figma-color-icon-success)'
+                : isModified
+                  ? 'var(--figma-color-icon-warning)'
+                  : undefined
+          }}>
             <TextUnderline
               str={`${page}/${name}`}
               indices={props.entry.positions}

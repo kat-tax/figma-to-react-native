@@ -20,6 +20,7 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
   const [dragging, setDragging] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(null);
   const isModified = Boolean(props.diff?.[0] || props.diff?.[1]);
+  const isNew = isModified && props.diff?.[1] === null;
 
   useEffect(() => {
     if (preview) {
@@ -76,9 +77,23 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
       onClick={() => id ? props.onSelect(id) : undefined}>
       <Flex direction="column" style={{flex: 1}}>
         <Flex direction="row" style={{gap: 6, alignItems: 'center'}}>
-          <IconComponent color={isModified ? "warning" : "component"}/>
+          <IconComponent
+            color={isNew
+              ? "success"
+              : hasError
+                ? "danger"
+              : isModified
+                ? "warning"
+                : "component"
+          }/>
           <Text weight="strong" style={{
-            color: isModified ? 'var(--figma-color-icon-warning)' : 'var(--figma-color-text-component)',
+            color: isNew
+              ? 'var(--figma-color-icon-success)'
+              : hasError
+                ? 'var(--figma-color-icon-danger)'
+              : isModified
+                ? 'var(--figma-color-icon-warning)'
+                : 'var(--figma-color-text-component)',
             flex: 1,
             minWidth: 0,
             overflow: 'hidden',

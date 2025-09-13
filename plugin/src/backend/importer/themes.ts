@@ -230,6 +230,7 @@ export function getPresetColor(color: keyof typeof colorPresets): RGBA {
 
 const colorMapping = {
   light: {
+    'Neutral': 'White',
     'Background': 'White',
     'Foreground': '{{base}}/950',
     'Card': 'White',
@@ -251,6 +252,7 @@ const colorMapping = {
     'Ring': '{{base}}/950',
   },
   dark: {
+    'Neutral': 'Black',
     'Background': '{{base}}/950',
     'Foreground': '{{base}}/50',
     'Card': '{{base}}/950',
