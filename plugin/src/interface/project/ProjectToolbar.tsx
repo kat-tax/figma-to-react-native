@@ -24,6 +24,7 @@ import type {SettingsData} from 'interface/hooks/useUserSettings';
 interface ProjectToolbarProps {
   settings: SettingsData,
   layout: ProjectComponentLayout,
+  effectiveLayout: ProjectComponentLayout,
   setLayout: (layout: ProjectComponentLayout) => void,
   showSync: boolean,
   setShowSync: (show: boolean) => void,
@@ -47,9 +48,6 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
     return 'overview';
   }, [props.showSync, showNew]);
 
-  // When in auto mode, show no active value, otherwise show the current layout
-  const displayValue = props.layout === 'auto' ? undefined : (props.layout || 'list');
-
   const handleLayoutClick = (newValue: ProjectComponentLayout) => {
     // If clicking the same value that's currently set (and not in auto), toggle to auto
     if (newValue === props.layout && props.layout !== 'auto') {
@@ -67,7 +65,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
       {viewState === 'overview' && (
         <>
           <SegmentedControl.Root
-            value={displayValue}
+            value={props.effectiveLayout}
             onClick={() => props.setShowSettings(false)}>
             <SegmentedControl.Item
               value="list"

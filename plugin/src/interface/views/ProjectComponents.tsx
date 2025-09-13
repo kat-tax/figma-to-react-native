@@ -1,5 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, useMemo} from 'react';
+import {useWindowSize} from '@uidotdev/usehooks';
 
 import {ProjectSettings} from 'interface/project/ProjectSettings';
 import {ProjectToolbar} from 'interface/project/ProjectToolbar';
@@ -35,6 +36,12 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
   const [showSync, setShowSync] = useState<boolean>(false);
+  const {width} = useWindowSize();
+
+  // Calculate the effective layout once and pass it down
+  const effectiveLayout = (!props.settings.config?.ui?.componentLayout || props.settings.config?.ui?.componentLayout === 'auto')
+    ? (width > 445 ? 'grid' : 'list')
+    : props.settings.config?.ui?.componentLayout;
 
   const viewState = useMemo(() => {
     if (showSettings)
@@ -86,7 +93,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       }}>
       {viewState === 'components' && (
         <ProjectList
-          layout={props.settings.config?.ui?.componentLayout}
+          layout={effectiveLayout}
           build={props.build}
           isReadOnly={props.isReadOnly}
           searchMode={props.searchMode}
@@ -109,6 +116,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       <ProjectToolbar
         settings={props.settings}
         layout={props.settings.config?.ui?.componentLayout}
+        effectiveLayout={effectiveLayout}
         setLayout={handleLayoutChange}
         showSync={showSync}
         setShowSync={setShowSync}
