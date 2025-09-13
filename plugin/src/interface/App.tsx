@@ -118,6 +118,7 @@ export function App(props: AppProps) {
             </Tabs.Content>
             <Tabs.Content value="component/code">
               <DualPanel
+                override={showDiff ? 'vertical' : undefined}
                 primary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme, showDiff, setShowDiff}}/>}
                 secondary={<ComponentPreview {...{nav, compKey, build, variant, theme, background, settings, lastResize, isDark, showDiff}}/>}
                 onResize={() => setLastResize(Date.now())}
