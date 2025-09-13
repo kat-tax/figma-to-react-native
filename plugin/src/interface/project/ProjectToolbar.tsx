@@ -52,6 +52,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
     // If clicking the same value that's currently set (and not in auto), toggle to auto
     if (newValue === props.layout && props.layout !== 'auto') {
       props.setLayout('auto');
+      emit<EventNotify>('NOTIFY', 'Switched to responsive mode', {timeout: 2000});
     } else {
       // If clicking a different value or clicking while in auto, switch to that value
       props.setLayout(newValue);
