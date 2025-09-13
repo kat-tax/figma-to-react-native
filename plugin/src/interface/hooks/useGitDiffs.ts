@@ -54,12 +54,10 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
                 // TODO: look into why output doesn't have the new line
                 if (currentLines > 0) currentLines = currentLines - 1;
                 newDiffs[key] = [currentLines, null];
-                console.log('>> [git-diff] new', entry.path, currentLines);
               } else {
                 const changes = computeTextDiff(gitCode, currentCode);
                 let additions = 0;
                 let deletions = 0;
-                console.log('>> [git-diff] modified', entry.path, changes, currentCode.length, gitCode.length);
                 // Parse diff results to count added and removed lines like GitHub
                 for (const change of changes) {
                   const originalLines = change.original.endLineNumberExclusive - change.original.startLineNumber;

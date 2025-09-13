@@ -106,7 +106,6 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
             />
             <TextCollabDots target={name}/>
           </Text>
-          <div style={{width: 8}}/>
           <Text size="medium" style={{
             color: 'var(--figma-color-text-secondary)',
             maxWidth: '30%',
