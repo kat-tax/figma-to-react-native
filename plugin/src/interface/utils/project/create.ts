@@ -1,7 +1,6 @@
 import {fs} from '@zip.js/zip.js';
 import {F2RN_EXO_REPO_ZIP, F2RN_EXO_PROXY_URL} from 'config/consts';
-import {DOC_INDEX_TEMPLATE} from './data/templates';
-import * as _ from './data/metadata';
+import * as _ from './lib/metadata';
 
 import type {ZipDirectoryEntry, ZipFileEntry} from '@zip.js/zip.js';
 import type {ProjectBuild, ProjectInfo} from 'types/project';
@@ -21,22 +20,11 @@ export async function create(
   tpl.rename('project');
 
   // Subfolders
-  const guides = tpl.getChildByName('guides') as ZipDirectoryEntry;
   const design = tpl.getChildByName('design') as ZipDirectoryEntry;
 
   // Config
   zip.remove(tpl.getChildByName('config.yaml'));
   tpl.addText('config.yaml', _.appConfig(info));
-
-  // Docs
-  const docs = guides.getChildByName('docs') as ZipDirectoryEntry;
-  zip.remove(docs.getChildByName('start'));
-  docs.addText('start/index.mdx', DOC_INDEX_TEMPLATE);
-
-  // Storybook
-  const sb = guides.getChildByName('storybook') as ZipDirectoryEntry;
-  zip.remove(sb.getChildByName('get started.mdx'));
-  sb.addText('get started.mdx', _.storybookIndex(metadata));
 
   // Design
   zip.remove(design.getChildByName('index.ts'));

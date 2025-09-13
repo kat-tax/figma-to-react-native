@@ -5,7 +5,7 @@
 import {git, http, MemoryFS} from 'git-mem';
 import {F2RN_EXO_REPO_URL, F2RN_EXO_PROXY_URL} from 'config/consts';
 import {emit} from '@create-figma-plugin/utilities';
-import * as _ from './data/metadata';
+import * as _ from './lib/metadata';
 
 import type {ProjectBuild, ProjectInfo} from 'types/project';
 import type {ProjectSettings} from 'types/settings';
