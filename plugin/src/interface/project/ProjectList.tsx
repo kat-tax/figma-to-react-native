@@ -2,6 +2,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {Button} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
+import {useWindowSize} from '@uidotdev/usehooks';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
 import {useGitDiffs} from 'interface/hooks/useGitDiffs';
 
@@ -27,9 +28,15 @@ interface ProjectListProps {
 
 export function ProjectList(props: ProjectListProps) {
   const [list, setList] = useState<ProjectComponentIndex>({});
+  const {width} = useWindowSize();
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   const hasImport = !props.isReadOnly && false;
   const diffs = useGitDiffs(props.build?.roster || {});
+
+  // Determine effective layout: use responsive logic for 'auto' or undefined (fallback to auto), otherwise use explicit layout
+  const effectiveLayout = (!props.layout || props.layout === 'auto')
+    ? (width > 900 ? 'grid' : 'list')
+    : props.layout;
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
     const entries = _entries
@@ -86,7 +93,7 @@ export function ProjectList(props: ProjectListProps) {
         <ProjectListPage
           key={page}
           title={page}
-          layout={props.layout}
+          layout={effectiveLayout}
           onSelect={(id) => emit<EventFocusNode>('NODE_FOCUS', id)}
           onSelectWithDiff={(key) => props.nav.gotoComponent(key, true)}
           entries={list[page]}

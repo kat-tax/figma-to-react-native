@@ -15,7 +15,7 @@ export default <ProjectSettings> {
     accessToken: '',
   },
   ui: {
-    componentLayout: 'list',
+    componentLayout: 'auto',
     iconZoom: 1,
   },
   monaco: {

@@ -1,6 +1,7 @@
 import type {BuildOptions} from 'web-bundler';
 import type {MonacoEditorOptions} from 'interface/utils/editor/monaco';
-import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
+import type {Options as WriterOptions} from 'code-block-writer';
+import type {ProjectComponentLayout} from 'types/project';
 
 export interface UserSettings {
   /**
@@ -16,9 +17,9 @@ export interface UserSettings {
    */
   ui: {
     /**
-     * Component layout preference (grid or list)
+     * Component layout preference
      */
-    componentLayout?: 'grid' | 'list',
+    componentLayout?: ProjectComponentLayout,
     /**
      * Icon zoom/scale factor
      */
@@ -38,7 +39,7 @@ export interface ProjectSettings extends UserSettings {
   /**
   * Options for the code writer.
   */
-  writer: CodeBlockWriterOptions,
+  writer: WriterOptions,
   /**
    * Git configuration
    */

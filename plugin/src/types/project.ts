@@ -1,6 +1,6 @@
 import type {ComponentRosterEntry} from 'types/component';
 
-export type ProjectComponentLayout = 'grid' | 'list';
+export type ProjectComponentLayout = 'grid' | 'list' | 'auto';
 export type ProjectComponentIndex = Record<string, ProjectComponentEntry[]>;
 export type ProjectComponentEntry = {
   item: ComponentRosterEntry & {key: string},

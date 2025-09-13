@@ -11,6 +11,7 @@ import {IconGear} from 'interface/figma/icons/24/Gear';
 import {IconList} from 'interface/figma/icons/24/List';
 import {IconSync} from 'interface/figma/icons/24/Sync';
 import {IconBack} from 'interface/figma/icons/24/Back';
+import {IconAdjust} from 'interface/figma/icons/24/Adjust';
 import {StatusBar} from 'interface/base/StatusBar';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
@@ -54,7 +55,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
       {viewState === 'overview' && (
         <>
           <SegmentedControl.Root
-            value={props.layout}
+            value={props.layout || 'auto'}
             onClick={() => props.setShowSettings(false)}
             onValueChange={(v: ProjectComponentLayout) => props.setLayout(v)}>
             <SegmentedControl.Item value="list" aria-label="View as list">
@@ -62,6 +63,9 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             </SegmentedControl.Item>
             <SegmentedControl.Item value="grid" aria-label="View as grid">
               <IconGrid/>
+            </SegmentedControl.Item>
+            <SegmentedControl.Item value="auto" aria-label="Auto layout (responsive)">
+              <IconAdjust/>
             </SegmentedControl.Item>
           </SegmentedControl.Root>
           <div style={{flex: 1}}/>
