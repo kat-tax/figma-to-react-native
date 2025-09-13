@@ -11,7 +11,6 @@ import {IconGear} from 'interface/figma/icons/24/Gear';
 import {IconList} from 'interface/figma/icons/24/List';
 import {IconSync} from 'interface/figma/icons/24/Sync';
 import {IconBack} from 'interface/figma/icons/24/Back';
-import {IconAdjust} from 'interface/figma/icons/24/Adjust';
 import {StatusBar} from 'interface/base/StatusBar';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
@@ -48,6 +47,19 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
     return 'overview';
   }, [props.showSync, showNew]);
 
+  // When in auto mode, show no active value, otherwise show the current layout
+  const displayValue = props.layout === 'auto' ? undefined : (props.layout || 'list');
+
+  const handleLayoutClick = (newValue: ProjectComponentLayout) => {
+    // If clicking the same value that's currently set (and not in auto), toggle to auto
+    if (newValue === props.layout && props.layout !== 'auto') {
+      props.setLayout('auto');
+    } else {
+      // If clicking a different value or clicking while in auto, switch to that value
+      props.setLayout(newValue);
+    }
+  };
+
   useProjectRelease(() => setExportActive(false));
 
   return (
@@ -55,17 +67,19 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
       {viewState === 'overview' && (
         <>
           <SegmentedControl.Root
-            value={props.layout || 'auto'}
-            onClick={() => props.setShowSettings(false)}
-            onValueChange={(v: ProjectComponentLayout) => props.setLayout(v)}>
-            <SegmentedControl.Item value="list" aria-label="View as list">
+            value={displayValue}
+            onClick={() => props.setShowSettings(false)}>
+            <SegmentedControl.Item
+              value="list"
+              aria-label={props.layout === 'auto' ? 'Currently auto layout - click to force list view' : 'View as list'}
+              onClick={() => handleLayoutClick('list')}>
               <IconList/>
             </SegmentedControl.Item>
-            <SegmentedControl.Item value="grid" aria-label="View as grid">
+            <SegmentedControl.Item
+              value="grid"
+              aria-label={props.layout === 'auto' ? 'Currently auto layout - click to force grid view' : 'View as grid'}
+              onClick={() => handleLayoutClick('grid')}>
               <IconGrid/>
-            </SegmentedControl.Item>
-            <SegmentedControl.Item value="auto" aria-label="Auto layout (responsive)">
-              <IconAdjust/>
             </SegmentedControl.Item>
           </SegmentedControl.Root>
           <div style={{flex: 1}}/>
