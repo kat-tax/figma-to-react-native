@@ -1,4 +1,5 @@
 import {getAllIconComponents} from 'backend/importer/icons';
+import {isReadOnly} from 'backend/utils/mode';
 import {on, emit} from '@create-figma-plugin/utilities';
 
 import * as assert from 'common/assert';
@@ -33,6 +34,7 @@ export async function watchComponents(
 
   // Recompile component on node attribute change
   on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, newAttrs) => {
+    if (isReadOnly) return;
     figma.commitUndo();
     const node = parser.getNode(nodeId);
     node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(
