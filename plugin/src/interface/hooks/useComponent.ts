@@ -104,7 +104,7 @@ export function useComponent(
       },
       copy: (src: ModelTarget) => {
         copy(getCode(src));
-        emit<EventNotify>('NOTIFY', `Copied "${component?.name}" code to clipboard`);
+        emit<EventNotify>('NOTIFY', `Copied "${component?.name}" ${src} to clipboard`);
       },
       download: (src: ModelTarget) => {
         const ext = src === 'component'
