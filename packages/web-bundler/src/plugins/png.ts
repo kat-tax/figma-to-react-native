@@ -37,7 +37,7 @@ export default (opts: PluginOptions): Plugin => ({
 });
 
 async function bytesToDataURL(bytes: Uint8Array, type?: string): Promise<string> {
-  const blob = new Blob([bytes], {type});
+  const blob = new Blob([bytes as BlobPart], {type});
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = reject;

@@ -48,7 +48,7 @@ export async function create(
   for (const [path, name, isVector, bytes] of project.assets) {
     const ext = isVector ? 'svg' : 'png';
     const mime = isVector ? 'image/svg+xml' : 'image/png';
-    const blob = new Blob([bytes], {type: mime});
+    const blob = new Blob([bytes as BlobPart], {type: mime});
     const base = `${path}/assets`;
     const filePath = `${base}/${name.toLowerCase()}.${ext}`;
     if (added.has(filePath)) return;

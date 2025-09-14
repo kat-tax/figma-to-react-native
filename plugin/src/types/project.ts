@@ -48,7 +48,7 @@ export type ProjectBuildAssets = Array<[
   string,     // path
   string,     // name
   boolean,    // isVector
-  ArrayBuffer, // bytes
+  Uint8Array, // bytes
 ]>;
 
 export type ProjectBuildComponents = Array<[

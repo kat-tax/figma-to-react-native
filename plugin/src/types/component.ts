@@ -30,7 +30,7 @@ export type ComponentRosterEntry = {
   page: string,
   path: string,
   loading: boolean,
-  preview: ArrayBuffer,
+  preview: Uint8Array,
   hasError?: boolean,
   errorMessage?: string,
 }
@@ -65,7 +65,7 @@ export type ComponentAsset = {
   width: number,
   height: number,
   parent: string,
-  bytes: ArrayBuffer,
+  bytes: Uint8Array,
   isVector?: boolean,
 }
 
