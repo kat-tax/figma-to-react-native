@@ -21,7 +21,7 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
   const componentNodes = (target as unknown as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
   const exportNodes = parser.getComponentTargets(componentNodes);
 
-  // Filter out special pages
+  // Filter out certain special pages
   exportNodes.forEach(node => {
       const pageName = parser.getPage(node).name;
       if (pageName === consts.PAGES_SPECIAL.TESTS

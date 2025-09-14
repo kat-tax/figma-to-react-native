@@ -84,7 +84,7 @@ export async function update(project: ProjectBuild, info: ProjectInfo, settings:
   }
 
   // Commit
-  const message = `Release ${metadata.pkgVersion || '0.0.1'}`;
+  const message = `Design v${metadata.pkgVersion || '0.0.1'}`;
   await git.add({fs, dir, parallel: true, filepath: Array.from(changes)});
   await git.commit({...repo, message, author: {name: 'Figma → React Native', email: 'team@kat.tax'}});
 
