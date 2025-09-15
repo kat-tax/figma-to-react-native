@@ -3,7 +3,7 @@
 @lingui/react=5.4.1
 @types/react=19.1.1
 @types/react-dom=19.1.1
-react-exo=0.18.37
+react-exo=0.20.7
 # FIXME react-native=0.81.1
 react-native-svg=15.13.0
 react-native-unistyles=3.0.12

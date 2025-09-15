@@ -25,8 +25,7 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
   exportNodes.forEach(node => {
       const pageName = parser.getPage(node).name;
       if (pageName === consts.PAGES_SPECIAL.TESTS
-        || pageName === consts.PAGES_SPECIAL.ICONS
-        || pageName === consts.PAGES_SPECIAL.LIBRARY) {
+        || pageName === consts.PAGES_SPECIAL.ICONS) {
         exportNodes.delete(node);
       }
   });
