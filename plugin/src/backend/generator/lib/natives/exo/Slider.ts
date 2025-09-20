@@ -6,10 +6,10 @@ interface SliderTokens {
   fillThumb: string,
 }
 
-export function Slider(component: ComponentNode) {
-  const nodeRange = component.findOne(c => c.name === 'Range' && c.type === 'RECTANGLE') as RectangleNode;
-  const nodeTrack = component.findOne(c => c.name === 'Track' && c.type === 'RECTANGLE') as RectangleNode;
-  const nodeThumb = component.findOne(c => c.name === 'Thumb' && c.type === 'ELLIPSE') as EllipseNode;
+export function Slider(root: ComponentNode) {
+  const nodeRange = root.findOne(c => c.name === 'range' && c.type === 'RECTANGLE') as RectangleNode;
+  const nodeTrack = root.findOne(c => c.name === 'track' && c.type === 'RECTANGLE') as RectangleNode;
+  const nodeThumb = root.findOne(c => c.name === 'thumb' && c.type === 'ELLIPSE') as EllipseNode;
   return slider({
     fillRange: getFillToken(nodeRange),
     fillTrack: getFillToken(nodeTrack),
@@ -18,25 +18,14 @@ export function Slider(component: ComponentNode) {
 }
 
 export const slider = (_: SliderTokens) => `
-import {Slider as ExoSlider} from 'react-exo/slider';
+import {Slider as SliderX} from 'react-exo/slider';
 import {withUnistyles} from 'react-native-unistyles';
 
-export interface SliderProps {
-  onChange: (min: number, max?: number) => void,
-  name?: string,
-  value?: number,
-  step?: number,
-  minimumValue?: number,
-  maximumValue?: number,
-  trackColor?: string,
-  rangeColor?: string,
-  thumbColor?: string,
-  testID?: string
-}
-
-export const Slider = withUnistyles(ExoSlider, (theme) => ({
+const Slider = withUnistyles(SliderX, (theme) => ({
   rangeColor: ${_.fillRange},
   trackColor: ${_.fillTrack},
   thumbColor: ${_.fillThumb},
-}));
+})) as unknown as typeof SliderX;
+
+export {Slider};
 `;

@@ -227,7 +227,6 @@ function writeChild(
 
   // Text input detected
   if (isInput) {
-    //state.flags.reactNative.TextInput = true;
     state.flags.exoTextInput.TextInput = true;
     writer.write('<TextInput').write(jsxProps).indent(() => {
       // Placeholder (props value)
@@ -240,11 +239,12 @@ function writeChild(
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
-      writer.write(`uniProps={theme => (`);
-      writer.inlineBlock(() => {
-        writer.writeLine(`placeholderTextColor: ${getFillToken(child.node as TextNode)},`);
-      });
-      writer.write(`)}`);
+      // TODO: override placeholder text color
+      // writer.write(`uniProps={theme => (`);
+      // writer.inlineBlock(() => {
+      //   writer.writeLine(`placeholderTextColor: ${getFillToken(child.node as TextNode)},`);
+      // });
+      // writer.write(`)}`);
     });
     writer.write(`/>`);
     return;

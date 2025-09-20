@@ -91,16 +91,14 @@ export async function writeImports(
   writeImport('react-exo/utils', flags.exoUtils);
   writeImport('react-native-unistyles', flags.unistyles);
   writeImport('react-native', flags.reactNative);
-  //writeImport('react-exo/textinput', flags.exoTextInput);
-  //writeImport('react-exo/icon', flags.exoIcon);
-  writeImport('textinput.tsx', flags.exoTextInput); // TEMP
-  writeImport('icons.tsx', flags.exoIcon); // TEMP
+  writeImport('react-exo/textinput', flags.exoTextInput);
+  writeImport('react-exo/motion', flags.exoMotion);
   writeImport('react-exo/grid', flags.exoGrid);
+  writeImport('react-exo/icon', flags.exoIcon);
   writeImport('react-exo/image', flags.exoImage);
   writeImport('react-exo/video', flags.exoVideo);
   writeImport('react-exo/rive', flags.exoRive);
   writeImport('react-exo/lottie', flags.exoLottie);
-  writeImport('react-exo/motion', flags.exoMotion);
 
   // Component Imports
   const subwriter = new CodeBlockWriter(writer.getOptions());
