@@ -31,7 +31,8 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
         }
         // Diff each component for lines added and removed
         for (const [key, entry] of Object.entries(roster)) {
-          if (entry.path.includes('/tests/')) continue;
+          if (entry.path.includes('/tests/')
+            || entry.path.includes('/library/')) continue;
           try {
             const currentCode = $.component.code(key).get().toString();
             let gitCode: string | null = null;

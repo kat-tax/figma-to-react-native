@@ -25,7 +25,9 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
   exportNodes.forEach(node => {
       const pageName = parser.getPage(node).name;
       if (pageName === consts.PAGES_SPECIAL.TESTS
-        || pageName === consts.PAGES_SPECIAL.ICONS) {
+        || pageName === consts.PAGES_SPECIAL.ICONS
+        || pageName === consts.PAGES_SPECIAL.LIBRARY
+      ) {
         exportNodes.delete(node);
       }
   });
@@ -122,11 +124,24 @@ function getAppConfig(
 ): ProjectInfo['appConfig'] {
   return variables.reduce((acc, cur) => {
     const defaultMode = collection.defaultModeId;
-    const defaultValue = cur.valuesByMode[defaultMode]?.toString().trim();
+    const defaultValue = cur.valuesByMode[defaultMode];
+    let parsedValue = '';
+    // String
+    if (typeof defaultValue === 'string') {
+      parsedValue = defaultValue?.toString().trim();
+    // Number
+    } else if (typeof defaultValue === 'number') {
+      parsedValue = defaultValue.toString();
+    // Color
+    } else {
+      parsedValue = parser.getColor(defaultValue as RGBA);
+    }
     const [_group, _key] = cur.name.includes('/') ? cur.name.split('/') : ['General', cur.name];
     const group = string.titleCase(_group);
     const key = string.createIdentifierConstant(_key);
-    const val = key.startsWith('@') ? `"${defaultValue}"` : defaultValue;
+    const val = key.startsWith('@') || parsedValue.includes('#')
+      ? `"${parsedValue}"`
+      : parsedValue;
     if (!acc[group]) acc[group] = {};
     acc[group][key] = val;
     return acc;
