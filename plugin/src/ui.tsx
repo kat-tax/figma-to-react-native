@@ -12,7 +12,7 @@ import {init, auth, ErrorBoundary} from 'interface/telemetry';
 import {F2RN_UI_WIDTH_MIN} from 'config/consts';
 import {App} from 'interface/App';
 
-import type {EventAppReady, EventAppStart} from 'types/events';
+import type {EventAppReady, EventAppStart, EventAppResize} from 'types/events';
 
 init();
 
@@ -38,8 +38,8 @@ function Main() {
     emit<EventAppReady>('APP_READY');
   }, []);
 
-  // Handle window resize
-  useWindowResize(e => emit('RESIZE_WINDOW', e), {
+  // Handle and track plugin resizes
+  useWindowResize(e => emit<EventAppResize>('APP_RESIZE', e), {
     minHeight: 200,
     minWidth: F2RN_UI_WIDTH_MIN,
     resizeBehaviorOnDoubleClick: 'minimize',

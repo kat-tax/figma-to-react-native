@@ -12,6 +12,7 @@ export const F2RN_SETTINGS_USER = 'f2rn:user:1004';
 export const F2RN_SETTINGS_PROJECT = 'f2rn:project:1004';
 export const F2RN_ICONS_FAVORITES = 'f2rn:icons:fav:1004';
 export const F2RN_ICONS_SET_DATA = 'f2rn:icons:set:1004';
+export const F2RN_WINDOW_SIZE = 'f2rn:window:size:1004';
 
 // Services
 export const F2RN_EDITOR_NS = 'figma://preview/';

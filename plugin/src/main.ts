@@ -1,6 +1,6 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusNode, getNode, getNodeAttrs, getNodeSrcProps, getTopFill, getColor} from 'backend/parser/lib';
-import {F2RN_UI_WIDTH_MIN, F2RN_ICONS_FAVORITES} from 'config/consts';
+import {F2RN_UI_WIDTH_MIN, F2RN_ICONS_FAVORITES, F2RN_WINDOW_SIZE} from 'config/consts';
 import {MOTION_ATTRS, VISIBILITY_ATTRS} from 'interface/node/lib/consts';
 import {NodeAttrGroup} from 'types/node';
 import * as random from 'common/random';
@@ -20,22 +20,34 @@ import * as nav from 'backend/utils/nav';
 
 import type * as T from 'types/events';
 
+// Initial dimensions (left sidebar mode)
+const initHeight = Math.round(figma.viewport.bounds.height);
+const initY = Math.round(figma.viewport.bounds.y + 50);
+const initX = Math.round(-999999);
 let isExpanded = false;
-const startHeight = Math.round(figma.viewport.bounds.height - 114);
-const startX = Math.round(figma.viewport.bounds.x - F2RN_UI_WIDTH_MIN);
-const startY = Math.round(figma.viewport.bounds.y + 70);
 
 // Show interface if not in codegen mode
 // Note: must be called immediately, not in an async function
+// Don't specify position, let Figma handle it natively
+// Call with zero size to load dimensions from plugin
 if (!mode.isCodegen) {
-  showUI({
-    position: {x: startX, y: startY},
-    width: F2RN_UI_WIDTH_MIN,
-    height: startHeight,
-  });
+  showUI({width: 0, height: 0});
 }
 
 export default async function() {
+  // Restore saved window size if available
+  const savedSize = await figma.clientStorage.getAsync(F2RN_WINDOW_SIZE);
+  if (savedSize) {
+    figma.ui.resize(
+      Math.max(F2RN_UI_WIDTH_MIN, savedSize.width),
+      Math.max(200, savedSize.height)
+    );
+  // Otherwise, use default dimensions for first load
+  } else {
+    figma.ui.resize(F2RN_UI_WIDTH_MIN, initHeight);
+    figma.ui.reposition(initX, initY);
+  }
+
   // Load settings (backend only)
   await settings.load(true);
 
@@ -195,18 +207,23 @@ export default async function() {
     });
 
     // Handle expand event
-    on<T.EventExpand>('EXPAND', () => {
+    on<T.EventExpand>('EXPAND', async () => {
       isExpanded = !isExpanded;
-      figma.ui.resize(isExpanded
-        ? Math.round(figma.viewport.bounds.width + F2RN_UI_WIDTH_MIN)
-        : F2RN_UI_WIDTH_MIN
-      , startHeight);
+      if (isExpanded) {
+        figma.ui.reposition(-999999,-999999);
+        figma.ui.resize(999999, 999999);
+      } else {
+        figma.ui.resize(F2RN_UI_WIDTH_MIN, initHeight);
+        figma.ui.reposition(initX, initY);
+      }
     });
 
     // Handle resize event
-    on('RESIZE_WINDOW', (size: {width: number; height: number}) => {
+    on<T.EventAppResize>('APP_RESIZE', async (size: {width: number; height: number}) => {
       figma.ui.resize(size.width, size.height);
       isExpanded = false;
+      // Save the new size
+      await figma.clientStorage.setAsync(F2RN_WINDOW_SIZE, size);
     });
 
     // Send event to show interface (remove spinner)
