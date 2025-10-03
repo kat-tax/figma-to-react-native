@@ -42,6 +42,9 @@ export function DualPanel(props: DualPanelProps) {
             top: false,
             bottom: false,
           },
+          handleClasses: {
+            right: 'resize-handle-right',
+          },
           handleStyles: {
             right: {},
           },
@@ -58,6 +61,9 @@ export function DualPanel(props: DualPanelProps) {
             top: false,
             left: false,
             right: false,
+          },
+          handleClasses: {
+            bottom: 'resize-handle-bottom',
           },
           handleStyles: {
             bottom: {},

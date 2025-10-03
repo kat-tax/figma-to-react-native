@@ -19,6 +19,8 @@ declare const styles: {
   readonly "no-first-span-overflow": string;
   readonly "node-toolbar-btn": string;
   readonly "props-select": string;
+  readonly "resize-handle-bottom": string;
+  readonly "resize-handle-right": string;
   readonly "rotate": string;
   readonly "search-mode": string;
   readonly "status-actions": string;

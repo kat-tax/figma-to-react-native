@@ -91,6 +91,17 @@ iframe {
   background-color: var(--figma-color-bg-selected-strong) !important;
 }
 
+/* Resizable */
+.resize-handle-right, .resize-handle-bottom {
+  background-color: var(--figma-color-bg-secondary);
+  transition: opacity 0.2s ease-in-out;
+  opacity: 0;
+}
+
+.resize-handle-right:hover, .resize-handle-bottom:hover {
+  opacity: 0.5;
+}
+
 /* Needed for color picker */
 .fp-SelectTrigger {
   gap: 0;
