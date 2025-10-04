@@ -79,8 +79,8 @@ export function App(props: AppProps) {
   // Monaco options
   const editorTheme: Theme = isDark ? 'vs-dark' : 'light';
   const editorOptions = {
-    ...settings.config.monaco.general,
-    tabSize: settings.config.writer.indentNumberOfSpaces,
+    ...settings.config?.monaco?.general,
+    tabSize: settings.config?.writer?.indentNumberOfSpaces,
   };
 
   // Start style gen server

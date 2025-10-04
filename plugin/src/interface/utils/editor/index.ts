@@ -59,10 +59,10 @@ export async function initPackageTypes(monaco: Monaco) {
 
 export function initTypescript(monaco: Monaco, settings: UserSettings) {
   const ts = monaco.languages.typescript.typescriptDefaults;
-  ts?.setInlayHintsOptions(settings.monaco.inlayHints);
-  ts?.setDiagnosticsOptions(settings.monaco.diagnostics);
+  ts?.setInlayHintsOptions(settings?.monaco?.inlayHints);
+  ts?.setDiagnosticsOptions(settings?.monaco?.diagnostics);
   ts?.setCompilerOptions({
-    ...settings.monaco.compiler,
+    ...settings?.monaco?.compiler,
     jsx: monaco.languages.typescript.JsxEmit.ReactNative,
     moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
     target: monaco.languages.typescript.ScriptTarget.ESNext,
