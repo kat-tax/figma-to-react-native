@@ -33,7 +33,9 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const addFiles = useCallback((...files: string[]) => git.add({fs, dir, parallel: true, filepath: files}), [fs, dir]);
 
   useEffect(() => {
-    git.clone(repo);
+    if (repo?.url) {
+      git.clone(repo);
+    }
   }, [repo]);
 
   return (

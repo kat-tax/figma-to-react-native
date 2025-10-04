@@ -44,7 +44,7 @@ const processChanges = async () => {
 
   // Debug
   // const _t1 = Date.now();
-  //console.log('>> [update]', _t1 - _t0, 'ms', {deep: updateDeep.size, shallow: updateShallow.size});
+  // console.log('>> [update]', _t1 - _t0, 'ms', {deep: updateDeep.size, shallow: updateShallow.size});
 };
 
 export async function watchComponents(
