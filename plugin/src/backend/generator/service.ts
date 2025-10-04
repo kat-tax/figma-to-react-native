@@ -96,7 +96,7 @@ export async function watchComponents(
     // Process all changes
     e.documentChanges.forEach(change => {
       // Debug
-      // console.log('>> [event]', change);
+      // console.log('>> [event:all]', change);
 
       const isCreate = change.type === 'CREATE';
       const isPropChange = change.type === 'PROPERTY_CHANGE';
@@ -104,6 +104,9 @@ export async function watchComponents(
 
       // Ignore events that aren't relevant
       if (!isCreate && !isPropChange) return;
+
+      // Debug
+      // console.log('>> [event:change]', change.node.type, change.node.id);
 
       // Queue component to update
       if (change.node.type === 'COMPONENT') {
@@ -124,6 +127,9 @@ export async function watchComponents(
       }
     });
 
+    // Debug
+    //const _t0 = Date.now();
+
     // Compile updates
     await Promise.all([
       compile(all, true, parser.getComponentTargets(updateDeep)),
@@ -131,10 +137,8 @@ export async function watchComponents(
     ]);
 
     // Debug
-    // console.log('>> [update]', {
-    //   deep: Array.from(updateDeep),
-    //   shallow: Array.from(updateShallow),
-    // });
+    //const _t1 = Date.now();
+    //console.log('>> [update]', _t1 - _t0, 'ms', {deep: updateDeep.length, shallow: updateShallow.length});
   });
 }
 
@@ -211,6 +215,7 @@ export async function compile(
   updated?: Set<ComponentNode>,
 ) {
   if (components.size === 0) return;
+  if (updated && updated.size === 0) return;
 
   const _info: Record<string, ComponentInfo> = {};
   const _assets: Record<string, ComponentAsset> = {};
