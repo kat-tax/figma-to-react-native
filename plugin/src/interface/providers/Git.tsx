@@ -69,6 +69,27 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     }
   }, [repo]);
 
+  // Auto-fetch setup
+  useEffect(() => {
+    if (!repo?.url) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    // Set up periodic fetching
+    intervalRef.current = setInterval(() => {
+      fetch().catch(console.error); // Silently handle errors for auto-fetch
+    }, FETCH_INTERVAL);
+
+    // Cleanup on unmount or dependency change
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [repo?.url, fetch]);
 
