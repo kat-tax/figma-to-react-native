@@ -19,7 +19,7 @@ export async function getStyleSheet(
   skipCache: boolean = false,
 ): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
-  const _t1 = Date.now();
+  // const _t1 = Date.now();
   const css: StyleSheet = {};
   for (const id of nodes) {
     css[id] = await getCSS(id, skipCache);
@@ -38,7 +38,7 @@ export async function getStyleSheet(
   // console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
 
   // Convert CSS
-  const _t2 = Date.now();
+  // const _t2 = Date.now();
   const output = await convertStyles(css);
 
   // Profile
@@ -95,13 +95,21 @@ async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClas
   }
 
   // Generate CSS
-  const css = await node.getCSSAsync();
-  _cacheCSS[id] = css;
-
-  // Cache disk
-  await figma.clientStorage.setAsync(key, JSON.stringify(css));
-
-  return css;
+  try {
+    const css = await node.getCSSAsync();
+    _cacheCSS[id] = css;
+    // Cache disk (do not await)
+    figma.clientStorage.setAsync(key, JSON.stringify(css));
+    return css;
+  } catch (e) {
+    console.warn('Failed to generate CSS', id);
+    // Fallback from cache
+    if (_cacheCSS[id]) {
+      return _cacheCSS[id];
+    }
+    // Return empty object if no fallback
+    return {};
+  }
 }
 
 async function convertStyles(css: StyleSheet): Promise<Record<string, any>> {
