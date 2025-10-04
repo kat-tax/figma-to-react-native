@@ -2,7 +2,7 @@ import {emit, on} from '@create-figma-plugin/utilities';
 import {useState, useEffect, useRef} from 'react';
 
 import type {ComponentBuild} from 'types/component';
-import type {EventAppNavigate, EventFocusNode, EventSelectComponent} from 'types/events';
+import type {EventAppNavigate, EventFocusedNode, EventFocusNode, EventSelectComponent} from 'types/events';
 import type {AppPages} from 'types/app';
 
 const COMPONENT_NOT_READY_TIMEOUT = 1500;
@@ -88,6 +88,12 @@ export function useNavigation(
       gotoComponent(key);
     }
   }, [build, tab]);
+
+  // Handle node focus events from Figma
+  useEffect(() => on<EventFocusedNode>('NODE_FOCUSED', (nodeId) => {
+    // TODO: only here to always handle messages from Figma
+    // Real handler is in useComponent.ts (used in component code tab)
+  }), []);
 
   // Cleanup on unmount
   useEffect(() => {
