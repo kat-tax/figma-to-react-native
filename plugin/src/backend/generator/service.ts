@@ -20,6 +20,33 @@ let _lastThemeCode = '';
 let _lastThemeName = '';
 let _infoDb: Record<string, ComponentInfo> | null = null;
 
+const UPDATE_DEBOUNCE = 200;
+let _debounceTimeout: number | null = null;
+let _pendingChanges: {
+  updateDeep: Set<SceneNode>;
+  updateShallow: Set<SceneNode>;
+  all: Set<ComponentNode>;
+} | null = null;
+
+const processChanges = async () => {
+  if (!_pendingChanges) return;
+  const {updateDeep, updateShallow, all} = _pendingChanges;
+  _pendingChanges = null;
+
+  // Debug
+  // const _t0 = Date.now();
+
+  // Compile updates
+  await Promise.all([
+    compile(all, true, parser.getComponentTargets(Array.from(updateDeep))),
+    compile(all, false, parser.getComponentTargets(Array.from(updateShallow))),
+  ]);
+
+  // Debug
+  // const _t1 = Date.now();
+  //console.log('>> [update]', _t1 - _t0, 'ms', {deep: updateDeep.size, shallow: updateShallow.size});
+};
+
 export async function watchComponents(
   targetComponent: () => void,
   updateBackground: () => void,
@@ -89,11 +116,16 @@ export async function watchComponents(
     // No components, do nothing
     if (all.size === 0) return;
 
-    // All components that were updated
-    const updateDeep: SceneNode[] = [];    // Deep changes (style, asset, etc)
-    const updateShallow: SceneNode[] = []; // Shallow changes (pluginData)
+    // Initialize or update pending changes
+    if (!_pendingChanges) {
+      _pendingChanges = {
+        updateDeep: new Set(),
+        updateShallow: new Set(),
+        all
+      };
+    }
 
-    // Process all changes
+    // Process all changes and add to pending
     e.documentChanges.forEach(change => {
       // Debug
       // console.log('>> [event:all]', change);
@@ -111,34 +143,28 @@ export async function watchComponents(
       // Queue component to update
       if (change.node.type === 'COMPONENT') {
         if (isDataOnlyChange) {
-          updateShallow.push(change.node as SceneNode);
+          _pendingChanges.updateShallow.add(change.node as SceneNode);
         } else {
-          updateDeep.push(change.node as SceneNode);
+          _pendingChanges.updateDeep.add(change.node as SceneNode);
         }
       } else {
         const target = parser.getComponentTarget(change.node as SceneNode);
         if (target) {
           if (isDataOnlyChange) {
-            updateShallow.push(target);
+            _pendingChanges.updateShallow.add(target);
           } else {
-            updateDeep.push(target);
+            _pendingChanges.updateDeep.add(target);
           }
         }
       }
     });
 
-    // Debug
-    //const _t0 = Date.now();
+    // Clear existing timeout and set new one
+    if (_debounceTimeout) {
+      clearTimeout(_debounceTimeout);
+    }
 
-    // Compile updates
-    await Promise.all([
-      compile(all, true, parser.getComponentTargets(updateDeep)),
-      compile(all, false, parser.getComponentTargets(updateShallow)),
-    ]);
-
-    // Debug
-    //const _t1 = Date.now();
-    //console.log('>> [update]', _t1 - _t0, 'ms', {deep: updateDeep.length, shallow: updateShallow.length});
+    _debounceTimeout = setTimeout(processChanges, UPDATE_DEBOUNCE);
   });
 }
 
