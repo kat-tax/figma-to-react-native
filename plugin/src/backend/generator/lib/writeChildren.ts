@@ -270,8 +270,8 @@ function writeChild(
         // Component property string
         if (textPropValue.startsWith('props.')) {
           writer.write(`{${textPropValue}}`);
-        // Explicit string
-        } else {
+        // Explicit string (and not empty)
+        } else if (textPropValue) {
           if (settings?.translate) {
             state.flags.lingui.useLingui = true;
             writer.write('{t`' + textPropValue + '`}');
