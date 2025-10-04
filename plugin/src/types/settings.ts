@@ -13,23 +13,6 @@ export interface UserSettings {
   */
   esbuild: BuildOptions,
   /**
-   * Git configuration
-   */
-  git: {
-    /**
-     * Git repository URL
-     */
-    repo: string,
-    /**
-     * Git branch
-     */
-    branch: string,
-    /**
-     * Git personal access token
-     */
-    accessToken: string,
-  },
-  /**
    * UI preferences
    */
   ui: {
@@ -57,4 +40,21 @@ export interface ProjectSettings extends UserSettings {
   * Options for the code writer.
   */
   writer: WriterOptions,
+  /**
+   * Git configuration
+   */
+  git: {
+    /**
+     * Git repository URL
+     */
+    repo: string,
+    /**
+     * Git branch
+     */
+    branch: string,
+    /**
+     * Git personal access token
+     */
+    accessToken: string,
+  },
 }

@@ -28,14 +28,14 @@ export function update(value: ProjectSettings, skipSave?: boolean) {
   if (!skipSave) {
     const userSettings: UserSettings = {
       ui: value.ui,
-      git: value.git,
       monaco: value.monaco,
       esbuild: value.esbuild,
     };
-    const projectSettings: Omit<ProjectSettings, 'ui' | 'git' | 'monaco' | 'esbuild'> = {
+    const projectSettings: Omit<ProjectSettings, 'ui' | 'monaco' | 'esbuild'> = {
       projectToken: value.projectToken,
       translate: value.translate,
       writer: value.writer,
+      git: value.git,
     };
     // Store relevant project settings in document
     figma.root.setPluginData(F2RN_SETTINGS_PROJECT, JSON.stringify(projectSettings));
