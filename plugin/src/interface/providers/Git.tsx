@@ -9,7 +9,7 @@ const GitContext = createContext<GitContextType | null>(null);
 const corsProxy = `${F2RN_EXO_PROXY_URL}https:/`;
 const dir = '/';
 
-export const FETCH_INTERVAL = 30000; // 30 seconds
+// const FETCH_INTERVAL = 30000; // 30 seconds
 
 export type WatchFn = () => void;
 
@@ -36,7 +36,7 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const [isFetching, setIsFetching] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const intervalRef = useRef<number | null>(null);
+  // const intervalRef = useRef<number | null>(null);
 
   const push = useCallback((ref: string) => git.push({...repo, ref}), [repo]);
 
@@ -70,28 +70,28 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   }, [repo]);
 
   // Auto-fetch setup
-  useEffect(() => {
-    if (!repo?.url) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      return;
-    }
+  // useEffect(() => {
+  //   if (!repo?.url) {
+  //     if (intervalRef.current) {
+  //       clearInterval(intervalRef.current);
+  //       intervalRef.current = null;
+  //     }
+  //     return;
+  //   }
 
-    // Set up periodic fetching
-    intervalRef.current = setInterval(() => {
-      fetch().catch(console.error); // Silently handle errors for auto-fetch
-    }, FETCH_INTERVAL);
+  //   // Set up periodic fetching
+  //   intervalRef.current = setInterval(() => {
+  //     fetch().catch(console.error); // Silently handle errors for auto-fetch
+  //   }, FETCH_INTERVAL);
 
-    // Cleanup on unmount or dependency change
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [repo?.url, fetch]);
+  //   // Cleanup on unmount or dependency change
+  //   return () => {
+  //     if (intervalRef.current) {
+  //       clearInterval(intervalRef.current);
+  //       intervalRef.current = null;
+  //     }
+  //   };
+  // }, [repo?.url, fetch]);
 
   return (
     <GitContext.Provider value={{fs, push, fetch, commit, addFiles, isFetching, lastFetchTime, fetchError}}>
