@@ -32,16 +32,10 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
+        <Dialog.Overlay/>
         <Dialog.Content
-          width="100%"
-          maxWidth={300}
-          style={{
-            top: 53,
-            right: 0,
-            left: 'auto',
-            transform: 'initial',
-            zIndex: 99999,
-          }}>
+          placement="center"
+          maxWidth={300}>
           <Dialog.Header>
             <Dialog.Title>Git Configuration</Dialog.Title>
             <Dialog.Controls>
@@ -75,7 +69,7 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
               <Flex align="center">
                 <Text weight="strong">Token</Text>
                 <a
-                  href="https://github.com/settings/tokens"
+                  href="https://github.com/settings/personal-access-tokens"
                   target="_blank"
                   rel="noreferrer"
                   style={{marginLeft: '4px'}}>
@@ -87,7 +81,7 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
                 type="password"
                 ref={accessTokenInput}
                 defaultValue={settings.config?.git?.accessToken}
-                placeholder="Your GitHub Personal Access Token"
+                placeholder="personal access token"
                 onFocus={(e) => {
                   e.target.type = 'text';
                   e.target.select();
@@ -96,6 +90,14 @@ export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
                   e.target.type = 'password';
                 }}
               />
+              <VerticalSpace space="small"/>
+              <Text size="small" color="text-secondary">
+                Fine-grained tokens must have permissions:
+                <ul style={{margin: 4, paddingLeft: '16px'}}>
+                  <li>Metadata: Read-only</li>
+                  <li>Contents: Read and Write</li>
+                </ul>
+              </Text>
               <VerticalSpace space="large"/>
               <Button
                 variant="primary"
