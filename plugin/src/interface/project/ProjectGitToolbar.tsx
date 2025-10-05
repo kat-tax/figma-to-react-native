@@ -7,12 +7,12 @@ import type {EventNotify, EventProjectExport} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 import type {ComponentDiffs} from 'interface/hooks/useGitDiffs';
 
-interface GitToolbarProps {
+interface ProjectGitToolbarProps {
   diffs: ComponentDiffs;
   settings: SettingsData;
 }
 
-export function GitToolbar({diffs, settings}: GitToolbarProps) {
+export function ProjectGitToolbar({diffs, settings}: ProjectGitToolbarProps) {
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
 
   const isConfigured = settings.config?.git?.repo

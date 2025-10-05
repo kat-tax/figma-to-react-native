@@ -5,7 +5,7 @@ import {Dropdown} from 'interface/figma/ui/dropdown';
 import {IconEllipsis} from 'interface/figma/icons/24/Ellipsis';
 import {IconComponent} from 'interface/figma/icons/16/Component';
 import {patch, actions} from 'interface/utils/editor/lib/prompts';
-import {GitButton} from 'interface/project/GitButton';
+import {ProjectGitButton} from 'interface/project/ProjectGitButton';
 import {SearchBar} from 'interface/base/SearchBar';
 import {titleCase} from 'common/string';
 
@@ -156,7 +156,7 @@ export function NavBar(props: NavBarProps) {
                   </Tabs.Trigger>
                 </Fragment>
               ))}
-              <GitButton settings={props.settings} showRefresh={true} />
+              <ProjectGitButton settings={props.settings} showRefresh={true} />
             </div>
           }
           </Fragment>

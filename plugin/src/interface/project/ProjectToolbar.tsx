@@ -15,7 +15,7 @@ import {StatusBar} from 'interface/base/StatusBar';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
 
-import {ProjectGit} from './ProjectGit';
+import {ProjectGitDialog} from './ProjectGitDialog';
 
 import type {EventNotify, EventOpenLink, EventProjectExport, EventProjectNewComponent} from 'types/events';
 import type {ProjectComponentLayout} from 'types/project';
@@ -285,7 +285,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </Button>
         </form>
       )}
-      <ProjectGit
+      <ProjectGitDialog
         settings={props.settings}
         onOpenChange={setShowGitDialog}
         open={showGitDialog}

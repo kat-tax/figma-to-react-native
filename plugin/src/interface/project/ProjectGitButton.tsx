@@ -8,7 +8,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import type {EventNotify} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 
-interface GitButtonProps {
+interface ProjectGitButtonProps {
   settings: SettingsData;
   availableBranches?: string[];
   onBranchChange?: (branch: string) => void;
@@ -17,14 +17,14 @@ interface GitButtonProps {
   showRefresh?: boolean;
 }
 
-export function GitButton({
+export function ProjectGitButton({
   settings,
   availableBranches = [],
   onBranchChange,
   size = 'small',
   variant = 'secondary',
   showRefresh = false,
-}: GitButtonProps) {
+}: ProjectGitButtonProps) {
 
   const git = useGit();
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(git.lastFetchTime);

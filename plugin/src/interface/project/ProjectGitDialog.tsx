@@ -6,13 +6,13 @@ import {F2RN_EXO_REPO_URL} from 'config/consts';
 
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 
-interface ProjectGitProps {
+interface ProjectGitDialogProps {
   settings: SettingsData;
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }
 
-export function ProjectGit({settings, onOpenChange, open}: ProjectGitProps) {
+export function ProjectGitDialog({settings, onOpenChange, open}: ProjectGitDialogProps) {
   const repoInput = useRef<HTMLInputElement>(null);
   const branchInput = useRef<HTMLInputElement>(null);
   const accessTokenInput = useRef<HTMLInputElement>(null);

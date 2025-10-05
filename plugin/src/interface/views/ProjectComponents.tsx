@@ -6,7 +6,7 @@ import {useGitDiffs} from 'interface/hooks/useGitDiffs';
 import {ProjectSettings} from 'interface/project/ProjectSettings';
 import {ProjectToolbar} from 'interface/project/ProjectToolbar';
 import {ProjectList} from 'interface/project/ProjectList';
-import {GitToolbar} from 'interface/project/GitToolbar';
+import {ProjectGitToolbar} from 'interface/project/ProjectGitToolbar';
 
 import type {Theme} from '@monaco-editor/react';
 import type {Monaco} from 'interface/utils/editor/monaco';
@@ -118,7 +118,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           editorTheme={props.editorTheme}
         />
       )}
-      <GitToolbar
+      <ProjectGitToolbar
         diffs={diffs}
         settings={props.settings}
       />
