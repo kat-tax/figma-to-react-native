@@ -3,13 +3,13 @@ import {Button} from 'figma-kit';
 import {Fzf, byLengthAsc} from 'fzf';
 import {useState, useMemo, useEffect} from 'react';
 import {ScreenInfo} from 'interface/base/ScreenInfo';
-import {useGitDiffs} from 'interface/hooks/useGitDiffs';
 
 import {ProjectListPage} from './ProjectListPage';
 
 import type {ProjectComponentIndex, ProjectComponentLayout} from 'types/project';
 import type {ComponentBuild} from 'types/component';
 import type {EventFocusNode} from 'types/events';
+import type {ComponentDiffs} from 'interface/hooks/useGitDiffs';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ProjectListProps {
@@ -21,6 +21,7 @@ interface ProjectListProps {
   importing: boolean,
   importComponents: () => void,
   nav: Navigation,
+  diffs: ComponentDiffs,
   showDiff: boolean,
   setShowDiff: (show: boolean) => void,
 }
@@ -29,7 +30,6 @@ export function ProjectList(props: ProjectListProps) {
   const [list, setList] = useState<ProjectComponentIndex>({});
   const hasComponents = Boolean(props.build?.roster && Object.keys(props.build.roster).length);
   const hasImport = !props.isReadOnly && false;
-  const diffs = useGitDiffs(props.build?.roster || {});
   const index = useMemo(() => {
     const _entries = hasComponents ? Object.entries(props.build?.roster) : [];
     const entries = _entries
@@ -90,7 +90,7 @@ export function ProjectList(props: ProjectListProps) {
           onSelect={(id) => emit<EventFocusNode>('NODE_FOCUS', id)}
           onSelectWithDiff={(key) => props.nav.gotoComponent(key, true)}
           entries={list[page]}
-          diffs={diffs}
+          diffs={props.diffs}
         />
       )}
     </div>

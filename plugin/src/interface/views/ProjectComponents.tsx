@@ -1,11 +1,12 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {useState, useMemo} from 'react';
 import {useWindowSize} from '@uidotdev/usehooks';
+import {useGitDiffs} from 'interface/hooks/useGitDiffs';
 
 import {ProjectSettings} from 'interface/project/ProjectSettings';
 import {ProjectToolbar} from 'interface/project/ProjectToolbar';
-import {GitToolbar} from 'interface/project/GitToolbar';
 import {ProjectList} from 'interface/project/ProjectList';
+import {GitToolbar} from 'interface/project/GitToolbar';
 
 import type {Theme} from '@monaco-editor/react';
 import type {Monaco} from 'interface/utils/editor/monaco';
@@ -37,6 +38,8 @@ export function ProjectComponents(props: ProjectComponentsProps) {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
   const [showSync, setShowSync] = useState<boolean>(false);
+  const diffs = useGitDiffs(props.build?.roster || {});
+
   const {width} = useWindowSize();
 
   // Calculate the effective layout once and pass it down
@@ -102,6 +105,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           importing={importing}
           importComponents={importComponents}
           nav={props.nav}
+          diffs={diffs}
           showDiff={props.showDiff}
           setShowDiff={props.setShowDiff}
         />
@@ -114,7 +118,10 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           editorTheme={props.editorTheme}
         />
       )}
-      <GitToolbar settings={props.settings} />
+      <GitToolbar
+        diffs={diffs}
+        settings={props.settings}
+      />
       <ProjectToolbar
         settings={props.settings}
         layout={props.settings.config?.ui?.componentLayout}
