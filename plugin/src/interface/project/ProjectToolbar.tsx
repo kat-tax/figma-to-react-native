@@ -188,7 +188,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </IconButton>
           <ProjectUpsell
             settings={props.settings}
-            buttonText={tokenAction === 'sync' ? 'Sync' : 'Download'}
+            buttonText={tokenAction === 'sync' ? 'Sync' : 'Save'}
             onTokenValid={(token) => {
               setShowTokenUpsell(false);
               props.setShowSync(false);
