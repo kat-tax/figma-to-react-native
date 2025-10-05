@@ -18,13 +18,12 @@ export interface GitContextType {
   isFetching: boolean;
   fetchError: string | null;
   lastFetchTime: number | null;
-  isFetchingBranches: boolean;
   push: (ref: string) => Promise<PushResult>;
   fetch: () => Promise<FetchResult>;
   commit: (message: string) => Promise<string>;
   addFiles: (...files: string[]) => Promise<void>;
   listBranches: () => Promise<string[]>;
-  changeBranch: (newBranch: string) => void;
+  changeBranch: (newBranch: string) => Promise<void>;
 }
 
 export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<ProjectSettings['git']>) {
@@ -38,20 +37,28 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const [branches, setBranches] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
-  const [isFetchingBranches, setIsFetchingBranches] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const push = useCallback((ref: string) => git.push({...repo, ref}), [repo]);
+  /** Push changes to the git repository */
+  const push = useCallback((ref: string) =>
+    git.push({...repo, ref})
+  , [repo]);
 
-  const changeBranch = useCallback((newBranch: string) => {
-    setBranch(newBranch);
-  }, []);
-
-  const listBranches = useCallback(async () => {
-    if (isFetchingBranches) return branches;
-    setIsFetchingBranches(true);
+  /** Change the current branch */
+  const changeBranch = useCallback(async (newBranch: string) => {
     try {
-      // List branches
+      await git.checkout({...repo, ref: newBranch});
+      setBranch(newBranch);
+    } catch (error) {
+      console.error('Failed to checkout branch:', error);
+      throw error;
+    }
+  }, [repo]);
+
+  /** List branches from the git repository */
+  const listBranches = useCallback(async () => {
+    try {
+      // List branches (note does not actually contact origin, must fetch first)
       const list = await git.listBranches({...repo, remote: 'origin'});
       const names = list
         .map(branch => branch.replace('refs/heads/', ''))
@@ -62,20 +69,14 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     } catch (error) {
       console.error('Failed to list branches:', error);
       return branches;
-    } finally {
-      setIsFetchingBranches(false);
-      // Update remote branches for future fetches
-      git.fetch(repo);
-      setLastFetchTime(Date.now());
     }
-  }, [repo, isFetchingBranches, branches]);
+  }, [repo, branches]);
 
+  /** Fetch changes from the git repository */
   const fetch = useCallback(async () => {
     if (isFetching) return;
-
     setIsFetching(true);
     setFetchError(null);
-
     try {
       const result = await git.fetch(repo);
       setLastFetchTime(Date.now());
@@ -91,8 +92,22 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     }
   }, [repo, isFetching, listBranches]);
 
-  const commit = useCallback((message: string) => git.commit({...repo, message, author: {name: 'Figma → React Native', email: 'team@kat.tax'}}), [repo]);
-  const addFiles = useCallback((...files: string[]) => git.add({fs, dir, parallel: true, filepath: files}), [fs, dir]);
+  /** Commit changes to the git repository */
+  const commit = useCallback((message: string) =>
+    git.commit({
+      ...repo,
+      message,
+      author: {name: 'Figma → React Native', email: 'team@kat.tax'},
+    }), [repo]);
+
+  /** Add files to the git repository */
+  const addFiles = useCallback((...files: string[]) =>
+    git.add({
+      fs,
+      dir,
+      parallel: true,
+      filepath: files,
+    }), [fs, dir]);
 
   // Initial clone
   useEffect(() => {
@@ -109,7 +124,6 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
       isFetching,
       fetchError,
       lastFetchTime,
-      isFetchingBranches,
       push,
       fetch,
       commit,

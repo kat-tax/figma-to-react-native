@@ -70,7 +70,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
 
 
   // Don't show button if git is not configured
-  if (!isConfigured) {
+  if (!isConfigured || git.branches.length === 0) {
     return null;
   }
 

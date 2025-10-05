@@ -19,9 +19,10 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
         const newDiffs: ComponentDiffs = {};
         // Skip diffing if components are loading
         if (Object.values(roster).some(entry => entry.loading)) {
-          setDiffs({});
           return;
         }
+        // Update git branch
+        await git.fetch();
         // Skip diffing if git repo is empty
         try {
           git.fs.readdirSync('design');
@@ -91,7 +92,7 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
     };
     update();
     return () => {mounted = false};
-  }, [roster, git.fs]);
+  }, [roster, git.fs, git.branch]);
 
   useEffect(() => {
     console.log('>> diffs', diffs, git.branch);
