@@ -4,6 +4,7 @@ import {useWindowSize} from '@uidotdev/usehooks';
 
 import {ProjectSettings} from 'interface/project/ProjectSettings';
 import {ProjectToolbar} from 'interface/project/ProjectToolbar';
+import {GitToolbar} from 'interface/project/GitToolbar';
 import {ProjectList} from 'interface/project/ProjectList';
 
 import type {Theme} from '@monaco-editor/react';
@@ -113,6 +114,7 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           editorTheme={props.editorTheme}
         />
       )}
+      <GitToolbar settings={props.settings} />
       <ProjectToolbar
         settings={props.settings}
         layout={props.settings.config?.ui?.componentLayout}
