@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {Button, Text, DropdownMenu, IconButton, Flex} from 'figma-kit';
+import {Text, Select, IconButton, Flex} from 'figma-kit';
 import {useGit} from 'interface/providers/Git';
 import {IconGit} from 'interface/figma/icons/24/Git';
 import {IconRefresh} from 'interface/figma/icons/24/Refresh';
@@ -23,6 +23,8 @@ export function ProjectGitButton({
 }: ProjectGitButtonProps) {
 
   const git = useGit();
+  const branchName = settings.config?.git?.branch || 'master';
+  const isConfigured = settings.config?.git?.repo && settings.config?.git?.branch && settings.config?.git?.accessToken;
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(git.lastFetchTime);
   const [branches, setBranches] = useState<string[]>(availableBranches.length > 0 ? availableBranches : []);
 
@@ -87,39 +89,31 @@ export function ProjectGitButton({
     fetchBranches();
   }, [git.branches, git.listBranches, availableBranches]);
 
-  const branchName = settings.config?.git?.branch || 'main';
-  const isConfigured = settings.config?.git?.repo && settings.config?.git?.branch && settings.config?.git?.accessToken;
 
+  // Don't show button if git is not configured
   if (!isConfigured) {
-    return null; // Don't show button if git is not configured
+    return null;
   }
 
   return (
-    <Flex align="center" gap="small" style={{position: 'absolute', right: 0}}>
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <Button size="small" variant="secondary">
-            <div style={{transform: 'scale(0.8)'}}>
-              <IconGit size={24}/>
-            </div>
-              {branchName}
-          </Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content>
+    <Flex align="center" gap="small" style={{position: 'absolute', right: 12, zIndex: 1000}}>
+      <Select.Root
+        value={branchName}
+        onValueChange={handleBranchChange}>
+        <Select.Trigger/>
+        <Select.Content>
           {branches.map((branch) => (
-            <DropdownMenu.Item
-              key={branch}
-              onSelect={() => handleBranchChange(branch)}>
-              <Text>{branch}</Text>
-            </DropdownMenu.Item>
+            <Select.Item key={branch} value={branch}>
+              {branch}
+            </Select.Item>
           ))}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+        </Select.Content>
+      </Select.Root>
 
       {showRefresh && (
         <IconButton
-          size="small"
           aria-label={`Last fetch: ${formatLastFetch()}`}
+          size="small"
           onClick={handleFetch}
           disabled={git.isFetching}>
           <div className={git.isFetching ? 'rotate' : ''}>
