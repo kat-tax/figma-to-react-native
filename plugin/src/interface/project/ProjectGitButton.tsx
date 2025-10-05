@@ -1,7 +1,6 @@
 import {useState, useEffect} from 'react';
-import {Text, Select, IconButton, Flex} from 'figma-kit';
+import {Select, IconButton, Flex} from 'figma-kit';
 import {useGit} from 'interface/providers/Git';
-import {IconGit} from 'interface/figma/icons/24/Git';
 import {IconRefresh} from 'interface/figma/icons/24/Refresh';
 import {emit} from '@create-figma-plugin/utilities';
 
@@ -29,10 +28,19 @@ export function ProjectGitButton({
   const [branches, setBranches] = useState<string[]>(availableBranches.length > 0 ? availableBranches : []);
 
   const handleBranchChange = (newBranch: string) => {
+    // Update settings with new branch
+    settings.update(JSON.stringify({
+      ...settings.config,
+      git: {
+        ...settings.config.git,
+        branch: newBranch,
+      },
+    }, undefined, 2), true);
+
     if (onBranchChange) {
       onBranchChange(newBranch);
     } else {
-      // Default behavior - just show notification
+      // Default behavior - show notification
       emit<EventNotify>('NOTIFY', `Switched to branch: ${newBranch}`, {timeout: 3000});
     }
   };
