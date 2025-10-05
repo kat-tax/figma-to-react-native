@@ -52,6 +52,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
 
   // Fetch branches when component mounts or when git context changes
   useEffect(() => {
+    if (!git.branch) return;
     const fetchBranches = async () => {
       if (git.branches.length > 0) {
         setBranches(git.branches);
@@ -66,7 +67,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
     };
 
     fetchBranches();
-  }, [git.branches, git.listBranches]);
+  }, [git.branch, git.branches, git.listBranches]);
 
 
   // Don't show button if git is not configured

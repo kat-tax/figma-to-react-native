@@ -21,6 +21,8 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
         if (Object.values(roster).some(entry => entry.loading)) {
           return;
         }
+        // Skip diffing if git branch is not set
+        if (!git?.branch) return;
         // Update git branch
         await git.fetch();
         // Skip diffing if git repo is empty

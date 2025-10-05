@@ -29,7 +29,7 @@ export interface GitContextType {
 export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<ProjectSettings['git']>) {
   const url = gitConfig.repo;
   const username = gitConfig.accessToken;
-  const [branch, setBranch] = useState<string>(gitConfig.branch || 'master');
+  const [branch, setBranch] = useState<string>(gitConfig.branch);
   const {fs} = useMemo(() => MemoryFS(), []);
   const repo = useMemo(() => ({fs, url, dir, http, corsProxy, ref: branch, onAuth: () => ({username})}), [fs, url, branch, username]);
 
