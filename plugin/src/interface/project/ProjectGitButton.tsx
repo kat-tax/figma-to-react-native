@@ -9,32 +9,16 @@ import type {SettingsData} from 'interface/hooks/useUserSettings';
 
 interface ProjectGitButtonProps {
   settings: SettingsData;
-  availableBranches?: string[];
   showRefresh?: boolean;
 }
 
-export function ProjectGitButton({
-  settings,
-  availableBranches = [],
-  showRefresh = false,
-}: ProjectGitButtonProps) {
-
+export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps) {
   const git = useGit();
-  const branchName = settings.config?.git?.branch || 'master';
-  const isConfigured = settings.config?.git?.repo && settings.config?.git?.branch && settings.config?.git?.accessToken;
+  const isConfigured = settings.config?.git?.repo
+    && settings.config?.git?.branch
+    && settings.config?.git?.accessToken;
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(git.lastFetchTime);
-  const [branches, setBranches] = useState<string[]>(availableBranches.length > 0 ? availableBranches : []);
-
-  const handleBranchChange = (newBranch: string) => {
-    // Update settings with new branch
-    settings.update(JSON.stringify({
-      ...settings.config,
-      git: {
-        ...settings.config.git,
-        branch: newBranch,
-      },
-    }, undefined, 2), true);
-  };
+  const [branches, setBranches] = useState<string[]>([]);
 
   const handleFetch = async () => {
     try {
@@ -77,16 +61,12 @@ export function ProjectGitButton({
           setBranches(branchList);
         } catch (error) {
           console.error('Failed to fetch branches:', error);
-          // Fallback to availableBranches if provided, otherwise show empty
-          if (availableBranches.length > 0) {
-            setBranches(availableBranches);
-          }
         }
       }
     };
 
     fetchBranches();
-  }, [git.branches, git.listBranches, availableBranches]);
+  }, [git.branches, git.listBranches]);
 
 
   // Don't show button if git is not configured
@@ -97,8 +77,8 @@ export function ProjectGitButton({
   return (
     <Flex align="center" gap="small" style={{position: 'absolute', right: 12, zIndex: 1000}}>
       <Select.Root
-        value={branchName}
-        onValueChange={handleBranchChange}>
+        value={git.branch}
+        onValueChange={git.changeBranch}>
         <Select.Trigger/>
         <Select.Content>
           {branches.map((branch) => (
@@ -108,7 +88,6 @@ export function ProjectGitButton({
           ))}
         </Select.Content>
       </Select.Root>
-
       {showRefresh && (
         <IconButton
           aria-label={`Last fetch: ${formatLastFetch()}`}

@@ -1,4 +1,4 @@
-import {useMemo, useEffect, useCallback, useContext, createContext, useRef, useState} from 'react';
+import {useMemo, useState, useEffect, useCallback, useContext, createContext} from 'react';
 import {git, http, MemoryFS} from 'git-mem';
 import {F2RN_EXO_PROXY_URL} from 'config/consts';
 
@@ -13,25 +13,24 @@ export type WatchFn = () => void;
 
 export interface GitContextType {
   fs: IFs;
+  branch: string;
+  branches: string[];
+  isFetching: boolean;
+  fetchError: string | null;
+  lastFetchTime: number | null;
+  isFetchingBranches: boolean;
   push: (ref: string) => Promise<PushResult>;
   fetch: () => Promise<FetchResult>;
   commit: (message: string) => Promise<string>;
   addFiles: (...files: string[]) => Promise<void>;
   listBranches: () => Promise<string[]>;
-  isFetching: boolean;
-  lastFetchTime: number | null;
-  fetchError: string | null;
-  branches: string[];
-  isFetchingBranches: boolean;
-  currentBranch: string;
-  branchChangeTime: number | null;
+  changeBranch: (newBranch: string) => void;
 }
 
 export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<ProjectSettings['git']>) {
   const url = gitConfig.repo;
-  const branch = gitConfig.branch;
   const username = gitConfig.accessToken;
-
+  const [branch, setBranch] = useState<string>(gitConfig.branch || 'master');
   const {fs} = useMemo(() => MemoryFS(), []);
   const repo = useMemo(() => ({fs, url, dir, http, corsProxy, ref: branch, onAuth: () => ({username})}), [fs, url, branch, username]);
 
@@ -41,10 +40,12 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
   const [isFetchingBranches, setIsFetchingBranches] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [currentBranch, setCurrentBranch] = useState<string>(branch || 'master');
-  const [branchChangeTime, setBranchChangeTime] = useState<number | null>(null);
 
   const push = useCallback((ref: string) => git.push({...repo, ref}), [repo]);
+
+  const changeBranch = useCallback((newBranch: string) => {
+    setBranch(newBranch);
+  }, []);
 
   const listBranches = useCallback(async () => {
     if (isFetchingBranches) return branches;
@@ -93,14 +94,6 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const commit = useCallback((message: string) => git.commit({...repo, message, author: {name: 'Figma → React Native', email: 'team@kat.tax'}}), [repo]);
   const addFiles = useCallback((...files: string[]) => git.add({fs, dir, parallel: true, filepath: files}), [fs, dir]);
 
-  // Track branch changes
-  useEffect(() => {
-    if (branch && branch !== currentBranch) {
-      setCurrentBranch(branch);
-      setBranchChangeTime(Date.now());
-    }
-  }, [branch, currentBranch]);
-
   // Initial clone
   useEffect(() => {
     if (repo?.url) {
@@ -109,7 +102,21 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   }, [repo]);
 
   return (
-    <GitContext.Provider value={{fs, push, fetch, commit, addFiles, listBranches, isFetching, lastFetchTime, fetchError, branches, isFetchingBranches, currentBranch, branchChangeTime}}>
+    <GitContext.Provider value={{
+      fs,
+      branch,
+      branches,
+      isFetching,
+      fetchError,
+      lastFetchTime,
+      isFetchingBranches,
+      push,
+      fetch,
+      commit,
+      addFiles,
+      listBranches,
+      changeBranch,
+    }}>
       {children}
     </GitContext.Provider>
   );
