@@ -72,11 +72,9 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
     fetchBranches();
   }, [git.branch, git.branches, git.listBranches]);
 
-
-  // Show git configuration icon if not configured
-  if (!isConfigured) {
-    return (
-      <>
+  return (
+    <>
+      {!isConfigured && (
         <Flex align="center" gap="small" className="git-config-button">
           <IconButton
             aria-label="Configure Git"
@@ -87,47 +85,41 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
             </div>
           </IconButton>
         </Flex>
-        <ProjectGitDialog
-          settings={settings}
-          open={showGitDialog}
-          onOpenChange={setShowGitDialog}
-        />
-      </>
-    );
-  }
-
-  // Don't show button if git is configured but no branches
-  if (git.branches.length === 0) {
-    return null;
-  }
-
-  return (
-    <Flex align="center" gap="small" className="git-branch-dropdown">
-      <Select.Root
-        value={git.branch}
-        onValueChange={git.changeBranch}>
-        <Select.Trigger/>
-        <Select.Content>
-          {branches.map((branch) => (
-            <Select.Item key={branch} value={branch}>
-              {branch}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select.Root>
-      {showRefresh && (
-        <IconButton
-          aria-label={`Last fetch: ${formatLastFetch()}`}
-          size="small"
-          onClick={handleFetch}
-          disabled={git.isFetching}>
-          <div className={git.isFetching ? 'rotate' : ''}>
-            <IconRefresh
-              color={git.isFetching ? 'disabled' : 'secondary'}
-            />
-          </div>
-        </IconButton>
       )}
-    </Flex>
+      {git.branches.length > 0 && (
+        <Flex align="center" gap="small" className="git-branch-dropdown">
+          <Select.Root
+            value={git.branch}
+            onValueChange={git.changeBranch}>
+            <Select.Trigger/>
+            <Select.Content>
+              {branches.map((branch) => (
+                <Select.Item key={branch} value={branch}>
+                  {branch}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Root>
+          {showRefresh && (
+            <IconButton
+              aria-label={`Last fetch: ${formatLastFetch()}`}
+              size="small"
+              onClick={handleFetch}
+              disabled={git.isFetching}>
+              <div className={git.isFetching ? 'rotate' : ''}>
+                <IconRefresh
+                  color={git.isFetching ? 'disabled' : 'secondary'}
+                />
+              </div>
+            </IconButton>
+          )}
+        </Flex>
+      )}
+      <ProjectGitDialog
+        settings={settings}
+        open={showGitDialog}
+        onOpenChange={setShowGitDialog}
+      />
+    </>
   );
 }
