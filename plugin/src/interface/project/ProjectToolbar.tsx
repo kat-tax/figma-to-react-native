@@ -93,10 +93,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                 setShowNew(true);
                 setTimeout(() => newInput.current?.focus(), 100);
               }}>
-                <Text>Create New</Text>
+                <Text>New Component</Text>
               </DropdownMenu.Item>
               <DropdownMenu.Item onSelect={() => props.importComponents()}>
-                <Text>Import EXO</Text>
+                <Text>Import Library...</Text>
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
@@ -237,10 +237,23 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
         </div>
       )}
       {viewState === 'new' && (
-        <div style={{display: 'flex', flexDirection: 'row', gap: 12, flex: 1}}>
+        <form
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            margin: 0,
+            gap: 12,
+            flex: 1,
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            emit<EventProjectNewComponent>('PROJECT_NEW_COMPONENT', newInput.current?.value ?? '');
+            setShowNew(false);
+          }}>
           <IconButton
             aria-label="Go back"
             size="small"
+            type="button"
             onClick={() => setShowNew(false)}>
             <IconBack/>
           </IconButton>
@@ -256,13 +269,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           <Button
             size="small"
             aria-label="Create Component"
-            onClick={() => {
-              emit<EventProjectNewComponent>('PROJECT_NEW_COMPONENT', newInput.current?.value ?? '');
-              setShowNew(false);
-            }}>
+            type="submit">
             Create
           </Button>
-        </div>
+        </form>
       )}
       <ProjectGit
         settings={props.settings}
