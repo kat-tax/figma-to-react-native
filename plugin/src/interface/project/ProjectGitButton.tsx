@@ -10,14 +10,12 @@ import type {SettingsData} from 'interface/hooks/useUserSettings';
 interface ProjectGitButtonProps {
   settings: SettingsData;
   availableBranches?: string[];
-  onBranchChange?: (branch: string) => void;
   showRefresh?: boolean;
 }
 
 export function ProjectGitButton({
   settings,
   availableBranches = [],
-  onBranchChange,
   showRefresh = false,
 }: ProjectGitButtonProps) {
 
@@ -36,13 +34,6 @@ export function ProjectGitButton({
         branch: newBranch,
       },
     }, undefined, 2), true);
-
-    if (onBranchChange) {
-      onBranchChange(newBranch);
-    } else {
-      // Default behavior - show notification
-      emit<EventNotify>('NOTIFY', `Switched to branch: ${newBranch}`, {timeout: 3000});
-    }
   };
 
   const handleFetch = async () => {
