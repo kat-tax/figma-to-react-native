@@ -91,7 +91,7 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
     };
     update();
     return () => {mounted = false};
-  }, [git, roster, git.lastFetchTime]);
+  }, [roster, git.fs, git.lastFetchTime, git.branchChangeTime]);
 
   return diffs;
 }

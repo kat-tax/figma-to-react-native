@@ -23,6 +23,8 @@ export interface GitContextType {
   fetchError: string | null;
   branches: string[];
   isFetchingBranches: boolean;
+  currentBranch: string;
+  branchChangeTime: number | null;
 }
 
 export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<ProjectSettings['git']>) {
@@ -39,6 +41,8 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
   const [isFetchingBranches, setIsFetchingBranches] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [currentBranch, setCurrentBranch] = useState<string>(branch || 'master');
+  const [branchChangeTime, setBranchChangeTime] = useState<number | null>(null);
 
   const push = useCallback((ref: string) => git.push({...repo, ref}), [repo]);
 
@@ -89,6 +93,14 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const commit = useCallback((message: string) => git.commit({...repo, message, author: {name: 'Figma → React Native', email: 'team@kat.tax'}}), [repo]);
   const addFiles = useCallback((...files: string[]) => git.add({fs, dir, parallel: true, filepath: files}), [fs, dir]);
 
+  // Track branch changes
+  useEffect(() => {
+    if (branch && branch !== currentBranch) {
+      setCurrentBranch(branch);
+      setBranchChangeTime(Date.now());
+    }
+  }, [branch, currentBranch]);
+
   // Initial clone
   useEffect(() => {
     if (repo?.url) {
@@ -97,7 +109,7 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   }, [repo]);
 
   return (
-    <GitContext.Provider value={{fs, push, fetch, commit, addFiles, listBranches, isFetching, lastFetchTime, fetchError, branches, isFetchingBranches}}>
+    <GitContext.Provider value={{fs, push, fetch, commit, addFiles, listBranches, isFetching, lastFetchTime, fetchError, branches, isFetchingBranches, currentBranch, branchChangeTime}}>
       {children}
     </GitContext.Provider>
   );
