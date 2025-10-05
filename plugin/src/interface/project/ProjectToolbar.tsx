@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text, Dialog} from 'figma-kit';
+import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
 import {useMemo, useState, useRef} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
@@ -15,9 +15,9 @@ import {StatusBar} from 'interface/base/StatusBar';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
 
-import {ProjectGitDialog} from './ProjectGitDialog';
+import {ProjectUpsell} from './ProjectUpsell';
 
-import type {EventNotify, EventOpenLink, EventProjectExport, EventProjectNewComponent} from 'types/events';
+import type {EventNotify, EventProjectExport, EventProjectNewComponent} from 'types/events';
 import type {ProjectComponentLayout} from 'types/project';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 
@@ -36,17 +36,17 @@ interface ProjectToolbarProps {
 export function ProjectToolbar(props: ProjectToolbarProps) {
   const sync = useSync();
   const newInput = useRef<HTMLInputElement>(null);
-  const syncInput = useRef<HTMLInputElement>(null);
   const [_, copy] = useCopyToClipboard();
   const [showNew, setShowNew] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
-  const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
+  const [showTokenUpsell, setShowTokenUpsell] = useState<boolean>(false);
+  const [tokenAction, setTokenAction] = useState<'sync' | 'download' | null>(null);
   const viewState = useMemo(() => {
-    if (props.showSync) return 'sync';
+    if (props.showSync || showTokenUpsell) return 'token';
     if (showNew) return 'new';
     return 'overview';
-  }, [props.showSync, showNew]);
+  }, [props.showSync, showNew, showTokenUpsell]);
 
   const handleLayoutClick = (newValue: ProjectComponentLayout) => {
     // If clicking the same value that's currently set (and not in auto), toggle to auto
@@ -100,40 +100,23 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild disabled={exportActive}>
-              <IconButton
-                size="small"
-                disabled={exportActive}
-                aria-label={exportActive ? 'Exporting...' : 'Export Project'}
-                onClick={() => props.setShowSettings(false)}>
-                <IconDownload/>
-              </IconButton>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content>
-              <DropdownMenu.Item
-                disabled={exportActive}
-                onSelect={() => {
-                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
-                  setExportActive(true);
-                }}>
-                <Text>Download App</Text>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                disabled={exportActive}
-                onSelect={() => {
-                  const git = props.settings.config?.git;
-                  if (!git?.repo || !git?.branch || !git?.accessToken) {
-                    setShowGitDialog(true);
-                  } else {
-                    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.settings.config);
-                    setExportActive(true);
-                  }
-                }}>
-                <Text>Publish to Git</Text>
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+          <IconButton
+            size="small"
+            disabled={exportActive}
+            aria-label={exportActive ? 'Exporting...' : 'Download App'}
+            onClick={() => {
+              // Check if project token is valid (40 characters)
+              if (!props.settings.config?.projectToken?.length
+                || props.settings.config?.projectToken?.length !== 40) {
+                setTokenAction('download');
+                setShowTokenUpsell(true);
+              } else {
+                emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
+                setExportActive(true);
+              }
+            }}>
+            <IconDownload/>
+          </IconButton>
           {!sync.active && (
             <IconButton
               aria-label={sync.error ?? 'Start Sync'}
@@ -143,7 +126,8 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                 // Missing or invalid sync key
                 if (!props.settings.config?.projectToken?.length
                   || props.settings.config?.projectToken?.length !== 40 || sync.error) {
-                  props.setShowSync(true);
+                  setTokenAction('sync');
+                  setShowTokenUpsell(true);
                 // Start syncing
                 } else {
                   setSyncLoading(true);
@@ -189,63 +173,39 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </IconButton>
         </>
       )}
-      {viewState === 'sync' && (
-        <form
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            margin: 0,
-            gap: 12,
-            flex: 1,
-          }}
-          onSubmit={(e) => {
-            e.preventDefault();
-            props.setShowSync(false);
-            setSyncLoading(true);
-            sync.connect(syncInput.current?.value);
-          }}>
+      {viewState === 'token' && (
+        <div style={{display: 'flex', flexDirection: 'row', gap: 12, flex: 1}}>
           <IconButton
             aria-label="Go back"
             size="small"
             type="button"
-            onClick={() => props.setShowSync(false)}>
+            onClick={() => {
+              props.setShowSync(false);
+              setShowTokenUpsell(false);
+              setTokenAction(null);
+            }}>
             <IconBack/>
           </IconButton>
-          <div style={{position: 'relative', flex: 1}}>
-            <Input
-              autoFocus
-              required
-              ref={syncInput}
-              type="password"
-              defaultValue={props.settings.config?.projectToken}
-              placeholder="Project Token"
-              style={{width: '100%', paddingRight: !props.settings.config?.projectToken ? 43 : '0.5rem'}}
-            />
-            {!props.settings.config?.projectToken && (
-              <Button
-                size="small"
-                variant="success"
-                type="button"
-                onClick={() => {
-                  emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/dashboard`);
-                }}
-                style={{
-                  transform: 'scale(0.9)',
-                  position: 'absolute',
-                  height: '20px',
-                  right: 2,
-                  top: 2,
-                }}>
-                Buy
-              </Button>
-            )}
-          </div>
-          <Button
-            size="small"
-            type="submit">
-            Save
-          </Button>
-        </form>
+          <ProjectUpsell
+            settings={props.settings}
+            buttonText={tokenAction === 'sync' ? 'Sync' : 'Download'}
+            onTokenValid={(token) => {
+              setShowTokenUpsell(false);
+              props.setShowSync(false);
+              if (tokenAction === 'sync') {
+                setSyncLoading(true);
+                sync.connect(token);
+              } else if (tokenAction === 'download') {
+                emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
+                setExportActive(true);
+              }
+              setTokenAction(null);
+            }}
+            onTokenInvalid={() => {
+              // Token is invalid, stay in upsell mode
+            }}
+          />
+        </div>
       )}
       {viewState === 'new' && (
         <form
@@ -285,11 +245,6 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </Button>
         </form>
       )}
-      <ProjectGitDialog
-        settings={props.settings}
-        onOpenChange={setShowGitDialog}
-        open={showGitDialog}
-      />
     </StatusBar>
   );
 }

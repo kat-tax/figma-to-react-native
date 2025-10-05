@@ -56,12 +56,6 @@ export function SyncProvider({user, build, settings, projectName, children}: Rea
         assets: Object.keys(build?.assets || {}).length || 0,
         user,
       });
-      if (newProjectKey) {
-        settings.update(JSON.stringify({
-          ...settings.config,
-          projectToken: newProjectKey,
-        }, undefined, 2), true);
-      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
     }
