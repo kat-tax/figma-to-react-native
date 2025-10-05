@@ -12,8 +12,6 @@ interface ProjectGitButtonProps {
   settings: SettingsData;
   availableBranches?: string[];
   onBranchChange?: (branch: string) => void;
-  size?: 'small' | 'medium' | 'large';
-  variant?: 'primary' | 'secondary' | 'tertiary';
   showRefresh?: boolean;
 }
 
@@ -21,14 +19,12 @@ export function ProjectGitButton({
   settings,
   availableBranches = [],
   onBranchChange,
-  size = 'small',
-  variant = 'secondary',
   showRefresh = false,
 }: ProjectGitButtonProps) {
 
   const git = useGit();
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(git.lastFetchTime);
-  const [branches] = useState<string[]>(availableBranches.length > 0 ? availableBranches : ['main', 'develop', 'feature/new-component']);
+  const [branches, setBranches] = useState<string[]>(availableBranches.length > 0 ? availableBranches : []);
 
   const handleBranchChange = (newBranch: string) => {
     if (onBranchChange) {
@@ -42,6 +38,8 @@ export function ProjectGitButton({
   const handleFetch = async () => {
     try {
       await git.fetch();
+      // Branches are automatically fetched in the git provider after fetch
+      setBranches(git.branches);
       emit<EventNotify>('NOTIFY', 'Repository fetched successfully', {timeout: 3000});
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown fetch error';
@@ -67,6 +65,28 @@ export function ProjectGitButton({
     setLastFetchTime(git.lastFetchTime);
   }, [git.lastFetchTime]);
 
+  // Fetch branches when component mounts or when git context changes
+  useEffect(() => {
+    const fetchBranches = async () => {
+      if (git.branches.length > 0) {
+        setBranches(git.branches);
+      } else {
+        try {
+          const branchList = await git.listBranches();
+          setBranches(branchList);
+        } catch (error) {
+          console.error('Failed to fetch branches:', error);
+          // Fallback to availableBranches if provided, otherwise show empty
+          if (availableBranches.length > 0) {
+            setBranches(availableBranches);
+          }
+        }
+      }
+    };
+
+    fetchBranches();
+  }, [git.branches, git.listBranches, availableBranches]);
+
   const branchName = settings.config?.git?.branch || 'main';
   const isConfigured = settings.config?.git?.repo && settings.config?.git?.branch && settings.config?.git?.accessToken;
 
@@ -75,22 +95,14 @@ export function ProjectGitButton({
   }
 
   return (
-    <Flex align="center" gap="small">
+    <Flex align="center" gap="small" style={{position: 'absolute', right: 0}}>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <Button
-            size={size}
-            variant={variant}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 8px'
-            }}>
-            <IconGit size={16}/>
-            <Text size="small" weight="medium">
+          <Button size="small" variant="secondary">
+            <div style={{transform: 'scale(0.8)'}}>
+              <IconGit size={24}/>
+            </div>
               {branchName}
-            </Text>
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content>

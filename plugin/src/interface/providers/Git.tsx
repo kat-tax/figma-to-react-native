@@ -9,8 +9,6 @@ const GitContext = createContext<GitContextType | null>(null);
 const corsProxy = `${F2RN_EXO_PROXY_URL}https:/`;
 const dir = '/';
 
-// const FETCH_INTERVAL = 30000; // 30 seconds
-
 export type WatchFn = () => void;
 
 export interface GitContextType {
@@ -19,9 +17,12 @@ export interface GitContextType {
   fetch: () => Promise<FetchResult>;
   commit: (message: string) => Promise<string>;
   addFiles: (...files: string[]) => Promise<void>;
+  listBranches: () => Promise<string[]>;
   isFetching: boolean;
   lastFetchTime: number | null;
   fetchError: string | null;
+  branches: string[];
+  isFetchingBranches: boolean;
 }
 
 export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<ProjectSettings['git']>) {
@@ -33,12 +34,36 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const repo = useMemo(() => ({fs, url, dir, http, corsProxy, ref: branch, onAuth: () => ({username})}), [fs, url, branch, username]);
 
   // State for fetch status
+  const [branches, setBranches] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
+  const [isFetchingBranches, setIsFetchingBranches] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  // const intervalRef = useRef<number | null>(null);
 
   const push = useCallback((ref: string) => git.push({...repo, ref}), [repo]);
+
+  const listBranches = useCallback(async () => {
+    if (isFetchingBranches) return branches;
+    setIsFetchingBranches(true);
+    try {
+      // List branches
+      const list = await git.listBranches({...repo, remote: 'origin'});
+      const names = list
+        .map(branch => branch.replace('refs/heads/', ''))
+        .filter(branch => branch !== 'HEAD')
+        .sort((a, b) => b.localeCompare(a));
+      setBranches(names);
+      return names;
+    } catch (error) {
+      console.error('Failed to list branches:', error);
+      return branches;
+    } finally {
+      setIsFetchingBranches(false);
+      // Update remote branches for future fetches
+      git.fetch(repo);
+      setLastFetchTime(Date.now());
+    }
+  }, [repo, isFetchingBranches, branches]);
 
   const fetch = useCallback(async () => {
     if (isFetching) return;
@@ -49,6 +74,8 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     try {
       const result = await git.fetch(repo);
       setLastFetchTime(Date.now());
+      // Also fetch branches after successful fetch
+      await listBranches();
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown fetch error';
@@ -57,7 +84,7 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     } finally {
       setIsFetching(false);
     }
-  }, [repo, isFetching]);
+  }, [repo, isFetching, listBranches]);
 
   const commit = useCallback((message: string) => git.commit({...repo, message, author: {name: 'Figma → React Native', email: 'team@kat.tax'}}), [repo]);
   const addFiles = useCallback((...files: string[]) => git.add({fs, dir, parallel: true, filepath: files}), [fs, dir]);
@@ -69,32 +96,8 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     }
   }, [repo]);
 
-  // Auto-fetch setup
-  // useEffect(() => {
-  //   if (!repo?.url) {
-  //     if (intervalRef.current) {
-  //       clearInterval(intervalRef.current);
-  //       intervalRef.current = null;
-  //     }
-  //     return;
-  //   }
-
-  //   // Set up periodic fetching
-  //   intervalRef.current = setInterval(() => {
-  //     fetch().catch(console.error); // Silently handle errors for auto-fetch
-  //   }, FETCH_INTERVAL);
-
-  //   // Cleanup on unmount or dependency change
-  //   return () => {
-  //     if (intervalRef.current) {
-  //       clearInterval(intervalRef.current);
-  //       intervalRef.current = null;
-  //     }
-  //   };
-  // }, [repo?.url, fetch]);
-
   return (
-    <GitContext.Provider value={{fs, push, fetch, commit, addFiles, isFetching, lastFetchTime, fetchError}}>
+    <GitContext.Provider value={{fs, push, fetch, commit, addFiles, listBranches, isFetching, lastFetchTime, fetchError, branches, isFetchingBranches}}>
       {children}
     </GitContext.Provider>
   );
