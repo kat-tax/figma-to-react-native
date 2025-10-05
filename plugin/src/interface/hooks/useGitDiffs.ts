@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
-import {useGit} from 'interface/providers/Git';
 import {computeTextDiff} from 'utils/text-diff';
+import {useGit} from 'interface/providers/Git';
 import * as $ from 'store';
 
 import type {ComponentRoster} from 'types/component';
@@ -93,10 +93,6 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
     update();
     return () => {mounted = false};
   }, [roster, git.fs, git.branch]);
-
-  useEffect(() => {
-    console.log('>> diffs', diffs, git.branch);
-  }, [diffs]);
 
   return diffs;
 }
