@@ -75,7 +75,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
   }
 
   return (
-    <Flex align="center" gap="small" style={{position: 'absolute', right: 12, zIndex: 1000}}>
+    <Flex align="center" gap="small" className="git-branch-dropdown">
       <Select.Root
         value={git.branch}
         onValueChange={git.changeBranch}>
