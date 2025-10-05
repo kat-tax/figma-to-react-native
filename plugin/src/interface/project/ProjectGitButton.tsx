@@ -82,7 +82,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
             aria-label="Configure Git"
             size="small"
             onClick={() => setShowGitDialog(true)}>
-            <div style={{transform: 'scale(0.9)'}}>
+            <div style={{transform: 'scale(0.8)'}}>
               <IconGit color="secondary"/>
             </div>
           </IconButton>

@@ -367,6 +367,14 @@ iframe {
 
 /* Dropdowns */
 
+/* Dialog responsive override */
+@media (max-width: 351px) {
+  .fp-DialogContent:where(.fp-size-2) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
 /* Git Branch */
 
 .git-branch-dropdown {
