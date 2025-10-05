@@ -190,10 +190,24 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
         </>
       )}
       {viewState === 'sync' && (
-        <div style={{display: 'flex', flexDirection: 'row', gap: 12, flex: 1}}>
+        <form
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            margin: 0,
+            gap: 12,
+            flex: 1,
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            props.setShowSync(false);
+            setSyncLoading(true);
+            sync.connect(syncInput.current?.value);
+          }}>
           <IconButton
             aria-label="Go back"
             size="small"
+            type="button"
             onClick={() => props.setShowSync(false)}>
             <IconBack/>
           </IconButton>
@@ -211,6 +225,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               <Button
                 size="small"
                 variant="success"
+                type="button"
                 onClick={() => {
                   emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/dashboard`);
                 }}
@@ -227,14 +242,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </div>
           <Button
             size="small"
-            onClick={() => {
-              props.setShowSync(false);
-              setSyncLoading(true);
-              sync.connect(syncInput.current?.value);
-            }}>
+            type="submit">
             Save
           </Button>
-        </div>
+        </form>
       )}
       {viewState === 'new' && (
         <form
