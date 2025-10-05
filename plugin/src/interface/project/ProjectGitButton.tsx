@@ -2,7 +2,9 @@ import {useState, useEffect} from 'react';
 import {Select, IconButton, Flex} from 'figma-kit';
 import {useGit} from 'interface/providers/Git';
 import {IconRefresh} from 'interface/figma/icons/24/Refresh';
+import {IconGit} from 'interface/figma/icons/24/Git';
 import {emit} from '@create-figma-plugin/utilities';
+import {ProjectGitDialog} from './ProjectGitDialog';
 
 import type {EventNotify} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
@@ -19,6 +21,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
     && settings.config?.git?.accessToken;
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(git.lastFetchTime);
   const [branches, setBranches] = useState<string[]>([]);
+  const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
 
   const handleFetch = async () => {
     try {
@@ -70,8 +73,31 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
   }, [git.branch, git.branches, git.listBranches]);
 
 
-  // Don't show button if git is not configured
-  if (!isConfigured || git.branches.length === 0) {
+  // Show git configuration icon if not configured
+  if (!isConfigured) {
+    return (
+      <>
+        <Flex align="center" gap="small" className="git-config-button">
+          <IconButton
+            aria-label="Configure Git"
+            size="small"
+            onClick={() => setShowGitDialog(true)}>
+            <div style={{transform: 'scale(0.9)'}}>
+              <IconGit color="secondary"/>
+            </div>
+          </IconButton>
+        </Flex>
+        <ProjectGitDialog
+          settings={settings}
+          open={showGitDialog}
+          onOpenChange={setShowGitDialog}
+        />
+      </>
+    );
+  }
+
+  // Don't show button if git is configured but no branches
+  if (git.branches.length === 0) {
     return null;
   }
 

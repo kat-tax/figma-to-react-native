@@ -376,6 +376,12 @@ iframe {
   max-width: 115px;
 }
 
+.git-config-button {
+  position: absolute;
+  right: 8px;
+  z-index: 1000;
+}
+
 .git-branch-dropdown > button > span:first-child {
   white-space: nowrap;
   text-overflow: ellipsis;

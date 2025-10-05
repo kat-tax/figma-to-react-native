@@ -12,6 +12,7 @@ declare const styles: {
   readonly "fp-SelectTrigger": string;
   readonly "fp-TabsContent": string;
   readonly "git-branch-dropdown": string;
+  readonly "git-config-button": string;
   readonly "git-diff__indicator": string;
   readonly "highlight": string;
   readonly "icon": string;
