@@ -91,7 +91,7 @@ export function ProjectGitDialog({settings, onOpenChange, open}: ProjectGitDialo
                 }}
               />
               <VerticalSpace space="small"/>
-              <Text size="small" color="text-secondary">
+              <Text size="small">
                 Fine-grained tokens must have permissions:
                 <ul style={{margin: 4, paddingLeft: '16px'}}>
                   <li>Metadata: Read-only</li>
@@ -99,11 +99,18 @@ export function ProjectGitDialog({settings, onOpenChange, open}: ProjectGitDialo
                 </ul>
               </Text>
               <VerticalSpace space="large"/>
-              <Button
-                variant="primary"
-                onClick={handleSave}>
-                Save
-              </Button>
+              <Flex justify="end" gap="1">
+                <Button
+                  variant="secondary"
+                  onClick={() => onOpenChange(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSave}>
+                  Save
+                </Button>
+              </Flex>
             </Flex>
           </Dialog.Section>
         </Dialog.Content>
