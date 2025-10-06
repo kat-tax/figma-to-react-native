@@ -1,13 +1,13 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Flex, Text, Button} from 'figma-kit';
 import {F2RN_SERVICE_URL} from 'config/consts';
-import {useUpsellEvent} from 'interface/base/upsell/useUpsellEvent';
-import {IconExport} from 'interface/base/icons/Export';
-import {IconGitHub} from 'interface/base/icons/GitHub';
-import {IconMCP} from 'interface/base/icons/MCP';
-import {IconSync} from 'interface/base/icons/Sync';
-import {IconCollab} from 'interface/base/icons/Collab';
-import {IconSupport} from 'interface/base/icons/Support';
+import {useUpsellEvent} from './hooks/useUpsellEvent';
+import {IconExport} from './icons/Export';
+import {IconGitHub} from './icons/GitHub';
+import {IconMCP} from './icons/MCP';
+import {IconSync} from './icons/Sync';
+import {IconCollab} from './icons/Collab';
+import {IconSupport} from './icons/Support';
 
 import type {EventOpenLink} from 'types/events';
 

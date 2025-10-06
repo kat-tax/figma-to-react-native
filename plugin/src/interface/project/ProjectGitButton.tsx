@@ -1,8 +1,8 @@
 import {useState, useEffect} from 'react';
 import {Select, IconButton, Flex} from 'figma-kit';
 import {useGit} from 'interface/providers/Git';
-import {IconGitHub} from 'interface/base/icons/GitHub';
-import {UpgradeButton} from 'interface/base/upsell/UpgradeButton';
+import {IconGitHub} from 'interface/extra/icons/GitHub';
+import {UpgradeButton} from 'interface/extra/UpgradeButton';
 import {ProjectGitDialog} from './ProjectGitDialog';
 
 import type {SettingsData} from 'interface/hooks/useUserSettings';

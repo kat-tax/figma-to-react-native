@@ -1,5 +1,5 @@
 import {IconButton} from 'figma-kit';
-import {useUpsellEvent} from './useUpsellEvent';
+import {useUpsellEvent} from './hooks/useUpsellEvent';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface UpgradeButtonProps {

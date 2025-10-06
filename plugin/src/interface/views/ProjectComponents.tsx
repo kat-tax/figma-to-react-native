@@ -2,13 +2,13 @@ import {emit, on} from '@create-figma-plugin/utilities';
 import {useState, useMemo, useEffect} from 'react';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useGitDiffs} from 'interface/hooks/useGitDiffs';
+import {useUpsellEvent} from 'interface/extra/hooks/useUpsellEvent';
+import {UpgradeScreen} from 'interface/extra/UpgradeScreen';
 
 import {ProjectList} from 'interface/project/ProjectList';
 import {ProjectToolbar} from 'interface/project/ProjectToolbar';
 import {ProjectGitToolbar} from 'interface/project/ProjectGitToolbar';
 import {ProjectSettings} from 'interface/project/ProjectSettings';
-import {UpgradeScreen} from 'interface/base/upsell/UpgradeScreen';
-import {useUpsellEvent} from 'interface/base/upsell/useUpsellEvent';
 
 import type {Theme} from '@monaco-editor/react';
 import type {Monaco} from 'interface/utils/editor/monaco';

@@ -31,14 +31,14 @@ export function UpgradeForm(props: UpgradeFormProps) {
     setErrorMessage('');
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/api/validate', {
+      const response = await fetch(`${F2RN_SERVICE_URL}/api/validate`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${projectToken}`,
           'Content-Type': 'application/json',
         },
       });
-      const result = await res.json();
+      const result = await response.json();
       if (!result.valid) {
         throw new Error(result.error || 'Invalid token');
       }
