@@ -95,7 +95,6 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
                 setShowGitDialog(true);
               } else {
                 git.changeBranch(value);
-
               }
             }}>
             <Select.Trigger/>
