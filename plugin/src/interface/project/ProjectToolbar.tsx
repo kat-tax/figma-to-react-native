@@ -198,8 +198,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               } else if (tokenAction === 'download') {
                 emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
                 setExportActive(true);
-              } else if (tokenAction === 'upgrade') {
+                sync.connect(token, true);
+              } else {
                 emit<EventNotify>('NOTIFY', 'Project token saved.', {timeout: 3000});
+                sync.connect(token, true);
               }
               setTokenAction(null);
             }}
