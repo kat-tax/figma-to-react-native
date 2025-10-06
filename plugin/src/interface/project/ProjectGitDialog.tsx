@@ -44,7 +44,7 @@ export function ProjectGitDialog({settings, onOpenChange, open}: ProjectGitDialo
             </Dialog.Controls>
           </Dialog.Header>
           <Dialog.Section>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{margin: 0}}>
               <Flex direction="column" gap="medium">
                 <Flex align="center">
                   <Text weight="strong">Repository</Text>

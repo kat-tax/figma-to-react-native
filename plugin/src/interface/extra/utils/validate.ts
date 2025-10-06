@@ -1,6 +1,9 @@
 import {F2RN_SERVICE_URL} from 'config/consts';
 
 export async function validate(projectToken: string) {
+  if (projectToken.length !== 40) {
+    return false;
+  }
   try {
     const response = await fetch(`${F2RN_SERVICE_URL}/api/validate`, {
       method: 'POST',
