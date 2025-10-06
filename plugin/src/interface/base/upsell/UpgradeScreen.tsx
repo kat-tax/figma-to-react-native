@@ -1,18 +1,41 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Flex, Text, Button} from 'figma-kit';
-import {IconCheck} from 'interface/figma/icons/24/Check';
-import {useUpsellEvent} from './useUpsellEvent';
 import {F2RN_SERVICE_URL} from 'config/consts';
+import {useUpsellEvent} from 'interface/base/upsell/useUpsellEvent';
+import {IconExport} from 'interface/base/icons/Export';
+import {IconGitHub} from 'interface/base/icons/GitHub';
+import {IconMCP} from 'interface/base/icons/MCP';
+import {IconSync} from 'interface/base/icons/Sync';
+import {IconCollab} from 'interface/base/icons/Collab';
+import {IconSupport} from 'interface/base/icons/Support';
 
 import type {EventOpenLink} from 'types/events';
 
 const features = [
-  'Bulk component downloads',
-  'Git version control integration',
-  'Real-time sync to filesystem',
-  'AI Agent integration (MCP)',
-  'Team collaboration tools',
-  'Priority support',
+  {
+    title: 'Bulk component downloads',
+    icon: IconExport,
+  },
+  {
+    title: 'Git version control integration',
+    icon: IconGitHub,
+  },
+  {
+    title: 'Real-time sync to filesystem',
+    icon: IconSync,
+  },
+  {
+    title: 'AI Agent integration (MCP)',
+    icon: IconMCP,
+  },
+  {
+    title: 'Team collaboration tools',
+    icon: IconCollab,
+  },
+  {
+    title: 'Priority support',
+    icon: IconSupport,
+  },
 ];
 
 export function UpgradeScreen() {
@@ -76,32 +99,35 @@ export function UpgradeScreen() {
           borderRadius: '12px',
           border: '1px solid var(--figma-color-border)'
         }}>
-          {features.map((feature, index) => (
-            <Flex key={index} align="center" style={{
-              gap: '12px',
-              padding: '8px 0',
-              borderBottom: index < features.length - 1 ? '1px solid var(--figma-color-border)' : 'none'
-            }}>
-              <div style={{
-                width: '20px',
-                height: '20px',
-                backgroundColor: 'var(--figma-color-bg-success)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
+          {features.map((feature, index) => {
+            const FeatureIcon = feature.icon;
+            return (
+              <Flex key={index} align="center" style={{
+                gap: '12px',
+                padding: '8px 0',
+                borderBottom: index < features.length - 1 ? '1px solid var(--figma-color-border)' : 'none'
               }}>
-                <IconCheck color="#fff" size={12} />
-              </div>
-              <Text size="medium" style={{
-                color: 'var(--figma-color-text)',
-                lineHeight: '1.4'
-              }}>
-                {feature}
-              </Text>
-            </Flex>
-          ))}
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  backgroundColor: 'var(--figma-color-bg-brand)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <FeatureIcon color="#fff" size={20} />
+                </div>
+                <Text size="medium" style={{
+                  color: 'var(--figma-color-text)',
+                  lineHeight: '1.4'
+                }}>
+                  {feature.title}
+                </Text>
+              </Flex>
+            );
+          })}
         </div>
       </Flex>
     </Flex>

@@ -1,6 +1,6 @@
-import {Icon, type IconProps} from '../Icon';
+import {Icon, type IconProps} from 'interface/figma/icons/Icon';
 
-export function IconGit(props: IconProps) {
+export function IconGitHub(props: IconProps) {
   return (
     <Icon
       {...props}

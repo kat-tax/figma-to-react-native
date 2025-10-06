@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {Select, IconButton, Flex} from 'figma-kit';
 import {useGit} from 'interface/providers/Git';
-import {IconGit} from 'interface/figma/icons/24/Git';
+import {IconGitHub} from 'interface/base/icons/GitHub';
 import {UpgradeButton} from 'interface/base/upsell/UpgradeButton';
 import {ProjectGitDialog} from './ProjectGitDialog';
 
@@ -56,7 +56,7 @@ export function ProjectGitButton({settings, nav}: ProjectGitButtonProps) {
             size="small"
             onClick={() => setShowGitDialog(true)}>
             <div style={{transform: 'scale(0.8)'}}>
-              <IconGit color="secondary"/>
+              <IconGitHub color="secondary"/>
             </div>
           </IconButton>
         </Flex>
