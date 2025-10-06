@@ -8,12 +8,12 @@ export function UpgradeScreen() {
   const {hideUpsell} = useUpsellEvent();
 
   const features = [
-    'Git version control integration',
     'Bulk component downloads',
-    'Real-time syncing capabilities',
+    'Git version control integration',
+    'Real-time syncing to filesystem',
     'AI Agent integration (MCP)',
-    'Priority support & assistance',
-    'Team collaboration tools'
+    'Team collaboration tools',
+    'Priority support',
   ];
 
   const placeholderImages = [
