@@ -16,7 +16,7 @@ interface UpgradeFormProps {
 export function UpgradeForm(props: UpgradeFormProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleBuyClick = () => {
+  const handleLink = () => {
     emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/pricing`);
   };
 
@@ -62,7 +62,7 @@ export function UpgradeForm(props: UpgradeFormProps) {
             size="small"
             variant="success"
             type="button"
-            onClick={handleBuyClick}
+            onClick={handleLink}
             style={{
               transform: 'scale(0.9)',
               position: 'absolute',
