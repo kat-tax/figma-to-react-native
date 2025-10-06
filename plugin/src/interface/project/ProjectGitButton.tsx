@@ -2,6 +2,7 @@ import {useState, useEffect} from 'react';
 import {Select, IconButton, Flex} from 'figma-kit';
 import {useGit} from 'interface/providers/Git';
 import {IconGit} from 'interface/figma/icons/24/Git';
+import {UpgradeButton} from 'interface/base/upsell/UpgradeButton';
 import {ProjectGitDialog} from './ProjectGitDialog';
 
 import type {SettingsData} from 'interface/hooks/useUserSettings';
@@ -15,6 +16,7 @@ export function ProjectGitButton({settings}: ProjectGitButtonProps) {
   const [branches, setBranches] = useState<string[]>([]);
   const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
   const hasBranches = git.branches.length > 0;
+  const isPremium = settings.config?.projectToken?.length === 40;
   const isConfigured = settings.config?.git?.repo
     && settings.config?.git?.branch
     && settings.config?.git?.accessToken;
@@ -40,7 +42,12 @@ export function ProjectGitButton({settings}: ProjectGitButtonProps) {
 
   return (
     <>
-      {(!isConfigured || !hasBranches) && (
+      {!isPremium && (
+        <Flex align="center" gap="small" className="git-config-button">
+          <UpgradeButton/>
+        </Flex>
+      )}
+      {(!isConfigured || !hasBranches) && isPremium && (
         <Flex align="center" gap="small" className="git-config-button">
           <IconButton
             aria-label="Configure Git"

@@ -22,6 +22,7 @@ declare const styles: {
   readonly "list": string;
   readonly "no-first-span-overflow": string;
   readonly "node-toolbar-btn": string;
+  readonly "on-hover": string;
   readonly "props-select": string;
   readonly "resize-handle-bottom": string;
   readonly "resize-handle-right": string;

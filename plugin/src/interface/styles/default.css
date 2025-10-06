@@ -43,6 +43,23 @@
   --size-xxxlarge: 80px;
 }
 
+.rotate {
+  animation: rotate 1s linear infinite;
+}
+
+.rotate.on-hover {
+  animation: none;
+}
+
+.rotate.on-hover:hover {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
 iframe {
   border: 0;
   width: 100%;
@@ -76,15 +93,6 @@ iframe {
 
 .dialog-close > svg {
   scale: 0.8;
-}
-
-.rotate {
-  animation: rotate 1s linear infinite;
-}
-
-@keyframes rotate {
-  from {transform: rotate(0deg);}
-  to {transform: rotate(360deg);}
 }
 
 .icon-button-active {
