@@ -1,57 +1,23 @@
 import {useState, useEffect} from 'react';
 import {Select, IconButton, Flex} from 'figma-kit';
 import {useGit} from 'interface/providers/Git';
-import {IconRefresh} from 'interface/figma/icons/24/Refresh';
 import {IconGit} from 'interface/figma/icons/24/Git';
-import {emit} from '@create-figma-plugin/utilities';
 import {ProjectGitDialog} from './ProjectGitDialog';
 
-import type {EventNotify} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 
 interface ProjectGitButtonProps {
   settings: SettingsData;
-  showRefresh?: boolean;
 }
 
-export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps) {
+export function ProjectGitButton({settings}: ProjectGitButtonProps) {
   const git = useGit();
+  const [branches, setBranches] = useState<string[]>([]);
+  const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
+  const hasBranches = git.branches.length > 0;
   const isConfigured = settings.config?.git?.repo
     && settings.config?.git?.branch
     && settings.config?.git?.accessToken;
-  const [lastFetchTime, setLastFetchTime] = useState<number | null>(git.lastFetchTime);
-  const [branches, setBranches] = useState<string[]>([]);
-  const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
-
-  const handleFetch = async () => {
-    try {
-      await git.fetch();
-      // Branches are automatically fetched in the git provider after fetch
-      setBranches(git.branches);
-      emit<EventNotify>('NOTIFY', 'Repository fetched successfully', {timeout: 3000});
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown fetch error';
-      emit<EventNotify>('NOTIFY', `Fetch failed: ${errorMessage}`, {timeout: 5000});
-    }
-  };
-
-  const formatLastFetch = () => {
-    if (!lastFetchTime) return 'Never';
-    const now = Date.now();
-    const diff = now - lastFetchTime;
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  };
-
-  // Sync with git context's lastFetchTime
-  useEffect(() => {
-    setLastFetchTime(git.lastFetchTime);
-  }, [git.lastFetchTime]);
 
   // Fetch branches when component mounts or when git context changes
   useEffect(() => {
@@ -74,7 +40,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
 
   return (
     <>
-      {!isConfigured && (
+      {(!isConfigured || !hasBranches) && (
         <Flex align="center" gap="small" className="git-config-button">
           <IconButton
             aria-label="Configure Git"
@@ -86,7 +52,7 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
           </IconButton>
         </Flex>
       )}
-      {isConfigured && (
+      {hasBranches && (
         <Flex align="center" gap="small" className="git-branch-dropdown">
           <Select.Root
             value={git.branch || 'configure'}
@@ -110,19 +76,6 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
               </Select.Item>
             </Select.Content>
           </Select.Root>
-          {showRefresh && (
-            <IconButton
-              aria-label={`Last fetch: ${formatLastFetch()}`}
-              size="small"
-              onClick={handleFetch}
-              disabled={git.isFetching}>
-              <div className={git.isFetching ? 'rotate' : ''}>
-                <IconRefresh
-                  color={git.isFetching ? 'disabled' : 'secondary'}
-                />
-              </div>
-            </IconButton>
-          )}
         </Flex>
       )}
       <ProjectGitDialog
