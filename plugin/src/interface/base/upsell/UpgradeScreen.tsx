@@ -13,7 +13,7 @@ import type {EventOpenLink} from 'types/events';
 
 const features = [
   {
-    title: 'Git version control',
+    title: 'GitHub integration',
     icon: IconGitHub,
   },
   {
