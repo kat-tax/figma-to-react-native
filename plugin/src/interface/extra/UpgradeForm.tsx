@@ -32,9 +32,7 @@ export function UpgradeForm(props: UpgradeFormProps) {
     e.preventDefault();
     setHasError(false);
     setIsLoading(true);
-    const valid = await validate(projectToken);
-    setIsLoading(false);
-    if (valid) {
+    if (await validate(projectToken)) {
       props.settings.update(JSON.stringify({...config, projectToken}, undefined, 2), true);
       props.onTokenValid(projectToken);
     } else {
@@ -46,6 +44,7 @@ export function UpgradeForm(props: UpgradeFormProps) {
         error: true,
       });
     }
+    setIsLoading(false);
   };
 
   return (
