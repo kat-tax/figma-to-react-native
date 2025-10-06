@@ -6,14 +6,14 @@ import {F2RN_SERVICE_URL} from 'config/consts';
 import type {EventOpenLink} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 
-interface ProjectUpsellProps {
+interface UpgradeFormProps {
   settings: SettingsData;
   onTokenValid: (token: string) => void;
   onTokenInvalid: () => void;
   buttonText?: string;
 }
 
-export function ProjectUpsell(props: ProjectUpsellProps) {
+export function UpgradeForm(props: UpgradeFormProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleBuyClick = () => {

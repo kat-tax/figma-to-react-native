@@ -12,10 +12,9 @@ import {IconList} from 'interface/figma/icons/24/List';
 import {IconSync} from 'interface/figma/icons/24/Sync';
 import {IconBack} from 'interface/figma/icons/24/Back';
 import {StatusBar} from 'interface/base/StatusBar';
+import {UpgradeForm} from 'interface/base/upsell/UpgradeForm';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
-
-import {ProjectUpsell} from './ProjectUpsell';
 
 import type {EventNotify, EventProjectExport, EventProjectNewComponent} from 'types/events';
 import type {ProjectComponentLayout} from 'types/project';
@@ -199,7 +198,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             }}>
             <IconBack/>
           </IconButton>
-          <ProjectUpsell
+          <UpgradeForm
             settings={props.settings}
             buttonText={tokenAction === 'sync' ? 'Sync' : 'Save'}
             onTokenValid={(token) => {
