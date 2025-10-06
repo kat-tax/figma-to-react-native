@@ -13,7 +13,7 @@ import type {EventOpenLink} from 'types/events';
 
 const features = [
   {
-    title: 'Bulk component downloads',
+    title: 'Download entire project',
     icon: IconExport,
   },
   {
@@ -80,7 +80,7 @@ export function UpgradeScreen() {
             Go Back
           </Button>
           <Button
-            variant="primary"
+            variant="success"
             size="medium"
             onClick={openLink}>
             Buy Token
