@@ -7,20 +7,33 @@ interface UpgradeButtonProps {
 }
 
 export function UpgradeButton(props: UpgradeButtonProps) {
-  const {showUpsell} = useUpsellEvent();
+  const {upsellOpen, showUpsell, hideUpsell} = useUpsellEvent();
+  const isComponentPage = props.nav?.tab === 'components';
 
-  const handleClick = () => {
-    // Navigate to components page first if handler is provided
+  const toggleUpgrade = () => {
+    // On component page, hide upsell if it's already open
+    if (upsellOpen && isComponentPage) {
+      hideUpsell();
+      return;
+    }
+    // On component page, show upsell immediately
+    if (isComponentPage) {
+      showUpsell();
+      return;
+    }
+    // On any other page, navigate to components page first
     props.nav?.gotoTab('components');
-    // Then show the upsell
-    showUpsell();
+    setTimeout(() => {
+      showUpsell();
+    }, 0);
+    return;
   };
 
   return (
     <IconButton
       size="small"
       aria-label="Upgrade"
-      onClick={handleClick}>
+      onClick={toggleUpgrade}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20px"

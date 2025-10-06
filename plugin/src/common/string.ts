@@ -4,6 +4,7 @@ import _kebabCase from 'lodash/kebabCase';
 import _reserved from 'reserved';
 
 export function titleCase(input: string): string {
+  if (!input) return '';
   return input.replace(/^[a-z]/, function (m) {
     return m.toUpperCase();
   });

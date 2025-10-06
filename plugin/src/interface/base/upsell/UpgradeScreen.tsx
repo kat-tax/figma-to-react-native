@@ -61,7 +61,7 @@ export function UpgradeScreen() {
           fontSize: '18px',
           lineHeight: '24px',
         }}>
-          Upgrade to Premium
+          Upgrade to Pro
         </Text>
         <Text size="medium" style={{
           color: 'var(--figma-color-text-secondary)',
@@ -92,12 +92,10 @@ export function UpgradeScreen() {
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
-          padding: '16px',
-          maxWidth: '800px',
-          backgroundColor: 'var(--figma-color-bg-secondary)',
+          padding: '8px 16px',
           borderRadius: '12px',
-          border: '1px solid var(--figma-color-border)'
+          border: '1px solid var(--figma-color-border)',
+          backgroundColor: 'var(--figma-color-bg-secondary)',
         }}>
           {features.map((feature, index) => {
             const FeatureIcon = feature.icon;

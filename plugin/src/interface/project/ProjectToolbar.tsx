@@ -15,6 +15,7 @@ import {StatusBar} from 'interface/base/StatusBar';
 import {UpgradeForm} from 'interface/base/upsell/UpgradeForm';
 import {useUpsellEvent} from 'interface/base/upsell/useUpsellEvent';
 import {F2RN_SERVICE_URL} from 'config/consts';
+import {titleCase} from 'common/string';
 import {docId} from 'store';
 
 import type {EventNotify, EventProjectExport, EventProjectNewComponent} from 'types/events';
@@ -41,14 +42,10 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
   const [tokenAction, setTokenAction] = useState<'sync' | 'download' | 'upgrade' | null>(null);
-  const {upsellOpen, showUpsell, hideUpsell} = useUpsellEvent({
-    onShow: () => {
-      setTokenAction('upgrade');
-    },
-    onHide: () => {
-      setTokenAction(null);
-    },
-  });
+  const {upsellOpen, showUpsell, hideUpsell} = useUpsellEvent({onHide: () => setTokenAction(null)});
+
+  const isInvalidToken = !props.settings.config?.projectToken?.length
+    || props.settings.config?.projectToken?.length !== 40;
 
   const viewState = useMemo(() => {
     if (props.showSync || upsellOpen) return 'token';
@@ -113,9 +110,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             disabled={exportActive}
             aria-label={exportActive ? 'Exporting...' : 'Download App'}
             onClick={() => {
-              // Check if project token is valid (40 characters)
-              if (!props.settings.config?.projectToken?.length
-                || props.settings.config?.projectToken?.length !== 40) {
+              if (isInvalidToken) {
                 setTokenAction('download');
                 showUpsell();
               } else {
@@ -131,12 +126,9 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               size="small"
               onClick={async () => {
                 if (syncLoading && !sync.error) return;
-                // Missing or invalid sync key
-                if (!props.settings.config?.projectToken?.length
-                  || props.settings.config?.projectToken?.length !== 40 || sync.error) {
+                if (isInvalidToken || sync.error) {
                   setTokenAction('sync');
                   showUpsell();
-                // Start syncing
                 } else {
                   setSyncLoading(true);
                   sync.connect();
@@ -196,7 +188,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </IconButton>
           <UpgradeForm
             settings={props.settings}
-            buttonText={tokenAction === 'sync' ? 'Sync' : 'Save'}
+            buttonText={titleCase(tokenAction)}
             onTokenValid={(token) => {
               hideUpsell();
               props.setShowSync(false);

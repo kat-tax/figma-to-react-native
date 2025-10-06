@@ -10,11 +10,14 @@ interface UpgradeFormProps {
   settings: SettingsData;
   onTokenValid: (token: string) => void;
   onTokenInvalid: () => void;
+  showBuyButton?: boolean;
   buttonText?: string;
 }
 
 export function UpgradeForm(props: UpgradeFormProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const projectToken = props.settings.config?.projectToken;
+  const showBuyButton = !projectToken && props.showBuyButton;
 
   const handleLink = () => {
     emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/pricing`);
@@ -51,13 +54,14 @@ export function UpgradeForm(props: UpgradeFormProps) {
         <Input
           autoFocus
           required
+
           ref={inputRef}
           type="password"
-          defaultValue={props.settings.config?.projectToken}
+          defaultValue={projectToken}
           placeholder="Project Token"
-          style={{width: '100%', paddingRight: !props.settings.config?.projectToken ? 43 : '0.5rem'}}
+          style={{width: '100%', paddingRight: showBuyButton ? 43 : '0.5rem'}}
         />
-        {!props.settings.config?.projectToken && (
+        {showBuyButton && (
           <Button
             size="small"
             variant="success"
@@ -77,7 +81,7 @@ export function UpgradeForm(props: UpgradeFormProps) {
       <Button
         size="small"
         type="submit">
-        {props.buttonText || 'Save'}
+        {props.buttonText || 'Upgrade'}
       </Button>
     </form>
   );
