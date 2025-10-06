@@ -2,6 +2,7 @@ import {emit} from '@create-figma-plugin/utilities';
 import {useRef, useState} from 'react';
 import {Button, Input} from 'figma-kit';
 import {F2RN_SERVICE_URL} from 'config/consts';
+import {validate} from 'interface/extra/utils/validate';
 
 import type {EventNotify, EventOpenLink} from 'types/events';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
@@ -16,9 +17,10 @@ interface UpgradeFormProps {
 
 export function UpgradeForm(props: UpgradeFormProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const savedToken = props.settings.config?.projectToken;
+  const config = props.settings.config;
+  const savedToken = config?.projectToken;
   const showBuyButton = !savedToken && props.showBuyButton;
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleLink = () => {
@@ -28,49 +30,28 @@ export function UpgradeForm(props: UpgradeFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     const projectToken = inputRef.current?.value;
     e.preventDefault();
-    setErrorMessage('');
+    setHasError(false);
     setIsLoading(true);
-    try {
-      const response = await fetch(`${F2RN_SERVICE_URL}/api/validate`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${projectToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      const result = await response.json();
-      if (!result.valid) {
-        throw new Error(result.error || 'Invalid token');
-      }
-      // Handle success
-      props.settings.update(JSON.stringify({...props.settings.config, projectToken}, undefined, 2), true);
+    const valid = await validate(projectToken);
+    setIsLoading(false);
+    if (valid) {
+      props.settings.update(JSON.stringify({...config, projectToken}, undefined, 2), true);
       props.onTokenValid(projectToken);
-      setIsLoading(false);
-    // Handle failure
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : error ?? 'Network error occurred';
-      setErrorMessage(errorMsg);
-      setIsLoading(false);
+    } else {
+      setHasError(true);
       props.onTokenInvalid();
-      console.error('Token validation error:', error);
-      emit<EventNotify>('NOTIFY', errorMsg, {
-        error: true,
-        timeout: 10000,
+      emit<EventNotify>('NOTIFY', 'Invalid token', {
         button: ['Dashboard', `${F2RN_SERVICE_URL}/dashboard`],
+        timeout: 10000,
+        error: true,
       });
     }
   };
 
   return (
     <form
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        margin: 0,
-        gap: 12,
-        flex: 1,
-      }}
-      onSubmit={handleSubmit}>
+      onSubmit={handleSubmit}
+      style={{display: 'flex', flexDirection: 'row', margin: 0, gap: 12, flex: 1}}>
       <div style={{position: 'relative', flex: 1}}>
         <Input
           autoFocus
@@ -82,14 +63,14 @@ export function UpgradeForm(props: UpgradeFormProps) {
           placeholder="Project Token"
           onChange={(e) => {
             if (!e.target.value) {
-              setErrorMessage('');
+              setHasError(false);
             }
           }}
           style={{
             width: '100%',
             paddingRight: showBuyButton ? 43 : '0.5rem',
-            outlineColor: errorMessage ? 'var(--figma-color-border-danger)' : undefined,
-            backgroundColor: errorMessage ? 'var(--figma-color-bg-danger-tertiary)' : undefined,
+            outlineColor: hasError ? 'var(--figma-color-border-danger)' : undefined,
+            backgroundColor: hasError ? 'var(--figma-color-bg-danger-tertiary)' : undefined,
           }}
         />
         {showBuyButton && (
