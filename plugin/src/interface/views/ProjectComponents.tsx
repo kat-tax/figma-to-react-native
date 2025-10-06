@@ -8,6 +8,7 @@ import {ProjectToolbar} from 'interface/project/ProjectToolbar';
 import {ProjectGitToolbar} from 'interface/project/ProjectGitToolbar';
 import {ProjectSettings} from 'interface/project/ProjectSettings';
 import {UpgradeScreen} from 'interface/base/upsell/UpgradeScreen';
+import {useUpsellEvent} from 'interface/base/upsell/useUpsellEvent';
 
 import type {Theme} from '@monaco-editor/react';
 import type {Monaco} from 'interface/utils/editor/monaco';
@@ -37,12 +38,11 @@ interface ProjectComponentsProps {
 
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const [showUpsell, setShowUpsell] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
   const [showSync, setShowSync] = useState<boolean>(false);
-  const diffs = useGitDiffs(props.build?.roster || {});
-
+  const {upsellOpen} = useUpsellEvent();
   const {width} = useWindowSize();
+  const diffs = useGitDiffs(props.build?.roster || {});
 
   // Calculate the effective layout once and pass it down
   const effectiveLayout = (!props.settings.config?.ui?.componentLayout || props.settings.config?.ui?.componentLayout === 'auto')
@@ -50,12 +50,12 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     : props.settings.config?.ui?.componentLayout;
 
   const viewState = useMemo(() => {
-    if (showUpsell)
+    if (upsellOpen)
       return 'upsell';
     if (showSettings)
       return 'settings';
     return 'components';
-  }, [showUpsell, showSettings, showSync]);
+  }, [upsellOpen, showSettings, showSync]);
 
   const handleLayoutChange = (newLayout: ProjectComponentLayout) => {
     const newConfig = {
@@ -68,15 +68,6 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     const indent = newConfig.writer?.indentNumberOfSpaces || 2;
     props.settings.update(JSON.stringify(newConfig, undefined, indent), true);
   };
-
-  // Listen for upsell trigger events
-  useEffect(() => {
-    const handleUpsellTrigger = () => {setShowUpsell(true);};
-    window.addEventListener('trigger-upsell', handleUpsellTrigger);
-    return () => {
-      window.removeEventListener('trigger-upsell', handleUpsellTrigger);
-    };
-  }, []);
 
   const importComponents = async () => {
     emit<EventNotify>('NOTIFY', 'Importing components is not supported yet');

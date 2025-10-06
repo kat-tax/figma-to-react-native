@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
-import {useMemo, useState, useRef, useEffect} from 'react';
+import {useMemo, useState, useRef} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {useSync} from 'interface/providers/Sync';
@@ -13,6 +13,7 @@ import {IconSync} from 'interface/figma/icons/24/Sync';
 import {IconBack} from 'interface/figma/icons/24/Back';
 import {StatusBar} from 'interface/base/StatusBar';
 import {UpgradeForm} from 'interface/base/upsell/UpgradeForm';
+import {useUpsellEvent} from 'interface/base/upsell/useUpsellEvent';
 import {F2RN_SERVICE_URL} from 'config/consts';
 import {docId} from 'store';
 
@@ -39,14 +40,21 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   const [showNew, setShowNew] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
-  const [showTokenUpsell, setShowTokenUpsell] = useState<boolean>(false);
   const [tokenAction, setTokenAction] = useState<'sync' | 'download' | 'upgrade' | null>(null);
+  const {upsellOpen, showUpsell, hideUpsell} = useUpsellEvent({
+    onShow: () => {
+      setTokenAction('upgrade');
+    },
+    onHide: () => {
+      setTokenAction(null);
+    },
+  });
 
   const viewState = useMemo(() => {
-    if (props.showSync || showTokenUpsell) return 'token';
+    if (props.showSync || upsellOpen) return 'token';
     if (showNew) return 'new';
     return 'overview';
-  }, [props.showSync, showNew, showTokenUpsell]);
+  }, [props.showSync, showNew, upsellOpen]);
 
   const handleLayoutClick = (newValue: ProjectComponentLayout) => {
     // If clicking the same value that's currently set (and not in auto), toggle to auto
@@ -60,18 +68,6 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   };
 
   useProjectRelease(() => setExportActive(false));
-
-  // Listen for upsell events
-  useEffect(() => {
-    const handleTriggerUpsell = () => {
-      setTokenAction('upgrade');
-      setShowTokenUpsell(true);
-    }
-    window.addEventListener('trigger-upsell', handleTriggerUpsell);
-    return () => {
-      window.removeEventListener('trigger-upsell', handleTriggerUpsell);
-    }
-  }, []);
 
   return (
     <StatusBar>
@@ -121,7 +117,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
               if (!props.settings.config?.projectToken?.length
                 || props.settings.config?.projectToken?.length !== 40) {
                 setTokenAction('download');
-                setShowTokenUpsell(true);
+                showUpsell();
               } else {
                 emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
                 setExportActive(true);
@@ -139,7 +135,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                 if (!props.settings.config?.projectToken?.length
                   || props.settings.config?.projectToken?.length !== 40 || sync.error) {
                   setTokenAction('sync');
-                  setShowTokenUpsell(true);
+                  showUpsell();
                 // Start syncing
                 } else {
                   setSyncLoading(true);
@@ -193,7 +189,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             type="button"
             onClick={() => {
               props.setShowSync(false);
-              setShowTokenUpsell(false);
+              hideUpsell();
               setTokenAction(null);
             }}>
             <IconBack/>
@@ -202,7 +198,7 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
             settings={props.settings}
             buttonText={tokenAction === 'sync' ? 'Sync' : 'Save'}
             onTokenValid={(token) => {
-              setShowTokenUpsell(false);
+              hideUpsell();
               props.setShowSync(false);
               if (tokenAction === 'sync') {
                 setSyncLoading(true);

@@ -1,4 +1,7 @@
+import {useUpsellEvent} from './useUpsellEvent';
+
 export function UpgradeScreen() {
+  const {hideUpsell} = useUpsellEvent();
   return (
     <div
       style={{
@@ -14,6 +17,17 @@ export function UpgradeScreen() {
       <p style={{margin: 0, textAlign: 'center', color: 'var(--figma-color-text-secondary)'}}>
         Enter your project token to unlock premium features
       </p>
+      <button
+        onClick={hideUpsell}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: 'var(--figma-color-text-secondary)',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+        }}>
+        Cancel
+      </button>
     </div>
   )
 }

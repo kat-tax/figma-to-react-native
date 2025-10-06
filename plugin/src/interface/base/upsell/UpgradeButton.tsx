@@ -1,4 +1,5 @@
 import {IconButton} from 'figma-kit';
+import {useUpsellEvent} from './useUpsellEvent';
 import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface UpgradeButtonProps {
@@ -6,11 +7,13 @@ interface UpgradeButtonProps {
 }
 
 export function UpgradeButton(props: UpgradeButtonProps) {
+  const {showUpsell} = useUpsellEvent();
+
   const handleClick = () => {
     // Navigate to components page first if handler is provided
     props.nav?.gotoTab('components');
-    // Then trigger the upsell
-    window.dispatchEvent(new CustomEvent('trigger-upsell'));
+    // Then show the upsell
+    showUpsell();
   };
 
   return (
