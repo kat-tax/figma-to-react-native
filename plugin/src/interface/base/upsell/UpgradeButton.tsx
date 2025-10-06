@@ -5,7 +5,9 @@ export function UpgradeButton() {
     <IconButton
       size="small"
       aria-label="Upgrade"
-      onClick={() => console.log('Configure Git')}>
+      onClick={() =>
+        window.dispatchEvent(new CustomEvent('trigger-upsell'))
+      }>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20px"

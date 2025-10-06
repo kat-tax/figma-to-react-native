@@ -1,6 +1,6 @@
 import {emit} from '@create-figma-plugin/utilities';
 import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
-import {useMemo, useState, useRef} from 'react';
+import {useMemo, useState, useRef, useEffect} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
 import {useSync} from 'interface/providers/Sync';
@@ -41,7 +41,8 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
   const [showTokenUpsell, setShowTokenUpsell] = useState<boolean>(false);
-  const [tokenAction, setTokenAction] = useState<'sync' | 'download' | null>(null);
+  const [tokenAction, setTokenAction] = useState<'sync' | 'download' | 'upgrade' | null>(null);
+
   const viewState = useMemo(() => {
     if (props.showSync || showTokenUpsell) return 'token';
     if (showNew) return 'new';
@@ -60,6 +61,18 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
   };
 
   useProjectRelease(() => setExportActive(false));
+
+  // Listen for upsell events
+  useEffect(() => {
+    const handleTriggerUpsell = () => {
+      setTokenAction('upgrade');
+      setShowTokenUpsell(true);
+    }
+    window.addEventListener('trigger-upsell', handleTriggerUpsell);
+    return () => {
+      window.removeEventListener('trigger-upsell', handleTriggerUpsell);
+    }
+  }, []);
 
   return (
     <StatusBar>
