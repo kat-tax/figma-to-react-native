@@ -86,11 +86,18 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
           </IconButton>
         </Flex>
       )}
-      {git.branches.length > 0 && (
+      {isConfigured && (
         <Flex align="center" gap="small" className="git-branch-dropdown">
           <Select.Root
-            value={git.branch}
-            onValueChange={git.changeBranch}>
+            value={git.branch || 'configure'}
+            onValueChange={(value) => {
+              if (value === 'configure') {
+                setShowGitDialog(true);
+              } else {
+                git.changeBranch(value);
+
+              }
+            }}>
             <Select.Trigger/>
             <Select.Content>
               {branches.map((branch) => (
@@ -98,6 +105,10 @@ export function ProjectGitButton({settings, showRefresh}: ProjectGitButtonProps)
                   {branch}
                 </Select.Item>
               ))}
+              <Select.Separator/>
+              <Select.Item value="configure">
+                configure...
+              </Select.Item>
             </Select.Content>
           </Select.Root>
           {showRefresh && (
