@@ -13,12 +13,12 @@ import type {EventOpenLink} from 'types/events';
 
 const features = [
   {
-    title: 'Download entire project',
-    icon: IconExport,
+    title: 'Git version control',
+    icon: IconGitHub,
   },
   {
-    title: 'Git version control integration',
-    icon: IconGitHub,
+    title: 'Download entire project',
+    icon: IconExport,
   },
   {
     title: 'Real-time sync to filesystem',
