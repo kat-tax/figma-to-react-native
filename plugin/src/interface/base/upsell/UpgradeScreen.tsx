@@ -1,47 +1,55 @@
-import {Flex, Text, Link, Button} from 'figma-kit';
-import {useUpsellEvent} from './useUpsellEvent';
+import {emit} from '@create-figma-plugin/utilities';
+import {Flex, Text, Button} from 'figma-kit';
 import {IconCheck} from 'interface/figma/icons/24/Check';
-import {IconPlus} from 'interface/figma/icons/24/Plus';
+import {useUpsellEvent} from './useUpsellEvent';
 import {F2RN_SERVICE_URL} from 'config/consts';
+
+import type {EventOpenLink} from 'types/events';
+
+const features = [
+  'Bulk component downloads',
+  'Git version control integration',
+  'Real-time sync to filesystem',
+  'AI Agent integration (MCP)',
+  'Team collaboration tools',
+  'Priority support',
+];
 
 export function UpgradeScreen() {
   const {hideUpsell} = useUpsellEvent();
-
-  const features = [
-    'Bulk component downloads',
-    'Git version control integration',
-    'Real-time syncing to filesystem',
-    'AI Agent integration (MCP)',
-    'Team collaboration tools',
-    'Priority support',
-  ];
-
-  const placeholderImages = [
-    { title: 'Git', description: 'Version control integration' },
-    { title: 'Zip', description: 'Download all components' },
-    { title: 'Sync', description: 'Real-time sync to filesystem' },
-    { title: 'MCP', description: 'Model Context Protocol server' },
-    { title: 'Collab', description: 'Team workflow tools' },
-    { title: 'Priority Support', description: '24/7 expert assistance' },
-  ];
+  const openLink = () => {
+    emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/pricing`);
+  };
 
   return (
-    <Flex direction="column" style={{
-      flex: 1,
-      padding: '16px',
-      gap: '16px',
-      minWidth: '255px',
-      maxWidth: '100%',
-    }}>
+    <Flex
+      direction="column"
+      align="center"
+      justify="center"
+      gap="16px"
+      style={{
+        flex: 1,
+        padding: '16px',
+        maxWidth: '100%',
+      }}>
       {/* Header */}
       <Flex direction="column" align="center" style={{ gap: '6px' }}>
-        <Text weight="strong" size="large">
+        <Text weight="strong" style={{
+          fontSize: '18px',
+          lineHeight: '24px',
+        }}>
           Upgrade to Premium
         </Text>
-        <Text size="medium" style={{color: 'var(--figma-color-text-secondary)'}}>
-          Enter your project token to unlock features
+        <Text size="medium" style={{
+          color: 'var(--figma-color-text-secondary)',
+        }}>
+          Enter project token to unlock features
         </Text>
-        <Flex style={{gap: '8px', marginTop: '8px'}}>
+        <Flex style={{
+          gap: '8px',
+          marginTop: '12px',
+          marginBottom: '24px',
+        }}>
           <Button
             variant="text"
             size="medium"
@@ -49,80 +57,50 @@ export function UpgradeScreen() {
             Go Back
           </Button>
           <Button
-            variant="success"
+            variant="primary"
             size="medium"
-            href={`${F2RN_SERVICE_URL}/pricing`}
-            target="_blank">
+            onClick={openLink}>
             Buy Token
           </Button>
         </Flex>
       </Flex>
       {/* Features List */}
-      <Flex direction="column" align="center" style={{gap: '8px'}}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {features.map((feature, index) => (
-            <Flex key={index} align="center" style={{gap: '6px'}}>
-              <IconCheck color="success" size={14} />
-              <Text size="medium">
-                {feature}
-              </Text>
-            </Flex>
-          ))}
-        </div>
-      </Flex>
-      {/* Image Grid - Single column on narrow screens */}
-      <Flex direction="column" style={{ gap: '12px' }}>
+      <Flex direction="column" align="center" style={{gap: '16px'}}>
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-          gap: '6px'
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          padding: '16px',
+          maxWidth: '800px',
+          backgroundColor: 'var(--figma-color-bg-secondary)',
+          borderRadius: '12px',
+          border: '1px solid var(--figma-color-border)'
         }}>
-          {placeholderImages.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                backgroundColor: 'var(--figma-color-bg-secondary)',
-                borderRadius: '6px',
-                padding: '12px 8px',
-                border: '1px solid var(--figma-color-border)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '6px',
-                minHeight: '90px',
-                justifyContent: 'center'
-              }}
-            >
+          {features.map((feature, index) => (
+            <Flex key={index} align="center" style={{
+              gap: '12px',
+              padding: '8px 0',
+              borderBottom: index < features.length - 1 ? '1px solid var(--figma-color-border)' : 'none'
+            }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: 'var(--figma-color-bg-brand)',
-                borderRadius: '6px',
+                width: '20px',
+                height: '20px',
+                backgroundColor: 'var(--figma-color-bg-success)',
+                borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '4px'
+                flexShrink: 0
               }}>
-                <IconPlus color="onbrand" size={16} />
+                <IconCheck color="#fff" size={12} />
               </div>
-              <Text style={{
-                fontSize: '11px',
-                fontWeight: '500',
+              <Text size="medium" style={{
                 color: 'var(--figma-color-text)',
-                textAlign: 'center',
-                lineHeight: '1.2'
+                lineHeight: '1.4'
               }}>
-                {item.title}
+                {feature}
               </Text>
-              <Text style={{
-                fontSize: '9px',
-                color: 'var(--figma-color-text-secondary)',
-                textAlign: 'center',
-                lineHeight: '1.2'
-              }}>
-                {item.description}
-              </Text>
-            </div>
+            </Flex>
           ))}
         </div>
       </Flex>
