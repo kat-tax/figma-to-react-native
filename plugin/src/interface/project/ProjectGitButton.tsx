@@ -6,12 +6,14 @@ import {UpgradeButton} from 'interface/base/upsell/UpgradeButton';
 import {ProjectGitDialog} from './ProjectGitDialog';
 
 import type {SettingsData} from 'interface/hooks/useUserSettings';
+import type {Navigation} from 'interface/hooks/useNavigation';
 
 interface ProjectGitButtonProps {
   settings: SettingsData;
+  nav?: Navigation;
 }
 
-export function ProjectGitButton({settings}: ProjectGitButtonProps) {
+export function ProjectGitButton({settings, nav}: ProjectGitButtonProps) {
   const git = useGit();
   const [branches, setBranches] = useState<string[]>([]);
   const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
@@ -44,7 +46,7 @@ export function ProjectGitButton({settings}: ProjectGitButtonProps) {
     <>
       {!isPremium && (
         <Flex align="center" gap="small" className="git-config-button">
-          <UpgradeButton/>
+          <UpgradeButton nav={nav}/>
         </Flex>
       )}
       {(!isConfigured || !hasBranches) && isPremium && (

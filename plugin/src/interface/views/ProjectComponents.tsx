@@ -1,12 +1,13 @@
-import {emit} from '@create-figma-plugin/utilities';
-import {useState, useMemo} from 'react';
+import {emit, on} from '@create-figma-plugin/utilities';
+import {useState, useMemo, useEffect} from 'react';
 import {useWindowSize} from '@uidotdev/usehooks';
 import {useGitDiffs} from 'interface/hooks/useGitDiffs';
 
-import {ProjectSettings} from 'interface/project/ProjectSettings';
-import {ProjectToolbar} from 'interface/project/ProjectToolbar';
 import {ProjectList} from 'interface/project/ProjectList';
+import {ProjectToolbar} from 'interface/project/ProjectToolbar';
 import {ProjectGitToolbar} from 'interface/project/ProjectGitToolbar';
+import {ProjectSettings} from 'interface/project/ProjectSettings';
+import {UpgradeScreen} from 'interface/base/upsell/UpgradeScreen';
 
 import type {Theme} from '@monaco-editor/react';
 import type {Monaco} from 'interface/utils/editor/monaco';
@@ -36,6 +37,7 @@ interface ProjectComponentsProps {
 
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [showUpsell, setShowUpsell] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
   const [showSync, setShowSync] = useState<boolean>(false);
   const diffs = useGitDiffs(props.build?.roster || {});
@@ -48,10 +50,12 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     : props.settings.config?.ui?.componentLayout;
 
   const viewState = useMemo(() => {
+    if (showUpsell)
+      return 'upsell';
     if (showSettings)
       return 'settings';
     return 'components';
-  }, [showSettings, showSync]);
+  }, [showUpsell, showSettings, showSync]);
 
   const handleLayoutChange = (newLayout: ProjectComponentLayout) => {
     const newConfig = {
@@ -64,6 +68,15 @@ export function ProjectComponents(props: ProjectComponentsProps) {
     const indent = newConfig.writer?.indentNumberOfSpaces || 2;
     props.settings.update(JSON.stringify(newConfig, undefined, indent), true);
   };
+
+  // Listen for upsell trigger events
+  useEffect(() => {
+    const handleUpsellTrigger = () => {setShowUpsell(true);};
+    window.addEventListener('trigger-upsell', handleUpsellTrigger);
+    return () => {
+      window.removeEventListener('trigger-upsell', handleUpsellTrigger);
+    };
+  }, []);
 
   const importComponents = async () => {
     emit<EventNotify>('NOTIFY', 'Importing components is not supported yet');
@@ -109,6 +122,9 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           showDiff={props.showDiff}
           setShowDiff={props.setShowDiff}
         />
+      )}
+      {viewState === 'upsell' && (
+        <UpgradeScreen/>
       )}
       {viewState === 'settings' && (
         <ProjectSettings

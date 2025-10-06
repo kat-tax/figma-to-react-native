@@ -156,7 +156,10 @@ export function NavBar(props: NavBarProps) {
                   </Tabs.Trigger>
                 </Fragment>
               ))}
-              <ProjectGitButton settings={props.settings}/>
+              <ProjectGitButton
+                settings={props.settings}
+                nav={props.nav}
+              />
             </div>
           }
           </Fragment>

@@ -1,13 +1,23 @@
 import {IconButton} from 'figma-kit';
+import type {Navigation} from 'interface/hooks/useNavigation';
 
-export function UpgradeButton() {
+interface UpgradeButtonProps {
+  nav?: Navigation;
+}
+
+export function UpgradeButton(props: UpgradeButtonProps) {
+  const handleClick = () => {
+    // Navigate to components page first if handler is provided
+    props.nav?.gotoTab('components');
+    // Then trigger the upsell
+    window.dispatchEvent(new CustomEvent('trigger-upsell'));
+  };
+
   return (
     <IconButton
       size="small"
       aria-label="Upgrade"
-      onClick={() =>
-        window.dispatchEvent(new CustomEvent('trigger-upsell'))
-      }>
+      onClick={handleClick}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20px"
