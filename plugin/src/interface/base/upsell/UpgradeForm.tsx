@@ -23,20 +23,33 @@ export function UpgradeForm(props: UpgradeFormProps) {
     emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/pricing`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = inputRef.current?.value;
-    // Check if project token is valid (40 characters)
-    if (!token?.length || token.length !== 40) {
+    const projectToken = inputRef.current?.value;
+    if (!projectToken?.length || projectToken.length !== 40) {
       props.onTokenInvalid();
-    } else {
-      // Save the token to settings
-      props.settings.update(JSON.stringify({
-        ...props.settings.config,
-        projectToken: token,
-      }, undefined, 2), true);
-      // Call when token is valid
-      props.onTokenValid(token);
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:3000/api/validate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${projectToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText || 'Validation failed');
+      }
+      const result = await response.json();
+      if (!result.valid) {
+        throw new Error(result.error);
+      }
+      props.settings.update(JSON.stringify({...props.settings.config, projectToken}, undefined, 2), true);
+      props.onTokenValid(projectToken);
+    } catch (error) {
+      console.error('Token validation error:', error);
+      props.onTokenInvalid();
     }
   };
 
@@ -54,7 +67,6 @@ export function UpgradeForm(props: UpgradeFormProps) {
         <Input
           autoFocus
           required
-
           ref={inputRef}
           type="password"
           defaultValue={projectToken}
