@@ -6,7 +6,7 @@
 </h3>
 <h4 align="center">
   <a href="https://figma-to-react-native.com">
-    Install Plugin
+    Get Started
   </a>
 </h4>
 <br/>
