@@ -43,6 +43,23 @@
   --size-xxxlarge: 80px;
 }
 
+.rotate {
+  animation: rotate 1s linear infinite;
+}
+
+.rotate.on-hover {
+  animation: none;
+}
+
+.rotate.on-hover:hover {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
 iframe {
   border: 0;
   width: 100%;
@@ -76,15 +93,6 @@ iframe {
 
 .dialog-close > svg {
   scale: 0.8;
-}
-
-.rotate {
-  animation: rotate 1s linear infinite;
-}
-
-@keyframes rotate {
-  from {transform: rotate(0deg);}
-  to {transform: rotate(360deg);}
 }
 
 .icon-button-active {
@@ -366,6 +374,50 @@ iframe {
 }
 
 /* Dropdowns */
+
+/* Dialog responsive override */
+@media (max-width: 351px) {
+  .fp-DialogContent:where(.fp-size-2) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Git Branch */
+
+.git-branch-dropdown {
+  position: absolute;
+  right: 12px;
+  z-index: 1000;
+  max-width: 115px;
+}
+
+.git-config-button {
+  position: absolute;
+  right: 8px;
+  z-index: 1000;
+}
+
+.git-branch-dropdown > button > span:first-child {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Small mode */
+@media (max-width: 330px) {
+  .git-branch-dropdown {
+    right: 7px;
+  }
+  .git-branch-dropdown > button {
+    padding: 0;
+  }
+  .git-branch-dropdown > button > span:first-child {
+    width: 0;
+    overflow: hidden;
+    position: absolute;
+  }
+}
 
 /* Positioning menu dropdown */
 .drop-mod-menu [class*="_dropdown_"] {

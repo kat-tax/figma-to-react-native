@@ -5,6 +5,7 @@ import {Dropdown} from 'interface/figma/ui/dropdown';
 import {IconEllipsis} from 'interface/figma/icons/24/Ellipsis';
 import {IconComponent} from 'interface/figma/icons/16/Component';
 import {patch, actions} from 'interface/utils/editor/lib/prompts';
+import {ProjectGitButton} from 'interface/project/ProjectGitButton';
 import {SearchBar} from 'interface/base/SearchBar';
 import {titleCase} from 'common/string';
 
@@ -12,12 +13,14 @@ import type {DropdownOption} from 'interface/figma/ui/dropdown';
 import type {ComponentBuild} from 'types/component';
 import type {AppTabs, AppPages, AppPagesMain} from 'types/app';
 import type {Navigation} from 'interface/hooks/useNavigation';
+import type {SettingsData} from 'interface/hooks/useUserSettings';
 
 interface NavBarProps {
   nav: Navigation,
   tabs: AppTabs,
   build: ComponentBuild,
   showDiff: boolean,
+  settings: SettingsData,
   isVSCode: boolean,
   searchMode: boolean,
   searchQuery: string,
@@ -153,6 +156,10 @@ export function NavBar(props: NavBarProps) {
                   </Tabs.Trigger>
                 </Fragment>
               ))}
+              <ProjectGitButton
+                settings={props.settings}
+                nav={props.nav}
+              />
             </div>
           }
           </Fragment>

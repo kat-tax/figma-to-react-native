@@ -1,7 +1,9 @@
 import {showUI, emit, on, once} from '@create-figma-plugin/utilities';
 import {focusNode, getNode, getNodeAttrs, getNodeSrcProps, getTopFill, getColor} from 'backend/parser/lib';
-import {F2RN_UI_WIDTH_MIN, F2RN_ICONS_FAVORITES, F2RN_WINDOW_SIZE} from 'config/consts';
+import {F2RN_UI_WIDTH_MIN, F2RN_ICONS_FAVORITES, F2RN_WINDOW_SIZE, F2RN_SERVICE_URL} from 'config/consts';
 import {MOTION_ATTRS, VISIBILITY_ATTRS} from 'interface/node/lib/consts';
+import {validate} from 'interface/extra/utils/validate';
+
 import {NodeAttrGroup} from 'types/node';
 import * as random from 'common/random';
 
@@ -73,6 +75,7 @@ export default async function() {
     // Handle update settings from interface
     on<T.EventSettingsUpdate>('SETTINGS_UPDATE', (newConfig) => {
       settings.update(newConfig);
+      runValidation();
     });
 
     // Handle export project
@@ -254,4 +257,25 @@ export default async function() {
       }
     );
   });
+
+  async function runValidation() {
+    if (!settings.state.projectToken) return;
+    if (!await validate(settings.state.projectToken)) {
+      settings.update({...settings.state, projectToken: ''});
+      settings.load(false);
+      figma.notify('Invalid project token', {
+        timeout: 10000,
+        error: true,
+        button: {
+          text: 'Dashboard',
+          action: () => figma.openExternal(`${F2RN_SERVICE_URL}/dashboard`),
+        },
+      });
+    }
+  }
+  (async () => {
+    const _ = setInterval(runValidation, 5 * 60 * 1000);
+    figma.on('close', () => clearInterval(_));
+    await runValidation();
+  })();
 }

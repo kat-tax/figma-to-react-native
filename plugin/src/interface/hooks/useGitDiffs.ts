@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
-import {useGit} from 'interface/providers/Git';
 import {computeTextDiff} from 'utils/text-diff';
+import {useGit} from 'interface/providers/Git';
 import * as $ from 'store';
 
 import type {ComponentRoster} from 'types/component';
@@ -22,6 +22,8 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
           setDiffs({});
           return;
         }
+        // Skip diffing if git branch is not set
+        if (!git?.branch) return;
         // Skip diffing if git repo is empty
         try {
           git.fs.readdirSync('design');
@@ -91,7 +93,7 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
     };
     update();
     return () => {mounted = false};
-  }, [git, roster, git.lastFetchTime]);
+  }, [roster, git.fs, git.branch, git.lastFetchTime]);
 
   return diffs;
 }

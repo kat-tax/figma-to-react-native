@@ -9,8 +9,12 @@ declare const styles: {
   readonly "drop-mod-target-unsaved": string;
   readonly "editor": string;
   readonly "fp-DialogBaseSection": string;
+  readonly "fp-DialogContent": string;
   readonly "fp-SelectTrigger": string;
   readonly "fp-TabsContent": string;
+  readonly "fp-size-2": string;
+  readonly "git-branch-dropdown": string;
+  readonly "git-config-button": string;
   readonly "git-diff__indicator": string;
   readonly "highlight": string;
   readonly "icon": string;
@@ -18,6 +22,7 @@ declare const styles: {
   readonly "list": string;
   readonly "no-first-span-overflow": string;
   readonly "node-toolbar-btn": string;
+  readonly "on-hover": string;
   readonly "props-select": string;
   readonly "resize-handle-bottom": string;
   readonly "resize-handle-right": string;

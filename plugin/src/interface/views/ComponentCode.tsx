@@ -162,7 +162,7 @@ export function ComponentCode(props: ComponentCodeProps) {
               props.nav.setCursorPos(null);
             });
             new MonacoBinding(
-              $.provider?.awareness,
+              $.ysweet?.awareness,
               $code.get(),
               e.getModel(),
               new Set([e]),
