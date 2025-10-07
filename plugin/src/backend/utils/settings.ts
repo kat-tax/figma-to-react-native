@@ -25,21 +25,20 @@ export async function load(isHeadless?: boolean) {
 
 export function update(value: ProjectSettings, skipSave?: boolean) {
   state = value;
-  if (!skipSave) {
-    const userSettings: UserSettings = {
-      ui: value.ui,
-      monaco: value.monaco,
-      esbuild: value.esbuild,
-    };
-    const projectSettings: Omit<ProjectSettings, 'ui' | 'monaco' | 'esbuild'> = {
-      projectToken: value.projectToken,
-      translate: value.translate,
-      writer: value.writer,
-      git: value.git,
-    };
-    // Store relevant project settings in document
-    figma.root.setPluginData(F2RN_SETTINGS_PROJECT, JSON.stringify(projectSettings));
-    // Store user settings in client storage
-    figma.clientStorage.setAsync(F2RN_SETTINGS_USER, userSettings);
-  }
+  if (skipSave) return;
+  const userSettings: UserSettings = {
+    ui: value.ui,
+    git: value.git,
+    monaco: value.monaco,
+    esbuild: value.esbuild,
+  };
+  const projectSettings: Omit<ProjectSettings, 'ui' | 'git' | 'monaco' | 'esbuild'> = {
+    projectToken: value.projectToken,
+    translate: value.translate,
+    writer: value.writer,
+  };
+  // Store project settings in document (synced)
+  figma.root.setPluginData(F2RN_SETTINGS_PROJECT, JSON.stringify(projectSettings));
+  // Store user settings in client storage (local)
+  figma.clientStorage.setAsync(F2RN_SETTINGS_USER, userSettings);
 }

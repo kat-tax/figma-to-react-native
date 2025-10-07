@@ -20,7 +20,7 @@ export default <ProjectSettings> {
   },
   monaco: {
     general: {
-      fontSize: 11,
+      fontSize: 12,
       folding: false,
       wordWrap: 'off',
       lineNumbers: 'off',
