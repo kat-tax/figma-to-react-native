@@ -309,9 +309,6 @@ importers:
       monaco-editor:
         specifier: 0.52.2
         version: 0.52.2
-      monaco-editor-auto-typings:
-        specifier: ^0.4.6
-        version: 0.4.6(monaco-editor@0.52.2)
       monacopilot:
         specifier: ^1.1.14
         version: 1.1.23(monaco-editor@0.52.2)
@@ -3696,11 +3693,6 @@ packages:
     resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
     engines: {node: '>=10'}
     hasBin: true
-
-  monaco-editor-auto-typings@0.4.6:
-    resolution: {integrity: sha512-yN6yP2oQJkpyZtUyi5qT9AjZLILrTZWOFny7Km2yNiPMPqOWq/znkTS4b5Yk1sHumSaLJUw5m1EPKiopRqtEpA==}
-    peerDependencies:
-      monaco-editor: '*'
 
   monaco-editor@0.52.2:
     resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
@@ -8530,10 +8522,6 @@ snapshots:
   mkdirp@1.0.4: {}
 
   mkdirp@3.0.1: {}
-
-  monaco-editor-auto-typings@0.4.6(monaco-editor@0.52.2):
-    dependencies:
-      monaco-editor: 0.52.2
 
   monaco-editor@0.52.2: {}
 
