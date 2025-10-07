@@ -1,6 +1,6 @@
 import { HfsImpl } from './lib/core/hfs.types';
 export * from './lib/core/hfs.types';
-export type HfsType = 'local' | 'ipfs' | 'rmc';
+export type HfsType = 'local';
 export interface FSBase {
     init(type?: HfsType): Promise<HfsImpl>;
     watch(path: string, callback: (records: Array<unknown>) => void): Promise<false | (() => void)>;

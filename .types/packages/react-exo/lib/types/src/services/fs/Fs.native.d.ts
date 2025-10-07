@@ -1,7 +1,7 @@
 import { FSBase, FileSystemIn, HfsType, PickFilesOptions, PickDirectoryOptions } from './Fs.interface';
 import { HfsImpl } from './lib/core/hfs.types';
 export declare class FSService implements FSBase {
-    init(backend?: HfsType, token?: string): Promise<HfsImpl>;
+    init(backend?: HfsType, _token?: string): Promise<HfsImpl>;
     watch(_path: string, _callback: (records: unknown[]) => void): Promise<() => void>;
     pick(_options?: PickFilesOptions): Promise<never[]>;
     pickDirectory(_options?: PickDirectoryOptions): Promise<never[]>;

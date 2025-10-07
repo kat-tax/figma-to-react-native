@@ -1,6 +1,7 @@
 import { FSService } from './Fs';
 export type * from './Fs.interface';
 export * as web from './lib/utils/web';
+export * as posix from './lib/core/posix';
 export declare const FS: FSService;
 export declare const watch: (path: string, callback: (records: unknown[]) => void) => Promise<false | (() => void)>;
 export declare const pick: (options?: import('./Fs.interface').PickFilesOptions) => Promise<File[]>;
