@@ -129,13 +129,19 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     }
   }, [repo]);
 
-  // Auto-fetch changes
+  // Stable wrapper for the interval that doesn't change
   fetchRef.current = fetch;
-  const _fetch = useCallback(fetchRef?.current, []);
+  const stableFetch = useCallback(() => {
+    if (fetchRef.current) {
+      fetchRef.current();
+    }
+  }, []);
+
+  // Auto-fetch changes
   useEffect(() => {
-    const _ = setInterval(_fetch, FETCH_INTERVAL);
+    const _ = setInterval(stableFetch, FETCH_INTERVAL);
     return () => clearInterval(_);
-  }, [_fetch]);
+  }, [stableFetch]);
 
   return (
     <GitContext.Provider value={{

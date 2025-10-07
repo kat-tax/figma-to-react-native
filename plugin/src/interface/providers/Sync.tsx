@@ -65,10 +65,10 @@ export function SyncProvider({user, build, settings, projectName, children}: Rea
         assets: Object.keys(build?.assets || {}).length || 0,
         user,
       });
+      syncStatus(runOnce);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
     }
-    syncStatus(runOnce);
   }, [build, user, settings, projectName]);
 
   const syncStatus = useCallback((runOnce?: boolean) => {
