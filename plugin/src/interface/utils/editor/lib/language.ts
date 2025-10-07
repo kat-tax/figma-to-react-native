@@ -1,4 +1,5 @@
 import {NodeAttrType} from 'types/node';
+import {F2RN_EDITOR_NS} from 'config/consts';
 import type {Monaco, MonacoTextModel, MonacoWorkerTS} from '../monaco';
 
 const IGNORE_PROPS = ['key', 'style', 'testid'];
@@ -145,7 +146,7 @@ async function getTypeScriptComponents(
 async function getTypeFromDisplayParts(
   client: MonacoWorkerTS,
   displayParts?: Array<{text: string; kind: string}>,
-  sourceFile?: string,
+  originFile?: string,
 ): Promise<[NodeAttrType, Array<string> | null]> {
   if (!displayParts) return [NodeAttrType.String, null];
 
@@ -176,7 +177,15 @@ async function getTypeFromDisplayParts(
   }
 
   // Check for alias or truncated type, lookup its types from source
-  const source = sourceFile && await client.getScriptText(sourceFile);
+  let sourceFile = originFile;
+  let source = sourceFile && await client.getScriptText(sourceFile);
+
+  // TEMP: workaround for the react-exo text input type export
+  if (source?.includes(`export declare const TextInput: typeof RNTextInput;`)) {
+    sourceFile = `${F2RN_EDITOR_NS}node_modules/react-native/Libraries/Components/TextInput/TextInput.d.ts`;
+    source = await client.getScriptText(sourceFile);
+  }
+
   if (source && (alias || trunc)) {
     try {
       // For truncated types, we need to find the full type definition in the source
