@@ -125,10 +125,12 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           editorTheme={props.editorTheme}
         />
       )}
-      <ProjectGitToolbar
-        diffs={diffs}
-        settings={props.settings}
-      />
+      {viewState === 'components' && (
+        <ProjectGitToolbar
+          diffs={diffs}
+          settings={props.settings}
+        />
+      )}
       <ProjectToolbar
         settings={props.settings}
         layout={props.settings.config?.ui?.componentLayout}

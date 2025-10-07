@@ -1,5 +1,5 @@
-import {useState, useEffect} from 'react';
 import {Select, IconButton, Flex} from 'figma-kit';
+import {useState} from 'react';
 import {useGit} from 'interface/providers/Git';
 import {IconGitHub} from 'interface/extra/icons/GitHub';
 import {UpgradeButton} from 'interface/extra/UpgradeButton';
@@ -15,32 +15,12 @@ interface ProjectGitButtonProps {
 
 export function ProjectGitButton({settings, nav}: ProjectGitButtonProps) {
   const git = useGit();
-  const [branches, setBranches] = useState<string[]>([]);
   const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
   const hasBranches = git.branches.length > 0;
   const isPremium = settings.config?.projectToken?.length === 40;
   const isConfigured = settings.config?.git?.repo
     && settings.config?.git?.branch
     && settings.config?.git?.accessToken;
-
-  // Fetch branches when component mounts or when git context changes
-  useEffect(() => {
-    if (!git.branch) return;
-    const fetchBranches = async () => {
-      if (git.branches.length > 0) {
-        setBranches(git.branches);
-      } else {
-        try {
-          const branchList = await git.listBranches();
-          setBranches(branchList);
-        } catch (error) {
-          console.error('Failed to fetch branches:', error);
-        }
-      }
-    };
-
-    fetchBranches();
-  }, [git.branch, git.branches, git.listBranches]);
 
   return (
     <>
@@ -61,10 +41,10 @@ export function ProjectGitButton({settings, nav}: ProjectGitButtonProps) {
           </IconButton>
         </Flex>
       )}
-      {hasBranches && (
+      {isConfigured && hasBranches && isPremium && (
         <Flex align="center" gap="small" className="git-branch-dropdown">
           <Select.Root
-            value={git.branch || 'configure'}
+            value={git.branch ?? settings.config?.git?.branch}
             onValueChange={(value) => {
               if (value === 'configure') {
                 setShowGitDialog(true);
@@ -74,7 +54,7 @@ export function ProjectGitButton({settings, nav}: ProjectGitButtonProps) {
             }}>
             <Select.Trigger/>
             <Select.Content>
-              {branches.map((branch) => (
+              {git.branches.map((branch) => (
                 <Select.Item key={branch} value={branch}>
                   {branch}
                 </Select.Item>

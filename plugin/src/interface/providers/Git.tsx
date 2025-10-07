@@ -122,12 +122,12 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     })
   , [fs, dir]);
 
-  // Initial clone
-  useEffect(() => {
-    if (repo?.url) {
-      git.clone(repo);
-    }
-  }, [repo]);
+  /** Setup git repo */
+  const initRepo = useCallback(async () => {
+    setBranch(repo.ref);
+    await git.clone(repo);
+    await listBranches();
+  }, [repo, listBranches]);
 
   // Stable wrapper for the interval that doesn't change
   fetchRef.current = fetch;
@@ -136,6 +136,13 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
       fetchRef.current();
     }
   }, []);
+
+  // Initial clone (url or access token changed)
+  useEffect(() => {
+    if (repo?.url && username) {
+      initRepo();
+    }
+  }, [repo.url, username]);
 
   // Auto-fetch changes
   useEffect(() => {
