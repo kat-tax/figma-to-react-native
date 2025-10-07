@@ -73,9 +73,9 @@ export function ProjectGitToolbar({diffs, settings}: ProjectGitToolbarProps) {
               console.error('>> Error polling for branch:', error);
               await new Promise(resolve => setTimeout(resolve, pollInterval));
             }
-            // Reached timeout
-            setIsPublishing(false);
           }
+          // Reached timeout
+          setIsPublishing(false);
         };
         // Start polling
         pollForBranch();

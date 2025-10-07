@@ -31,7 +31,15 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   const username = gitConfig.accessToken;
   const [branch, setBranch] = useState<string>(gitConfig.branch);
   const {fs} = useMemo(() => MemoryFS(), []);
-  const repo = useMemo(() => ({fs, url, dir, http, corsProxy, ref: branch, onAuth: () => ({username})}), [fs, url, branch, username]);
+  const repo = useMemo(() => ({
+    fs,
+    url,
+    dir,
+    http,
+    corsProxy,
+    ref: branch,
+    onAuth: () => ({username}),
+  }), [fs, url, branch, username]);
 
   // State for fetch status
   const [branches, setBranches] = useState<string[]>([]);
@@ -45,10 +53,10 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   , [repo]);
 
   /** Change the current branch */
-  const changeBranch = useCallback(async (newBranch: string) => {
+  const changeBranch = useCallback(async (ref: string) => {
     try {
-      await git.checkout({...repo, ref: newBranch});
-      setBranch(newBranch);
+      await git.checkout({...repo, ref});
+      setBranch(ref);
     } catch (error) {
       console.error('Failed to checkout branch:', error);
       throw error;

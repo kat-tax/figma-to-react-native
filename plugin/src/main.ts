@@ -258,7 +258,7 @@ export default async function() {
     );
   });
 
-  const runValidation = async () => {
+  async function runValidation() {
     if (!settings.state.projectToken) return;
     if (!await validate(settings.state.projectToken)) {
       settings.update({...settings.state, projectToken: ''});
@@ -273,6 +273,9 @@ export default async function() {
       });
     }
   }
-  runValidation();
-  setInterval(runValidation, 5 * 60 * 1000);
+  (async () => {
+    const _ = setInterval(runValidation, 5 * 60 * 1000);
+    figma.on('close', () => clearInterval(_));
+    await runValidation();
+  })();
 }
