@@ -1,4 +1,4 @@
-import {useMemo, useState, useEffect, useCallback, useContext, createContext} from 'react';
+import {useMemo, useState, useEffect, useCallback, useContext, createContext, useRef} from 'react';
 import {git, http, MemoryFS} from 'git-mem';
 import {F2RN_EXO_PROXY_URL} from 'config/consts';
 
@@ -24,7 +24,7 @@ export interface GitContextType {
   commit: (message: string) => Promise<string>;
   addFiles: (...files: string[]) => Promise<void>;
   listBranches: () => Promise<string[]>;
-  changeBranch: (newBranch: string) => Promise<void>;
+  changeBranch: (ref: string) => Promise<boolean>;
 }
 
 export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<ProjectSettings['git']>) {
@@ -43,6 +43,7 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   }), [fs, url, branch, username]);
 
   // State for fetch status
+  const fetchRef = useRef<() => Promise<FetchResult>>();
   const [branches, setBranches] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
@@ -58,16 +59,17 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
     try {
       await git.checkout({...repo, ref});
       setBranch(ref);
+      return true;
     } catch (error) {
       console.error('Failed to checkout branch:', error);
-      throw error;
+      return false;
     }
   }, [repo]);
 
   /** List branches from the git repository */
   const listBranches = useCallback(async () => {
     try {
-      // List branches (note does not actually contact origin, must fetch first)
+      // Note: does not actually contact origin, must fetch first)
       const list = await git.listBranches({...repo, remote: 'origin'});
       const names = list
         .map(branch => branch.replace('refs/heads/', ''))
@@ -77,9 +79,9 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
       return names;
     } catch (error) {
       console.error('Failed to list branches:', error);
-      return branches;
+      return [];
     }
-  }, [repo, branches]);
+  }, [repo]);
 
   /** Fetch changes from the git repository */
   const fetch = useCallback(async () => {
@@ -128,10 +130,12 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
   }, [repo]);
 
   // Auto-fetch changes
+  fetchRef.current = fetch;
+  const _fetch = useCallback(fetchRef?.current, []);
   useEffect(() => {
-    const _ = setInterval(fetch, FETCH_INTERVAL);
+    const _ = setInterval(_fetch, FETCH_INTERVAL);
     return () => clearInterval(_);
-  }, [fetch]);
+  }, [_fetch]);
 
   return (
     <GitContext.Provider value={{
