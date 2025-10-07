@@ -37,7 +37,7 @@
 
 |   |   |
 | - | - |
-| 🔄 | Git syncing
+| 🔄 | Git integration
 | 📥 | Download entire project
 | 💾 | Real-time sync to filesystem
 | 🤖 | AI Agent integration (MCP)
