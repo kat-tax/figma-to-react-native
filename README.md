@@ -1,6 +1,7 @@
-
+<p align="center">
+  <img src="./images/logo.png" width="64px"/>
+</p>
 <h3 align="center">
-  <div><img src="./images/logo.png" width="64px"/></div>
   Figma → React Native
 </h3>
 <h4 align="center">
