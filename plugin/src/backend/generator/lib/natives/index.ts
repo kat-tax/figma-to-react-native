@@ -2,6 +2,7 @@ import {getComponentTargets} from 'backend/parser/lib';
 import {PAGES_SPECIAL} from 'config/consts';
 
 import {Slider} from './exo/Slider';
+import {TextInput} from './exo/TextInput';
 
 export function generateNatives(): Record<string, string> {
   const page = figma.root.children.find(p => p.name === PAGES_SPECIAL.LIBRARY);
@@ -20,6 +21,9 @@ export function generateNatives(): Record<string, string> {
         break;
       case 'Slider':
         natives.Slider = Slider(component);
+        break;
+      case 'TextInput':
+        natives.TextInput = TextInput(component);
         break;
     }
   }

@@ -21,7 +21,6 @@ type PreviewNodeInfo = {
   name: string,
   path: string | null,
   rect: DOMRect,
-  root: boolean,
   source: {
     line: number,
     column: number,
@@ -105,7 +104,7 @@ export function useComponent(
       },
       copy: (src: ModelTarget) => {
         copy(getCode(src));
-        emit<EventNotify>('NOTIFY', `Copied "${component?.name}" code to clipboard`);
+        emit<EventNotify>('NOTIFY', `Copied "${component?.name}" ${src} to clipboard`);
       },
       download: (src: ModelTarget) => {
         const ext = src === 'component'
@@ -193,28 +192,17 @@ export function useComponent(
     if (!component) return;
     if (!loaded.current) return;
     const {name, path, imports, width, height} = component;
+    const fonts = build.fonts?.list || [];
     const tag = '<' + component.name + component.props + '/>';
-    preview({tag, name, path, imports, theme, background, esbuild, build}).then(bundle => {
-      post('preview::load', {bundle, name, width, height, theme, background});
+    preview({tag, name, path, imports, theme, background, variant, esbuild, build}).then(bundle => {
+      post('preview::load', {bundle, name, width, height, theme, fonts, background});
     });
     if (fs && showDiff) {
-      preview({tag, name, path, imports, theme, background, esbuild, build}, fs).then(bundle => {
-        post('preview::load', {bundle, name, width, height, theme, background, head: true});
+      preview({tag, name, path, imports, theme, background, variant, esbuild, build}, fs).then(bundle => {
+        post('preview::load', {bundle, name, width, height, theme, fonts, background, head: true});
       });
     }
   }, [component, esbuild, build, fs, showDiff]);
-
-  // TEMP: Workaround to force the preview app to refresh on variant change
-  const refresh = useCallback(() => {
-    if (isList) return;
-    if (!iframe.current) return;
-    requestAnimationFrame(() => {
-      iframe.current.style.width = '99%';
-      requestAnimationFrame(() => {
-        iframe.current.style.width = '100%';
-      });
-    });
-  }, []);
 
   // Render the loader when the settings change
   useEffect(initLoader, [esbuild]);
@@ -263,12 +251,6 @@ export function useComponent(
           break;
         }
 
-        // Force refresh
-        case 'app:refresh': {
-          refresh();
-          break;
-        }
-
         // Clear inspection when the user zooms / pans
         case 'loader::interaction': {
           actions.inspect(false);
@@ -283,6 +265,11 @@ export function useComponent(
 
         // Update preview toolbar (temporarily)
         case 'loader::hover': {
+          // Hovered to root, clear hover state
+          if (!e.data.info) {
+            setPreviewHover(null);
+            break;
+          }
           const {path, nodeId, source} = e.data.info;
           const [uri] = lookup(path, nodeId);
           setPreviewHover([
@@ -295,6 +282,11 @@ export function useComponent(
         // Focus node in Figma and in the code editor
         // Update the preview bar (persistently)
         case 'loader::inspect': {
+          // Inspected root, clear focus state
+          if (!e.data.info) {
+            setPreviewFocused(null);
+            break;
+          }
           const info: PreviewNodeInfo = e.data.info;
           focus(info, true);
           break;

@@ -9,18 +9,22 @@ import type {ProjectComponentEntry} from 'types/project';
 
 interface ProjectListPageCellProps {
   page: string,
+  diff?: [number, number],
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
+  onSelectWithDiff: (componentKey: string) => void,
 }
 
 export function ProjectListPageCell(props: ProjectListPageCellProps) {
   const {id, name, page, path, loading, preview, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(null);
+  const isModified = Boolean(props.diff?.[0] || props.diff?.[1]);
+  const isNew = isModified && props.diff?.[1] === null;
 
   useEffect(() => {
     if (preview) {
-      const blob = new Blob([preview], {type: 'image/png'});
+      const blob = new Blob([preview as BlobPart], {type: 'image/png'});
       const url = URL.createObjectURL(blob);
       setImage(url);
     }
@@ -72,10 +76,24 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
       }}
       onClick={() => id ? props.onSelect(id) : undefined}>
       <Flex direction="column" style={{flex: 1}}>
-        <Flex direction="row" style={{gap: 6}}>
-          <IconComponent color="component"/>
+        <Flex direction="row" style={{gap: 6, alignItems: 'center'}}>
+          <IconComponent
+            color={isNew
+              ? "success"
+              : hasError
+                ? "danger"
+              : isModified
+                ? "warning"
+                : "component"
+          }/>
           <Text weight="strong" style={{
-            color: 'var(--figma-color-text-component)',
+            color: isNew
+              ? 'var(--figma-color-icon-success)'
+              : hasError
+                ? 'var(--figma-color-icon-danger)'
+              : isModified
+                ? 'var(--figma-color-icon-warning)'
+                : 'var(--figma-color-text-component)',
             flex: 1,
             minWidth: 0,
             overflow: 'hidden',
@@ -88,10 +106,9 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
             />
             <TextCollabDots target={name}/>
           </Text>
-          <div style={{width: 8}}/>
           <Text size="medium" style={{
             color: 'var(--figma-color-text-secondary)',
-            maxWidth: '40%',
+            maxWidth: '30%',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
@@ -103,6 +120,19 @@ export function ProjectListPageCell(props: ProjectListPageCellProps) {
                 : path.split('/').slice(2, -1).join('/')
             }
           </Text>
+          {isModified && (
+            <span className="git-diff__indicator" onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              props.onSelectWithDiff(props.entry.item.key);
+            }}>
+              <span>+{props.diff?.[0] || 0}</span>
+              <span> </span>
+              {props.diff?.[1] !== null && (
+                <span>-{props.diff?.[1] || 0}</span>
+              )}
+            </span>
+          )}
         </Flex>
         <div style={{
           position: 'relative',

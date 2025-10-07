@@ -1,4 +1,5 @@
 import {getAllIconComponents} from 'backend/importer/icons';
+import {isReadOnly} from 'backend/utils/mode';
 import {on, emit} from '@create-figma-plugin/utilities';
 
 import * as assert from 'common/assert';
@@ -12,12 +13,39 @@ import {generateTheme} from './lib/generateTheme';
 import {generateBundle} from './lib/generateBundle';
 
 import type {ComponentInfo, ComponentAsset, ComponentLinks, ComponentRoster} from 'types/component';
-import type {EventComponentBuild, EventProjectTheme, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
+import type {EventComponentBuild, EventProjectTheme, EventFocusedNode, EventProjectIcons, EventNodeAttrSave, EventPropsSave} from 'types/events';
 import type {ProjectSettings} from 'types/settings';
 
 let _lastThemeCode = '';
 let _lastThemeName = '';
 let _infoDb: Record<string, ComponentInfo> | null = null;
+
+const UPDATE_DEBOUNCE = 200;
+let _debounceTimeout: number | null = null;
+let _pendingChanges: {
+  updateDeep: Set<SceneNode>;
+  updateShallow: Set<SceneNode>;
+  all: Set<ComponentNode>;
+} | null = null;
+
+const processChanges = async () => {
+  if (!_pendingChanges) return;
+  const {updateDeep, updateShallow, all} = _pendingChanges;
+  _pendingChanges = null;
+
+  // Debug
+  // const _t0 = Date.now();
+
+  // Compile updates
+  await Promise.all([
+    compile(all, true, parser.getComponentTargets(Array.from(updateDeep))),
+    compile(all, false, parser.getComponentTargets(Array.from(updateShallow))),
+  ]);
+
+  // Debug
+  // const _t1 = Date.now();
+  // console.log('>> [update]', _t1 - _t0, 'ms', {deep: updateDeep.size, shallow: updateShallow.size});
+};
 
 export async function watchComponents(
   targetComponent: () => void,
@@ -25,7 +53,7 @@ export async function watchComponents(
 ) {
   // Save component props when parsed
   on<EventPropsSave>('PROPS_SAVE', async (props) => {
-    console.log('>> [props/save]', props);
+    // console.log('>> [props/save]', props);
     for (const [key, value] of Object.entries(props)) {
       figma.clientStorage.setAsync(`${consts.F2RN_CACHE_PROPS}:${key}`, value);
     }
@@ -33,6 +61,7 @@ export async function watchComponents(
 
   // Recompile component on node attribute change
   on<EventNodeAttrSave>('NODE_ATTR_SAVE', (nodeId, newAttrs) => {
+    if (isReadOnly) return;
     figma.commitUndo();
     const node = parser.getNode(nodeId);
     node.setSharedPluginData('f2rn', consts.F2RN_NODE_ATTRS, JSON.stringify(
@@ -54,9 +83,17 @@ export async function watchComponents(
     await compile(all);
     // Select targeted component since it's available now
     targetComponent();
-    // TODO: Refresh component cache, needs heuristic to detect if we need to recompile all components
+    // TODO: Refresh component cache on init, disabled.
+    // instead, we should track updated nodes and update their css in batches
     // await compile(all, true);
   }
+
+  // Handle future component selections now we have all components
+  figma.on('selectionchange', () => {
+    targetComponent();
+    const node = figma.currentPage.selection?.[0];
+    if (node) emit<EventFocusedNode>('NODE_FOCUSED', node.id);
+  });
 
   // Recompile changed components on doc change
   figma.on('documentchange', async (e) => {
@@ -79,14 +116,19 @@ export async function watchComponents(
     // No components, do nothing
     if (all.size === 0) return;
 
-    // All components that were updated
-    const updateDeep: SceneNode[] = [];    // Deep changes (style, asset, etc)
-    const updateShallow: SceneNode[] = []; // Shallow changes (pluginData)
+    // Initialize or update pending changes
+    if (!_pendingChanges) {
+      _pendingChanges = {
+        updateDeep: new Set(),
+        updateShallow: new Set(),
+        all
+      };
+    }
 
-    // Process all changes
+    // Process all changes and add to pending
     e.documentChanges.forEach(change => {
       // Debug
-      // console.log('>> [event]', change);
+      // console.log('>> [event:all]', change);
 
       const isCreate = change.type === 'CREATE';
       const isPropChange = change.type === 'PROPERTY_CHANGE';
@@ -95,36 +137,34 @@ export async function watchComponents(
       // Ignore events that aren't relevant
       if (!isCreate && !isPropChange) return;
 
+      // Debug
+      // console.log('>> [event:change]', change.node.type, change.node.id);
+
       // Queue component to update
       if (change.node.type === 'COMPONENT') {
         if (isDataOnlyChange) {
-          updateShallow.push(change.node as SceneNode);
+          _pendingChanges.updateShallow.add(change.node as SceneNode);
         } else {
-          updateDeep.push(change.node as SceneNode);
+          _pendingChanges.updateDeep.add(change.node as SceneNode);
         }
       } else {
         const target = parser.getComponentTarget(change.node as SceneNode);
         if (target) {
           if (isDataOnlyChange) {
-            updateShallow.push(target);
+            _pendingChanges.updateShallow.add(target);
           } else {
-            updateDeep.push(target);
+            _pendingChanges.updateDeep.add(target);
           }
         }
       }
     });
 
-    // Compile updates
-    await Promise.all([
-      compile(all, true, parser.getComponentTargets(updateDeep)),
-      compile(all, false, parser.getComponentTargets(updateShallow)),
-    ]);
+    // Clear existing timeout and set new one
+    if (_debounceTimeout) {
+      clearTimeout(_debounceTimeout);
+    }
 
-    // Debug
-    // console.log('>> [update]', {
-    //   deep: Array.from(updateDeep),
-    //   shallow: Array.from(updateShallow),
-    // });
+    _debounceTimeout = setTimeout(processChanges, UPDATE_DEBOUNCE);
   });
 }
 
@@ -201,10 +241,12 @@ export async function compile(
   updated?: Set<ComponentNode>,
 ) {
   if (components.size === 0) return;
+  if (updated && updated.size === 0) return;
 
   const _info: Record<string, ComponentInfo> = {};
   const _assets: Record<string, ComponentAsset> = {};
   const _icons = {list: new Set<string>(), count: {}};
+  const _fonts = {list: new Set<string>()};
   const _roster: ComponentRoster = {};
 
   let _links: ComponentLinks = {};
@@ -246,7 +288,7 @@ export async function compile(
       if (!component) continue;
 
       const bundle = await generateBundle(component, _info, {...config.state}, skipCache);
-      const {info, links, icons, assets} = bundle;
+      const {info, links, icons, fonts, assets} = bundle;
       const {name, page, target} = info;
       const {key, id} = target;
 
@@ -263,8 +305,9 @@ export async function compile(
         loading: false,
       };
 
-      // Aggregate assets and icons
-      assets?.forEach(asset => {_assets[asset.hash] = asset});
+      // Aggregate assets, icons, and fonts
+      assets?.forEach(asset => {_assets[asset.id] = asset});
+      fonts?.list?.forEach(font => {_fonts.list.add(font)});
       icons?.list?.forEach(icon => {_icons.list.add(icon)});
       Object.entries(icons?.count).forEach(([icon, count]) => {
         _icons.count[icon] = (icons?.count[icon] || 0) + count;
@@ -279,10 +322,12 @@ export async function compile(
         roster: _roster,
         pages: figma.root.children?.map(p => p.name),
         assets: _assets,
-        assetMap: {},
         icons: {
           list: Array.from(_icons.list),
           count: _icons.count,
+        },
+        fonts: {
+          list: Array.from(_fonts.list),
         },
       }, bundle);
     } catch (e) {

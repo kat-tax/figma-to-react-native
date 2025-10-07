@@ -30,7 +30,7 @@ export async function generateCode(
     exoLottie: {},
     exoRive: {},
     exoGrid: {},
-    useStylesTheme: false,
+    exoTextInput: {},
   };
 
   await writeFunction(body, flags, data, settings, infoDb);

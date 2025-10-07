@@ -1,9 +1,14 @@
-import {emit} from '@create-figma-plugin/utilities';
-import {useState, useMemo} from 'react';
+import {emit, on} from '@create-figma-plugin/utilities';
+import {useState, useMemo, useEffect} from 'react';
+import {useWindowSize} from '@uidotdev/usehooks';
+import {useGitDiffs} from 'interface/hooks/useGitDiffs';
+import {useUpsellEvent} from 'interface/extra/hooks/useUpsellEvent';
+import {UpgradeScreen} from 'interface/extra/UpgradeScreen';
 
-import {ProjectSettings} from 'interface/project/ProjectSettings';
-import {ProjectToolbar} from 'interface/project/ProjectToolbar';
 import {ProjectList} from 'interface/project/ProjectList';
+import {ProjectToolbar} from 'interface/project/ProjectToolbar';
+import {ProjectGitToolbar} from 'interface/project/ProjectGitToolbar';
+import {ProjectSettings} from 'interface/project/ProjectSettings';
 
 import type {Theme} from '@monaco-editor/react';
 import type {Monaco} from 'interface/utils/editor/monaco';
@@ -27,18 +32,42 @@ interface ProjectComponentsProps {
   searchQuery: string,
   editorOptions: UserSettings['monaco']['general'],
   editorTheme: Theme,
+  showDiff: boolean,
+  setShowDiff: (show: boolean) => void,
 }
 
 export function ProjectComponents(props: ProjectComponentsProps) {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [importing, setImporting] = useState<boolean>(false);
   const [showSync, setShowSync] = useState<boolean>(false);
-  const [layout, setLayout] = useState<ProjectComponentLayout>('list');
+  const {upsellOpen} = useUpsellEvent();
+  const {width} = useWindowSize();
+  const diffs = useGitDiffs(props.build?.roster || {});
+
+  // Calculate the effective layout once and pass it down
+  const effectiveLayout = (!props.settings.config?.ui?.componentLayout || props.settings.config?.ui?.componentLayout === 'auto')
+    ? (width > 445 ? 'grid' : 'list')
+    : props.settings.config?.ui?.componentLayout;
+
   const viewState = useMemo(() => {
+    if (upsellOpen)
+      return 'upsell';
     if (showSettings)
       return 'settings';
     return 'components';
-  }, [showSettings, showSync]);
+  }, [upsellOpen, showSettings, showSync]);
+
+  const handleLayoutChange = (newLayout: ProjectComponentLayout) => {
+    const newConfig = {
+      ...props.settings.config,
+      ui: {
+        ...props.settings.config?.ui,
+        componentLayout: newLayout,
+      },
+    };
+    const indent = newConfig.writer?.indentNumberOfSpaces || 2;
+    props.settings.update(JSON.stringify(newConfig, undefined, indent), true);
+  };
 
   const importComponents = async () => {
     emit<EventNotify>('NOTIFY', 'Importing components is not supported yet');
@@ -72,14 +101,21 @@ export function ProjectComponents(props: ProjectComponentsProps) {
       }}>
       {viewState === 'components' && (
         <ProjectList
-          layout={layout}
+          layout={effectiveLayout}
           build={props.build}
           isReadOnly={props.isReadOnly}
           searchMode={props.searchMode}
           searchQuery={props.searchQuery}
           importing={importing}
           importComponents={importComponents}
+          nav={props.nav}
+          diffs={diffs}
+          showDiff={props.showDiff}
+          setShowDiff={props.setShowDiff}
         />
+      )}
+      {viewState === 'upsell' && (
+        <UpgradeScreen/>
       )}
       {viewState === 'settings' && (
         <ProjectSettings
@@ -89,10 +125,17 @@ export function ProjectComponents(props: ProjectComponentsProps) {
           editorTheme={props.editorTheme}
         />
       )}
+      {viewState === 'components' && (
+        <ProjectGitToolbar
+          diffs={diffs}
+          settings={props.settings}
+        />
+      )}
       <ProjectToolbar
         settings={props.settings}
-        layout={layout}
-        setLayout={setLayout}
+        layout={props.settings.config?.ui?.componentLayout}
+        effectiveLayout={effectiveLayout}
+        setLayout={handleLayoutChange}
         showSync={showSync}
         setShowSync={setShowSync}
         showSettings={showSettings}

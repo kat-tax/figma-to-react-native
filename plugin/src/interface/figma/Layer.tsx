@@ -3,9 +3,10 @@ import {IconComponent} from './icons/16/Component';
 interface LayerProps {
   active?: boolean;
   warning?: boolean;
+  success?: boolean;
   component?: boolean;
   description?: string;
-  rightIcons?: React.ReactNode[];
+  endComponent?: React.ReactNode[];
   children: React.ReactNode;
   onChange?: () => void;
 }
@@ -13,9 +14,10 @@ interface LayerProps {
 export function Layer({
   component = false,
   warning = false,
+  success = false,
   active = false,
   description,
-  rightIcons,
+  endComponent,
   children,
   onChange,
 }: LayerProps) {
@@ -23,7 +25,7 @@ export function Layer({
     <div className={`layer ${component ? 'layer--component' : ''}`}>
       <div className={`layer__content ${active ? 'layer__content--active' : ''}`} onClick={onChange}>
         <div className="layer__icon">
-          <IconComponent color={warning ? 'warning' : 'component'}/>
+          <IconComponent color={success ? 'success' : warning ? 'warning' : 'component'}/>
         </div>
         <span className="layer__label">
           {children}
@@ -33,9 +35,9 @@ export function Layer({
             {description}
           </span>
         }
-        {rightIcons?.map((icon, index) => (
-          <div key={index} className="layer__icon">
-            {icon}
+        {endComponent?.map((icon, index) => (
+          <div key={index} className="layer__end-components">
+            {endComponent}
           </div>
         ))}
       </div>

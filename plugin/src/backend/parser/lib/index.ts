@@ -19,6 +19,7 @@ export {
   getIconData,
   getNodeAttrs,
   getNodeSrcProps,
+  getRectAssetType,
   getInstanceStyles,
   getComponentInfo,
   getComponentPropName,

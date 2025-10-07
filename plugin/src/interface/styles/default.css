@@ -43,6 +43,23 @@
   --size-xxxlarge: 80px;
 }
 
+.rotate {
+  animation: rotate 1s linear infinite;
+}
+
+.rotate.on-hover {
+  animation: none;
+}
+
+.rotate.on-hover:hover {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
 iframe {
   border: 0;
   width: 100%;
@@ -78,17 +95,19 @@ iframe {
   scale: 0.8;
 }
 
-.rotate {
-  animation: rotate 1s linear infinite;
-}
-
-@keyframes rotate {
-  from {transform: rotate(0deg);}
-  to {transform: rotate(360deg);}
-}
-
 .icon-button-active {
   background-color: var(--figma-color-bg-selected-strong) !important;
+}
+
+/* Resizable */
+.resize-handle-right, .resize-handle-bottom {
+  background-color: var(--figma-color-bg-secondary);
+  transition: opacity 0.2s ease-in-out;
+  opacity: 0;
+}
+
+.resize-handle-right:hover, .resize-handle-bottom:hover {
+  opacity: 0.5;
 }
 
 /* Needed for color picker */
@@ -356,6 +375,50 @@ iframe {
 
 /* Dropdowns */
 
+/* Dialog responsive override */
+@media (max-width: 351px) {
+  .fp-DialogContent:where(.fp-size-2) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Git Branch */
+
+.git-branch-dropdown {
+  position: absolute;
+  right: 12px;
+  z-index: 1000;
+  max-width: 115px;
+}
+
+.git-config-button {
+  position: absolute;
+  right: 8px;
+  z-index: 1000;
+}
+
+.git-branch-dropdown > button > span:first-child {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Small mode */
+@media (max-width: 330px) {
+  .git-branch-dropdown {
+    right: 7px;
+  }
+  .git-branch-dropdown > button {
+    padding: 0;
+  }
+  .git-branch-dropdown > button > span:first-child {
+    width: 0;
+    overflow: hidden;
+    position: absolute;
+  }
+}
+
 /* Positioning menu dropdown */
 .drop-mod-menu [class*="_dropdown_"] {
   width: 32px;
@@ -374,7 +437,8 @@ iframe {
 @media (max-width: 308px) {
   .drop-mod-target [class*="_dropdown_"],
   .drop-mod-target-unsaved [class*="_dropdown_"] {
-    min-width: 54px;
+    transform: translateX(4px);
+    min-width: 32px;
     flex: 0;
   }
 }
@@ -406,6 +470,35 @@ body [class*="_menu_"] {
 /* Status chevron icon removed for menu */
 .drop-mod-menu [class*="_chevronIcon_"] {
   display: none;
+}
+
+/* Git Diff */
+.git-diff__indicator {
+  padding: 1px 5px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--figma-color-text-secondary);
+  border: 1px solid var(--figma-color-border);
+  opacity: 0.9;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.git-diff__indicator:hover {
+  opacity: 1;
+}
+
+.git-diff__indicator:active {
+  opacity: 0.8;
+}
+
+.git-diff__indicator span {
+  pointer-events: none;
+  color: var(--figma-color-text-success);
+}
+
+.git-diff__indicator span:last-child {
+  color: var(--figma-color-text-danger);
 }
 
 /* Virtual List */

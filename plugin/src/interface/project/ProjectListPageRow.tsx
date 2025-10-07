@@ -9,14 +9,17 @@ import type {ProjectComponentEntry} from 'types/project';
 
 interface ProjectListPageRowProps {
   page: string,
+  diff?: [number, number | null],
   entry: ProjectComponentEntry,
   onSelect: (id: string) => void,
+  onSelectWithDiff: (componentKey: string) => void,
 }
 
 export function ProjectListPageRow(props: ProjectListPageRowProps) {
-  const {id, name, page, path, preview, loading, hasError, errorMessage} = props.entry.item;
+  const {id, name, page, path, loading, hasError, errorMessage} = props.entry.item;
   const [dragging, setDragging] = useState<string | null>(null);
-  const hasUnsavedChanges = false;
+  const isModified = Boolean(props.diff?.[0] || props.diff?.[1]);
+  const isNew = isModified && props.diff?.[1] === null;
 
   return (
     <Stack
@@ -48,7 +51,8 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
       <Layer
         component
         active={name === dragging}
-        warning={hasError}
+        warning={hasError || (isModified && !isNew)}
+        success={isNew}
         onChange={() => id
           ? props.onSelect(id)
           : undefined
@@ -57,17 +61,43 @@ export function ProjectListPageRow(props: ProjectListPageRowProps) {
           ? errorMessage || 'Unknown error'
           : loading
             ? 'loading...'
-            : hasUnsavedChanges
-              ? '(modified)'
-              : path.split('/').slice(2, -1).join('/')
-        }>
-        <span style={{color: hasError ? 'var(--figma-color-icon-warning)' : undefined}}>
-          <TextUnderline
-            str={`${page}/${name}`}
-            indices={props.entry.positions}
-          />
-          <TextCollabDots target={name}/>
-        </span>
+            : path.split('/').slice(2, -1).join('/')
+        }
+        endComponent={isModified ? [
+          <span className="git-diff__indicator" onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            props.onSelectWithDiff(props.entry.item.key);
+          }}>
+            <span>+{props.diff?.[0] || 0}</span>
+            <span> </span>
+            {props.diff?.[1] !== null && (
+              <span>-{props.diff?.[1] || 0}</span>
+            )}
+          </span>
+        ] : undefined}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%'
+        }}>
+          <span style={{
+            color: hasError
+              ? 'var(--figma-color-icon-danger)'
+              : isNew
+                ? 'var(--figma-color-icon-success)'
+                : isModified
+                  ? 'var(--figma-color-icon-warning)'
+                  : undefined
+          }}>
+            <TextUnderline
+              str={`${page}/${name}`}
+              indices={props.entry.positions}
+            />
+            <TextCollabDots target={name}/>
+          </span>
+        </div>
       </Layer>
     </Stack>
   );

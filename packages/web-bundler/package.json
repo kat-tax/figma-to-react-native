@@ -1,0 +1,20 @@
+{
+  "name": "web-bundler",
+  "version": "0.0.2",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "esbuild-wasm": "^0.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.9",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "esbuild",
+    "esbuild-wasm",
+    "bundler",
+    "browser-bundler"
+  ]
+}

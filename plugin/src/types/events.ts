@@ -36,6 +36,11 @@ export interface EventAppReady extends EventHandler {
   handler: () => void;
 }
 
+export interface EventAppResize extends EventHandler {
+  name: 'APP_RESIZE';
+  handler: (size: {width: number; height: number}) => void;
+}
+
 export interface EventAppStart extends EventHandler {
   name: 'APP_START';
   handler: (

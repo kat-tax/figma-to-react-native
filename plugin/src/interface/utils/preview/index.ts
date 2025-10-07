@@ -1,4 +1,4 @@
-import {bundle} from 'syn-bundler';
+import {bundle} from 'web-bundler';
 import {notify} from 'interface/telemetry';
 import * as $ from 'store';
 
@@ -10,6 +10,7 @@ import app from './templates/app.tsx.tpl';
 import type {IFs} from 'git-mem';
 import type {UserSettings} from 'types/settings';
 import type {ComponentBuild} from 'types/component';
+import type {VariantData} from 'interface/hooks/useSelectedVariant';
 
 const ENTRY_POINT = '/index.tsx';
 
@@ -20,12 +21,13 @@ interface PreviewOptions {
   imports: string,
   esbuild: UserSettings['esbuild'],
   background: string,
+  variant: VariantData,
   theme: string,
   build: ComponentBuild,
 }
 
 export async function preview(options: PreviewOptions, gitFs: IFs | null = null) {
-  const {tag, name, path, imports, theme, background, esbuild, build} = options;
+  const {tag, name, path, imports, theme, background, variant, esbuild, build} = options;
 
   const files = gitFs
     ? getGitFiles(build, gitFs)
@@ -35,10 +37,21 @@ export async function preview(options: PreviewOptions, gitFs: IFs | null = null)
   const previewApp = atob(app.toString());
   try {
     files.set('/theme', $.projectTheme.get().toString());
+    files.set('/styles', `
+      import {StyleSheet} from 'react-native-unistyles';
+      import {themes, breakpoints} from 'theme';
+      document.body.style.backgroundColor = '${background}';
+      StyleSheet.configure({
+        themes,
+        breakpoints,
+        settings: {
+          initialTheme: '${theme}',
+        },
+      });
+    `);
     files.set(ENTRY_POINT, previewApp
       .replace('__COMPONENT_IMPORTS__', `import {${name}} from '${path}';\n${imports}`)
-      .replace('__CURRENT_BACKGROUND__', background)
-      .replace('__CURRENT_THEME__', theme)
+      .replace('__INITIAL_VARIANT__', JSON.stringify(variant.props || {}))
       .replace('__COMPONENT_TAG__', tag)
       .replace('__ROOT_TAG__', gitFs ? 'diff' : 'component'));
     return await bundle(ENTRY_POINT, files, esbuild, importMap);
@@ -82,8 +95,9 @@ export function getGitFiles(build: ComponentBuild, gitFs: IFs) {
   for (const asset of Object.values(build.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
-      const folder = asset.isVector ? 'svg' : 'img';
-      const path = `/design/assets/${folder}/${asset.name.toLowerCase()}.${ext}`;
+      const component = build.roster[asset.parent];
+      if (!component) continue;
+      const path = `/design/${component.path}/assets/${asset.name.toLowerCase()}.${ext}`;
       files.set(path, gitFs.readFileSync(path));
     } catch (e) {}
   }
@@ -111,8 +125,9 @@ export function getFigmaFiles(build: ComponentBuild) {
   for (const asset of Object.values(build.assets)) {
     try {
       const ext = asset.isVector ? 'svg' : 'png';
-      const folder = asset.isVector ? 'svg' : 'img';
-      const path = `/assets/${folder}/${asset.name.toLowerCase()}.${ext}`;
+      const component = build.roster[asset.parent];
+      if (!component) continue;
+      const path = `/${component.path}/assets/${asset.name.toLowerCase()}.${ext}`;
       files.set(path, asset.bytes);
     } catch (e) {
       notify(e, `Failed to build preview asset: ${asset.name}`);

@@ -279,7 +279,10 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: 2,
   },
   nodeTip: {
-    display: 'flex',
+    // TODO: fix positioning
+    display: 'hidden',
+    opacity: 0,
+    //display: 'flex',
     position: 'absolute',
     flexFlow: 'row nowrap',
     boxSizing: 'border-box',

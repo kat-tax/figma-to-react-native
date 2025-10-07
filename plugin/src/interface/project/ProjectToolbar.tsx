@@ -1,5 +1,5 @@
 import {emit} from '@create-figma-plugin/utilities';
-import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text, Dialog} from 'figma-kit';
+import {Button, IconButton, SegmentedControl, Input, DropdownMenu, Text} from 'figma-kit';
 import {useMemo, useState, useRef} from 'react';
 import {useCopyToClipboard} from '@uidotdev/usehooks';
 import {useProjectRelease} from 'interface/hooks/useProjectRelease';
@@ -12,18 +12,20 @@ import {IconList} from 'interface/figma/icons/24/List';
 import {IconSync} from 'interface/figma/icons/24/Sync';
 import {IconBack} from 'interface/figma/icons/24/Back';
 import {StatusBar} from 'interface/base/StatusBar';
+import {UpgradeForm} from 'interface/extra/UpgradeForm';
+import {useUpsellEvent} from 'interface/extra/hooks/useUpsellEvent';
 import {F2RN_SERVICE_URL} from 'config/consts';
+import {titleCase} from 'common/string';
 import {docId} from 'store';
 
-import {ProjectGit} from './ProjectGit';
-
-import type {EventNotify, EventOpenLink, EventProjectExport, EventProjectNewComponent} from 'types/events';
+import type {EventNotify, EventProjectExport, EventProjectNewComponent} from 'types/events';
 import type {ProjectComponentLayout} from 'types/project';
 import type {SettingsData} from 'interface/hooks/useUserSettings';
 
 interface ProjectToolbarProps {
   settings: SettingsData,
   layout: ProjectComponentLayout,
+  effectiveLayout: ProjectComponentLayout,
   setLayout: (layout: ProjectComponentLayout) => void,
   showSync: boolean,
   setShowSync: (show: boolean) => void,
@@ -35,17 +37,32 @@ interface ProjectToolbarProps {
 export function ProjectToolbar(props: ProjectToolbarProps) {
   const sync = useSync();
   const newInput = useRef<HTMLInputElement>(null);
-  const syncInput = useRef<HTMLInputElement>(null);
   const [_, copy] = useCopyToClipboard();
   const [showNew, setShowNew] = useState<boolean>(false);
   const [syncLoading, setSyncLoading] = useState<boolean>(false);
   const [exportActive, setExportActive] = useState<boolean>(false);
-  const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
+  const [tokenAction, setTokenAction] = useState<'sync' | 'download' | 'upgrade' | null>(null);
+  const {upsellOpen, showUpsell, hideUpsell} = useUpsellEvent({onHide: () => setTokenAction(null)});
+
+  const isInvalidToken = !props.settings.config?.projectToken?.length
+    || props.settings.config?.projectToken?.length !== 40;
+
   const viewState = useMemo(() => {
-    if (props.showSync) return 'sync';
+    if (props.showSync || upsellOpen) return 'token';
     if (showNew) return 'new';
     return 'overview';
-  }, [props.showSync, showNew]);
+  }, [props.showSync, showNew, upsellOpen]);
+
+  const handleLayoutClick = (newValue: ProjectComponentLayout) => {
+    // If clicking the same value that's currently set (and not in auto), toggle to auto
+    if (newValue === props.layout && props.layout !== 'auto') {
+      props.setLayout('auto');
+      emit<EventNotify>('NOTIFY', 'Switched to responsive mode', {timeout: 2000});
+    } else {
+      // If clicking a different value or clicking while in auto, switch to that value
+      props.setLayout(newValue);
+    }
+  };
 
   useProjectRelease(() => setExportActive(false));
 
@@ -54,13 +71,18 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
       {viewState === 'overview' && (
         <>
           <SegmentedControl.Root
-            value={props.layout}
-            onClick={() => props.setShowSettings(false)}
-            onValueChange={(v: ProjectComponentLayout) => props.setLayout(v)}>
-            <SegmentedControl.Item value="list" aria-label="View as list">
+            value={props.effectiveLayout}
+            onClick={() => props.setShowSettings(false)}>
+            <SegmentedControl.Item
+              value="list"
+              aria-label={props.layout === 'auto' ? 'Currently auto layout - click to force list view' : 'View as list'}
+              onClick={() => handleLayoutClick('list')}>
               <IconList/>
             </SegmentedControl.Item>
-            <SegmentedControl.Item value="grid" aria-label="View as grid">
+            <SegmentedControl.Item
+              value="grid"
+              aria-label={props.layout === 'auto' ? 'Currently auto layout - click to force grid view' : 'View as grid'}
+              onClick={() => handleLayoutClick('grid')}>
               <IconGrid/>
             </SegmentedControl.Item>
           </SegmentedControl.Root>
@@ -76,58 +98,37 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
                 setShowNew(true);
                 setTimeout(() => newInput.current?.focus(), 100);
               }}>
-                <Text>Create New</Text>
+                <Text>New Component</Text>
               </DropdownMenu.Item>
               <DropdownMenu.Item onSelect={() => props.importComponents()}>
-                <Text>Import EXO</Text>
+                <Text>Import Library...</Text>
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild disabled={exportActive}>
-              <IconButton
-                size="small"
-                disabled={exportActive}
-                aria-label={exportActive ? 'Exporting...' : 'Export Project'}
-                onClick={() => props.setShowSettings(false)}>
-                <IconDownload/>
-              </IconButton>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content>
-              <DropdownMenu.Item
-                disabled={exportActive}
-                onSelect={() => {
-                  emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
-                  setExportActive(true);
-                }}>
-                <Text>Download Zip</Text>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                disabled={exportActive}
-                onSelect={() => {
-                  const git = props.settings.config?.git;
-                  if (!git?.repo || !git?.branch || !git?.accessToken) {
-                    setShowGitDialog(true);
-                  } else {
-                    emit<EventProjectExport>('PROJECT_EXPORT', {method: 'git'}, props.settings.config);
-                    setExportActive(true);
-                  }
-                }}>
-                <Text>Publish to Git</Text>
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+          <IconButton
+            size="small"
+            disabled={exportActive}
+            aria-label={exportActive ? 'Exporting...' : 'Download App'}
+            onClick={() => {
+              if (isInvalidToken) {
+                setTokenAction('download');
+                showUpsell();
+              } else {
+                emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
+                setExportActive(true);
+              }
+            }}>
+            <IconDownload/>
+          </IconButton>
           {!sync.active && (
             <IconButton
               aria-label={sync.error ?? 'Start Sync'}
               size="small"
               onClick={async () => {
                 if (syncLoading && !sync.error) return;
-                // Missing or invalid sync key
-                if (!props.settings.config?.projectToken?.length
-                  || props.settings.config?.projectToken?.length !== 40 || sync.error) {
-                  props.setShowSync(true);
-                // Start syncing
+                if (isInvalidToken || sync.error) {
+                  setTokenAction('sync');
+                  showUpsell();
                 } else {
                   setSyncLoading(true);
                   sync.connect();
@@ -172,58 +173,62 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           </IconButton>
         </>
       )}
-      {viewState === 'sync' && (
+      {viewState === 'token' && (
         <div style={{display: 'flex', flexDirection: 'row', gap: 12, flex: 1}}>
           <IconButton
             aria-label="Go back"
             size="small"
-            onClick={() => props.setShowSync(false)}>
-            <IconBack/>
-          </IconButton>
-          <div style={{position: 'relative', flex: 1}}>
-            <Input
-              autoFocus
-              required
-              ref={syncInput}
-              type="password"
-              defaultValue={props.settings.config?.projectToken}
-              placeholder="Project Token"
-              style={{width: '100%', paddingRight: !props.settings.config?.projectToken ? 43 : '0.5rem'}}
-            />
-            {!props.settings.config?.projectToken && (
-              <Button
-                size="small"
-                variant="success"
-                onClick={() => {
-                  emit<EventOpenLink>('OPEN_LINK', `${F2RN_SERVICE_URL}/dashboard`);
-                }}
-                style={{
-                  transform: 'scale(0.9)',
-                  position: 'absolute',
-                  height: '20px',
-                  right: 2,
-                  top: 2,
-                }}>
-                Buy
-              </Button>
-            )}
-          </div>
-          <Button
-            size="small"
+            type="button"
             onClick={() => {
               props.setShowSync(false);
-              setSyncLoading(true);
-              sync.connect(syncInput.current?.value);
+              hideUpsell();
+              setTokenAction(null);
             }}>
-            Save
-          </Button>
+            <IconBack/>
+          </IconButton>
+          <UpgradeForm
+            settings={props.settings}
+            buttonText={titleCase(tokenAction)}
+            onTokenValid={(token) => {
+              hideUpsell();
+              props.setShowSync(false);
+              if (tokenAction === 'sync') {
+                setSyncLoading(true);
+                sync.connect(token);
+              } else if (tokenAction === 'download') {
+                emit<EventProjectExport>('PROJECT_EXPORT', {method: 'zip'}, props.settings.config);
+                setExportActive(true);
+                sync.connect(token, true);
+              } else {
+                emit<EventNotify>('NOTIFY', 'Project token saved.', {timeout: 3000});
+                sync.connect(token, true);
+              }
+              setTokenAction(null);
+            }}
+            onTokenInvalid={() => {
+              // Token is invalid, stay in upsell mode
+            }}
+          />
         </div>
       )}
       {viewState === 'new' && (
-        <div style={{display: 'flex', flexDirection: 'row', gap: 12, flex: 1}}>
+        <form
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            margin: 0,
+            gap: 12,
+            flex: 1,
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            emit<EventProjectNewComponent>('PROJECT_NEW_COMPONENT', newInput.current?.value ?? '');
+            setShowNew(false);
+          }}>
           <IconButton
             aria-label="Go back"
             size="small"
+            type="button"
             onClick={() => setShowNew(false)}>
             <IconBack/>
           </IconButton>
@@ -239,19 +244,11 @@ export function ProjectToolbar(props: ProjectToolbarProps) {
           <Button
             size="small"
             aria-label="Create Component"
-            onClick={() => {
-              emit<EventProjectNewComponent>('PROJECT_NEW_COMPONENT', newInput.current?.value ?? '');
-              setShowNew(false);
-            }}>
+            type="submit">
             Create
           </Button>
-        </div>
+        </form>
       )}
-      <ProjectGit
-        settings={props.settings}
-        onOpenChange={setShowGitDialog}
-        open={showGitDialog}
-      />
     </StatusBar>
   );
 }

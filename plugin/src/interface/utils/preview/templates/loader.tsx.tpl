@@ -5,6 +5,16 @@ import {useLayoutEffect, useState} from 'react';
 import {useControls, getMatrixTransformStyles, TransformWrapper, TransformComponent} from 'react-zoom-pan-pinch';
 import {Inspector} from 'preview-inspector';
 
+function addFont(name: string) {
+  const slug = name.replace(/ /g, '+');
+  if (document.getElementById(`Font:${slug}`)) return;
+  const fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.id = `Font:${slug}`;
+  fontLink.href = `https://fonts.googleapis.com/css2?family=${slug}`;
+  document.head.appendChild(fontLink);
+}
+
 export default function Loader() {
   const isList = __IS_LIST__;
   const [lockUser, setLockUser] = useState(false);
@@ -59,17 +69,35 @@ export function Preview(props: {
 
   const augmentNode = (node: any) => {
     const {name, fiber, element, codeInfo, pointer} = node;
-    const root = codeInfo?.absolutePath !== 'index.tsx';
-    const path = root ? codeInfo?.absolutePath : null;
-    const rect = element?.getBoundingClientRect();
+    const dataSource = fiber?.memoizedProps?.['data-source'];
     const nodeId = fiber?.memoizedProps?.['data-testid'];
+    let src = codeInfo;
+
+    // Used custom injected data-source (fuck you react 19)
+    if (!src && dataSource) {
+      const [locationInfo, absolutePath] = dataSource.split('@');
+      const [lineNumber, columnNumber] = locationInfo.split(':');
+      src = {
+        lineNumber,
+        columnNumber,
+        absolutePath,
+      };
+    }
+
+    // No source info
+    if (!src) {
+      return null;
+    }
+
+    const path = src?.absolutePath;
+    const rect = element?.getBoundingClientRect();
     const source = {
-      line: root && parseInt(codeInfo.lineNumber, 10) || 1,
-      column: root && parseInt(codeInfo.columnNumber, 10) || 1,
+      line: parseInt(src?.lineNumber, 10),
+      column: parseInt(src?.columnNumber, 10),
     };
+
     return {
       name,
-      root,
       path,
       rect,
       nodeId,
@@ -83,7 +111,7 @@ export function Preview(props: {
     : augmentNode(data);
 
   const inspectHandler = (type: 'hover' | 'inspect' | 'load') => (data: any) => {
-    // console.log(`[${type}]`, data);
+    // console.log(`>> [inspect::${type}]`, data);
     parent.postMessage({
       type: `loader::${type}`,
       info: augmentData(data, type === 'load'),
@@ -154,6 +182,11 @@ export function Preview(props: {
         case 'preview::load':
           setError(null);
           updateBackground(e.data.background);
+          if (e.data.fonts?.length) {
+            e.data.fonts
+              .filter(name => name !== 'Inter')
+              .forEach(name => addFont(name));
+          }
           // Clear diff if not head preview
           if (!e.data.head) {
             const diff = document.getElementById('diff');

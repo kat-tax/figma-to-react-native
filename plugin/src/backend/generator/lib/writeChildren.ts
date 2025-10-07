@@ -82,7 +82,6 @@ function writeChild(
   const swapNodeProp = getComponentPropName(propRefs?.mainComponent);
   const isRootPressable = pressables?.find(e => e[1] === 'root' || !e[1]) !== undefined;
   const isInstance = child.node.type === 'INSTANCE';
-  const isAsset = child.node.type === 'VECTOR' || (child.node.isAsset && !isInstance);
   const isInput = child.node.type === 'TEXT' && child.node.name.toLowerCase().startsWith('textinput');
   const isText = child.node.type === 'TEXT';
   const isSwap = Boolean(swapNodeProp);
@@ -92,62 +91,55 @@ function writeChild(
 
   // Icon node
   if (isIcon) {
+    state.flags.exoIcon.Icon = true;
     const icon = getIconProp(slug, isRootPressable);
     // Swap icon, override props for this instance
     if (isSwap) {
-      state.flags.exoUtils.createIcon = true;
-      const statement = `createIcon(props.${swapNodeProp}, ${icon})`;
+      const statement = `Icon.New(props.${swapNodeProp}, ${icon})`;
       writer.writeLine((isCond ? '' : '{') + statement + (isCond ? '' : '}'));
     // Explicit icon, use Icon component directly
     } else {
-      state.flags.exoIcon.Icon = true;
-      state.flags.reactNative.StyleSheet = true;
-      writer.writeLine(`<Icon {...StyleSheet.flatten(${icon})}/>`);
+      writer.writeLine(`<Icon style={${icon}}/>`);
     }
     return;
   }
 
   // Asset node
-  if (isAsset) {
-    const asset = data.assetData[child.node.id];
-    if (asset) {
-      // Vector node
-      if (asset.isVector) {
-        const vectorTag = '<' + asset.name + '/>'
-        writer.writeLine(vectorTag);
-      // Asset node
-      } else {
-        const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
-        const width = round(asset.width);
-        const height = round(asset.height);
-        const sizeProps = `width={${width}} height={${height}}`;
-        const animProps = assetProps?.length
-          ? ' ' + assetProps.map(a => a.trim()).join(' ')
-          : ' autoplay loop';
-        switch (assetType.trim().toLowerCase()) {
-          case 'lottie':
-            writer.writeLine(`<Lottie url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
-            state.flags.exoLottie.Lottie = true;
-            break;
-          case 'rive':
-            writer.writeLine(`<Rive url="${assetSource.trim()}"${animProps} ${sizeProps}/>`);
-            state.flags.exoRive.Rive = true;
-            break;
-          default:
-            // TODO: isVideo detection is broken
-            if (asset.isVideo) {
-              writer.writeLine(`<Video url="${assetSource.trim()}" poster={${asset.name}} ${sizeProps}/>`);
-              state.flags.exoVideo.Video = true;
-            } else {
-              const extraProps = asset.thumbhash ? ` thumbhash="${asset.thumbhash}"` : '';
-              writer.writeLine(`<Image url={${asset.name}} ${sizeProps}${extraProps}/>`);
-              state.flags.exoImage.Image = true;
-            }
-            break;
-        }
-      }
+  const asset = data.assetData?.[child.node.id];
+  if (asset) {
+    // Vector node
+    if (asset.isVector) {
+      const vectorTag = '<' + asset.name + '/>';
+      writer.writeLine(vectorTag);
+    // Asset node
     } else {
-      writer.writeLine(`<View/>`);
+      const [assetType, assetSource, ...assetProps] = asset.rawName.split('|');
+      const width = round(asset.width);
+      const height = round(asset.height);
+      const sizeProps = `width={${width}} height={${height}}`;
+      const animProps = assetProps?.length
+        ? ' ' + assetProps.map(a => a?.trim()).join(' ')
+        : ' autoplay loop';
+      switch (assetType?.trim().toLowerCase()) {
+        case 'lottie':
+          writer.writeLine(`<Lottie url="${assetSource?.trim()}"${animProps} ${sizeProps}/>`);
+          state.flags.exoLottie.Lottie = true;
+          break;
+        case 'rive':
+          writer.writeLine(`<Rive url="${assetSource?.trim()}"${animProps} ${sizeProps}/>`);
+          state.flags.exoRive.Rive = true;
+          break;
+        default:
+          if (asset.isVideo) {
+            writer.writeLine(`<Video url="${assetSource?.trim()}" poster={${asset.name}} ${sizeProps}/>`);
+            state.flags.exoVideo.Video = true;
+          } else {
+            const extraProps = asset.thumb ? ` thumbhash="${asset.thumb}"` : '';
+            writer.writeLine(`<Image url={${asset.name}} ${sizeProps}${extraProps}/>`);
+            state.flags.exoImage.Image = true;
+          }
+          break;
+      }
     }
     return;
   }
@@ -196,12 +188,14 @@ function writeChild(
   // Component props
   const jsxProps = writePropsAttrs(new CodeBlockWriter(state.settings.writer), {
     props: instance.node.componentProperties,
+    flags: state.flags,
     infoDb: state.infoDb,
     nodeId: instance.node.id,
     styleProp: jsxStyleProp,
     attrProps: jsxAttrProps,
     motionProps: jsxMotionProps,
     forceMultiLine: isInput,
+    translate: settings?.translate,
   });
 
   // Create instance tag
@@ -233,20 +227,24 @@ function writeChild(
 
   // Text input detected
   if (isInput) {
-    state.flags.reactNative.TextInput = true;
+    state.flags.exoTextInput.TextInput = true;
     writer.write('<TextInput').write(jsxProps).indent(() => {
       // Placeholder (props value)
       if (textPropValue.startsWith('props.')) {
         writer.writeLine(`placeholder={${textPropValue}}`);
       // Placeholder (explict), translate
       } else if (settings?.translate) {
-        state.flags.lingui.t = true;
+        state.flags.lingui.useLingui = true;
         writer.writeLine(`placeholder={t\`${textPropValue}\`}`);
       } else {
         writer.writeLine(`placeholder={\`${textPropValue}}\``);
       }
-      writer.writeLine(`placeholderTextColor={${getFillToken(child.node as TextNode)}}`);
-      state.flags.useStylesTheme = true;
+      // TODO: override placeholder text color
+      // writer.write(`uniProps={theme => (`);
+      // writer.inlineBlock(() => {
+      //   writer.writeLine(`placeholderTextColor: ${getFillToken(child.node as TextNode)},`);
+      // });
+      // writer.write(`)}`);
     });
     writer.write(`/>`);
     return;
@@ -272,11 +270,11 @@ function writeChild(
         // Component property string
         if (textPropValue.startsWith('props.')) {
           writer.write(`{${textPropValue}}`);
-        // Explicit string
-        } else {
+        // Explicit string (and not empty)
+        } else if (textPropValue) {
           if (settings?.translate) {
-            state.flags.lingui.Trans = true;
-            writer.write('<Trans>{`' + textPropValue + '`}</Trans>');
+            state.flags.lingui.useLingui = true;
+            writer.write('{t`' + textPropValue + '`}');
           } else {
             writer.write(`{\`${textPropValue}\`}`);
           }

@@ -1,0 +1,1 @@
+{"name":"react-native-svg","version":"15.13.0","types":"lib/typescript/index.d.ts","dependencies":{"css-select":"^5.1.0","css-tree":"^1.1.3","warn-once":"0.1.1"},"peerDependencies":{"react":"*","react-native":"*"}}

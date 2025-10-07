@@ -21,13 +21,13 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
   const componentNodes = (target as unknown as ChildrenMixin)?.findAllWithCriteria({types: ['COMPONENT']});
   const exportNodes = parser.getComponentTargets(componentNodes);
 
-  // Filter out special pages
+  // Filter out certain special pages
   exportNodes.forEach(node => {
       const pageName = parser.getPage(node).name;
       if (pageName === consts.PAGES_SPECIAL.TESTS
-        || pageName === consts.PAGES_SPECIAL.LIBRARY
         || pageName === consts.PAGES_SPECIAL.ICONS
-        || pageName === consts.PAGES_SPECIAL.NAVIGATION) {
+        || pageName === consts.PAGES_SPECIAL.LIBRARY
+      ) {
         exportNodes.delete(node);
       }
   });
@@ -46,7 +46,7 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
         try {
           const bundle = await generateBundle(component, null, settings);
           if (bundle.code) {
-            bundle.assets?.forEach(asset => assets.set(asset.hash, asset));
+            bundle.assets?.forEach(asset => assets.set(asset.id, asset));
             componentInfo[bundle.info.target.key] = bundle.info;
             components.push([
               bundle.info.path,
@@ -64,6 +64,7 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
       }
 
       assets.forEach(asset => buildAssets.push([
+        componentInfo[asset.parent].path,
         asset.name,
         asset.isVector,
         asset.bytes,
@@ -86,12 +87,12 @@ export function build(form: ProjectExport, settings: ProjectSettings) {
 
       // Increment design package version
       if (form.method === 'npm' || form.method === 'git') {
-        const version = info.appConfig?.['Design']?.['PACKAGE_VERSION']?.toString();
+        const version = info.appConfig?.['General']?.['DESIGN_VERSION']?.toString();
         if (version) {
           const [major, minor, patch] = version.split('.').map(Number);
           const newVersion = `${major}.${minor}.${patch + 1}`;
           projectVersion = newVersion;
-          info.appConfig['Design']['PACKAGE_VERSION'] = newVersion;
+          info.appConfig['General']['DESIGN_VERSION'] = newVersion;
         }
         await setProjectVersion(projectVersion);
       }
@@ -123,11 +124,24 @@ function getAppConfig(
 ): ProjectInfo['appConfig'] {
   return variables.reduce((acc, cur) => {
     const defaultMode = collection.defaultModeId;
-    const defaultValue = cur.valuesByMode[defaultMode]?.toString().trim();
+    const defaultValue = cur.valuesByMode[defaultMode];
+    let parsedValue = '';
+    // String
+    if (typeof defaultValue === 'string') {
+      parsedValue = defaultValue?.toString().trim();
+    // Number
+    } else if (typeof defaultValue === 'number') {
+      parsedValue = defaultValue.toString();
+    // Color
+    } else {
+      parsedValue = parser.getColor(defaultValue as RGBA);
+    }
     const [_group, _key] = cur.name.includes('/') ? cur.name.split('/') : ['General', cur.name];
     const group = string.titleCase(_group);
     const key = string.createIdentifierConstant(_key);
-    const val = key.startsWith('@') ? `"${defaultValue}"` : defaultValue;
+    const val = key.startsWith('@') || parsedValue.includes('#')
+      ? `"${parsedValue}"`
+      : parsedValue;
     if (!acc[group]) acc[group] = {};
     acc[group][key] = val;
     return acc;
@@ -159,7 +173,7 @@ async function setProjectVersion(version: string) {
   if (config) {
     const variables = await parser.getVariables(config.variableIds);
     if (variables) {
-      const variable = variables.find(v => v.name === 'Design/Package Version');
+      const variable = variables.find(v => v.name === 'General/Design Version');
       if (variable) {
         variable.setValueForMode(config.defaultModeId, version);
       }

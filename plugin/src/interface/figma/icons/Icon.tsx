@@ -2,6 +2,7 @@ export interface IconProps {
   color?: IconColor | 'currentColor' | `#${string}`;
   size?: number;
   path?: string;
+  paths?: string[];
 }
 
 export type IconColor =
@@ -60,23 +61,27 @@ export type IconColor =
   | 'warning-secondary'
   | 'warning-tertiary'
 
-export function Icon({color = 'currentColor', size = 16, path}: IconProps) {
+export function Icon({color = 'currentColor', size = 16, paths, path}: IconProps) {
+  const _paths = paths ? paths : [path];
   return (
     <svg
       width={size}
       height={size}
       fill="none"
       viewBox={`0 0 ${size} ${size}`}>
-      <path
-        fill={color === 'currentColor'
-          ? 'currentColor'
-          : typeof color === 'string' && color.startsWith('#')
-            ? color
-            : `var(--figma-color-icon-${color})`}
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d={path}
-      />
+      {_paths.map((path, index) => (
+        <path
+          key={index}
+          fill={color === 'currentColor'
+            ? 'currentColor'
+            : typeof color === 'string' && color.startsWith('#')
+              ? color
+              : `var(--figma-color-icon-${color})`}
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d={path}
+        />
+      ))}
     </svg>
   );
 }

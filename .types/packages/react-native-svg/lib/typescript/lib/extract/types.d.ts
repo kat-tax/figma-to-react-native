@@ -1,0 +1,246 @@
+import type { ColorValue, GestureResponderEvent, GestureResponderHandlers, Insets, LayoutChangeEvent, TransformsStyle } from 'react-native';
+import type React from 'react';
+import { DirectEventHandler, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
+export type NumberProp = string | number;
+export type NumberArray = NumberProp[] | NumberProp;
+export type BooleanProp = boolean | 'true' | 'false';
+export type FillRule = 'evenodd' | 'nonzero';
+export type Units = 'userSpaceOnUse' | 'objectBoundingBox';
+export type TextAnchor = 'start' | 'middle' | 'end';
+export type FontStyle = 'normal' | 'italic' | 'oblique';
+export type FontVariant = 'normal' | 'small-caps';
+export type FontWeight = NumberProp | 'normal' | 'bold' | 'bolder' | 'lighter' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
+export type FontStretch = 'normal' | 'wider' | 'narrower' | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded';
+export type TextDecoration = 'none' | 'underline' | 'overline' | 'line-through' | 'blink';
+export type FontVariantLigatures = 'normal' | 'none';
+export type AlignmentBaseline = 'baseline' | 'text-bottom' | 'alphabetic' | 'ideographic' | 'middle' | 'central' | 'mathematical' | 'text-top' | 'bottom' | 'center' | 'top' | 'text-before-edge' | 'text-after-edge' | 'before-edge' | 'after-edge' | 'hanging';
+export type BaselineShift = 'sub' | 'super' | 'baseline' | ReadonlyArray<NumberProp> | NumberProp;
+export type LengthAdjust = 'spacing' | 'spacingAndGlyphs';
+export type TextPathMethod = 'align' | 'stretch';
+export type TextPathSpacing = 'auto' | 'exact';
+export type TextPathMidLine = 'sharp' | 'smooth';
+export type Linecap = 'butt' | 'square' | 'round';
+export type Linejoin = 'miter' | 'bevel' | 'round';
+export type FilterEdgeMode = 'duplicate' | 'wrap' | 'none';
+export type FilterColorMatrixType = 'matrix' | 'saturate' | 'hueRotate' | 'luminanceToAlpha';
+export interface TouchableProps {
+    disabled?: boolean;
+    onPress?: (event: GestureResponderEvent) => void;
+    onPressIn?: (event: GestureResponderEvent) => void;
+    onPressOut?: (event: GestureResponderEvent) => void;
+    onLongPress?: (event: GestureResponderEvent) => void;
+    delayPressIn?: number;
+    delayPressOut?: number;
+    delayLongPress?: number;
+}
+export interface ResponderProps extends GestureResponderHandlers {
+    pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
+}
+export interface FillProps {
+    fill?: ColorValue;
+    fillOpacity?: NumberProp;
+    fillRule?: FillRule;
+}
+export interface ColorProps {
+    color?: ColorValue;
+}
+export interface ClipProps {
+    clipRule?: FillRule;
+    clipPath?: string;
+}
+export interface VectorEffectProps {
+    vectorEffect?: 'none' | 'non-scaling-stroke' | 'nonScalingStroke' | 'default' | 'inherit' | 'uri';
+}
+export interface DefinitionProps {
+    id?: string;
+}
+export interface StrokeProps {
+    stroke?: ColorValue;
+    strokeWidth?: NumberProp;
+    strokeOpacity?: NumberProp;
+    strokeDasharray?: ReadonlyArray<NumberProp> | NumberProp;
+    strokeDashoffset?: NumberProp;
+    strokeLinecap?: Linecap;
+    strokeLinejoin?: Linejoin;
+    strokeMiterlimit?: NumberProp;
+    vectorEffect?: VectorEffect;
+}
+export type VectorEffect = 'none' | 'non-scaling-stroke' | 'nonScalingStroke' | 'default' | 'inherit' | 'uri';
+export interface FontObject {
+    fontStyle?: FontStyle;
+    fontVariant?: FontVariant;
+    fontWeight?: FontWeight;
+    fontStretch?: FontStretch;
+    fontSize?: NumberProp;
+    fontFamily?: string;
+    textAnchor?: TextAnchor;
+    textDecoration?: TextDecoration;
+    letterSpacing?: NumberProp;
+    wordSpacing?: NumberProp;
+    kerning?: NumberProp;
+    fontFeatureSettings?: string;
+    fontVariantLigatures?: FontVariantLigatures;
+    fontVariationSettings?: string;
+}
+export interface FontProps extends FontObject {
+    font?: FontObject;
+}
+export type ColumnMajorTransformMatrix = [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+];
+export interface TransformProps {
+    /**
+     * @deprecated Use translateX and translateY in transform prop instead.
+     */
+    translate?: NumberArray;
+    /**
+     * @deprecated Use translateX in transform prop instead.
+     */
+    translateX?: NumberProp;
+    /**
+     * @deprecated Use translateY in transform prop instead.
+     */
+    translateY?: NumberProp;
+    /**
+     * @deprecated
+     */
+    origin?: NumberArray;
+    /**
+     * @deprecated
+     */
+    originX?: NumberProp;
+    /**
+     * @deprecated
+     */
+    originY?: NumberProp;
+    /**
+     * @deprecated Use scaleX and scaleY in transform prop instead.
+     */
+    scale?: NumberArray;
+    /**
+     * @deprecated Use scaleX in transform prop instead.
+     */
+    scaleX?: NumberProp;
+    /**
+     * @deprecated Use scaleY in transform prop instead.
+     */
+    scaleY?: NumberProp;
+    /**
+     * @deprecated Use skewX and skewY in transform prop instead.
+     */
+    skew?: NumberArray;
+    /**
+     * @deprecated Use skewX in transform prop instead.
+     */
+    skewX?: NumberProp;
+    /**
+     * @deprecated Use skewY in transform prop instead.
+     */
+    skewY?: NumberProp;
+    /**
+     * @deprecated Use rotate in transform prop instead.
+     */
+    rotation?: NumberProp;
+    /**
+     * @deprecated Use translateX in transform prop instead.
+     */
+    x?: NumberArray;
+    /**
+     * @deprecated Use translateY in transform prop instead.
+     */
+    y?: NumberArray;
+    transform?: ColumnMajorTransformMatrix | string | TransformsStyle['transform'];
+}
+/**
+ * @deprecated TransformedProps should no longer be used.
+ */
+export interface TransformedProps {
+    rotation: number;
+    originX: number;
+    originY: number;
+    scaleX: number;
+    scaleY: number;
+    skewX: number;
+    skewY: number;
+    x: number;
+    y: number;
+}
+export type MaskType = 'alpha' | 'luminance';
+export interface CommonMaskProps {
+    mask?: string;
+}
+export interface CommonFilterProps {
+    filter?: string;
+}
+export interface CommonMarkerProps {
+    marker?: string;
+    markerStart?: string;
+    markerMid?: string;
+    markerEnd?: string;
+}
+type OnSvgLayoutEvent = Readonly<{
+    layout: {
+        x: Int32;
+        y: Int32;
+        width: Int32;
+        height: Int32;
+    };
+}>;
+export interface NativeProps {
+    onLayout?: (event: LayoutChangeEvent) => void;
+}
+export interface AccessibilityProps {
+    accessibilityLabel?: string;
+    accessible?: boolean;
+    testID?: string;
+}
+export interface CommonPathProps extends ColorProps, FillProps, StrokeProps, ClipProps, TransformProps, VectorEffectProps, ResponderProps, TouchableProps, DefinitionProps, CommonMarkerProps, CommonMaskProps, CommonFilterProps, NativeProps, AccessibilityProps {
+}
+export interface HitSlop {
+    hitSlop?: Insets | number | undefined;
+}
+export type ResponderInstanceProps = {
+    touchableHandleResponderMove?: (e: GestureResponderEvent) => void;
+    touchableHandleResponderGrant?: (e: GestureResponderEvent) => void;
+    touchableHandleResponderRelease?: (e: GestureResponderEvent) => void;
+    touchableHandleResponderTerminate?: (e: GestureResponderEvent) => void;
+    touchableHandleStartShouldSetResponder?: (e: GestureResponderEvent) => boolean;
+    touchableHandleResponderTerminationRequest?: (e: GestureResponderEvent) => boolean;
+};
+export type extractedProps = {
+    name?: string;
+    mask?: string;
+    opacity?: number;
+    matrix?: number[];
+    propList?: string[];
+    onSvgLayout?: DirectEventHandler<OnSvgLayoutEvent>;
+    ref?: (instance: React.Component | null) => void;
+    markerStart?: string;
+    markerMid?: string;
+    markerEnd?: string;
+    clipPath?: string;
+    clipRule?: number;
+    display?: string;
+    testID?: string;
+    accessibilityLabel?: string;
+    accessible?: boolean;
+    [touchableProperty: string]: unknown;
+};
+export interface TextSpecificProps extends CommonPathProps, FontProps {
+    alignmentBaseline?: AlignmentBaseline;
+    baselineShift?: BaselineShift;
+    verticalAlign?: NumberProp;
+    lengthAdjust?: LengthAdjust;
+    textLength?: NumberProp;
+    fontData?: null | {
+        [name: string]: unknown;
+    };
+    fontFeatureSettings?: string;
+}
+export {};
+//# sourceMappingURL=types.d.ts.map

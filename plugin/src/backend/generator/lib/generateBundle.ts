@@ -81,6 +81,9 @@ export async function generateBundle(
       list: Array.from(data.meta.iconsUsed),
       count: data.meta.iconCounts,
     },
+    fonts: {
+      list: Array.from(data.meta.fontsUsed),
+    },
   } satisfies ComponentData;
 }
 
@@ -99,5 +102,8 @@ const emptyBundle: ComponentData = {
   icons: {
     list: [],
     count: {},
+  },
+  fonts: {
+    list: [],
   },
 };

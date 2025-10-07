@@ -14,8 +14,8 @@ export type ComponentInfo = {
 export type ComponentBuild = {
   roster: ComponentRoster,
   assets: Record<string, ComponentAsset>,
-  assetMap: Record<string, string>,
   icons: {list: string[], count: Record<string, number>},
+  fonts: {list: string[]},
   pages: string[],
   links: ComponentLinks,
   total: number,
@@ -54,13 +54,17 @@ export type ComponentData = {
     list: string[],
     count: Record<string, number>,
   },
+  fonts: {
+    list: string[],
+  },
 }
 
 export type ComponentAsset = {
+  id: string,
   name: string,
-  hash: string,
   width: number,
   height: number,
+  parent: string,
   bytes: Uint8Array,
   isVector?: boolean,
 }

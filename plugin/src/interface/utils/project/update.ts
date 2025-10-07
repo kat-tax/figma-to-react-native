@@ -5,7 +5,7 @@
 import {git, http, MemoryFS} from 'git-mem';
 import {F2RN_EXO_REPO_URL, F2RN_EXO_PROXY_URL} from 'config/consts';
 import {emit} from '@create-figma-plugin/utilities';
-import * as _ from './data/metadata';
+import * as _ from './lib/metadata';
 
 import type {ProjectBuild, ProjectInfo} from 'types/project';
 import type {ProjectSettings} from 'types/settings';
@@ -35,14 +35,6 @@ export async function update(project: ProjectBuild, info: ProjectInfo, settings:
   fs.writeFileSync('config.yaml', _.appConfig(info));
   changes.add('config.yaml');
 
-  // Locales
-  fs.writeFileSync('locales.ts', _.localesConfig(info));
-  changes.add('locales.ts');
-
-  // Storybook
-  fs.writeFileSync('guides/storybook/get started.mdx', _.storybookIndex(metadata));
-  changes.add('guides/storybook/get started.mdx');
-
   // Design
   fs.writeFileSync('design/index.ts', project.index);
   fs.writeFileSync('design/theme.ts', project.theme);
@@ -58,15 +50,15 @@ export async function update(project: ProjectBuild, info: ProjectInfo, settings:
 
   // Assets
   const added = new Set();
-  for (const [name, isVector, bytes] of project.assets) {
+  for (const [path, name, isVector, bytes] of project.assets) {
     const ext = isVector ? 'svg' : 'png';
-    const type = isVector ? 'svg' : 'img';
-    const path = `design/assets/${type}/${name.toLowerCase()}.${ext}`;
+    const base = `design/${path}/assets`;
+    const filePath = `${base}/${name.toLowerCase()}.${ext}`;
     if (added.has(path)) continue;
-    fs.mkdirSync(`design/assets/${type}`, {recursive: true});
-    fs.writeFileSync(path, bytes);
-    added.add(path);
-    changes.add(path);
+    fs.mkdirSync(base, {recursive: true});
+    fs.writeFileSync(filePath, bytes);
+    added.add(filePath);
+    changes.add(filePath);
   }
 
   // Components
@@ -92,7 +84,7 @@ export async function update(project: ProjectBuild, info: ProjectInfo, settings:
   }
 
   // Commit
-  const message = `Release ${metadata.pkgVersion || '0.0.1'}`;
+  const message = `Design v${metadata.pkgVersion || '0.0.1'}`;
   await git.add({fs, dir, parallel: true, filepath: Array.from(changes)});
   await git.commit({...repo, message, author: {name: 'Figma → React Native', email: 'team@kat.tax'}});
 

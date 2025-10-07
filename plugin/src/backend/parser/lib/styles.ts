@@ -14,11 +14,12 @@ type StyleClass = {[key: string]: string};
 
 export async function getStyleSheet(
   nodes: Set<string>,
+  fonts?: Set<string>,
   variants?: ParseVariantData,
   skipCache: boolean = false,
 ): Promise<ParseStyleSheet> {
   // Generate CSS from nodes
-  const _t1 = Date.now();
+  // const _t1 = Date.now();
   const css: StyleSheet = {};
   for (const id of nodes) {
     css[id] = await getCSS(id, skipCache);
@@ -34,14 +35,14 @@ export async function getStyleSheet(
   }
 
   // Profile
-  console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
-  
+  // console.log(`>> [styles] ${Date.now() - _t1}ms (${nodes.size} styles, ${Object.keys(variants?.mapping || {}).length} variants)`);
+
   // Convert CSS
-  const _t2 = Date.now();
+  // const _t2 = Date.now();
   const output = await convertStyles(css);
 
   // Profile
-  console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
+  // console.log(`>> [styles/convert] ${Date.now() - _t2}ms`);
 
   // Build Stylesheet
   const stylesheet: ParseStyleSheet = {};
@@ -51,6 +52,10 @@ export async function getStyleSheet(
     if (style) {
       const props = {};
       for (const k in style) {
+        // Track unique fonts used
+        if (k === 'fontFamily' && typeof style[k] === 'string' && fonts) {
+          fonts.add(style[k].replace(/^"|"$/g, ''));
+        }
         // TODO: handle this in css-to-rn
         if (k === 'display' && style[k] === 'flex') {
           if (!style['flexDirection']) {
@@ -67,16 +72,16 @@ export async function getStyleSheet(
   return stylesheet;
 }
 
-async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClass> {  
+async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClass> {
   // Memory cache
   if (!skipCache && _cacheCSS[id]) {
     return _cacheCSS[id];
   }
-  
+
   // Lookup node
   const node = getNode(id);
   const key = `${consts.F2RN_CACHE_CSS}:${id}`;
-  
+
   // Disk cache
   if (!skipCache) {
     const data = await figma.clientStorage.getAsync(key);
@@ -90,13 +95,21 @@ async function getCSS(id: string, skipCache: boolean = false): Promise<StyleClas
   }
 
   // Generate CSS
-  const css = await node.getCSSAsync();
-  _cacheCSS[id] = css;
-
-  // Cache disk
-  await figma.clientStorage.setAsync(key, JSON.stringify(css));
-
-  return css;
+  try {
+    const css = await node.getCSSAsync();
+    _cacheCSS[id] = css;
+    // Cache disk (do not await)
+    figma.clientStorage.setAsync(key, JSON.stringify(css));
+    return css;
+  } catch (e) {
+    console.warn('Failed to generate CSS', id);
+    // Fallback from cache
+    if (_cacheCSS[id]) {
+      return _cacheCSS[id];
+    }
+    // Return empty object if no fallback
+    return {};
+  }
 }
 
 async function convertStyles(css: StyleSheet): Promise<Record<string, any>> {

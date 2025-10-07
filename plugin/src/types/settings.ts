@@ -1,6 +1,7 @@
-import type {BuildOptions} from 'syn-bundler';
+import type {BuildOptions} from 'web-bundler';
 import type {MonacoEditorOptions} from 'interface/utils/editor/monaco';
-import type {Options as CodeBlockWriterOptions} from 'code-block-writer';
+import type {Options as WriterOptions} from 'code-block-writer';
+import type {ProjectComponentLayout} from 'types/project';
 
 export interface UserSettings {
   /**
@@ -11,21 +12,6 @@ export interface UserSettings {
   * Options for the preview compiler.
   */
   esbuild: BuildOptions,
-}
-
-export interface ProjectSettings extends UserSettings {
-  /**
-   * Project token from https://figma-to-react-native.com
-   */
-  projectToken: string,
-  /**
-   * Enable to add translations tags to strings
-   */
-  translate?: boolean,
-  /**
-  * Options for the code writer.
-  */
-  writer: CodeBlockWriterOptions,
   /**
    * Git configuration
    */
@@ -43,4 +29,32 @@ export interface ProjectSettings extends UserSettings {
      */
     accessToken: string,
   },
+  /**
+   * UI preferences
+   */
+  ui: {
+    /**
+     * Component layout preference
+     */
+    componentLayout?: ProjectComponentLayout,
+    /**
+     * Icon zoom/scale factor
+     */
+    iconZoom?: number,
+  },
+}
+
+export interface ProjectSettings extends UserSettings {
+  /**
+   * Project token from https://figma-to-react-native.com
+   */
+  projectToken: string,
+  /**
+   * Enable to add translations tags to strings
+   */
+  translate?: boolean,
+  /**
+  * Options for the code writer.
+  */
+  writer: WriterOptions,
 }

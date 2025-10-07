@@ -6,6 +6,8 @@
     <title>Component Previewer</title>
     <link rel="preconnect" href="https://rsms.me/">
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
       :root {
         font-family: Inter, sans-serif;
@@ -111,12 +113,14 @@
         outline: none;
       }
     </style>
+    <!-- https://react.dev/learn/react-developer-tools#safari-and-other-browsers -->
     <script src="http://localhost:8097"></script>
   </head>
   <body>
     <div id="previewer"></div>
+    <script>__DEV__ = true</script>
     <script>process = {env: {NODE_ENV: 'development'}}</script>
-    <script async src="https://unpkg.com/es-module-shims@1.4.3/dist/es-module-shims.js"></script>
+    <!-- <script async src="https://unpkg.com/es-module-shims@1.4.3/dist/es-module-shims.js"></script> -->
     <script type="importmap">{"imports": __IMPORT_MAP__}</script>
     <script type="module">__LOADER__</script>
   </body>

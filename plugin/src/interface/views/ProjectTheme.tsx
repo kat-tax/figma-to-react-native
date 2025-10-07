@@ -26,7 +26,7 @@ export function ProjectTheme(props: ProjectThemeProps) {
           loading={<LoadingIndicator/>}
           onMount={(editor) => {
             new MonacoBinding(
-              $.provider?.awareness,
+              $.ysweet?.awareness,
               $.projectTheme.get(),
               editor.getModel(),
               new Set([editor]),

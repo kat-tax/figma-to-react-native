@@ -1,44 +1,32 @@
 // @ts-nocheck
 
+import 'styles';
+import {UnistylesRuntime} from 'react-native-unistyles';
 import {AppRegistry} from 'react-native';
-import {UnistylesRuntime, UnistylesRegistry} from 'react-native-unistyles';
 import {Logtail} from '@logtail/browser';
-import {themes, breakpoints} from 'theme';
-
-type AppThemes = {[K in keyof typeof themes]: typeof themes[K]};
-type AppBreakpoints = typeof breakpoints;
-
-declare module 'react-native-unistyles' {
-  export interface UnistylesBreakpoints extends AppBreakpoints {}
-  export interface UnistylesThemes extends AppThemes {}
-}
-
-const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
-const initialBackground = '__CURRENT_BACKGROUND__';
-const initialTheme = '__CURRENT_THEME__';
-
-window.__trans__ = (msg: string) => msg;
 
 __COMPONENT_IMPORTS__
 
 export function App() {
-  const [variant, setVariant] = React.useState({});
+  const [variant, setVariant] = React.useState(__INITIAL_VARIANT__);
+  const [variantKey, setVariantKey] = React.useState(0);
 
   React.useEffect(() => {
     const updateProps = (e: JSON) => {
       switch (e.data?.type) {
         case 'preview::theme':
-          // console.log('[changed theme]', e.data.theme);
           UnistylesRuntime.setTheme(e.data.theme);
+          // console.log('>>> [changed theme]', e.data.theme);
           return;
         case 'preview::figma-theme':
           document.documentElement.className = e.data.isDark ? 'dark' : 'light';
           return;
         case 'preview::variant': {
-          // console.log('[changed variant]', e.data.variant);
           const newRoot = e.data.variant.props;
           setVariant(newRoot);
-          parent.postMessage({type: 'app:refresh'});
+          // Force re-render by updating the key
+          setVariantKey(prev => prev + 1);
+          // console.log('>>> [changed variant]', e.data.variant);
           return;
         }
       }
@@ -54,17 +42,10 @@ export function App() {
 
   return (
     <ErrorBoundary>
-      {React.cloneElement(__COMPONENT_TAG__, variant)}
+      {React.cloneElement(__COMPONENT_TAG__, {...variant, key: variantKey})}
     </ErrorBoundary>
   )
 }
-
-document.body.style.backgroundColor = initialBackground;
-
-UnistylesRegistry
-  .addThemes(themes)
-  .addBreakpoints(breakpoints)
-  .addConfig({initialTheme});
 
 AppRegistry.registerComponent('app', () => App);
 AppRegistry.runApplication('app', {
@@ -72,6 +53,7 @@ AppRegistry.runApplication('app', {
   mode: 'concurrent',
 });
 
+const logtail = new Logtail('3hRzjtVJTBk6BDFt3pSjjKam');
 class ErrorBoundary extends React.Component<{children: React.ReactNode}> {
   constructor(props: {children: React.ReactNode}) {
     super(props);

@@ -14,9 +14,13 @@ export default <ProjectSettings> {
     branch: '',
     accessToken: '',
   },
+  ui: {
+    componentLayout: 'auto',
+    iconZoom: 1,
+  },
   monaco: {
     general: {
-      fontSize: 11,
+      fontSize: 12,
       folding: false,
       wordWrap: 'off',
       lineNumbers: 'off',

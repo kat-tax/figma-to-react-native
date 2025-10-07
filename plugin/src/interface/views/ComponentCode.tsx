@@ -71,16 +71,17 @@ export function ComponentCode(props: ComponentCodeProps) {
   useEffect(() => {
     if ($info) {
       setComponentPath(`${F2RN_EDITOR_NS}${$info.path.split('/').slice(1).join('/')}.tsx`);
-      setComparePath(`${F2RN_EDITOR_NS}compare/${$info.path.split('/').slice(1).join('/')}.tsx`);
+      setComparePath(`${F2RN_EDITOR_NS}.git/${$info.path.split('/').slice(1).join('/')}.tsx`);
       setSnap($code.get().toString());
       try {
         const path = `design/${$info.path}/${$info.name}.tsx`;
         setHead(fs.readFileSync(path, 'utf8')?.toString());
       } catch (e) {
-        setHead($code.get().toString());
+        // For new components with no git history, show empty original to display all content as additions
+        setHead('');
       }
     }
-  }, [$info, $code, fs]);
+  }, [$info, $code, fs, props.compKey]);
 
   // Update component dependencies on new build
   useEffect(() => {
@@ -159,10 +160,9 @@ export function ComponentCode(props: ComponentCodeProps) {
             e.onDidChangeModel((_event) => {
               // console.log('[changed model]', event);
               props.nav.setCursorPos(null);
-              e.focus();
             });
             new MonacoBinding(
-              $.provider?.awareness,
+              $.ysweet?.awareness,
               $code.get(),
               e.getModel(),
               new Set([e]),
@@ -181,10 +181,10 @@ export function ComponentCode(props: ComponentCodeProps) {
           keepCurrentModifiedModel={true}
           keepCurrentOriginalModel={false}
           onMount={(e) => {
-            const editor = e.getModifiedEditor();
-            diff.exit(editor, props.monaco, () => {
-              props.setShowDiff(false);
-            });
+            const editorOriginal =e.getOriginalEditor();
+            const editorModified = e.getModifiedEditor();
+            diff.exit(editorOriginal, props.monaco, () => props.setShowDiff(false));
+            diff.exit(editorModified, props.monaco, () => props.setShowDiff(false));
           }}
         />}
         {toolbarState && (

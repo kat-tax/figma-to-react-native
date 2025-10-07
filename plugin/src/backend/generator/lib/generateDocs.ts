@@ -78,7 +78,7 @@ async function getDesignProject() {
     if (config) {
       const variables = await getVariables(config.variableIds);
       if (variables) {
-        const variable = variables.find(v => v.name === 'Design/Package Name');
+        const variable = variables.find(v => v.name === 'General/Design Name');
         if (variable && variable.resolvedType === 'STRING') {
           pkgName = variable.valuesByMode[config.defaultModeId].toString();
         }

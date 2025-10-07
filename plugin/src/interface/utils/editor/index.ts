@@ -1,6 +1,7 @@
-import {F2RN_EDITOR_NS} from 'config/consts';
-import {componentPathNormalize} from 'common/string';
 import {emit} from '@create-figma-plugin/utilities';
+import {fs, ZipFileEntry} from '@zip.js/zip.js';
+import {componentPathNormalize} from 'common/string';
+import {F2RN_EDITOR_NS, F2RN_EXO_TYPE_ZIP} from 'config/consts';
 import schema from 'interface/schemas/schema.json';
 
 import * as $ from 'store';
@@ -8,7 +9,6 @@ import * as $ from 'store';
 import diff from './lib/diff';
 import imports from './lib/imports';
 import copilot from './lib/copilot';
-import typings from './lib/typings';
 import prompts from './lib/prompts';
 import language from './lib/language';
 
@@ -42,12 +42,27 @@ export const toolbarEvents = {
   }
 };
 
+export async function initPackageTypes(monaco: Monaco) {
+  const ts = monaco.languages.typescript.typescriptDefaults;
+  const zip = new fs.FS();
+  const entries = await zip.importHttpContent(F2RN_EXO_TYPE_ZIP);
+  const contents = entries
+    .filter(entry => !entry.data.directory)
+    .map(async (entry) => {
+      return {
+        content: await (entry as ZipFileEntry<string, string>).getText('utf-8'),
+        filePath: `${F2RN_EDITOR_NS}node_modules${entry.data.filename.replace(/^packages/, '')}`
+      };
+    });
+  ts.setExtraLibs(await Promise.all(contents));
+}
+
 export function initTypescript(monaco: Monaco, settings: UserSettings) {
   const ts = monaco.languages.typescript.typescriptDefaults;
-  ts?.setInlayHintsOptions(settings.monaco.inlayHints);
-  ts?.setDiagnosticsOptions(settings.monaco.diagnostics);
+  ts?.setInlayHintsOptions(settings?.monaco?.inlayHints);
+  ts?.setDiagnosticsOptions(settings?.monaco?.diagnostics);
   ts?.setCompilerOptions({
-    ...settings.monaco.compiler,
+    ...settings?.monaco?.compiler,
     jsx: monaco.languages.typescript.JsxEmit.ReactNative,
     moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
     target: monaco.languages.typescript.ScriptTarget.ESNext,
@@ -57,6 +72,7 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
       'theme': [`${F2RN_EDITOR_NS}theme.ts`],
       'components/*': [`${F2RN_EDITOR_NS}*`],
       'react-exo/*': [`${F2RN_EDITOR_NS}node_modules/react-exo`],
+      '@lingui/react/macro': [`${F2RN_EDITOR_NS}node_modules/@lingui/react/macro`],
     }
   });
 
@@ -85,9 +101,6 @@ export function initTypescript(monaco: Monaco, settings: UserSettings) {
 }
 
 export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
-  // Example 1: testID={props.testID ?? "1034:553"}
-  // Example 2: testID="1034:553"
-  const regexTestId = /testID=(?:"(\d+:\d+)"|{props\.testID \?\? "(\d+:\d+)"})/;
   return monaco.editor.registerEditorOpener({
     openCodeEditor(source, resource) {
       let nodeId: string | undefined;
@@ -98,28 +111,38 @@ export function initFileOpener(monaco: Monaco, links?: ComponentLinks) {
         if (isOriginFile) {
           nodeId = links?.[componentPathNormalize(resource.path)];
         }
-
         // Search for test ids if no component name found
         if (!nodeId) {
           const sel = source.getSelection();
           const model = source.getModel();
           for (let i = sel.startLineNumber; i <= sel.endLineNumber; i++) {
             const line = model?.getLineContent(i);
-            const match = line?.match(regexTestId);
-            if (match?.length) {
-              const [_, literal, prop] = match;
-              nodeId = prop ? links?.[componentPathNormalize(model.uri.path)] : literal;
+            // Regex to find opening tags with testID
+            const tagWithTestIdRegex = /<([A-Za-z][A-Za-z0-9.-]*)[^>]*testID=(?:"(\d+:\d+)"|{props\.testID \?\? "(\d+:\d+)"})/g;
+            let match: RegExpExecArray | null;
+            while ((match = tagWithTestIdRegex.exec(line)) !== null) {
+              const [_, tagName, literal, prop] = match;
+              const tagStart = match.index;
+              const tagNameEnd = tagStart + 1 + tagName.length; // +1 for the '<'
+              // Only set nodeId if selection is within the tag name itself
+              if (sel.selectionStartColumn - 1 >= tagStart && sel.selectionStartColumn - 1 <= tagNameEnd) {
+                nodeId = prop ? links?.[componentPathNormalize(model.uri.path)] : literal;
+                break;
+              }
             }
           }
         }
       }
-      // Focus node in editor
-      // TODO: support multiple nodes
       if (nodeId) {
+        // Focus node in editor
         emit<EventFocusNode>('NODE_FOCUS', nodeId);
+      } else {
+        // Trigger peek definition if no nodeId
+        // TODO: add advanced logic to focus line instead if in same document
+        source.trigger(resource.path, 'editor.action.peekDefinition', {});
       }
       console.debug('[open file]', {resource, base, nodeId, links, source});
-      return false;
+      return true;
     }
   }).dispose;
 }
@@ -148,7 +171,6 @@ export async function initComponentEditor(
   // console.log('[init editor]', editor, monaco);
   diff.init(monaco, editor, onDiff);
   prompts.init(monaco, editor, onPrompt);
-  typings.init(monaco, editor);
   copilot.init(monaco, editor);
 
   const cleanup = initNodeToolbar(monaco, editor);
@@ -274,8 +296,15 @@ export function initNodeToolbar(monaco: Monaco, editor: MonacoEditor) {
       // Search for the closest opening tag
       for (let i = endLine; i >= startLine; i--) {
         const lineContent = model.getLineContent(i);
-        const tagMatch = lineContent.match(/<([A-Z][a-zA-Z0-9]*)/);
-
+        const tagMatch = lineContent.match(/<([A-Z][a-zA-Z0-9.]*)/);
+        // Convert motion components (Motion.View -> View)
+        if (tagMatch?.[1]?.includes('.')) {
+          const [namespace, identifier] = tagMatch[1].split('.');
+          if (namespace === 'Motion') {
+            nodeName = identifier;
+            break;
+          }
+        }
         if (tagMatch && tagMatch[1]) {
           nodeName = tagMatch[1];
           break;

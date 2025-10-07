@@ -10,9 +10,9 @@ import type {YSweetProvider} from '@y-sweet/client';
 export const doc = new Doc();
 export const docId = generateToken(22);
 
-/* Connection */
+export let ysweet: YSweetProvider | null = null;
 
-export let provider: YSweetProvider;
+/* Connection */
 
 export async function connect(
   apiKey: string,
@@ -22,10 +22,11 @@ export async function connect(
     assets: number,
     user: User,
   },
-) {
+): Promise<YSweetProvider> {
   const {projectName, components, assets, user} = meta;
-
+  let provider: YSweetProvider | null = null;
   try {
+    console.log('>> sync [create provider]');
     provider = createYjsProvider(doc, docId, async () => {
       const response = await fetch(`${F2RN_SERVICE_URL}/api/sync`, {
         body: JSON.stringify({docId}),
@@ -42,7 +43,6 @@ export async function connect(
           'X-Figma-Project-Components': components.toString(),
         },
       });
-
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Invalid API key. Please check your credentials.');
@@ -54,25 +54,19 @@ export async function connect(
           throw new Error(`Connection failed with status ${response.status}`);
         }
       }
-
       return await response.json();
+    }, {
+      showDebuggerLink: false,
+      warnOnClose: false,
     });
-
     provider.awareness.setLocalState({user});
-    return () => provider.disconnect();
+    ysweet = provider;
+    return provider;
   } catch (error) {
-    // Clean up any partial state
-    if (provider) {
-      provider.disconnect();
-    }
+    if (provider) provider.disconnect();
+    ysweet = null;
     throw error;
   }
-}
-
-export function disconnect() {
-  provider?.disconnect();
-  provider?.destroy();
-  provider = undefined;
 }
 
 /* Schema */

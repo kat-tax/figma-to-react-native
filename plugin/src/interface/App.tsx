@@ -67,7 +67,7 @@ export function App(props: AppProps) {
   const variant = useSelectedVariant();
   const monaco = useEditor(settings.config, build.links);
   const isDark = useDarkMode();
-  const nav = useNavigation(build);
+  const nav = useNavigation(build, setShowDiff);
 
   const isReadOnly = isDevMode || isVSCode;
   const hasStyles = Boolean(theme);
@@ -79,8 +79,8 @@ export function App(props: AppProps) {
   // Monaco options
   const editorTheme: Theme = isDark ? 'vs-dark' : 'light';
   const editorOptions = {
-    ...settings.config.monaco.general,
-    tabSize: settings.config.writer.indentNumberOfSpaces,
+    ...settings.config?.monaco?.general,
+    tabSize: settings.config?.writer?.indentNumberOfSpaces,
   };
 
   // Start style gen server
@@ -106,18 +106,19 @@ export function App(props: AppProps) {
             style={{height: 'calc(100% - 41px)'}}
             value={nav.tab}
             onValueChange={nav.gotoTab}>
-            <NavBar {...{nav, tabs, build, isVSCode, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
+            <NavBar {...{nav, tabs, build, settings, isVSCode, showDiff, searchMode, searchQuery, setSearchMode, setSearchQuery}}/>
             <Tabs.Content value="components">
-              <ProjectComponents {...{nav, build, settings, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, editorOptions, editorTheme}}/>
+              <ProjectComponents {...{nav, build, settings, isReadOnly, background, isDark, theme, iconSet, hasIcons, hasStyles, searchMode, searchQuery, monaco, editorOptions, editorTheme, showDiff, setShowDiff}}/>
             </Tabs.Content>
             <Tabs.Content value="icons">
-              <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery}}/>
+              <ProjectIcons {...{nav, build, isReadOnly, icons, hasStyles, searchMode, searchQuery, settings}}/>
             </Tabs.Content>
             <Tabs.Content value="theme">
               <ProjectTheme {...{monaco, hasStyles, editorOptions, editorTheme}}/>
             </Tabs.Content>
             <Tabs.Content value="component/code">
               <DualPanel
+                override={showDiff ? 'vertical' : undefined}
                 primary={<ComponentCode {...{nav, compKey, build, monaco, editorOptions, editorTheme, showDiff, setShowDiff}}/>}
                 secondary={<ComponentPreview {...{nav, compKey, build, variant, theme, background, settings, lastResize, isDark, showDiff}}/>}
                 onResize={() => setLastResize(Date.now())}

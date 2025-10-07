@@ -1,0 +1,9 @@
+declare const pseudoClasses: readonly ["_active", "_any-link", "_autofill", "_buffering", "_checked", "_default", "_defined", "_dir(", "_disabled", "_empty", "_enabled", "_first", "_first-child", "_first-of-type", "_focus", "_focus-visible", "_focus-within", "_future", "_has-slotted", "_has(", "_host", "_host-context(", "_host(", "_hover", "_in-range", "_indeterminate", "_invalid", "_is(", "_lang(", "_last-child", "_last-of-type", "_left", "_link", "_modal", "_muted", "_not(", "_nth-child(", "_nth-last-child(", "_nth-last-of-type(", "_nth-of-type(", "_only-child", "_only-of-type", "_open", "_optional", "_out-of-range", "_past", "_paused", "_picture-in-picture", "_placeholder-shown", "_playing", "_popover-open", "_read-only", "_read-write", "_required", "_right", "_root", "_scope", "_seeking", "_stalled", "_state(", "_target", "_user-invalid", "_user-valid", "_valid", "_visited", "_volume-locked", "_where"];
+declare const pseudoElements: readonly ["_after", "_backdrop", "_before", "_cue", "_details-content", "_file-selector-button", "_first-letter", "_first-line", "_grammar-error", "_highlight(", "_marker", "_part(", "_placeholder", "_selection", "_slotted(", "_spelling-error", "_target-text", "_view-transition", "_view-transition-group(", "_view-transition-image-pair(", "_view-transition-new(", "_view-transition-old("];
+type AddDynamicSelector<T extends string> = T extends `${infer U}(` ? `${U}(${string})` : T;
+export type Pseudo = AddDynamicSelector<(typeof pseudoClasses)[number] | (typeof pseudoElements)[number]>;
+export declare const isPseudoClass: (selector: string) => boolean;
+export declare const isPseudoElement: (selector: string) => boolean;
+export declare const isPseudo: (selector: string) => boolean;
+export {};
+//# sourceMappingURL=pseudo.d.ts.map

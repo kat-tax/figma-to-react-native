@@ -30,16 +30,16 @@ export default async function parse(
   const data = crawl(component);
 
   // Generated styles and assets
-  const [localState, stylesheet, {assetData, assetMap}] = await Promise.all([
+  const [localState, stylesheet, assetData] = await Promise.all([
     parser.getLocalState(),
-    parser.getStyleSheet(data.meta.styleNodes, data.variants, skipCache),
-    parser.getAssets(data.meta.assetNodes),
+    parser.getStyleSheet(data.meta.styleNodes, data.meta.fontsUsed, data.variants, skipCache),
+    parser.getAssets(data.meta.assetNodes, component),
   ]);
 
   // Profile (eta: 20ms per node [30-50ms w/ per node variants]) due to `getCSSAsync`)
-  console.log(`>> [parse] (cached: ${!skipCache}) ${Date.now() - _t1}ms (${data.meta.styleNodes.size} styles, ${data.meta.assetNodes.size} assets)`, component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name);
+  // console.log(`>> [parse] (cached: ${!skipCache}) ${Date.now() - _t1}ms (${data.meta.styleNodes.size} styles, ${data.meta.assetNodes.size} assets)`, component.parent.type === 'COMPONENT_SET' ? component.parent.name : component.name);
 
-  return {...data, localState, stylesheet, assetData, assetMap};
+  return {...data, localState, stylesheet, assetData};
 }
 
 export function crawl(node: ComponentNode) {
@@ -56,7 +56,7 @@ export function crawl(node: ComponentNode) {
 
   // Profile (eta: 0ms -> 70ms)
   // TODO: investigate descrepency
-  console.log(`>> [crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, node.parent.type === 'COMPONENT_SET' ? node.parent.name : node.name);
+  // console.log(`>> [crawl] ${Date.now() - _t1}ms (${dict.size} nodes)`, node.parent.type === 'COMPONENT_SET' ? node.parent.name : node.name);
 
   return {
     tree,
@@ -80,6 +80,7 @@ function crawlChildren(
     assetNodes: new Set(),
     styleNodes: new Set(),
     iconsUsed: new Set(),
+    fontsUsed: new Set(),
     iconCounts: {},
     components: {},
     includes: {},
@@ -94,9 +95,10 @@ function crawlChildren(
     const isInstance = node.type === 'INSTANCE';
     const isVector = node.type === 'VECTOR';
     const isIcon = parser.isNodeIcon(node);
+    const isRectAsset = parser.getRectAssetType(node) !== null;
 
     // Node states
-    const hasAsset = (node.isAsset && !isInstance) || isVector;
+    const hasAsset = (node.isAsset && !isInstance) || isVector || isRectAsset;
     const hasStyle = NODES_WITH_STYLES.includes(node.type) && !node.isAsset;
 
     // Record asset nodes to be exported, nothing further is needed
@@ -142,6 +144,7 @@ function crawlChildren(
         const sub = crawlChildren(node.children, dict, [], meta);
         meta.components = {...meta.components, ...sub.meta.components};
         meta.iconsUsed = new Set([...meta.iconsUsed, ...sub.meta.iconsUsed]);
+        meta.fontsUsed = new Set([...meta.fontsUsed, ...sub.meta.fontsUsed]);
         meta.assetNodes = new Set([...meta.assetNodes, ...sub.meta.assetNodes]);
         meta.includes = {...meta.includes, ...sub.meta.includes};
         dict = new Set([...dict, node, ...sub.dict]);
@@ -218,11 +221,21 @@ function getFrame(node: ComponentNode): T.ParseFrame {
     : null;
 }
 
+function getSlug(node: SceneNode) {
+  if (node.name.includes(':')) {
+    const [, name] = node.name.split(':');
+    return name === 'placeholder'
+      ? 'icon'
+      : string.createIdentifierCamel(name);
+  }
+  return string.createIdentifierCamel(node.name);
+}
+
 function getChildren(nodes: Set<SceneNode>): T.ParseChild[] {
   const children: T.ParseChild[] = [];
   for (const node of nodes) {
-    const id = string.createIdentifierCamel(node.name);
-    const ref = children.filter((c) => id === string.createIdentifierCamel(c.node.name)).length;
+    const id = getSlug(node);
+    const ref = children.filter((c) => id === getSlug(c.node)).length;
     const slug = ref > 0 ? `${id}${ref+1}` : id;
     children.push({node, slug});
   }

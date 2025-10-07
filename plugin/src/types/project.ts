@@ -1,6 +1,6 @@
 import type {ComponentRosterEntry} from 'types/component';
 
-export type ProjectComponentLayout = 'grid' | 'list';
+export type ProjectComponentLayout = 'grid' | 'list' | 'auto';
 export type ProjectComponentIndex = Record<string, ProjectComponentEntry[]>;
 export type ProjectComponentEntry = {
   item: ComponentRosterEntry & {key: string},
@@ -45,16 +45,17 @@ export interface ProjectBuild {
 }
 
 export type ProjectBuildAssets = Array<[
-  string,
-  boolean,
-  Uint8Array,
+  string,     // path
+  string,     // name
+  boolean,    // isVector
+  Uint8Array, // bytes
 ]>;
 
 export type ProjectBuildComponents = Array<[
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
+  string, // path
+  string, // name
+  string, // index
+  string, // code
+  string, // story
+  string, // docs
 ]>;

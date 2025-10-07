@@ -8,8 +8,8 @@ import type {EventNotify} from 'types/events';
 
 export async function release(project: ProjectBuild, info: ProjectInfo, settings: ProjectSettings) {
   const blob = await create(project, info);
-  const name = info.appConfig?.Design?.PACKAGE_NAME?.toString() || '';
-  const version = info.appConfig?.Design?.PACKAGE_VERSION?.toString() || '0.0.0';
+  const name = info.appConfig?.General?.DESIGN_NAME?.toString() || '';
+  const version = info.appConfig?.General?.DESIGN_VERSION?.toString() || '0.0.0';
   const fileInfo = `${project.components.length}__${project.assets.length}`;
   const fileName = `${version}__${fileInfo}__${btoa(project.name)}__${btoa(name)}`;
   const filePath = `${settings.projectToken}/${fileName}.zip`;
