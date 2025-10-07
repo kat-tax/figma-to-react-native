@@ -5,6 +5,7 @@ import {F2RN_EXO_PROXY_URL} from 'config/consts';
 import type {IFs, PushResult, FetchResult} from 'git-mem';
 import type {ProjectSettings} from 'types/settings';
 
+const FETCH_INTERVAL = 15 * 1000; // 15 seconds
 const GitContext = createContext<GitContextType | null>(null);
 const corsProxy = `${F2RN_EXO_PROXY_URL}https:/`;
 const dir = '/';
@@ -106,7 +107,8 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
       ...repo,
       message,
       author: {name: 'Figma → React Native', email: 'team@kat.tax'},
-    }), [repo]);
+    })
+  , [repo]);
 
   /** Add files to the git repository */
   const addFiles = useCallback((...files: string[]) =>
@@ -115,7 +117,8 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
       dir,
       parallel: true,
       filepath: files,
-    }), [fs, dir]);
+    })
+  , [fs, dir]);
 
   // Initial clone
   useEffect(() => {
@@ -123,6 +126,12 @@ export function GitProvider({children, ...gitConfig}: React.PropsWithChildren<Pr
       git.clone(repo);
     }
   }, [repo]);
+
+  // Auto-fetch changes
+  useEffect(() => {
+    const _ = setInterval(fetch, FETCH_INTERVAL);
+    return () => clearInterval(_);
+  }, [fetch]);
 
   return (
     <GitContext.Provider value={{

@@ -19,12 +19,11 @@ export function useGitDiffs(roster: ComponentRoster): ComponentDiffs {
         const newDiffs: ComponentDiffs = {};
         // Skip diffing if components are loading
         if (Object.values(roster).some(entry => entry.loading)) {
+          setDiffs({});
           return;
         }
         // Skip diffing if git branch is not set
         if (!git?.branch) return;
-        // Update git branch
-        await git.fetch();
         // Skip diffing if git repo is empty
         try {
           git.fs.readdirSync('design');
