@@ -32,4 +32,5 @@
 
 ---
 
-This project is work in progress. Join the [Discord Channel](https://discord.kat.tax) or follow [@TheUltDev](https://x.com/theultdev) to track project development.
+- Join the [Discord Channel](https://discord.kat.tax)
+- Follow [@TheUltDev](https://x.com/theultdev) to track project development.
